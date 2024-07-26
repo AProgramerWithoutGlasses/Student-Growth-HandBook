@@ -1,0 +1,10 @@
+{"level":"INFO","time":"2024-07-25T20:10:31.822+0800","caller":"学生成长平台/main.go:66","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-25T20:10:31.828+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-25T20:35:18.480+0800","caller":"学生成长平台/main.go:66","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-25T20:35:18.492+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-25T20:35:18.521+0800","caller":"学生成长平台/main.go:66","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-25T20:35:18.529+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-25T20:35:27.611+0800","caller":"学生成长平台/main.go:66","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-25T20:35:27.617+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-26T15:15:08.773+0800","caller":"学生成长平台/main.go:66","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-26T15:15:08.791+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
