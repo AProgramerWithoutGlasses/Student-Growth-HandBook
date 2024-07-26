@@ -14,7 +14,7 @@ func Init() (err error) {
 	// 构建连接 DSN
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		viper.GetString("mysql.user"),
-		viper.GetString("mysql.password916"),
+		viper.GetString("mysql.password"),
 		viper.GetString("mysql.host"),
 		viper.GetInt("mysql.port"),
 		viper.GetString("mysql.dbname"))
