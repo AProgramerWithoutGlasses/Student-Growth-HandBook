@@ -8,3 +8,5 @@
 {"level":"INFO","time":"2024-07-25T20:35:27.617+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
 {"level":"INFO","time":"2024-07-26T15:15:08.773+0800","caller":"学生成长平台/main.go:66","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-07-26T15:15:08.791+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-27T10:38:45.421+0800","caller":"Student-Growth-HandBook/main.go:66","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-27T10:38:45.462+0800","caller":"Student-Growth-HandBook/main.go:73","msg":"Server exiting"}
