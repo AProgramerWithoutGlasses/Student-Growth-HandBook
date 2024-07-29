@@ -10,3 +10,32 @@
 {"level":"INFO","time":"2024-07-26T15:15:08.791+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
 {"level":"INFO","time":"2024-07-27T10:38:45.421+0800","caller":"Student-Growth-HandBook/main.go:66","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-07-27T10:38:45.462+0800","caller":"Student-Growth-HandBook/main.go:73","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T09:20:46.409+0800","caller":"student_demo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T09:20:46.410+0800","caller":"student_demo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T09:21:05.479+0800","caller":"student_demo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T09:21:05.479+0800","caller":"student_demo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T10:38:20.572+0800","caller":"student_demo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T10:38:20.573+0800","caller":"student_demo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T16:44:53.650+0800","caller":"student_demo/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T16:44:53.651+0800","caller":"student_demo/main.go:80","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T16:46:20.772+0800","caller":"student_demo/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T16:46:20.772+0800","caller":"student_demo/main.go:80","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T17:03:30.712+0800","caller":"student_demo/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T17:03:30.712+0800","caller":"student_demo/main.go:80","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T17:18:50.897+0800","caller":"student_demo/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T17:18:50.897+0800","caller":"student_demo/main.go:80","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T17:23:53.289+0800","caller":"student_demo/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T17:23:53.290+0800","caller":"student_demo/main.go:80","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T17:24:24.080+0800","caller":"student_demo/main.go:74","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T17:24:24.080+0800","caller":"student_demo/main.go:81","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T17:24:35.169+0800","caller":"logger/logger.go:69","msg":"/article/content","status":200,"method":"POST","path":"/article/content","query":"","ip":"::1","user-agent":"Apifox/1.0.0 (https://apifox.com)","errors":"","cost":0.0025221}
+{"level":"INFO","time":"2024-07-29T17:28:10.807+0800","caller":"student_demo/main.go:74","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T17:28:10.807+0800","caller":"student_demo/main.go:81","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T17:28:17.893+0800","caller":"logger/logger.go:69","msg":"/article/content","status":200,"method":"POST","path":"/article/content","query":"","ip":"::1","user-agent":"Apifox/1.0.0 (https://apifox.com)","errors":"","cost":0.0011813}
+{"level":"INFO","time":"2024-07-29T17:28:30.950+0800","caller":"student_demo/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T17:28:30.950+0800","caller":"student_demo/main.go:80","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T17:52:19.463+0800","caller":"student_demo/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T17:52:19.469+0800","caller":"student_demo/main.go:80","msg":"Server exiting"}
+{"level":"INFO","time":"2024-07-29T17:52:31.450+0800","caller":"logger/logger.go:69","msg":"/article/content","status":501,"method":"POST","path":"/article/content","query":"","ip":"::1","user-agent":"Apifox/1.0.0 (https://apifox.com)","errors":"","cost":0.0014338}
+{"level":"INFO","time":"2024-07-29T17:52:42.078+0800","caller":"student_demo/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-07-29T17:52:42.078+0800","caller":"student_demo/main.go:80","msg":"Server exiting"}
