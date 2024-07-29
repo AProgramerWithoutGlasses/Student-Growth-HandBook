@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="@192.168.22.34" uuid="b256f962-b9ed-4213-befd-062ef8b215f0">
-      <driver-ref>mysql_aurora_aws</driver-ref>
+    <data-source source="LOCAL" name="@localhost" uuid="57b216bb-ef7e-4bb8-a5d9-edcb0e920a0b">
+      <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
-      <jdbc-driver>software.aws.rds.jdbc.mysql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql:aws://192.168.22.34:3306</jdbc-url>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
