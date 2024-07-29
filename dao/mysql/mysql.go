@@ -2,33 +2,39 @@ package mysql
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
-var db *sqlx.DB
+var db *gorm.DB
 
-func Init() (err error) {
-	// 构建连接 DSN
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		viper.GetString("mysql.user"),
-		viper.GetString("mysql.password916"),
-		viper.GetString("mysql.host"),
-		viper.GetInt("mysql.port"),
-		viper.GetString("mysql.dbname"))
-	fmt.Println(dsn)
+func Init() error {
+	username := viper.GetString("mysql.user")     //账号
+	password := viper.GetString("mysql.password") //密码
+	host := viper.GetString("mysql.host")         //数据库地址，可以是Ip或者域名
+	port := viper.GetInt("mysql.port")            //数据库端口
+	Dbname := viper.GetString("mysql.dbname")     //数据库名
+	timeout := "5s"                               //连接超时，5秒
 
-	// 创建 GORM 连接
-	_, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	//root:root@tcp(127.0.0.1:3306)/gorm?
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=%s", username, password, host, port, Dbname, timeout)
+	//连接MYSQL, 获得DB类型实例，用于后面的数据库读写操作。
+	var err error
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{},
+		Logger:         logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return err
 	}
-
+	// 连接成功
+	fmt.Println("连接成功, db:", db)
 	return nil
 }
 
-func Close() {
-	_ = db.Close()
+func GetDb() *gorm.DB {
+	return db
 }

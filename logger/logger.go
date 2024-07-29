@@ -98,7 +98,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				if brokenPipe {
 					zap.L().Error(c.Request.URL.Path,
-						zap.Any("error", err),
+						zap.Any("errors", err),
 						zap.String("request", string(httpRequest)),
 					)
 					// If the connection is dead, we can't write a status to it.
@@ -109,13 +109,13 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 
 				if stack {
 					zap.L().Error("[Recovery from panic]",
-						zap.Any("error", err),
+						zap.Any("errors", err),
 						zap.String("request", string(httpRequest)),
 						zap.String("stack", string(debug.Stack())),
 					)
 				} else {
 					zap.L().Error("[Recovery from panic]",
-						zap.Any("error", err),
+						zap.Any("errors", err),
 						zap.String("request", string(httpRequest)),
 					)
 				}

@@ -1,4 +1,5 @@
-port: 8881
+app:
+ port: 8881
 
 log:
   level: "debug"
@@ -8,11 +9,11 @@ log:
   max_backups: 7
 
 mysql:
-  host: "127.0.0.1"
+  host: "192.168.22.62"
   port: 3306
   user: "root"
-  password: "123456"
-  dbname: "gorm"
+  password: "n208966737"
+  dbname: "manage_sys"
   max_open_conns: 200
   max_idle_conns: 50
 
