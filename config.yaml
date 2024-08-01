@@ -1,0 +1,25 @@
+app:
+ port: 8881
+
+log:
+  level: "debug"
+  filename: "web_app.log"
+  max_size: 200
+  max_age: 30
+  max_backups: 7
+
+mysql:
+  host: "192.168.133.1"
+  port: 3306
+  user: "root"
+  password: "n208966737"
+  dbname: "manage_sys"
+  max_open_conns: 200
+  max_idle_conns: 50
+
+redis:
+  host: "152.136.50.60"
+  port: 6378
+  password: "seatMarch"
+  db: 0
+  pool_size: 100
