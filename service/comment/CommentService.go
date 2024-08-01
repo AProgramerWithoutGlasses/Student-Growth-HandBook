@@ -2,18 +2,19 @@ package comment
 
 import (
 	"fmt"
+	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
 	"studentGrow/dao/mysql"
-	"studentGrow/utils/readMessage"
 )
 
 // PostComment 发布评论
-func PostComment(m map[string]any) (err error) {
+func PostComment(j *jsonvalue.V) error {
 	//类型comment_type:‘article’or‘comment’;id;comment_content;comment_username
 
 	//获取数据
-	commentType := m["comment_type"].(string)
-	commentContent := m["comment_content"].(string)
-	commentUsername := m["comment_username"].(string)
+	commentType, _ := j.GetString("comment_type")
+	commentContent, _ := j.GetString("comment_content")
+	commentUsername, _ := j.GetString("comment_username")
+
 	//获取用户id
 	uid, err := mysql.SelectUserByUsername(commentUsername)
 	fmt.Println(uid)
@@ -27,7 +28,7 @@ func PostComment(m map[string]any) (err error) {
 	//给文章评论
 	case "article":
 		//获取文章id
-		aid, _ := readMessage.StringToInt(m["id"].(string))
+		aid, _ := j.GetInt("id")
 		fmt.Println("aid:", aid)
 		//向数据库插入评论数据
 		err = mysql.InsertIntoCommentsForArticle(commentContent, aid, uid)
@@ -38,10 +39,10 @@ func PostComment(m map[string]any) (err error) {
 	case "comment":
 		//获取评论id
 		//pid, err := utils.StringToInt(m["id"])
-		pid := m["id"].(int)
+		pid, _ := j.GetInt("id")
 		fmt.Println("pid:", pid)
 		//向数据库插入评论数据
-		err = mysql.InsertIntoCommentsForComment(commentContent, pid, int(uid))
+		err = mysql.InsertIntoCommentsForComment(commentContent, pid, uid)
 		if err != nil {
 			return err
 		}
