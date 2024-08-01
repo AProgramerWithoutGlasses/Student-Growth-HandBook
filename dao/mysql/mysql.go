@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 func Init() error {
 	username := viper.GetString("mysql.user")     //账号
@@ -22,7 +22,7 @@ func Init() error {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=%s", username, password, host, port, Dbname, timeout)
 	//连接MYSQL, 获得DB类型实例，用于后面的数据库读写操作。
 	var err error
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{},
 		Logger:         logger.Default.LogMode(logger.Info),
 	})
@@ -30,10 +30,6 @@ func Init() error {
 		return err
 	}
 	// 连接成功
-	fmt.Println("连接成功, db:", db)
+	fmt.Println("连接成功, db:", DB)
 	return nil
-}
-
-func GetDb() *gorm.DB {
-	return db
 }

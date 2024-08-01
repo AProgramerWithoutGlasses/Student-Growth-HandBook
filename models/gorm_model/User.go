@@ -27,4 +27,7 @@ type User struct {
 	Read        []Read       `gorm:"foreignKey:Uid"`
 	Upvote      []Upvote     `gorm:"foreignKey:Uid"`
 	CasbinRule  []CasbinRule `gorm:"many2many:casbin_rules_users;"`
+	SelfContent string       `gorm:"size:1000"`
+	Motto       string       `gorm:"size:50"`
+	Exper       int          `gorm:"default:0"`
 }

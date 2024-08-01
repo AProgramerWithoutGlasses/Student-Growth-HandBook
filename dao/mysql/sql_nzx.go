@@ -10,7 +10,7 @@ func GetArticleAndUserByArticleId(aid int) (model.User, model.Article) {
 	//获取文章信息 select * from articles where id = aid
 	var user model.User
 	var article model.Article
-	db.Model(model.User{}).Where("id = (?)", db.Model(model.Article{}).Select("user_id")).Find(&user)
-	db.Model(model.Article{}).Where("id = ?", aid).Find(&article)
+	DB.Model(model.User{}).Where("id = (?)", DB.Model(model.Article{}).Select("user_id")).Find(&user)
+	DB.Model(model.Article{}).Where("id = ?", aid).Find(&article)
 	return user, article
 }

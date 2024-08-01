@@ -17,6 +17,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		//验证前端传过来的token格式，不为空，开头为Bearer
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
 			c.JSON(400, gin.H{"code": "400", "msg": "验证失败"})
+			c.Abort()
 			return
 		}
 		//验证通过，提取有效部分（除去Bearer)
@@ -26,6 +27,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		//解析失败||解析后的token无效
 		if err != nil || !token.Valid {
 			c.JSON(400, gin.H{"code": "400", "msg": "验证失败"})
+			c.Abort()
 			return
 		}
 		c.Next()
@@ -41,8 +43,7 @@ func ParseToken(tokenString string) (*jwt.Token, *models.Claims, error) {
 	return token, claims, err
 }
 
-//通过token获取username
-
+// 通过token获取username
 func GetUsername(tokenString string) (string, error) {
 	tokenString = tokenString[7:]
 	_, claims, err := ParseToken(tokenString)
