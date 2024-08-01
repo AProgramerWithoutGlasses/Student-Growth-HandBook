@@ -12,12 +12,12 @@ import (
 // GetArticleId article_id
 func GetArticleId(c *gin.Context) {
 	//将数据解析到map中
-	mp, e := readUtil.AnalyzeDataToMap(c)
+	d, e := readUtil.AnalyzeDataToMyData(c)
 	if e != nil {
-		fmt.Println(" AnalyzeToMap err,", e)
+		fmt.Println(" AnalyzeToMap err=", e)
 	}
 	//查询结果
-	err, user, acl := article.GetArticleService(mp)
+	err, user, acl := article.GetArticleService(d.J)
 
 	//若在数据库中找不到该文章或用户
 	if err != nil {
@@ -44,7 +44,7 @@ func GetArticleId(c *gin.Context) {
 // PublishArticle 发布文章
 func PublishArticle(c *gin.Context) {
 	//将数据解析到map中
-	mp, e := readUtil.AnalyzeDataToMap(c)
+	mp, e := readUtil.AnalyzeDataToMyData(c)
 	if e != nil {
 		fmt.Println(" AnalyzeToMap err,", e)
 	}

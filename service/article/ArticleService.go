@@ -2,15 +2,16 @@ package article
 
 import (
 	"fmt"
+	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
 	"studentGrow/dao/mysql"
 	model "studentGrow/models/gorm_model"
-	utils "studentGrow/utils/readMessage"
 )
 
 // GetArticleService 获取文章详情
-func GetArticleService(m map[string]any) (err error, user *model.User, article *model.Article) {
+func GetArticleService(j *jsonvalue.V) (err error, user *model.User, article *model.Article) {
 	//获取文章id
-	aid, err := utils.StringToInt(m["article_id"].(string))
+	//aid, err := utils.StringToInt(m["article_id"].(string))
+	aid, _ := j.GetInt("article_id")
 	fmt.Println("aid----:", aid)
 	//查找文章信息
 	err, article = mysql.SelectArticleById(aid)
