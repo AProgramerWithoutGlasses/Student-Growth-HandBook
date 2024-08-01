@@ -13,6 +13,10 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
+<<<<<<< HEAD
+=======
+	model "studentGrow/models/gorm_model"
+>>>>>>> bd64b59feb8245f5364f131e7324b0194666ecf9
 	"studentGrow/routes"
 	"studentGrow/settings"
 	"syscall"
@@ -36,6 +40,7 @@ func main() {
 
 	// 3. 初始化Mysql
 	if err := mysql.Init(); err != nil {
+<<<<<<< HEAD
 		fmt.Printf("mysql.Init() gorm.Open() err : %v\n", err)
 		return
 	}
@@ -44,6 +49,15 @@ func main() {
 	//if err != nil {
 	//	return
 	//}
+=======
+		fmt.Printf("mysql.Init() rdb.Ping().Result() err : %v\n", err)
+		return
+	}
+	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.Upvote{}, &model.ArticleTag{}, &model.ArticleTopic{})
+	if err != nil {
+		return
+	}
+>>>>>>> bd64b59feb8245f5364f131e7324b0194666ecf9
 
 	// 4. 初始化redis
 	if err := redis.Init(); err != nil {

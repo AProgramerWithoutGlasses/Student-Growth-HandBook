@@ -33,5 +33,8 @@ func ReleaseToken(username, password string) (string, error) {
 	//返回成功生成的字符换
 	return tokenString, nil
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> bd64b59feb8245f5364f131e7324b0194666ecf9

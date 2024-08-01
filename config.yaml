@@ -9,7 +9,11 @@ log:
   max_backups: 7
 
 mysql:
+<<<<<<< HEAD
   host: "192.168.21.2"
+=======
+  host: "192.168.133.1"
+>>>>>>> bd64b59feb8245f5364f131e7324b0194666ecf9
   port: 3306
   user: "root"
   password: "n208966737"

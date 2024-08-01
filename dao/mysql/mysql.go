@@ -18,6 +18,10 @@ func Init() error {
 	port := viper.GetInt("mysql.port")            //数据库端口
 	Dbname := viper.GetString("mysql.dbname")     //数据库名
 	timeout := "5s"                               //连接超时，5秒
+<<<<<<< HEAD
+=======
+
+>>>>>>> bd64b59feb8245f5364f131e7324b0194666ecf9
 	//root:root@tcp(127.0.0.1:3306)/gorm?
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=%s", username, password, host, port, Dbname, timeout)
 	//连接MYSQL, 获得DB类型实例，用于后面的数据库读写操作。
