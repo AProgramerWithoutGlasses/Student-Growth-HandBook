@@ -10,7 +10,7 @@ import (
 var JwtKey = []byte("xlszxjm")
 
 // ReleaseToken 生成密钥
-func ReleaseToken(username, password string) (string, error) {
+func ReleaseToken(username, password, role string) (string, error) {
 	expirationTime := time.Now().Add(7 * 24 * time.Hour) //token的有效期是七天
 	claims := &models.Claims{
 		Username: username,
