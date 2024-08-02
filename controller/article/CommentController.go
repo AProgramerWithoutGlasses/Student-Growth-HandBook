@@ -16,8 +16,13 @@ func PostCom(c *gin.Context) {
 		fmt.Println("PostCom() controller.article.AnalyzeToMap err=", err)
 		return
 	}
+	json, err := d.GetJsonValue()
+	if err != nil {
+		fmt.Println(" SendTopicTags() controller.article.getArticle.GetJsonValue err=", err)
+	}
+
 	//新增评论
-	err = logic.PostComment(d.J)
+	err = logic.PostComment(json)
 
 	if err != nil {
 		fmt.Println("PostCom() controller.article.PostComment err=", err)

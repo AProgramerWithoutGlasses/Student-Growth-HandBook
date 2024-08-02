@@ -1,11 +1,11 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"golang.org/x/net/context"
 	"log"
 	"net/http"
 	"os"
@@ -40,7 +40,7 @@ func main() {
 		fmt.Printf("mysql.Init() rdb.Ping().Result() err : %v\n", err)
 		return
 	}
-	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.Upvote{}, &model.ArticleTag{}, &model.ArticleTopic{})
+	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.ArticleTopic{}, &model.Upvote{}, &model.ArticleTag{})
 	if err != nil {
 		return
 	}

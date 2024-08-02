@@ -81,3 +81,40 @@ func InsertIntoCommentsForComment(content string, uid int, pid int) (err error) 
 	DB.Create(&comment)
 	return nil
 }
+
+// SelectTagsByTopic 通过话题查询该话题对应的标签列表
+func SelectTagsByTopic(topic string) (tags []map[string]any) {
+	//id = select id from article_topics where topic = topic
+	//tags = select tag from article_tags where article_topic_id = id
+
+	var articleTopic model.ArticleTopic
+	var articleTags []model.ArticleTag
+	//查询对应的话题ID
+	if err := DB.Where("topic = ?", topic).First(&articleTopic).Error; err != nil {
+		fmt.Println("SelectTagsByTopic() dao.mysql.sql_nzx.Error=", err)
+	}
+	if err := DB.Where("article_topic_id = ?", articleTopic.ID).Find(&articleTags).Error; err != nil {
+		fmt.Println("SelectTagsByTopic() dao.mysql.sql_nzx.Error=", err)
+	}
+
+	for index, tag := range articleTags {
+		tags = append(tags, map[string]any{
+			"id":   index,
+			"name": tag.Tag,
+		})
+	}
+
+	return tags
+}
+
+// SelectAllTopics 查找所有的话题
+//func SelectAllTopics() (topics []map[string]any) {
+//	//select topic from article_topic
+//
+//	var articleTopic model.ArticleTopic
+//
+//	if err := DB.Find(&articleTopic).Error; err != nil {
+//		fmt.Println("SelectAllTopics() dao.mysql.sql_nzx.Error=", err)
+//	}
+//
+//}
