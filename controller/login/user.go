@@ -1,13 +1,13 @@
 package login
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
-	"studentGrow/pkg"
+	pkg "studentGrow/pkg/response"
 	"studentGrow/service/userService"
+	"studentGrow/utils/token"
 )
 
 // RidCode 图形验证码返回前端
@@ -52,7 +52,7 @@ func HLogin(c *gin.Context) {
 	casbinId, _ := mysql.SelCasId(userId)
 	role, err := mysql.SelRole(casbinId)
 	//获取生成的token
-	tokenString, err := userService.ReleaseToken(user.Username, user.Password, role)
+	tokenString, err := token.ReleaseToken(user.Username, user.Password, role)
 	if err != nil {
 		fmt.Println("Hlogin的login.ReleaseToken()")
 		return
@@ -65,7 +65,6 @@ func HLogin(c *gin.Context) {
 		"username": user.Username,
 		"myToken":  tokenString,
 	}
-	json.Marshal(slice)
 	//发送给前端
 	pkg.ResponseSuccess(c, slice)
 }
