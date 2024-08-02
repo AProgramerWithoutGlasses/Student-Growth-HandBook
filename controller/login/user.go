@@ -1,7 +1,6 @@
 package login
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"studentGrow/dao/mysql"
@@ -66,7 +65,6 @@ func HLogin(c *gin.Context) {
 		"username": user.Username,
 		"myToken":  tokenString,
 	}
-	json.Marshal(slice)
 	//发送给前端
 	pkg.ResponseSuccess(c, slice)
 }
