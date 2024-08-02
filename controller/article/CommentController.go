@@ -11,16 +11,11 @@ import (
 // PostCom 类型comment_type:‘article’or‘comment’;id;comment_content;comment_username
 func PostCom(c *gin.Context) {
 	//将数据解析到map中
-	d, err := utils.AnalyzeDataToMyData(c)
+	json, err := utils.GetJsonvalue(c)
 	if err != nil {
 		fmt.Println("PostCom() controller.article.AnalyzeToMap err=", err)
 		return
 	}
-	json, err := d.GetJsonValue()
-	if err != nil {
-		fmt.Println(" SendTopicTags() controller.article.getArticle.GetJsonValue err=", err)
-	}
-
 	//新增评论
 	err = logic.PostComment(json)
 

@@ -31,15 +31,9 @@ func GetParm(j *jsonvalue.V, a, b, c string) (objId, userId string, likeType int
 // Like 点赞
 func Like(c *gin.Context) {
 	//解析数据
-	d, e := utils.AnalyzeDataToMyData(c)
+	j, e := utils.GetJsonvalue(c)
 	if e != nil {
 		fmt.Println("Like() controller.article.AnalyzeToMap err=", e)
-		return
-	}
-	//获取jsonvalue对象
-	j, err := d.GetJsonValue()
-	if err != nil {
-		fmt.Println("Like() controller.article.GetJsonValue err=", e)
 		return
 	}
 
@@ -58,21 +52,16 @@ func Like(c *gin.Context) {
 // CancelLike 取消点赞
 func CancelLike(c *gin.Context) {
 	//解析数据
-	d, e := utils.AnalyzeDataToMyData(c)
+	j, e := utils.GetJsonvalue(c)
 	if e != nil {
 		fmt.Println("Like() controller.article.AnalyzeToMap err=", e)
 		return
 	}
-	//获取jsonvalue对象
-	j, err := d.GetJsonValue()
+
+	objId, userId, likeType, err := GetParm(j, "objId", "userId", "likeType")
 	if err != nil {
-		fmt.Println("Like() controller.article.GetJsonValue err=", e)
 		return
 	}
-
-	objId, _ := j.GetString("objId")
-	userId, _ := j.GetString("userId")
-	likeType, _ := j.GetInt("likeType")
 
 	//取消点赞
 	article.CancelLike(objId, userId, likeType)
@@ -84,20 +73,16 @@ func CancelLike(c *gin.Context) {
 // CheckLikeOrNot 检查是否点赞
 func CheckLikeOrNot(c *gin.Context) {
 	//解析数据
-	d, e := utils.AnalyzeDataToMyData(c)
+	j, e := utils.GetJsonvalue(c)
 	if e != nil {
 		fmt.Println("Like() controller.article.AnalyzeToMap err=", e)
 		return
 	}
-	//获取jsonvalue对象
-	j, err := d.GetJsonValue()
+
+	objId, userId, likeType, err := GetParm(j, "objId", "userId", "likeType")
 	if err != nil {
-		fmt.Println("Like() controller.article.GetJsonValue err=", e)
 		return
 	}
-	objId, _ := j.GetString("objId")
-	userId, _ := j.GetString("userId")
-	likeType, _ := j.GetInt("likeType")
 
 	//检查用户是否已经点赞
 	result := article.IsUserLiked(objId, userId, likeType)
@@ -113,15 +98,9 @@ func CheckLikeOrNot(c *gin.Context) {
 // GetObjLikeNum 获取当前文章或评论的点赞数量
 func GetObjLikeNum(c *gin.Context) {
 	//解析数据
-	d, e := utils.AnalyzeDataToMyData(c)
+	j, e := utils.GetJsonvalue(c)
 	if e != nil {
 		fmt.Println("Like() controller.article.AnalyzeToMap err=", e)
-		return
-	}
-	//获取jsonvalue对象
-	j, err := d.GetJsonValue()
-	if err != nil {
-		fmt.Println("Like() controller.article.GetJsonValue err=", e)
 		return
 	}
 	objId, _ := j.GetString("objId")

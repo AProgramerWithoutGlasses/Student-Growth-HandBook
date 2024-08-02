@@ -4,8 +4,9 @@ type Code int
 
 // 常量初始化code值
 const (
-	SuccessCode     Code = 200
-	ServerErrorCode Code = 501
+	SuccessCode         Code = 200
+	ServerErrorCode     Code = 501
+	UnprocessableEntity Code = 422 //客户端数据超出业务范围
 )
 
 // map用于存储每个code对应的提示信息
