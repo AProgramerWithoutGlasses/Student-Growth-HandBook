@@ -25,3 +25,8 @@ func GetIdByUsername(id int) (string, error) {
 	err := DB.Unscoped().Where("id = ?", id).First(&users).Error // Unscoped()用于解除搜索时会自动加上deleted_at字段的限制
 	return users.SelfContent, err
 }
+
+// 查询下拉框字段的值
+func GetPull() {}
+
+// 查询搜索框字段的值

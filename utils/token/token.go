@@ -19,7 +19,7 @@ func ReleaseToken(username, password string) (string, error) {
 			ExpiresAt: expirationTime.Unix(), //token的有效期
 			IssuedAt:  time.Now().Unix(),     //token发放的时间
 			Issuer:    "xyq",                 //作者
-			Subject:   "user token",          //主题
+			Subject:   "student token",       //主题
 		},
 	}
 
@@ -33,8 +33,3 @@ func ReleaseToken(username, password string) (string, error) {
 	//返回成功生成的字符换
 	return tokenString, nil
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> bd64b59feb8245f5364f131e7324b0194666ecf9

@@ -1,20 +1,6 @@
 package mysql
 
 import (
-<<<<<<< HEAD
-	model "studentGrow/models/gorm_model"
-)
-
-// GetArticleAndUserByArticleId 通过文章id获取文章信息和用户信息
-func GetArticleAndUserByArticleId(aid int) (model.User, model.Article) {
-	//获取用户信息 select * from users where id = (select user_id from articles where id = aid)
-	//获取文章信息 select * from articles where id = aid
-	var user model.User
-	var article model.Article
-	DB.Model(model.User{}).Where("id = (?)", DB.Model(model.Article{}).Select("user_id")).Find(&user)
-	DB.Model(model.Article{}).Where("id = ?", aid).Find(&article)
-	return user, article
-=======
 	"fmt"
 	"gorm.io/gorm"
 	model "studentGrow/models/gorm_model"
@@ -40,7 +26,7 @@ func SelectUserByUsername(username string) (uid int, err error) {
 		fmt.Println("Error:", err)
 		return int(user.ID), err
 	} else {
-		fmt.Println("user.ID", int(user.ID))
+		fmt.Println("student.ID", int(user.ID))
 		return int(user.ID), nil
 	}
 }
@@ -94,5 +80,5 @@ func InsertIntoCommentsForComment(content string, uid int, pid int) (err error) 
 
 	DB.Create(&comment)
 	return nil
->>>>>>> bd64b59feb8245f5364f131e7324b0194666ecf9
+
 }

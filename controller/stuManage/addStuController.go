@@ -1,0 +1,5 @@
+package stuManage
+
+func main() {
+
+}
