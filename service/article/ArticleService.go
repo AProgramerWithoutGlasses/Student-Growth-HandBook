@@ -3,7 +3,6 @@ package article
 import (
 	"fmt"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
-	"mime/multipart"
 	"studentGrow/dao/mysql"
 	model "studentGrow/models/gorm_model"
 )
@@ -32,9 +31,9 @@ func GetArticleService(j *jsonvalue.V) (err error, user *model.User, article *mo
 }
 
 // PublishArticleService 发布文章
-func PublishArticleService(form *multipart.Form) {
-	fmt.Println(form.File)
-}
+//func PublishArticleService() map[string]any{
+//
+//}
 
 // GetTopicTagsService GetTopicTags 根据话题获得对应的标签
 func GetTopicTagsService(j *jsonvalue.V) []map[string]any {

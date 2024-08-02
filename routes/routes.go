@@ -12,7 +12,7 @@ func Setup() *gin.Engine {
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
 	r.POST("/article/content", middleWare.CORSMiddleware(), article.GetArticleId)
-	r.POST("/article/publish", article.PublishArticle) //发布文章
+	//r.POST("/article/publish", article.PublishArticle) //发布文章
 	r.POST("/article/comment", article.PostCom)
 	r.POST("/article/publish/get_tags", middleWare.CORSMiddleware(), article.SendTopicTags)
 	r.POST("/article/like")        //文章点赞
