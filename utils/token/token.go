@@ -15,6 +15,7 @@ func ReleaseToken(username, password, role string) (string, error) {
 	claims := &models.Claims{
 		Username: username,
 		Password: password,
+		Role:     role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(), //token的有效期
 			IssuedAt:  time.Now().Unix(),     //token发放的时间
