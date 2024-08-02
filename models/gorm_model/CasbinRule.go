@@ -9,5 +9,4 @@ type CasbinRule struct {
 	V3    string `gorm:"size:100"`
 	V4    string `gorm:"size:100"`
 	V5    string `gorm:"size:100"`
-	User  []User `gorm:"many2many:users_casbin_rules;"`
 }
