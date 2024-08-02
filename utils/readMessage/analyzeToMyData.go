@@ -8,19 +8,21 @@ import (
 )
 
 func AnalyzeDataToMyData(c *gin.Context) (d data.AllData, err error) {
-	b, _ := c.GetRawData()
 	contentType := c.GetHeader("Content-Type")
 	d = data.NewAllData()
 	switch contentType {
 	case "application/json":
+		b, _ := c.GetRawData()
 		j, err := jsonvalue.Unmarshal(b)
 		d.SetJsonValue(j)
 		if err != nil {
 			fmt.Println("analyzeToMap() utils.readMessage.Unmarshal() err = ", err)
 			return d, err
 		}
-	case "multipart/form-data":
+	default:
+		fmt.Println(contentType)
 		form, err := c.MultipartForm()
+		fmt.Println("formfile:", form.File)
 		d.SetFormAllData(form)
 		if err != nil {
 			fmt.Println("analyzeToMap() utils.readMessage.MultipartForm() err = ", err)

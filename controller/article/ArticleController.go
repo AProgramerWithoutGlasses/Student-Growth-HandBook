@@ -17,7 +17,11 @@ func GetArticleId(c *gin.Context) {
 		fmt.Println(" AnalyzeToMap err=", e)
 	}
 	//查询结果
-	err, user, acl := article.GetArticleService(d.J)
+	json, err := d.GetJsonValue()
+	if err != nil {
+		fmt.Println(" GetArticleId() controller.article.getArticle.GetJsonValue err=", err)
+	}
+	err, user, acl := article.GetArticleService(json)
 
 	//若在数据库中找不到该文章或用户
 	if err != nil {
@@ -41,13 +45,48 @@ func GetArticleId(c *gin.Context) {
 	res.ResponseSuccess(c, data)
 }
 
+// SendTopicTags 发送话题标签数据
+func SendTopicTags(c *gin.Context) {
+	//获取前端发送的数据
+	d, err := readUtil.AnalyzeDataToMyData(c)
+
+	if err != nil {
+		fmt.Println("SendTopicTags() controller.article.getArticle.AnalyzeDataToMyData err=")
+		return
+	}
+
+	//查询结果
+	json, err := d.GetJsonValue()
+	if err != nil {
+		fmt.Println(" SendTopicTags() controller.article.getArticle.GetJsonValue err=", err)
+	}
+	//获取到查询的标签
+	result := article.GetTopicTagsService(json)
+
+	//返回响应
+	res.ResponseSuccess(c, result)
+
+}
+
+// SendTopics 发送话题数据
+func SendTopics(c *gin.Context) {
+	// 获取查询道德话题
+
+}
+
 // PublishArticle 发布文章
 func PublishArticle(c *gin.Context) {
 	//将数据解析到map中
-	mp, e := readUtil.AnalyzeDataToMyData(c)
+	d, e := readUtil.AnalyzeDataToMyData(c)
 	if e != nil {
 		fmt.Println(" AnalyzeToMap err,", e)
 	}
-	fmt.Println(mp)
 
+	form, err := d.GetFormAllData()
+	if err != nil {
+		fmt.Println("PublishArticle() controller.article.getArticle.GetFormAllData err=", err)
+	}
+
+	//发布文章
+	article.PublishArticleService(form)
 }
