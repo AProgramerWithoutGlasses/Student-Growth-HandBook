@@ -5,7 +5,9 @@ import (
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
 	"github.com/pkg/errors"
 	"studentGrow/dao/mysql"
+	"studentGrow/dao/redis"
 	model "studentGrow/models/gorm_model"
+	myErr "studentGrow/pkg/error"
 )
 
 // GetArticleService 获取文章详情
@@ -52,22 +54,116 @@ func GetArticleListService(j *jsonvalue.V) ([]model.Article, error) {
 //
 //}
 
-// GetTopicTagsService GetTopicTags 根据话题获得对应的标签
-func GetTopicTagsService(j *jsonvalue.V) []map[string]any {
-	//解析获得话题
-	topic, err := j.GetString("topic")
-	fmt.Println(topic)
-	if err != nil {
-		fmt.Println("GetTopicTags() service.article.GetString err=", err)
-		return nil
-	}
-
-	//查询标签
-	return mysql.SelectTagsByTopic(topic)
-
-}
-
-//GetAllTopicsService 获取所有话题
-//func GetAllTopicsService(j *jsonvalue.V) []map[string]any {
+// GetTopicTagsService GetTopicTags 根据话题获得对应的标签mysql
+//func GetTopicTagsService(j *jsonvalue.V) []map[string]any {
+//	//解析获得话题
+//	topic, err := j.GetString("topic")
+//	fmt.Println(topic)
+//	if err != nil {
+//		fmt.Println("GetTopicTags() service.article.GetString err=", err)
+//		return nil
+//	}
+//
+//	//查询标签
+//	return mysql.SelectTagsByTopic(topic)
 //
 //}
+
+// AddTopicsService 添加话题
+func AddTopicsService(j *jsonvalue.V) error {
+	// 获取话题
+	v, err := j.GetArray("topics")
+	if err != nil {
+		fmt.Println("AddTopicsService() service.article.GetArray err=", err)
+		return err
+	}
+	//添加话题
+	for _, v := range v.ForRangeArr() {
+		if ok := redis.RDB.SIsMember("topics", v.String()).Val(); ok {
+			return errors.New("has existed")
+		}
+		redis.RDB.SAdd("topics", v.String())
+		fmt.Println(v.String())
+	}
+	return nil
+}
+
+// GetAllTopicsService 获取所有话题
+func GetAllTopicsService() (topics []map[string]any, err error) {
+
+	slice, err := redis.RDB.SMembers("topics").Result()
+	fmt.Println(slice)
+	if err != nil {
+		fmt.Println("GetAllTopicsService() service.article.SMembers err=", err)
+		return nil, err
+	}
+
+	if len(slice) == 0 {
+		return nil, myErr.NotFoundError()
+	}
+
+	for i, v := range slice {
+		topics = append(topics, map[string]any{
+			"id":   i,
+			"name": v,
+		})
+	}
+	return topics, nil
+}
+
+// AddTagsByTopicService 添加话题标签
+func AddTagsByTopicService(j *jsonvalue.V) error {
+	//获取想要添加标签的对应话题
+	topic, err := j.GetString("topic")
+
+	if err != nil {
+		fmt.Println("AddTagsByTopicService() service.article.GetString err=", err)
+		return err
+	}
+
+	//获取想要添加的标签
+	v, err := j.GetArray("tags")
+	if err != nil {
+		fmt.Println("AddTagsByTopicService() service.article.GetArray err=", err)
+		return err
+	}
+
+	//添加标签
+	for _, v := range v.ForRangeArr() {
+		if ok := redis.RDB.SIsMember(topic, v.String()).Val(); ok {
+			return errors.New("has existed")
+		}
+		redis.RDB.SAdd(topic, v.String())
+	}
+	return nil
+}
+
+// GetTagsByTopicService 获取话题对应的标签
+func GetTagsByTopicService(j *jsonvalue.V) (tags []map[string]any, err error) {
+	//获取想要添加标签的对应话题
+	topic, err := j.GetString("topic")
+	if err != nil {
+		fmt.Println("GetTagsByTopicService() service.article.GetString err=", err)
+		return nil, err
+	}
+
+	// 获取对应的标签
+	slice, err := redis.RDB.SMembers(topic).Result()
+
+	if err != nil {
+		fmt.Println("GetTagsByTopicService() service.article.SMembers err=", err)
+		return nil, err
+	}
+
+	if len(slice) == 0 {
+		return nil, myErr.NotFoundError()
+	}
+
+	for i, v := range slice {
+		tags = append(tags, map[string]any{
+			"id":   i,
+			"name": v,
+		})
+	}
+	return tags, nil
+}

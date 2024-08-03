@@ -18,11 +18,15 @@ func Init() (err error) {
 		DB:       viper.GetInt("redis.db"),
 		PoolSize: viper.GetInt("redis.pool_size"),
 	})
-
 	_, err = RDB.Ping().Result()
 	return err
 }
 
 func Close() {
 	_ = RDB.Close()
+}
+
+// 创建基础字段
+func initBasicField() {
+	RDB.SAdd("topics", "文体活动")
 }

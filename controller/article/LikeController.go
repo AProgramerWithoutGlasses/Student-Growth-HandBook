@@ -9,20 +9,20 @@ import (
 	utils "studentGrow/utils/readMessage"
 )
 
-func GetParm(j *jsonvalue.V, a, b, c string) (objId, userId string, likeType int, err error) {
+func GetParam(j *jsonvalue.V, a, b, c string) (objId, userId string, likeType int, err error) {
 	objId, err = j.GetString(a)
 	if err != nil {
-		fmt.Println("GetParm() controller.article.GetString err=", err)
+		fmt.Println("GetParam() controller.article.GetString err=", err)
 		return objId, userId, likeType, err
 	}
 	userId, err = j.GetString(b)
 	if err != nil {
-		fmt.Println("GetParm() controller.article.GetString err=", err)
+		fmt.Println("GetParam() controller.article.GetString err=", err)
 		return objId, userId, likeType, err
 	}
 	likeType, err = j.GetInt(c)
 	if err != nil {
-		fmt.Println("GetParm() controller.article.GetInt err=", err)
+		fmt.Println("GetParam() controller.article.GetInt err=", err)
 		return objId, userId, likeType, err
 	}
 	return objId, userId, likeType, err
@@ -37,9 +37,9 @@ func Like(c *gin.Context) {
 		return
 	}
 
-	objId, userId, likeType, err := GetParm(j, "objId", "userId", "likeType")
+	objId, userId, likeType, err := GetParam(j, "objId", "userId", "likeType")
 	if err != nil {
-		fmt.Println("Like() controller.article.GetParm err=", err)
+		fmt.Println("Like() controller.article.GetParam err=", err)
 		return
 	}
 	//点赞
@@ -58,7 +58,7 @@ func CancelLike(c *gin.Context) {
 		return
 	}
 
-	objId, userId, likeType, err := GetParm(j, "objId", "userId", "likeType")
+	objId, userId, likeType, err := GetParam(j, "objId", "userId", "likeType")
 	if err != nil {
 		return
 	}
@@ -79,7 +79,7 @@ func CheckLikeOrNot(c *gin.Context) {
 		return
 	}
 
-	objId, userId, likeType, err := GetParm(j, "objId", "userId", "likeType")
+	objId, userId, likeType, err := GetParam(j, "objId", "userId", "likeType")
 	if err != nil {
 		return
 	}

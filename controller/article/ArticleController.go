@@ -3,14 +3,15 @@ package article
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
 	readUtil "studentGrow/utils/readMessage"
 	timeUtil "studentGrow/utils/timeConverter"
 )
 
-// GetArticleId article_id	获取文章详情
-func GetArticleId(c *gin.Context) {
+// GetArticleIdController article_id	获取文章详情
+func GetArticleIdController(c *gin.Context) {
 	//将数据解析到map中
 	json, e := readUtil.GetJsonvalue(c)
 	if e != nil {
@@ -20,7 +21,7 @@ func GetArticleId(c *gin.Context) {
 
 	//若在数据库中找不到该文章或用户
 	if err != nil {
-		fmt.Println("GetArticleId() controller.article.getArticle.GetArticleService err=", err)
+		fmt.Println("GetArticleIdController() controller.article.getArticle.GetArticleService err=", err)
 		res.ResponseErrorWithMsg(c, res.ServerErrorCode, "NOT FOUND")
 		return
 	}
@@ -40,31 +41,38 @@ func GetArticleId(c *gin.Context) {
 	res.ResponseSuccess(c, data)
 }
 
-// SendTopicTags 发送话题标签数据
-func SendTopicTags(c *gin.Context) {
+// SendTopicTagsController 发送话题标签数据
+func SendTopicTagsController(c *gin.Context) {
 	//获取前端发送的数据
 	json, err := readUtil.GetJsonvalue(c)
 
 	if err != nil {
-		fmt.Println("SendTopicTags() controller.article.getArticle.AnalyzeDataToMyData err=")
+		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetJsonvalue err=")
+		res.ResponseError(c, res.ServerErrorCode)
 		return
 	}
 
 	//获取到查询的标签
-	result := article.GetTopicTagsService(json)
+	result, err := article.GetTagsByTopicService(json)
+	if err != nil {
+		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetTagsByTopicService err=")
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, error.HasExistError().Error())
+		return
+	}
 
 	//返回响应
 	res.ResponseSuccess(c, result)
 
 }
 
-// GetArticleList 获取文章列表
-func GetArticleList(c *gin.Context) {
+// GetArticleListController 获取文章列表
+func GetArticleListController(c *gin.Context) {
 	//获取前端发送的数据
 	json, err := readUtil.GetJsonvalue(c)
 
 	if err != nil {
-		fmt.Println("GetArticleList() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		fmt.Println("GetArticleListController() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		res.ResponseError(c, res.ServerErrorCode)
 		return
 	}
 
@@ -73,6 +81,7 @@ func GetArticleList(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println("GetArticleList() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		res.ResponseError(c, res.ServerErrorCode)
 		return
 	}
 	var list []map[string]any
@@ -91,12 +100,6 @@ func GetArticleList(c *gin.Context) {
 	res.ResponseSuccess(c, map[string][]map[string]any{
 		"list": list,
 	})
-}
-
-// SendTopics 发送话题数据
-func SendTopics(c *gin.Context) {
-	// 获取查询道德话题
-
 }
 
 // PublishArticle 发布文章

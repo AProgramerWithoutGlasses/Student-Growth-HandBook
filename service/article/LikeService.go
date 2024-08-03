@@ -53,7 +53,7 @@ func GetObjLikes(objId string, likeType int) int {
 	return res
 }
 
-// GetObjLikedUsers 获取文章或评论点赞的用户ID集合
+// GetObjLikedUsers 获取文章或评论点赞的用户username集合
 func GetObjLikedUsers(objId string, likeType int) (result []string) {
 	slice, err := redis.RDB.SMembers(list[likeType] + objId).Result()
 
