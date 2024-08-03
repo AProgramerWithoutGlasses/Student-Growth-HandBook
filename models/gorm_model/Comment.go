@@ -13,5 +13,5 @@ type Comment struct {
 	Uid          int
 	Pid          int
 	Aid          int
-	Upvote       []Upvote `gorm:"foreignKey:Cid"`
+	//Upvote       []Upvote `gorm:"foreignKey:Cid"`
 }

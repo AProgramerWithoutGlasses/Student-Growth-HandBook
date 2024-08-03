@@ -1,11 +1,10 @@
 package token
 
-import (
+/*import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"strings"
-	"studentGrow/models"
 )
 
 // 中间件检验token是否合法
@@ -43,12 +42,7 @@ func ParseToken(tokenString string) (*jwt.Token, *models.Claims, error) {
 	return token, claims, err
 }
 
-<<<<<<< HEAD
-// 通过token获取username
-=======
-//通过token获取username
 
->>>>>>> bd64b59feb8245f5364f131e7324b0194666ecf9
 func GetUsername(tokenString string) (string, error) {
 	tokenString = tokenString[7:]
 	_, claims, err := ParseToken(tokenString)
@@ -58,3 +52,4 @@ func GetUsername(tokenString string) (string, error) {
 	}
 	return claims.Username, nil
 }
+*/

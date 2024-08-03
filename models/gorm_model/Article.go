@@ -22,7 +22,7 @@ type Article struct {
 	Del           bool `gorm:"default:false"`
 	UserId        int
 	Comment       []Comment `gorm:"foreignKey:Aid"`
-	Read          []Read    `gorm:"foreignKey:Aid"`
-	Upvote        []Upvote  `gorm:"foreignKey:Aid"`
-	UpvoteAmount  int       `gorm:"default:0"`
+	//Read          []Read    `gorm:"foreignKey:Aid"`
+	//Upvote        []Upvote  `gorm:"foreignKey:Aid"`
+	UpvoteAmount int `gorm:"default:0"`
 }

@@ -2,29 +2,28 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"studentGrow/controller/article"
 	"studentGrow/controller/student"
 	"studentGrow/logger"
-	"studentGrow/utils/middleWare"
 )
 
 func Setup() *gin.Engine {
 	r := gin.New()
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
-	// 星
-	r.POST("/article/content", middleWare.CORSMiddleware(), article.GetArticleId)
-	r.POST("/article/publish", article.PublishArticle) //发布文章
-	r.POST("/article/comment", article.PostCom)
-	r.POST("/article/like")        //文章点赞
-	r.POST("/article/cancel_like") //取消文章点赞
-	r.POST("/article/like_nums")   //获取文章点赞数量
-
 	// 勋
 	r.POST("/student/getSelfCotnent", student.GetSelfContentContro)
 	r.POST("/student/updateSelfContent", student.UpdateSelfContentContro)
-	/*	r.POST("/stuManage/queryStuController", stuManage.QueryStu)
-		r.POST("/student/queryStuController", stuManage.QueryStu)*/
+	/*	r.POST("/stuManage/queryStudent", stuManage.QueryStuContro)
+		r.POST("/stuManage/addSingleStudent", stuManage.AddSingleStuContro)
+		r.POST("/stuManage/addMultipleStudent", stuManage.AddMultipleStuContro)
+		r.POST("/stuManage/deleteStudent", stuManage.DeleteStuContro)
+		r.POST("/stuManage/banStudent", stuManage.BanStuContro)
+		r.POST("/stuManage/editStudent", stuManage.EditStuContro)
+		r.POST("/stuManage/setStudentManager", stuManage.setStuManagerContro)
+		r.POST("/stuManage/outputMultipleStudent", stuManage.outputMultipleStuContro)
+
+
+	*/
 
 	return r
 }

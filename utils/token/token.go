@@ -1,6 +1,6 @@
 package token
 
-import (
+/*import (
 	"github.com/dgrijalva/jwt-go"
 	"studentGrow/models"
 	"time"
@@ -33,3 +33,4 @@ func ReleaseToken(username, password string) (string, error) {
 	//返回成功生成的字符换
 	return tokenString, nil
 }
+*/

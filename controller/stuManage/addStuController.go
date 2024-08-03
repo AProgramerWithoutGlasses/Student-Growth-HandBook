@@ -1,5 +1,5 @@
 package stuManage
 
-func main() {
+func addSingleStu() {
 
 }
