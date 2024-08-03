@@ -20,5 +20,7 @@ func Setup() *gin.Engine {
 	r.POST("/article/cancel_like") //取消文章点赞
 	r.POST("/article/like_nums")   //获取文章点赞数量
 
+	RoutesXue(r)
+
 	return r
 }
