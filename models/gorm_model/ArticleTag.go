@@ -6,6 +6,6 @@ import (
 
 type ArticleTag struct {
 	gorm.Model
-	Tag     string `json:"tag"`
-	TopicId int    `json:"-"`
+	Tag            string `json:"Tag"`
+	ArticleTopicID int    `json:"-"`
 }
