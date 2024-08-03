@@ -33,7 +33,7 @@ func GetArticleId(c *gin.Context) {
 		"article_content":     map[string]string{"article_text": acl.Content, "article_image": acl.Pic, "article_video": acl.Video},
 		"topic_id":            acl.Topic,
 		"article_collect_sum": acl.CollectAmount,
-		"article_like_sum":    acl.UpvoteAmount,
+		"article_like_sum":    acl.LikeAmount,
 		"article_comment_sum": acl.CommentAmount,
 	}
 	//若可以找到
@@ -82,7 +82,7 @@ func GetArticleList(c *gin.Context) {
 			"article_content": val.Content,
 			"user_headshot":   val.User.HeadShot,
 			"article_ban":     val.Ban,
-			"upvote_amount":   val.UpvoteAmount,
+			"upvote_amount":   val.LikeAmount,
 			"comment_amount":  val.CommentAmount,
 			"username":        val.User.Name,
 			"created_at":      val.CreatedAt,

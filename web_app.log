@@ -932,3 +932,17 @@
 {"level":"INFO","time":"2024-08-02T22:16:02.969+0800","caller":"logger/logger.go:69","msg":"/article/list","status":200,"method":"POST","path":"/article/list","query":"","ip":"::1","user-agent":"Apifox/1.0.0 (https://apifox.com)","errors":"","cost":0.0022105}
 {"level":"INFO","time":"2024-08-02T22:16:11.100+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-08-02T22:16:11.100+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-03T09:21:21.924+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-03T09:21:21.925+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-03T09:29:15.835+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-03T09:29:15.835+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-03T14:07:06.466+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-03T14:07:06.467+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-03T14:10:39.211+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-03T14:10:39.212+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-03T14:20:31.909+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-03T14:20:31.911+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-03T14:27:04.977+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-03T14:27:04.977+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-03T14:27:24.474+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-03T14:27:24.475+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}

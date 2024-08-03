@@ -4,8 +4,7 @@ import "gorm.io/gorm"
 
 type Select struct {
 	gorm.Model
+	UserID uint //收藏属于用户
+	User   User //收藏属于用户
 	IsRead bool `gorm:"default:false"`
-	Uid    int
-	Aid    int
-	Del    bool `form:"default:false"`
 }

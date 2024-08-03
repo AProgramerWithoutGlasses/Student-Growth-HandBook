@@ -20,8 +20,8 @@ func GetArticleService(j *jsonvalue.V) (err error, user *model.User, article *mo
 		return err, nil, nil
 	}
 	//查找用户信息
-	err, user = mysql.SelectUserById(article.UserId)
-	fmt.Println(article.UserId)
+	err, user = mysql.SelectUserById(int(article.UserID))
+	fmt.Println(int(article.UserID))
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.SelectUserById err=", err)
 		return err, nil, nil
