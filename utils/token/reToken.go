@@ -52,4 +52,18 @@ func GetUsername(tokenString string) (string, error) {
 	}
 	return claims.Username, nil
 }
+<<<<<<< HEAD
 */
+=======
+
+// GetRole 通过token获取role
+func GetRole(tokenString string) (string, error) {
+	tokenString = tokenString[7:]
+	_, claims, err := ParseToken(tokenString)
+	if err != nil {
+		fmt.Println("GetRole ParseToken() err:", err)
+		return "", err
+	}
+	return claims.Role, nil
+}
+>>>>>>> 6820bb9dec9c9fbede6712769c244eca04b27ff7

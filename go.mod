@@ -4,9 +4,15 @@ go 1.21
 
 require (
 	github.com/Andrew-M-C/go.jsonvalue v1.3.8
+<<<<<<< HEAD
+=======
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/fsnotify/fsnotify v1.7.0
+>>>>>>> 6820bb9dec9c9fbede6712769c244eca04b27ff7
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.19.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/net v0.25.0

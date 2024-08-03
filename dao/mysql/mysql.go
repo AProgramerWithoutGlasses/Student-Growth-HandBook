@@ -21,12 +21,17 @@ func Init() error {
 	//root:root@tcp(127.0.0.1:3306)/gorm?
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=%s", username, password, host, port, Dbname, timeout)
 	//连接MYSQL, 获得DB类型实例，用于后面的数据库读写操作。
+<<<<<<< HEAD
 	fmt.Println(host)
 	fmt.Println(dsn)
+=======
+
+>>>>>>> 6820bb9dec9c9fbede6712769c244eca04b27ff7
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{},
-		Logger:         logger.Default.LogMode(logger.Info),
+		NamingStrategy:                           schema.NamingStrategy{},
+		Logger:                                   logger.Default.LogMode(logger.Info),
+		DisableForeignKeyConstraintWhenMigrating: true, //禁用外键
 	})
 	if err != nil {
 		return err
