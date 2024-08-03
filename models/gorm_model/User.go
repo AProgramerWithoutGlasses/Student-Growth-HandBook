@@ -25,7 +25,7 @@ type User struct {
 	Del         bool         `gorm:"type:boolean;default:false"json:"-"`
 	FanList     []Fan        `gorm:"foreignKey:UserId"json:"-"`
 	Follow      []Follow     `gorm:"foreignKey:UserId"json:"-"`
-	Article     []Article    `gorm:"foreignKey:UserId"json:"-"`
+	Articles    []Article    `gorm:"foreignKey:UserId"json:"-"`
 	Comment     []Comment    `gorm:"foreignKey:Uid"json:"-"`
 	Read        []Read       `gorm:"foreignKey:Uid"json:"-"`
 	Upvote      []Upvote     `gorm:"foreignKey:Uid"json:"-"`
