@@ -13,6 +13,7 @@ func Setup() *gin.Engine {
 
 	r.POST("/article/content", middleWare.CORSMiddleware(), article.GetArticleId)
 	//r.POST("/article/publish", article.PublishArticle) //发布文章
+	r.POST("/article/list", article.GetArticleList)
 	r.POST("/article/comment", article.PostCom)
 	r.POST("/article/publish/get_tags", middleWare.CORSMiddleware(), article.SendTopicTags)
 	r.POST("/article/like")        //文章点赞

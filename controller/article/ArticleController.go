@@ -9,7 +9,7 @@ import (
 	timeUtil "studentGrow/utils/timeConverter"
 )
 
-// GetArticleId article_id
+// GetArticleId article_id	获取文章详情
 func GetArticleId(c *gin.Context) {
 	//将数据解析到map中
 	json, e := readUtil.GetJsonvalue(c)
@@ -33,7 +33,7 @@ func GetArticleId(c *gin.Context) {
 		"article_content":     map[string]string{"article_text": acl.Content, "article_image": acl.Pic, "article_video": acl.Video},
 		"topic_id":            acl.Topic,
 		"article_collect_sum": acl.CollectAmount,
-		"article_like_sum":    acl.UpvoteAmount,
+		"article_like_sum":    acl.LikeAmount,
 		"article_comment_sum": acl.CommentAmount,
 	}
 	//若可以找到
@@ -56,6 +56,41 @@ func SendTopicTags(c *gin.Context) {
 	//返回响应
 	res.ResponseSuccess(c, result)
 
+}
+
+// GetArticleList 获取文章列表
+func GetArticleList(c *gin.Context) {
+	//获取前端发送的数据
+	json, err := readUtil.GetJsonvalue(c)
+
+	if err != nil {
+		fmt.Println("GetArticleList() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		return
+	}
+
+	//查询文章列表
+	result, err := article.GetArticleListService(json)
+
+	if err != nil {
+		fmt.Println("GetArticleList() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		return
+	}
+	var list []map[string]any
+	for _, val := range result {
+		list = append(list, map[string]any{
+			"article_id":      val.ID,
+			"article_content": val.Content,
+			"user_headshot":   val.User.HeadShot,
+			"article_ban":     val.Ban,
+			"upvote_amount":   val.LikeAmount,
+			"comment_amount":  val.CommentAmount,
+			"username":        val.User.Name,
+			"created_at":      val.CreatedAt,
+		})
+	}
+	res.ResponseSuccess(c, map[string][]map[string]any{
+		"list": list,
+	})
 }
 
 // SendTopics 发送话题数据

@@ -1,9 +1,11 @@
 package mysql
 
 import (
+	"errors"
 	"fmt"
-	"gorm.io/gorm"
+	_ "gorm.io/gorm"
 	model "studentGrow/models/gorm_model"
+	"time"
 )
 
 // SelectUserById 查询数据库是否存在该用户
@@ -45,20 +47,21 @@ func SelectArticleById(aid int) (err error, article *model.Article) {
 }
 
 // InsertIntoCommentsForArticle 向数据库插入评论数据(回复文章)
+
 func InsertIntoCommentsForArticle(content string, aid int, uid int) (err error) {
 	//content;id;username
-	comment := model.Comment{
-		Model:        gorm.Model{},
-		Content:      content,
-		UpvoteAmount: 0,
-		IsRead:       false,
-		Del:          false,
-		Uid:          uid,
-		Pid:          0,
-		Aid:          aid,
-		Upvote:       nil,
-	}
-	DB.Create(&comment)
+	//comment := model.Comment{
+	//	Model:        gorm.Model{},
+	//	Content:      content,
+	//	UpvoteAmount: 0,
+	//	IsRead:       false,
+	//	Del:          false,
+	//	Uid:          uid,
+	//	Pid:          0,
+	//	Aid:          aid,
+	//	Upvote:       nil,
+	//}
+	//DB.Create(&comment)
 
 	return nil
 }
@@ -66,19 +69,19 @@ func InsertIntoCommentsForArticle(content string, aid int, uid int) (err error) 
 // InsertIntoCommentsForComment 向数据库插入评论数据(回复评论)
 func InsertIntoCommentsForComment(content string, uid int, pid int) (err error) {
 	//content;id;username
-	comment := model.Comment{
-		Model:        gorm.Model{},
-		Content:      content,
-		UpvoteAmount: 0,
-		IsRead:       false,
-		Del:          false,
-		Uid:          uid,
-		Pid:          pid,
-		Aid:          0,
-		Upvote:       nil,
-	}
-
-	DB.Create(&comment)
+	//comment := model.Comment{
+	//	Model:        gorm.Model{},
+	//	Content:      content,
+	//	UpvoteAmount: 0,
+	//	IsRead:       false,
+	//	Del:          false,
+	//	Uid:          uid,
+	//	Pid:          pid,
+	//	Aid:          0,
+	//	Upvote:       nil,
+	//}
+	//
+	//DB.Create(&comment)
 	return nil
 }
 
@@ -87,24 +90,66 @@ func SelectTagsByTopic(topic string) (tags []map[string]any) {
 	//id = select id from article_topics where topic = topic
 	//tags = select tag from article_tags where article_topic_id = id
 
-	var articleTopic model.ArticleTopic
-	var articleTags []model.ArticleTag
-	//查询对应的话题ID
-	if err := DB.Where("topic = ?", topic).First(&articleTopic).Error; err != nil {
-		fmt.Println("SelectTagsByTopic() dao.mysql.sql_nzx.Error=", err)
-	}
-	if err := DB.Where("article_topic_id = ?", articleTopic.ID).Find(&articleTags).Error; err != nil {
-		fmt.Println("SelectTagsByTopic() dao.mysql.sql_nzx.Error=", err)
-	}
-
-	for index, tag := range articleTags {
-		tags = append(tags, map[string]any{
-			"id":   index,
-			"name": tag.Tag,
-		})
-	}
-
+	//var articleTopic model.ArticleTopic
+	//var articleTags []model.ArticleTag
+	////查询对应的话题ID
+	//if err := DB.Where("topic = ?", topic).First(&articleTopic).Error; err != nil {
+	//	fmt.Println("SelectTagsByTopic() dao.mysql.sql_nzx.Error=", err)
+	//}
+	//if err := DB.Where("article_topic_id = ?", articleTopic.ID).Find(&articleTags).Error; err != nil {
+	//	fmt.Println("SelectTagsByTopic() dao.mysql.sql_nzx.Error=", err)
+	//}
+	//
+	//for index, tag := range articleTags {
+	//	tags = append(tags, map[string]any{
+	//		"id":   index,
+	//		"name": tag.Tag,
+	//	})
+	//}
+	//
 	return tags
+}
+
+// SelectArticleAndUserListByPage 分页查询文章及用户列表
+func SelectArticleAndUserListByPage(page, limit int, sort, order string) (result []model.Article, err error) {
+	//SELECT articles.*, users.*
+	//FROM articles
+	//JOIN users ON articles.user_id = users.id
+	//WHERE articles.created_at > (
+	//    SELECT created_at
+	//    FROM articles
+	//    ORDER BY created_at DESC
+	//    LIMIT ?, 1
+	//)
+	//LIMIT ?;
+
+	var articles []model.Article
+	if order == "asc" {
+		var createdAt time.Time
+		_ = DB.Model(&model.Article{}).
+			Select("created_at").
+			Order("created_at ASC").
+			Limit(limit).
+			Offset((page - 1) * limit).
+			Scan(&createdAt).Error
+
+		DB.InnerJoins("User").Where("articles.created_at > ?", createdAt).Find(&articles)
+	} else {
+		var createdAt time.Time
+		_ = DB.Model(&model.Article{}).
+			Select("created_at").
+			Order("created_at DESC").
+			Limit(limit).
+			Offset((page - 1) * limit).
+			Scan(&createdAt).Error
+		DB.InnerJoins("User").Where("articles.created_at < ?", createdAt).Find(&articles)
+	}
+
+	if len(articles) <= 0 {
+		return nil, errors.New("no records")
+	}
+
+	return articles, nil
 }
 
 // SelectAllTopics 查找所有的话题

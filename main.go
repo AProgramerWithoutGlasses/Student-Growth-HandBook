@@ -40,7 +40,7 @@ func main() {
 		fmt.Printf("mysql.Init() rdb.Ping().Result() err : %v\n", err)
 		return
 	}
-	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.ArticleTopic{}, &model.Upvote{}, &model.ArticleTag{})
+	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.Comment{}, &model.UserReadRecord{}, &model.Select{}, &model.CommentLike{}, &model.ArticleTag{}, model.ArticleLike{})
 	if err != nil {
 		return
 	}
