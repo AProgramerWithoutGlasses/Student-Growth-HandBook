@@ -1,9 +1,11 @@
 package mysql
 
 import (
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	model "studentGrow/models/gorm_model"
+	"time"
 )
 
 // SelectUserById 查询数据库是否存在该用户
@@ -105,6 +107,48 @@ func SelectTagsByTopic(topic string) (tags []map[string]any) {
 	}
 
 	return tags
+}
+
+// SelectArticleAndUserListByPage 分页查询文章及用户列表
+func SelectArticleAndUserListByPage(page, limit int, sort, order string) (result []model.Article, err error) {
+	//SELECT articles.*, users.*
+	//FROM articles
+	//JOIN users ON articles.user_id = users.id
+	//WHERE articles.created_at > (
+	//    SELECT created_at
+	//    FROM articles
+	//    ORDER BY created_at DESC
+	//    LIMIT ?, 1
+	//)
+	//LIMIT ?;
+
+	var articles []model.Article
+	if order == "asc" {
+		var createdAt time.Time
+		_ = DB.Model(&model.Article{}).
+			Select("created_at").
+			Order("created_at ASC").
+			Limit(limit).
+			Offset((page - 1) * limit).
+			Scan(&createdAt).Error
+
+		DB.InnerJoins("User").Where("articles.created_at > ?", createdAt).Find(&articles)
+	} else {
+		var createdAt time.Time
+		_ = DB.Model(&model.Article{}).
+			Select("created_at").
+			Order("created_at DESC").
+			Limit(limit).
+			Offset((page - 1) * limit).
+			Scan(&createdAt).Error
+		DB.InnerJoins("User").Where("articles.created_at < ?", createdAt).Find(&articles)
+	}
+
+	if len(articles) <= 0 {
+		return nil, errors.New("no records")
+	}
+
+	return articles, nil
 }
 
 // SelectAllTopics 查找所有的话题

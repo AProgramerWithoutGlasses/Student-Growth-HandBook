@@ -3,6 +3,7 @@ package article
 import (
 	"fmt"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
+	"github.com/pkg/errors"
 	"studentGrow/dao/mysql"
 	model "studentGrow/models/gorm_model"
 )
@@ -10,9 +11,8 @@ import (
 // GetArticleService 获取文章详情
 func GetArticleService(j *jsonvalue.V) (err error, user *model.User, article *model.Article) {
 	//获取文章id
-	//aid, err := utils.StringToInt(m["article_id"].(string))
 	aid, _ := j.GetInt("article_id")
-	fmt.Println("aid----:", aid)
+
 	//查找文章信息
 	err, article = mysql.SelectArticleById(aid)
 	if err != nil {
@@ -28,6 +28,23 @@ func GetArticleService(j *jsonvalue.V) (err error, user *model.User, article *mo
 	}
 
 	return nil, user, article
+}
+
+// GetArticleListService 获取文章列表
+func GetArticleListService(j *jsonvalue.V) ([]model.Article, error) {
+	//获取参数：page, limit, sort, username
+	page, _ := j.GetInt("page")
+	limit, _ := j.GetInt("limit")
+	sort, _ := j.GetString("sort")
+	order, _ := j.GetString("order")
+	//执行查询文章列表语句
+	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sort, order)
+	if err != nil {
+		fmt.Println("GetArticleListService() service.article.GetString err=", err)
+		return nil, errors.New("no records")
+	}
+
+	return result, nil
 }
 
 // PublishArticleService 发布文章

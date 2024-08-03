@@ -20,7 +20,8 @@ type Article struct {
 	ReportAmount  int       `gorm:"default:0"json:"reportAmount"`
 	Ban           bool      `gorm:"default:false"json:"-"`
 	Del           bool      `gorm:"default:false"json:"-"`
-	UserId        int       `json:"-"`
+	UserId        int       `gorm:"not null"json:"-"`
+	User          User      `gorm:"foreignKey:UserId"json:"user"`
 	Comment       []Comment `gorm:"foreignKey:Aid"json:"-"`
 	Read          []Read    `gorm:"foreignKey:Aid"json:"-"`
 	Upvote        []Upvote  `gorm:"foreignKey:Aid"json:"-"`
