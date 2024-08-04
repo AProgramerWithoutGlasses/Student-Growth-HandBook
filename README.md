@@ -1,4 +1,0 @@
-#StudentGrowthPlatform
-
-22
-
