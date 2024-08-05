@@ -20,7 +20,7 @@ import (
 )
 
 func main() {
-	// 1. 加载配置
+	// 1. 加载配置 --
 	if err := settings.Init(); err != nil {
 		fmt.Printf("settings.Init() viper.ReadInConfig() err : %v\n", err)
 		return

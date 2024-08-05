@@ -4,24 +4,10 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="210586bf-f061-4047-8bd3-82e08ea35073" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/student/SelfContent.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/student/selfContent.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/mysql/mysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/mysql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+    <list default="true" id="210586bf-f061-4047-8bd3-82e08ea35073" name="更改" comment="--">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/Article.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/Article.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/Comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/Comment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/User.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/routesXue.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routesXue.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/permission/grantPermisson.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/permission/grantPermisson.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/token/reToken.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/token/reToken.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/token/token.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/token/token.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web_app.log" beforeDir="false" afterPath="$PROJECT_DIR$/web_app.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,6 +90,10 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="--" />
+    <option name="LAST_COMMIT_MESSAGE" value="--" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
