@@ -167,3 +167,23 @@ func GetTagsByTopicService(j *jsonvalue.V) (tags []map[string]any, err error) {
 	}
 	return tags, nil
 }
+
+// BannedArticleService 解封或封禁文章
+func BannedArticleService(j *jsonvalue.V) error {
+	// 获取文章id和封禁状态
+	id, err := j.GetInt("article_id")
+	if err != nil {
+		fmt.Println("BannedArticleService() service.article.GetString err=", err)
+		return err
+	}
+	isBan, err := j.GetBool("article_ban")
+
+	// 修改文章封禁状态
+	err = mysql.BannedArticleById(id, isBan)
+	if err != nil {
+		fmt.Println("BannedArticleService() service.article.BannedArticleById err=", err)
+		return err
+	}
+
+	return nil
+}

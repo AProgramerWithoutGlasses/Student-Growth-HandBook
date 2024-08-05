@@ -2,9 +2,10 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"studentGrow/controller/article"
+	_ "studentGrow/controller/article"
+	"studentGrow/controller/student"
 	"studentGrow/logger"
-	"studentGrow/utils/middleWare"
+	_ "studentGrow/utils/middleWare"
 )
 
 func Setup() *gin.Engine {
@@ -28,7 +29,6 @@ func Setup() *gin.Engine {
 		r.POST("/stuManage/setStudentManager", stuManage.setStuManagerContro)
 		r.POST("/stuManage/outputMultipleStudent", stuManage.outputMultipleStuContro)
 	*/
-
 
 	return r
 }

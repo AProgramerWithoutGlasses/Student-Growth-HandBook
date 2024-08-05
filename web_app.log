@@ -986,3 +986,9 @@
 {"level":"INFO","time":"2024-08-03T20:02:15.453+0800","caller":"logger/logger.go:69","msg":"/article/get_tags","status":200,"method":"POST","path":"/article/get_tags","query":"","ip":"127.0.0.1","user-agent":"Apifox/1.0.0 (https://apifox.com)","errors":"","cost":0.0025107}
 {"level":"INFO","time":"2024-08-03T20:02:27.808+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-08-03T20:02:27.808+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-05T09:06:09.218+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-05T09:06:09.219+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-05T09:17:45.176+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-05T09:17:45.176+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-05T15:51:37.467+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-05T15:51:37.468+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}

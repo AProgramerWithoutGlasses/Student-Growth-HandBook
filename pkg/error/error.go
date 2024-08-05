@@ -1,6 +1,10 @@
 package error
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/AzureAD/microsoft-authentication-library-for-go/apps/errors"
+	"github.com/gin-gonic/gin"
+)
 import res "studentGrow/pkg/response"
 
 type Error struct {
@@ -26,5 +30,37 @@ func HasExistError() *Error {
 	return &Error{
 		Code: res.ServerErrorCode,
 		Msg:  "has existed",
+	}
+}
+
+// DataFormatError 数据格式错误
+func DataFormatError() *Error {
+	return &Error{
+		Code: res.ServerErrorCode,
+		Msg:  "data format error",
+	}
+}
+
+// CheckErrors 一键检查错误
+func CheckErrors(err error, c *gin.Context) {
+	if err != nil {
+		if errors.Is(err, DataFormatError()) {
+			// 前端发送数据格式错误
+			res.ResponseErrorWithMsg(c, res.ServerErrorCode, DataFormatError().Msg)
+			return
+		}
+		if errors.Is(err, HasExistError()) {
+			// 数据已存在，发生冲突
+			res.ResponseErrorWithMsg(c, res.ServerErrorCode, HasExistError().Msg)
+			return
+		}
+
+		if errors.Is(err, NotFoundError()) {
+			// 找不到对应数据
+			res.ResponseErrorWithMsg(c, res.ServerErrorCode, NotFoundError().Msg)
+			return
+		}
+		// 其他错误
+		res.ResponseError(c, res.ServerErrorCode)
 	}
 }

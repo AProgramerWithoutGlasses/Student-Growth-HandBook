@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/Andrew-M-C/go.jsonvalue v1.3.8
+	github.com/AzureAD/microsoft-authentication-library-for-go v1.1.0
 	github.com/casbin/casbin/v2 v2.98.0
 	github.com/casbin/gorm-adapter/v3 v3.26.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -52,6 +53,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
+	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

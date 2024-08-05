@@ -102,6 +102,26 @@ func GetArticleListController(c *gin.Context) {
 	})
 }
 
+// BannedArticleController 封禁文章
+func BannedArticleController(c *gin.Context) {
+	//获取前端发送的数据
+	json, err := readUtil.GetJsonvalue(c)
+
+	if err != nil {
+		fmt.Println("BannedArticle() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		res.ResponseError(c, res.ServerErrorCode)
+		return
+	}
+
+	// 对应帖子进行封禁或解封操作
+	err = article.BannedArticleService(json)
+	// 检查错误
+	error.CheckErrors(err, c)
+
+	res.ResponseSuccess(c, nil)
+
+}
+
 // PublishArticle 发布文章
 //func PublishArticle(c *gin.Context) {
 //	//解析formdata

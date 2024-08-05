@@ -37,10 +37,6 @@ func main() {
 	// 3. 初始化Mysql
 	if err := mysql.Init(); err != nil {
 		fmt.Printf("mysql.Init() gorm.Open() err : %v\n", err)
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/feature/xun
 		return
 	}
 
