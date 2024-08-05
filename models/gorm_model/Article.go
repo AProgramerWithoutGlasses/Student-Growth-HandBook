@@ -6,8 +6,13 @@ import (
 
 type Article struct {
 	gorm.Model
+<<<<<<< HEAD
+	Content       string `gorm:"size:350"`
+	WordCount     int    `gorm:"not null"`
+=======
 	Content       string `gorm:"size:350"json:"content"`
 	WordCount     int    `gorm:"not null"json:"wordCount"`
+>>>>>>> origin/feature/xun
 	Pic           string
 	Video         string
 	Topic         string        `json:"topic"`

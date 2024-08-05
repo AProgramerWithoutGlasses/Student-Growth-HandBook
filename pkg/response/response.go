@@ -13,6 +13,7 @@ type Response struct {
 }
 
 // 用于响应成功信息
+
 func ResponseSuccess(c *gin.Context, data any) {
 	c.JSON(http.StatusOK, &Response{
 		Code: SuccessCode,
