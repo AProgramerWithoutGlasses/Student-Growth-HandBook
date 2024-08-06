@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"studentGrow/pkg/error"
+	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
 	readUtil "studentGrow/utils/readMessage"
@@ -17,16 +17,13 @@ func AddTopicsController(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println("AddTopicsController() controller.article.getArticle.GetJsonvalue err=", err)
-		res.ResponseError(c, res.ServerErrorCode)
+		myErr.CheckErrors(err, c)
 		return
 	}
 	err = article.AddTopicsService(json)
 	if err != nil {
-		if errors.Is(err, error.HasExistError()) {
-			res.ResponseErrorWithMsg(c, res.ServerErrorCode, error.HasExistError().Error())
-			return
-		}
-		res.ResponseError(c, res.ServerErrorCode)
+		fmt.Println("AddTopicsController() controller.article.getArticle.AddTopicsService err=", err)
+		myErr.CheckErrors(err, c)
 		return
 	}
 
@@ -41,11 +38,7 @@ func GetAllTopicsController(c *gin.Context) {
 	if err != nil {
 		fmt.Println("GetAllTopicsController() controller.article.getArticle.AnalyzeDataToMyData err=", err)
 		if err != nil {
-			if errors.Is(err, error.NotFoundError()) {
-				res.ResponseErrorWithMsg(c, res.ServerErrorCode, error.NotFoundError().Error())
-				return
-			}
-			res.ResponseErrorWithMsg(c, res.ServerErrorCode, error.NotFoundError().Error())
+			myErr.CheckErrors(err, c)
 			return
 		}
 	}
@@ -60,7 +53,7 @@ func AddTagsByTopicController(c *gin.Context) {
 	json, err := readUtil.GetJsonvalue(c)
 	if err != nil {
 		fmt.Println("AddArticleTagsController() controller.article.getArticle.GetJsonvalue err=", err)
-		res.ResponseError(c, res.ServerErrorCode)
+		myErr.CheckErrors(err, c)
 		return
 	}
 
@@ -68,7 +61,7 @@ func AddTagsByTopicController(c *gin.Context) {
 	if err != nil {
 		fmt.Println("AddArticleTagsController() controller.article.getArticle.AddTagsByTopicService err=", err)
 		if err != nil {
-			res.ResponseErrorWithMsg(c, res.ServerErrorCode, error.HasExistError().Error())
+			myErr.CheckErrors(err, c)
 			return
 		}
 		res.ResponseError(c, res.ServerErrorCode)
@@ -84,19 +77,43 @@ func GetTagsByTopicController(c *gin.Context) {
 	json, err := readUtil.GetJsonvalue(c)
 	if err != nil {
 		fmt.Println("AddArticleTagsController() controller.article.getArticle.GetJsonvalue err=", err)
-		res.ResponseError(c, res.ServerErrorCode)
+		myErr.CheckErrors(err, c)
 		return
 	}
 
 	result, err := article.GetTagsByTopicService(json)
 	if err != nil {
 		fmt.Println("AddArticleTagsController() controller.article.getArticle.GetTagsByTopicService err=", err)
-		if errors.Is(err, error.NotFoundError()) {
-			res.ResponseErrorWithMsg(c, res.ServerErrorCode, error.NotFoundError().Error())
+		if errors.Is(err, myErr.NotFoundError()) {
+			myErr.CheckErrors(err, c)
 			return
 		}
 		res.ResponseError(c, res.ServerErrorCode)
 		return
 	}
 	res.ResponseSuccess(c, result)
+}
+
+// SendTopicTagsController 发送话题标签数据
+func SendTopicTagsController(c *gin.Context) {
+	//获取前端发送的数据
+	json, err := readUtil.GetJsonvalue(c)
+
+	if err != nil {
+		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetJsonvalue err=")
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	//获取到查询的标签
+	result, err := article.GetTagsByTopicService(json)
+	if err != nil {
+		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetTagsByTopicService err=")
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	//返回响应
+	res.ResponseSuccess(c, result)
+
 }

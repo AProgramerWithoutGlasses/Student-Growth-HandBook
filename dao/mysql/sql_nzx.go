@@ -1,12 +1,11 @@
 package mysql
 
 import (
-	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	_ "gorm.io/gorm"
 	model "studentGrow/models/gorm_model"
-	er "studentGrow/pkg/error"
-	"time"
+	myErr "studentGrow/pkg/error"
 )
 
 // SelectUserById 查询数据库是否存在该用户
@@ -14,7 +13,6 @@ func SelectUserById(uid int) (err error, user *model.User) {
 	//select * from users where id = uid
 	// 查询用户
 	if err := DB.Where("id = ?", uid).First(&user).Error; err != nil {
-		fmt.Println("SelectUserById() dao.mysql err=", err)
 		return err, nil
 	} else {
 		return nil, user
@@ -25,11 +23,9 @@ func SelectUserById(uid int) (err error, user *model.User) {
 func SelectUserByUsername(username string) (uid int, err error) {
 	//select id from users where username = username
 	var user model.User
-	if err := DB.Model(model.User{}).Select("id").Where("username = ?", username).Find(&user).Error; err != nil {
-		fmt.Println("Error:", err)
+	if err := DB.Model(model.User{}).Select("id").Where("username = ?", username).First(&user).Error; err != nil {
 		return int(user.ID), err
 	} else {
-		fmt.Println("user.ID", int(user.ID))
 		return int(user.ID), nil
 	}
 }
@@ -37,7 +33,7 @@ func SelectUserByUsername(username string) (uid int, err error) {
 // SelectArticleById 通过id查找文章
 func SelectArticleById(aid int) (err error, article *model.Article) {
 	//查询用户 select * from articles where id = aid
-	fmt.Println("id:", aid)
+	// First自动检查记录是否存在
 	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
 		// 处理查询错误
 		fmt.Println("Error:", err)
@@ -86,8 +82,8 @@ func InsertIntoCommentsForComment(content string, uid int, pid int) (err error) 
 	return nil
 }
 
-// SelectArticleAndUserListByPage 分页查询文章及用户列表
-func SelectArticleAndUserListByPage(page, limit int, sort, order string) (result []model.Article, err error) {
+// SelectArticleAndUserListByPage 分页查询文章及用户列表并模糊查询
+func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt, topic, keyWords, name string, isBan bool) (result []model.Article, err error) {
 	//SELECT articles.*, users.*
 	//FROM articles
 	//JOIN users ON articles.user_id = users.id
@@ -98,31 +94,32 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order string) (result
 	//    LIMIT ?, 1
 	//)
 	//LIMIT ?;
-
 	var articles []model.Article
-	if order == "asc" {
-		var createdAt time.Time
-		_ = DB.Model(&model.Article{}).
-			Select("created_at").
-			Order("created_at ASC").
-			Limit(limit).
-			Offset((page - 1) * limit).
-			Scan(&createdAt).Error
+	var query *gorm.DB
 
-		DB.InnerJoins("User").Where("articles.created_at > ?", createdAt).Find(&articles)
-	} else {
-		var createdAt time.Time
-		_ = DB.Model(&model.Article{}).
-			Select("created_at").
-			Order("created_at DESC").
-			Limit(limit).
-			Offset((page - 1) * limit).
-			Scan(&createdAt).Error
-		DB.InnerJoins("User").Where("articles.created_at < ?", createdAt).Find(&articles)
+	// 时间区间为空检查
+	if startAt != "" && endAt != "" {
+		query = DB.Where(fmt.Sprintf("articles.%s between ? and ? and topic like ? and content like ? and articles.ban = ?", sort),
+			startAt, endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
+	} else if startAt == "" && endAt != "" {
+		query = DB.Where(fmt.Sprintf("articles.%s < ? and topic like ? and content like ? and articles.ban = ?", sort),
+			endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
+	} else if startAt != "" && endAt == "" {
+		query = DB.Where(fmt.Sprintf("articles.%s > ? and topic like ? and content like ? and articles.ban = ?", sort),
+			startAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
+	} else if startAt == "" && endAt == "" {
+		query = DB.Where("topic like ? and content like ? and articles.ban = ?",
+			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	}
 
+	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).
+		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		return nil, err
+	}
+
+	// 检查是否存在用户列表记录
 	if len(articles) <= 0 {
-		return nil, errors.New("no records")
+		return nil, myErr.NotFoundError()
 	}
 
 	return articles, nil
@@ -130,22 +127,44 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order string) (result
 
 // BannedArticleById 通过文章id对文章进行封禁或解封
 func BannedArticleById(articleId int, isBan bool) error {
-	// 先查询封禁字段
+	// 先查询封禁字段；若不存在文章为id的记录，则会返回错误
 	var article model.Article
-	DB.Select("ban").Where("id = ?", articleId).Find(&article)
-	if article.Ban == isBan {
-		fmt.Println("封禁字段冲突")
-		return er.HasExistError()
-	}
-
-	//进行修改
-	if err := DB.Model(&model.Article{}).Where("id = ?", articleId).Updates(map[string]any{
-		"ban": isBan,
-	}).Error; err != nil {
-		fmt.Println("修改失败")
+	if err := DB.Select("ban").Where("id = ?", articleId).First(&article).Error; err != nil {
+		fmt.Println(err)
 		return err
 	}
+	// 比对封禁字段值；若相同说明前端书数据传输错误
+	if article.Ban == isBan {
+		fmt.Println("封禁字段冲突")
+		return myErr.HasExistError()
+	}
 
+	//此时记录必定存在，进行修改
+	result := DB.Model(&model.Article{}).Where("id = ?", articleId).Updates(map[string]any{
+		"ban": isBan,
+	})
+
+	if result.Error != nil {
+		return result.Error
+	}
 	return nil
+}
 
+// DeleteArticleById 通过文章id删除文章
+func DeleteArticleById(articleId int) error {
+	article := model.Article{
+		Model: gorm.Model{
+			ID: 1,
+		},
+	}
+	result := DB.Delete(article)
+	// 处理错误
+	if result.Error != nil {
+		return result.Error
+	}
+	// 查询更新结果
+	if result.RowsAffected <= 0 {
+		return myErr.NotFoundError()
+	}
+	return nil
 }

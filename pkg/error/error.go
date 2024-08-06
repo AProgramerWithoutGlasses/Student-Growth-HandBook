@@ -21,7 +21,7 @@ func (e *Error) Error() string {
 func NotFoundError() *Error {
 	return &Error{
 		Code: res.ServerErrorCode,
-		Msg:  "not found",
+		Msg:  "record not found",
 	}
 }
 
@@ -29,7 +29,7 @@ func NotFoundError() *Error {
 func HasExistError() *Error {
 	return &Error{
 		Code: res.ServerErrorCode,
-		Msg:  "has existed",
+		Msg:  "data conflict",
 	}
 }
 
@@ -41,26 +41,24 @@ func DataFormatError() *Error {
 	}
 }
 
-// CheckErrors 一键检查错误
+// CheckErrors 一键检查错误,并返回msg
 func CheckErrors(err error, c *gin.Context) {
-	if err != nil {
-		if errors.Is(err, DataFormatError()) {
-			// 前端发送数据格式错误
-			res.ResponseErrorWithMsg(c, res.ServerErrorCode, DataFormatError().Msg)
-			return
-		}
-		if errors.Is(err, HasExistError()) {
-			// 数据已存在，发生冲突
-			res.ResponseErrorWithMsg(c, res.ServerErrorCode, HasExistError().Msg)
-			return
-		}
-
-		if errors.Is(err, NotFoundError()) {
-			// 找不到对应数据
-			res.ResponseErrorWithMsg(c, res.ServerErrorCode, NotFoundError().Msg)
-			return
-		}
-		// 其他错误
-		res.ResponseError(c, res.ServerErrorCode)
+	if errors.Is(err, DataFormatError()) {
+		// 前端发送数据格式错误
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, DataFormatError().Msg)
+		return
 	}
+	if errors.Is(err, HasExistError()) {
+		// 数据已存在，发生冲突
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, HasExistError().Msg)
+		return
+	}
+
+	if errors.Is(err, NotFoundError()) {
+		// 找不到对应数据
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, NotFoundError().Msg)
+		return
+	}
+	// 其他错误
+	res.ResponseErrorWithMsg(c, res.ServerErrorCode, err.Error())
 }

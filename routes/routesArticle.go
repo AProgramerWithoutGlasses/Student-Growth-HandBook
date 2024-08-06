@@ -12,7 +12,9 @@ func routesArticle(r *gin.Engine) {
 	r.POST("/article/list", article.GetArticleListController)
 	r.POST("/article/comment", article.PostCom)
 	r.POST("/article/publish/get_tags", middleWare.CORSMiddleware(), article.SendTopicTagsController)
-	r.POST("/article/like")        //文章点赞
-	r.POST("/article/cancel_like") //取消文章点赞
-	r.POST("/article/like_nums")   //获取文章点赞数量
+	r.POST("/article/like")                                         //文章点赞
+	r.POST("/article/cancel_like")                                  //取消文章点赞
+	r.POST("/article/like_nums")                                    //获取文章点赞数量
+	r.POST("/article/list/ban", article.BannedArticleController)    //封禁文章
+	r.POST("/article/list/delete", article.DeleteArticleController) //删除文章
 }

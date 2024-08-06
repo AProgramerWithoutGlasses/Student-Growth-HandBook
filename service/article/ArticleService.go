@@ -13,8 +13,11 @@ import (
 // GetArticleService 获取文章详情
 func GetArticleService(j *jsonvalue.V) (err error, user *model.User, article *model.Article) {
 	//获取文章id
-	aid, _ := j.GetInt("article_id")
-
+	aid, err := j.GetInt("article_id")
+	if err != nil {
+		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetInt err=", err)
+		return
+	}
 	//查找文章信息
 	err, article = mysql.SelectArticleById(aid)
 	if err != nil {
@@ -23,7 +26,7 @@ func GetArticleService(j *jsonvalue.V) (err error, user *model.User, article *mo
 	}
 	//查找用户信息
 	err, user = mysql.SelectUserById(int(article.UserID))
-	fmt.Println(int(article.UserID))
+
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.SelectUserById err=", err)
 		return err, nil, nil
@@ -39,11 +42,42 @@ func GetArticleListService(j *jsonvalue.V) ([]model.Article, error) {
 	limit, _ := j.GetInt("limit")
 	sort, _ := j.GetString("sort")
 	order, _ := j.GetString("order")
+	//获取发布时间、封禁状态、发布人、话题分类、关键词
+	startAt, err := j.GetString("start_at")
+	if err != nil {
+		fmt.Println("SearchArticleService() service.article.GetString err=", err)
+		return nil, err
+	}
+	endAt, err := j.GetString("end_at")
+	if err != nil {
+		fmt.Println("SearchArticleService() service.article.GetString err=", err)
+		return nil, err
+	}
+	isBan, err := j.GetBool("article_ban")
+	if err != nil {
+		fmt.Println("SearchArticleService() service.article.GetBool err=", err)
+		return nil, err
+	}
+	name, err := j.GetString("name")
+	if err != nil {
+		fmt.Println("SearchArticleService() service.article.GetString err=", err)
+		return nil, err
+	}
+	topic, err := j.GetString("topic")
+	if err != nil {
+		fmt.Println("SearchArticleService() service.article.GetString err=", err)
+		return nil, err
+	}
+	keyWords, err := j.GetString("key_words")
+	if err != nil {
+		fmt.Println("SearchArticleService() service.article.GetString err=", err)
+		return nil, err
+	}
 	//执行查询文章列表语句
-	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sort, order)
+	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sort, order, startAt, endAt, topic, keyWords, name, isBan)
 	if err != nil {
 		fmt.Println("GetArticleListService() service.article.GetString err=", err)
-		return nil, errors.New("no records")
+		return nil, myErr.NotFoundError()
 	}
 
 	return result, nil
@@ -90,18 +124,18 @@ func AddTopicsService(j *jsonvalue.V) error {
 
 // GetAllTopicsService 获取所有话题
 func GetAllTopicsService() (topics []map[string]any, err error) {
-
+	// 获取所有话题
 	slice, err := redis.RDB.SMembers("topics").Result()
-	fmt.Println(slice)
+
 	if err != nil {
 		fmt.Println("GetAllTopicsService() service.article.SMembers err=", err)
 		return nil, err
 	}
-
+	// 检查是否存在记录
 	if len(slice) == 0 {
 		return nil, myErr.NotFoundError()
 	}
-
+	//生成数据包
 	for i, v := range slice {
 		topics = append(topics, map[string]any{
 			"id":   i,
@@ -185,5 +219,23 @@ func BannedArticleService(j *jsonvalue.V) error {
 		return err
 	}
 
+	return nil
+}
+
+// DeleteArticleService 删除文章
+func DeleteArticleService(j *jsonvalue.V) error {
+	// 获取文章id
+	id, err := j.GetInt("article_id")
+	if err != nil {
+		fmt.Println("DeleteArticleService() service.article.GetInt err=", err)
+		return err
+	}
+
+	// 删除文章
+	err = mysql.DeleteArticleById(id)
+	if err != nil {
+		fmt.Println("DeleteArticleService() service.article.DeleteArticleById err=", err)
+		return err
+	}
 	return nil
 }

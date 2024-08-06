@@ -3,7 +3,7 @@ package article
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"studentGrow/pkg/error"
+	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
 	readUtil "studentGrow/utils/readMessage"
@@ -13,18 +13,20 @@ import (
 // GetArticleIdController article_id	获取文章详情
 func GetArticleIdController(c *gin.Context) {
 	//将数据解析到map中
-	json, e := readUtil.GetJsonvalue(c)
-	if e != nil {
-		fmt.Println(" AnalyzeToMap err=", e)
-	}
-	err, user, acl := article.GetArticleService(json)
-
-	//若在数据库中找不到该文章或用户
+	json, err := readUtil.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("GetArticleIdController() controller.article.getArticle.GetArticleService err=", err)
-		res.ResponseErrorWithMsg(c, res.ServerErrorCode, "NOT FOUND")
+		fmt.Println(" AnalyzeToMap err=", err)
+		myErr.CheckErrors(err, c)
 		return
 	}
+	// 获取文章详情
+	err, user, acl := article.GetArticleService(json)
+	//错误检查
+	if err != nil {
+		myErr.CheckErrors(err, c)
+		return
+	}
+	// 无错误
 	data := map[string]any{
 		"article_id":          acl.ID,
 		"username":            user.Username,
@@ -37,32 +39,7 @@ func GetArticleIdController(c *gin.Context) {
 		"article_like_sum":    acl.LikeAmount,
 		"article_comment_sum": acl.CommentAmount,
 	}
-	//若可以找到
 	res.ResponseSuccess(c, data)
-}
-
-// SendTopicTagsController 发送话题标签数据
-func SendTopicTagsController(c *gin.Context) {
-	//获取前端发送的数据
-	json, err := readUtil.GetJsonvalue(c)
-
-	if err != nil {
-		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetJsonvalue err=")
-		res.ResponseError(c, res.ServerErrorCode)
-		return
-	}
-
-	//获取到查询的标签
-	result, err := article.GetTagsByTopicService(json)
-	if err != nil {
-		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetTagsByTopicService err=")
-		res.ResponseErrorWithMsg(c, res.ServerErrorCode, error.HasExistError().Error())
-		return
-	}
-
-	//返回响应
-	res.ResponseSuccess(c, result)
-
 }
 
 // GetArticleListController 获取文章列表
@@ -72,7 +49,7 @@ func GetArticleListController(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println("GetArticleListController() controller.article.getArticle.AnalyzeDataToMyData err=", err)
-		res.ResponseError(c, res.ServerErrorCode)
+		myErr.CheckErrors(err, c)
 		return
 	}
 
@@ -81,7 +58,7 @@ func GetArticleListController(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println("GetArticleList() controller.article.getArticle.AnalyzeDataToMyData err=", err)
-		res.ResponseError(c, res.ServerErrorCode)
+		myErr.CheckErrors(err, c)
 		return
 	}
 	var list []map[string]any
@@ -108,21 +85,48 @@ func BannedArticleController(c *gin.Context) {
 	json, err := readUtil.GetJsonvalue(c)
 
 	if err != nil {
-		fmt.Println("BannedArticle() controller.article.getArticle.AnalyzeDataToMyData err=", err)
-		res.ResponseError(c, res.ServerErrorCode)
+		fmt.Println("BannedArticle() controller.article.getArticle.GetJsonvalue err=", err)
+		myErr.CheckErrors(err, c)
 		return
 	}
 
 	// 对应帖子进行封禁或解封操作
 	err = article.BannedArticleService(json)
 	// 检查错误
-	error.CheckErrors(err, c)
+	if err != nil {
+		fmt.Println("BannedArticle() controller.article.getArticle.BannedArticleService err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
 
 	res.ResponseSuccess(c, nil)
 
 }
 
-// PublishArticle 发布文章
+// DeleteArticleController 删除文章
+func DeleteArticleController(c *gin.Context) {
+	//获取前端发送的数据
+	json, err := readUtil.GetJsonvalue(c)
+
+	if err != nil {
+		fmt.Println("DeleteArticleController() controller.article.getArticle.GetJsonvalue err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 对文章进行删除操作
+	err = article.DeleteArticleService(json)
+	if err != nil {
+		fmt.Println("DeleteArticleController() controller.article.getArticle.GetJsonvalue err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, nil)
+
+}
+
+//PublishArticle 发布文章
 //func PublishArticle(c *gin.Context) {
 //	//解析formdata
 //	form, err := readUtil.GetFormData(c)
