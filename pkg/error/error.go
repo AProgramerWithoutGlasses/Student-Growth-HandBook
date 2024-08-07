@@ -41,7 +41,7 @@ func DataFormatError() *Error {
 	}
 }
 
-// CheckErrors 一键检查错误,并返回msg
+// CheckErrors 一键检查错误,并返回给客户端msg
 func CheckErrors(err error, c *gin.Context) {
 	if errors.Is(err, DataFormatError()) {
 		// 前端发送数据格式错误

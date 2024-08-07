@@ -126,7 +126,12 @@ func DeleteArticleController(c *gin.Context) {
 
 }
 
-//PublishArticle 发布文章
+// ReportArticle 举报文章
+func ReportArticle() {
+
+}
+
+// PublishArticle 发布文章
 //func PublishArticle(c *gin.Context) {
 //	//解析formdata
 //	form, err := readUtil.GetFormData(c)

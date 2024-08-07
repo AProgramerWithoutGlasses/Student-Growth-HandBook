@@ -36,7 +36,7 @@ func GetAllTopicsController(c *gin.Context) {
 
 	result, err := article.GetAllTopicsService()
 	if err != nil {
-		fmt.Println("GetAllTopicsController() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		fmt.Println("GetAllTopicsController() controller.article.getArticle.GetAllTopicsService err=", err)
 		if err != nil {
 			myErr.CheckErrors(err, c)
 			return
@@ -115,5 +115,6 @@ func SendTopicTagsController(c *gin.Context) {
 
 	//返回响应
 	res.ResponseSuccess(c, result)
-
 }
+
+// 消息通知

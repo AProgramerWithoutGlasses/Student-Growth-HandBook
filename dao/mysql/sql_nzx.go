@@ -135,7 +135,7 @@ func BannedArticleById(articleId int, isBan bool) error {
 	}
 	// 比对封禁字段值；若相同说明前端书数据传输错误
 	if article.Ban == isBan {
-		fmt.Println("封禁字段冲突")
+		fmt.Println("BannedArticleById() dao.mysql.sql_nzx")
 		return myErr.HasExistError()
 	}
 
@@ -154,7 +154,7 @@ func BannedArticleById(articleId int, isBan bool) error {
 func DeleteArticleById(articleId int) error {
 	article := model.Article{
 		Model: gorm.Model{
-			ID: 1,
+			ID: uint(articleId),
 		},
 	}
 	result := DB.Delete(article)
@@ -168,3 +168,18 @@ func DeleteArticleById(articleId int) error {
 	}
 	return nil
 }
+
+// ReportArticleById 举报文章
+//func ReportArticleById(articleId int) error {
+//	article := model.Article{
+//		Model: gorm.Model{
+//			ID: uint(articleId),
+//		},
+//	}
+//	result := DB.Update("")
+//}
+
+// InsertIntoArticle 插入文章信息
+//func InsertIntoArticle(username, content, topic string, tags []string, file[]) {
+//
+//}
