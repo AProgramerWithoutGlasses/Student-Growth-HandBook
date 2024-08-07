@@ -239,3 +239,33 @@ func DeleteArticleService(j *jsonvalue.V) error {
 	}
 	return nil
 }
+
+// ReportArticleService 举报文章
+func ReportArticleService(j *jsonvalue.V) error {
+	// 获取文章id和举报者用户id
+	aid, err := j.GetInt("article_id")
+	if err != nil {
+		fmt.Println("ReportArticleService() service.article.GetInt err=", err)
+		return err
+	}
+
+	username, err := j.GetString("username")
+	if err != nil {
+		fmt.Println("ReportArticleService() service.article.GetString err=", err)
+		return err
+	}
+
+	// 通过username查询id
+	uid, err := mysql.SelectUserByUsername(username)
+	if err != nil {
+		fmt.Println("ReportArticleService() service.article.SelectUserByUsername err=", err)
+		return err
+	}
+
+	err = mysql.ReportArticleById(aid, uid)
+	if err != nil {
+		fmt.Println("ReportArticleService() service.article.ReportArticleById err=", err)
+		return err
+	}
+	return nil
+}

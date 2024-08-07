@@ -170,14 +170,72 @@ func DeleteArticleById(articleId int) error {
 }
 
 // ReportArticleById 举报文章
-//func ReportArticleById(articleId int) error {
-//	article := model.Article{
-//		Model: gorm.Model{
-//			ID: uint(articleId),
-//		},
-//	}
-//	result := DB.Update("")
-//}
+func ReportArticleById(aid int, uid int) error {
+	//由于举报逻辑需要先自增文章的举报字段，然后添加举报信息到记录表。
+	//需要开启事务，若出现错误，则回滚
+	bg := DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("ReportArticleById() panic rollback()", r)
+			bg.Rollback()
+		}
+	}()
+
+	// 获取被举报文章举报量，并对举报量+1操作
+	article := model.Article{}
+	if err := DB.Where("id = ?", uint(aid)).First(&article).Error; err != nil {
+		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		return err
+	}
+	article.ReportAmount += 1
+	result := DB.Model(model.Article{}).Select("report_amount").Where("id = ?", aid).Save(&article)
+
+	if result.Error != nil {
+		bg.Rollback()
+		panic("ss")
+		return result.Error
+	}
+	// 查询更新结果
+	if result.RowsAffected <= 0 {
+		return myErr.NotFoundError()
+	}
+
+	// 检查举报记录：不允许重复举报
+	var report []model.UserReportArticleRecord
+	if err := DB.Where("user_id = ? and article_id = ?", uid, aid).Find(&report).Error; err != nil {
+		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		bg.Rollback()
+		return err
+	}
+
+	//如果数据库有重复记录，则拒绝重复提交
+	if len(report) > 0 {
+		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		bg.Rollback()
+		return myErr.RejectRepeatSubmission()
+	}
+
+	// 写入举报记录
+
+	reportRecord := model.UserReportArticleRecord{
+		UserID:    uint(uid),
+		ArticleID: uint(aid),
+	}
+
+	if err := DB.Create(&reportRecord).Error; err != nil {
+		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		bg.Rollback()
+		return err
+	}
+
+	// 提交
+	if err := bg.Commit().Error; err != nil {
+		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		bg.Rollback()
+		return err
+	}
+	return nil
+}
 
 // InsertIntoArticle 插入文章信息
 //func InsertIntoArticle(username, content, topic string, tags []string, file[]) {

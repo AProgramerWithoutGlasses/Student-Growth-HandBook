@@ -33,6 +33,14 @@ func HasExistError() *Error {
 	}
 }
 
+// RejectRepeatSubmission 拒绝重复提交
+func RejectRepeatSubmission() *Error {
+	return &Error{
+		Code: res.ServerErrorCode,
+		Msg:  "reject repeat submission",
+	}
+}
+
 // DataFormatError 数据格式错误
 func DataFormatError() *Error {
 	return &Error{
@@ -57,6 +65,12 @@ func CheckErrors(err error, c *gin.Context) {
 	if errors.Is(err, NotFoundError()) {
 		// 找不到对应数据
 		res.ResponseErrorWithMsg(c, res.ServerErrorCode, NotFoundError().Msg)
+		return
+	}
+
+	if errors.Is(err, RejectRepeatSubmission()) {
+		// 拒绝重复提交
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, RejectRepeatSubmission().Msg)
 		return
 	}
 	// 其他错误

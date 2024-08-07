@@ -43,6 +43,8 @@ func ParseToken(tokenString string) (*jwt.Token, *models.Claims, error) {
 	return token, claims, err
 }
 
+//通过token获取username
+
 func GetUsername(tokenString string) (string, error) {
 	tokenString = tokenString[7:]
 	_, claims, err := ParseToken(tokenString)

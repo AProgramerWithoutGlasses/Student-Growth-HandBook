@@ -14,6 +14,7 @@ func Setup() *gin.Engine {
 
 	routesArticle(r)
 	routesTopic(r)
+	routesMsg(r)
 
 	RoutesXue(r)
 

@@ -17,4 +17,5 @@ func routesArticle(r *gin.Engine) {
 	r.POST("/article/like_nums")                                    //获取文章点赞数量
 	r.POST("/article/list/ban", article.BannedArticleController)    //封禁文章
 	r.POST("/article/list/delete", article.DeleteArticleController) //删除文章
+	r.POST("/article/report", article.ReportArticle)                //举报文章
 }
