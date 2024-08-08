@@ -4,11 +4,22 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="" />
+    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.8">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/demo/world.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
   </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../../Go" />
   <component name="Git.Settings">
@@ -53,6 +64,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Go 构建.go build studentGrow (2).executor&quot;: &quot;Run&quot;,
+    &quot;Go 构建.go build studentGrow (3).executor&quot;: &quot;Run&quot;,
     &quot;Go 构建.go build studentGrow.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -68,9 +80,9 @@
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
 }</component>
-  <component name="RunManager" selected="Go 构建.go build studentGrow (2)">
-    <configuration name="go build sql_jrx.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="StudentGrowthPlatform" />
+  <component name="RunManager" selected="Go 构建.go build studentGrow (3)">
+    <configuration name="go build studentGrow (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="gg" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="FILE" />
       <package value="studentGrow" />
@@ -89,6 +101,7 @@
     </configuration>
     <configuration name="go build studentGrow (2)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="feature" />
+      <module name="common" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
       <package value="studentGrow" />
@@ -116,6 +129,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go 构建.go build studentGrow (3)" />
         <item itemvalue="Go 构建.go build ww.go" />
         <item itemvalue="Go 构建.go build studentGrow (2)" />
         <item itemvalue="Go 构建.go build studentGrow (1)" />
