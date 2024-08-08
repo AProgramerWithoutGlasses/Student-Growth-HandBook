@@ -26,4 +26,5 @@ type User struct {
 	Articles    []Article        //用户拥有的文章列表
 	ReadRecords []UserReadRecord //用户浏览记录
 	Selects     []Select         //用户拥有收藏
+
 }

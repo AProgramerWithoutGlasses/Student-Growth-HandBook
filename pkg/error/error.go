@@ -1,6 +1,10 @@
 package error
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/AzureAD/microsoft-authentication-library-for-go/apps/errors"
+	"github.com/gin-gonic/gin"
+)
 import res "studentGrow/pkg/response"
 
 type Error struct {
@@ -17,7 +21,7 @@ func (e *Error) Error() string {
 func NotFoundError() *Error {
 	return &Error{
 		Code: res.ServerErrorCode,
-		Msg:  "not found",
+		Msg:  "record not found",
 	}
 }
 
@@ -25,6 +29,50 @@ func NotFoundError() *Error {
 func HasExistError() *Error {
 	return &Error{
 		Code: res.ServerErrorCode,
-		Msg:  "has existed",
+		Msg:  "data conflict",
 	}
+}
+
+// RejectRepeatSubmission 拒绝重复提交
+func RejectRepeatSubmission() *Error {
+	return &Error{
+		Code: res.ServerErrorCode,
+		Msg:  "reject repeat submission",
+	}
+}
+
+// DataFormatError 数据格式错误
+func DataFormatError() *Error {
+	return &Error{
+		Code: res.ServerErrorCode,
+		Msg:  "data format error",
+	}
+}
+
+// CheckErrors 一键检查错误,并返回给客户端msg
+func CheckErrors(err error, c *gin.Context) {
+	if errors.Is(err, DataFormatError()) {
+		// 前端发送数据格式错误
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, DataFormatError().Msg)
+		return
+	}
+	if errors.Is(err, HasExistError()) {
+		// 数据已存在，发生冲突
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, HasExistError().Msg)
+		return
+	}
+
+	if errors.Is(err, NotFoundError()) {
+		// 找不到对应数据
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, NotFoundError().Msg)
+		return
+	}
+
+	if errors.Is(err, RejectRepeatSubmission()) {
+		// 拒绝重复提交
+		res.ResponseErrorWithMsg(c, res.ServerErrorCode, RejectRepeatSubmission().Msg)
+		return
+	}
+	// 其他错误
+	res.ResponseErrorWithMsg(c, res.ServerErrorCode, err.Error())
 }

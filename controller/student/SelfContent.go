@@ -13,7 +13,7 @@ type SelfContentStruct struct {
 	NewSelfContent string `json:"newSelfContent"`
 }
 
-// 获取前端发送的用户id, 并将其在数据库中对应的用户自述响应给前端
+// GetSelfContentContro 获取前端发送的用户id, 并将其在数据库中对应的用户自述响应给前端
 func GetSelfContentContro(c *gin.Context) {
 	// 接收前端发送的Username，将其存储到selfContentStruct结构体中
 	var selfContentStruct SelfContentStruct
@@ -38,10 +38,10 @@ func GetSelfContentContro(c *gin.Context) {
 	}
 
 	// 将selfContent发送给前端
-	response2.ResponseSuccess(c, selfContent)
+	response2.ResponseSuccess(c, "该用户自述为: "+selfContent)
 }
 
-// 获取前端发送的学号和newSelfContent, 并将其在数据库中的旧selfContent更新
+// UpdateSelfContentContro 获取前端发送的学号和newSelfContent, 并将其在数据库中的旧selfContent更新
 func UpdateSelfContentContro(c *gin.Context) {
 	// 接收前端发送的学号和newSelfContent
 	var selfContentStruct SelfContentStruct
