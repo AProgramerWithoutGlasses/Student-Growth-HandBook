@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// GetEnrollmentYear 根据年级计算入学年份xxxx年9月1日
+// GetEnrollmentYear 根据年级计算入学年份xxxxxxx年9月1日
 func GetEnrollmentYear(grade int) (time.Time, error) {
 	// 获取当前年份
 	currentYear := time.Now().Year()
