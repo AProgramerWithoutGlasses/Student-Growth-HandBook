@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.8">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/gorm_model/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/User.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/demo/world.go" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" afterDir="false" />
     </list>
@@ -101,6 +103,14 @@
     </configuration>
     <configuration name="go build studentGrow (2)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="feature" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="studentGrow" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build studentGrow (3)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="common" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
@@ -134,7 +144,6 @@
         <item itemvalue="Go 构建.go build studentGrow (2)" />
         <item itemvalue="Go 构建.go build studentGrow (1)" />
         <item itemvalue="Go 构建.go build studentGrow" />
-        <item itemvalue="Go 构建.go build sql_jrx.go" />
       </list>
     </recent_temporary>
   </component>

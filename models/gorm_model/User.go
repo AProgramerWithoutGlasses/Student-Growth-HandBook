@@ -2,6 +2,7 @@ package gorm_model
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 type User struct {
@@ -15,7 +16,7 @@ type User struct {
 	Class       string           `gorm:"size:100"json:"class"`
 	PhoneNumber string           `gorm:"size:100"json:"phoneNumber"`
 	MailBox     string           `gorm:"size:100"json:"mailBox"`
-	PlusTime    string           `gorm:"type:date"json:"plusTime"`
+	PlusTime    time.Time        `gorm:"type:date"json:"plusTime"`
 	Identity    string           `gorm:"not null;size:100"json:"identity"`
 	Point       int              `gorm:"default:0"json:"point"`
 	SelfContent string           `gorm:"size:1000"json:"selfContent"`
