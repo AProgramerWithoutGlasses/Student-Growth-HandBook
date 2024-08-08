@@ -13,7 +13,7 @@ type SelfContentStruct struct {
 	NewSelfContent string `json:"newSelfContent"`
 }
 
-// 获取前端发送的用户id, 并将其在数据库中对应的用户自述响应给前端
+// GetSelfContentContro 获取前端发送的用户id, 并将其在数据库中对应的用户自述响应给前端
 func GetSelfContentContro(c *gin.Context) {
 	// 接收前端发送的Username，将其存储到selfContentStruct结构体中
 	var selfContentStruct SelfContentStruct
