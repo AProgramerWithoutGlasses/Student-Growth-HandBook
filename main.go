@@ -36,15 +36,8 @@ func main() {
 
 	// 3. 初始化Mysql
 	if err := mysql.Init(); err != nil {
-<<<<<<< HEAD
 		fmt.Printf("mysql.Init() gorm.Open() err : %v\n", err)
-=======
-		fmt.Printf("mysql.Init() rdb.Ping().Result() err : %v\n", err)
-		return
-	}
-	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.ArticleTopic{}, &model.Upvote{}, &model.ArticleTag{})
-	if err != nil {
->>>>>>> bbd4d3eaa3b86d0900cb2b387d9481155a2f2743
+
 		return
 	}
 

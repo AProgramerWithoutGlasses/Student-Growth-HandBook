@@ -2,24 +2,24 @@ app:
  port: 8881
 
 log:
-  level: "debug"
-  filename: "web_app.log"
-  max_size: 200
-  max_age: 30
-  max_backups: 7
+ level: "debug"
+ filename: "web_app.log"
+ max_size: 200
+ max_age: 30
+ max_backups: 7
 
 mysql:
-  host: "192.168."
-  port: 3306
-  user: "root"
-  password: "n208966737"
-  dbname: "manage_sys"
-  max_open_conns: 200
-  max_idle_conns: 50
+ host: "192.168.10.4"
+ port: 3310
+ user: "root"
+ password: "123456"
+ dbname: "student_grow"
+ max_open_conns: 200
+ max_idle_conns: 50
 
 redis:
-  host: "152.136.50.60"
-  port: 6378
-  password: "seatMarch"
-  db: 0
-  pool_size: 100
+ host: "192.168.10.4"
+ port: 6379
+ password: "123456"
+ db: 25
+ pool_size: 100

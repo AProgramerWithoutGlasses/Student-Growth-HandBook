@@ -9,7 +9,7 @@ import (
 
 // 用户自述
 type SelfContentStruct struct {
-	Username       int    `json:"username"`
+	Username       string `json:"username"`
 	NewSelfContent string `json:"newSelfContent"`
 }
 
@@ -23,8 +23,14 @@ func GetSelfContentContro(c *gin.Context) {
 		return
 	}
 
-	// 根据username，查找数据库中对应的selfContent
-	selfContent, err := mysql.GetSelfContent(selfContentStruct.Username)
+	// 根据学号获取id
+	id, err := mysql.GetIdByUsername(selfContentStruct.Username)
+	if err != nil {
+		fmt.Println("student.UpdateSelfContentContro() mysql.GetIdByUsername() err : ", err)
+	}
+
+	// 根据id，查找数据库中对应的selfContent
+	selfContent, err := mysql.GetSelfContent(id)
 	if err != nil {
 		response2.ResponseError(c, 401)
 		fmt.Println("controller.GetSelfContentContro() mysql.GetSelfContent() err : ", err.Error())
@@ -32,21 +38,27 @@ func GetSelfContentContro(c *gin.Context) {
 	}
 
 	// 将selfContent发送给前端
-	response2.ResponseSuccess(c, selfContent)
+	response2.ResponseSuccess(c, "该用户自述为: "+selfContent)
 }
 
-// 获取前端发送的用户id和newSelfContent, 并将其在数据库中的旧selfContent更新
+// 获取前端发送的学号和newSelfContent, 并将其在数据库中的旧selfContent更新
 func UpdateSelfContentContro(c *gin.Context) {
-	// 接收前端发送的用户id和newSelfContent
+	// 接收前端发送的学号和newSelfContent
 	var selfContentStruct SelfContentStruct
 	if err := c.ShouldBindJSON(&selfContentStruct); err != nil {
 		response2.ResponseErrorWithMsg(c, response2.ServerErrorCode, "获取用户自述失败")
-		fmt.Println("UpdateSelfContentContro() c.ShouldBindJSON() err : ", err)
+		fmt.Println("selfContent.UpdateSelfContentContro() c.ShouldBindJSON() err : ", err)
 		return
 	}
 
+	// 根据学号获取id
+	id, err := mysql.GetIdByUsername(selfContentStruct.Username)
+	if err != nil {
+		fmt.Println("student.UpdateSelfContentContro() mysql.GetIdByUsername() err : ", err)
+	}
+
 	// 在mysql中根据id查询到旧selfContent，用newSelfContent将其替换。
-	err := mysql.UpdateSelfContent(selfContentStruct.Username, selfContentStruct.NewSelfContent)
+	err = mysql.UpdateSelfContent(id, selfContentStruct.NewSelfContent)
 	if err != nil {
 		response2.ResponseError(c, response2.ServerErrorCode)
 		fmt.Println("UpdateSelfContentContro() mysql.UpdateSelfContent() err : ", err)

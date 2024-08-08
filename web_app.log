@@ -1036,3 +1036,5 @@
 {"level":"INFO","time":"2024-08-02T22:16:11.100+0800","caller":"studentDemo/main.go:72","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-08-02T22:16:11.100+0800","caller":"studentDemo/main.go:79","msg":"Server exiting"}
 >>>>>>> bbd4d3eaa3b86d0900cb2b387d9481155a2f2743
+{"level":"INFO","time":"2024-08-08T17:38:29.440+0800","caller":"feature/main.go:73","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-08T17:38:29.448+0800","caller":"feature/main.go:80","msg":"Server exiting"}

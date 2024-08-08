@@ -115,8 +115,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 					)
 				} else {
 					zap.L().Error("[Recovery from panic]",
-						zap.Any("errors", err),
-						zap.String("request", string(httpRequest)),
+						zap.Any("errors", err), zap.String("request", string(httpRequest)),
 					)
 				}
 				c.AbortWithStatus(http.StatusInternalServerError)
