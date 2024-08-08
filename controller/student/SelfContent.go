@@ -41,7 +41,7 @@ func GetSelfContentContro(c *gin.Context) {
 	response2.ResponseSuccess(c, "该用户自述为: "+selfContent)
 }
 
-// 获取前端发送的学号和newSelfContent, 并将其在数据库中的旧selfContent更新
+// UpdateSelfContentContro 获取前端发送的学号和newSelfContent, 并将其在数据库中的旧selfContent更新
 func UpdateSelfContentContro(c *gin.Context) {
 	// 接收前端发送的学号和newSelfContent
 	var selfContentStruct SelfContentStruct
