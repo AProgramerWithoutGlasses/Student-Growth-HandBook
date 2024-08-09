@@ -7,7 +7,7 @@ import (
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
 	readUtil "studentGrow/utils/readMessage"
-	timeUtil "studentGrow/utils/timeConverter"
+	"studentGrow/utils/token"
 )
 
 // GetArticleIdController article_id	获取文章详情
@@ -15,30 +15,19 @@ func GetArticleIdController(c *gin.Context) {
 	//将数据解析到map中
 	json, err := readUtil.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println(" AnalyzeToMap err=", err)
+		fmt.Println(" GetArticleIdController() controller.article.GetJsonvalue err=", err)
 		myErr.CheckErrors(err, c)
 		return
 	}
 	// 获取文章详情
-	err, user, acl := article.GetArticleService(json)
+	err, data := article.GetArticleService(json)
 	//错误检查
 	if err != nil {
+		fmt.Println(" GetArticleIdController() controller.article.GetArticleService err=", err)
 		myErr.CheckErrors(err, c)
 		return
 	}
-	// 无错误
-	data := map[string]any{
-		"article_id":          acl.ID,
-		"username":            user.Username,
-		"user_image":          user.HeadShot,
-		"user_class":          user.Class,
-		"article_post_time":   timeUtil.IntervalConversion(acl.CreatedAt),
-		"article_content":     map[string]string{"article_text": acl.Content, "article_image": acl.Pic, "article_video": acl.Video},
-		"topic_id":            acl.Topic,
-		"article_collect_sum": acl.CollectAmount,
-		"article_like_sum":    acl.LikeAmount,
-		"article_comment_sum": acl.CommentAmount,
-	}
+
 	res.ResponseSuccess(c, data)
 }
 
@@ -85,13 +74,29 @@ func BannedArticleController(c *gin.Context) {
 	json, err := readUtil.GetJsonvalue(c)
 
 	if err != nil {
-		fmt.Println("BannedArticle() controller.article.getArticle.GetJsonvalue err=", err)
+		fmt.Println("BannedArticleController() controller.article.getArticle.GetJsonvalue err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 获取管理员username
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		fmt.Println("BannedArticleController() controller.article.getArticle.GetUsername err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 获取管理员角色
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		fmt.Println("BannedArticleController() controller.article.getArticle.GetRole err=", err)
 		myErr.CheckErrors(err, c)
 		return
 	}
 
 	// 对应帖子进行封禁或解封操作
-	err = article.BannedArticleService(json)
+	err = article.BannedArticleService(json, role, username)
 	// 检查错误
 	if err != nil {
 		fmt.Println("BannedArticle() controller.article.getArticle.BannedArticleService err=", err)
@@ -105,6 +110,13 @@ func BannedArticleController(c *gin.Context) {
 
 // DeleteArticleController 删除文章
 func DeleteArticleController(c *gin.Context) {
+
+	// 获取权限角色
+	role, err := token.GetRole(c.GetHeader("token"))
+
+	// 获取管理员username
+	username, err := token.GetUsername(c.GetHeader("token"))
+
 	//获取前端发送的数据
 	json, err := readUtil.GetJsonvalue(c)
 
@@ -115,7 +127,7 @@ func DeleteArticleController(c *gin.Context) {
 	}
 
 	// 对文章进行删除操作
-	err = article.DeleteArticleService(json)
+	err = article.DeleteArticleService(json, role, username)
 	if err != nil {
 		fmt.Println("DeleteArticleController() controller.article.getArticle.GetJsonvalue err=", err)
 		myErr.CheckErrors(err, c)
@@ -127,8 +139,72 @@ func DeleteArticleController(c *gin.Context) {
 }
 
 // ReportArticle 举报文章
-func ReportArticle() {
+func ReportArticle(c *gin.Context) {
+	//获取前端发送的数据
+	json, err := readUtil.GetJsonvalue(c)
+	if err != nil {
+		fmt.Println("ReportArticle() controller.article.getArticle.GetJsonvalue err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
 
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		fmt.Println("ReportArticle() controller.article.getArticle.GetUsername err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 对文章进行举报并记录
+	err = article.ReportArticleService(json, username)
+
+	if err != nil {
+		fmt.Println("ReportArticle() controller.article.getArticle.ReportArticleService err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, nil)
+}
+
+// GetHotArticlesOfDayController 获取今日十条热帖
+func GetHotArticlesOfDayController(c *gin.Context) {
+	//获取前端发送的数据
+	json, err := readUtil.GetJsonvalue(c)
+	if err != nil {
+		fmt.Println("ReportArticle() controller.article.getArticle.GetJsonvalue err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	articles, err := article.SearchHotArticlesOfDayService(json)
+	if err != nil {
+		fmt.Println("GetHotArticlesOfDayController() controller.article.getArticle.SearchHotArticlesOfDayService err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, articles)
+}
+
+// SelectArticleAndUserListByPageFirstPageController 前台首页模糊搜索文章列表
+func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
+	//获取前端发送的数据
+	json, err := readUtil.GetJsonvalue(c)
+	if err != nil {
+		fmt.Println("SelectArticleAndUserListByPageFirstPageController() controller.article.getArticle.GetJsonvalue err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	list, err := article.SelectArticleAndUserListByPageFirstPageService(json)
+	if err != nil {
+		fmt.Println("SelectArticleAndUserListByPageFirstPageController() controller.article.getArticle.SelectArticleAndUserListByPageFirstPageService err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, list)
 }
 
 // PublishArticle 发布文章

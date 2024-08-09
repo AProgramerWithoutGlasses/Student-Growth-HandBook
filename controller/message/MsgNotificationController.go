@@ -3,9 +3,10 @@ package message
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	error2 "studentGrow/pkg/error"
+	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
+	readUtil "studentGrow/utils/readMessage"
 	"studentGrow/utils/token"
 )
 
@@ -14,25 +15,92 @@ func GetUnreadReportsController(c *gin.Context) {
 
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		fmt.Println("GetUnreadReportsController() controller.message.GetUsername err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
 
-	//if err != nil {
-	//	fmt.Println("GetUnreadReportsController() controller.message.GetUsername")
-	//}
+	// 通过token获取管理员角色
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		fmt.Println("GetUnreadReportsController() controller.message.GetRole err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
 
 	// 获取未读举报列表
-	reports, err := article.GetUnreadReportsService(username)
+	reports, err := article.GetUnreadReportsForService(username, role)
 	if err != nil {
 		fmt.Println("GetUnreadReportsController() controller.message.GetUnreadReportsService err=", err)
-		error2.CheckErrors(err, c)
+		myErr.CheckErrors(err, c)
 		return
+	}
+
+	// 通过文章id映射report_content,article_content
+	var reportContent map[uint][]map[string]any
+	var articleContent map[uint]string
+	for _, item := range reports {
+		reportContent[item.ArticleID] = append(reportContent[item.ArticleID], map[string]any{
+			"report_time": item.CreatedAt,
+			"report_msg":  item.Msg,
+		})
+		articleContent[item.ArticleID] = item.Article.Content
+	}
+
+	var list []map[string]any
+	for key, val := range reportContent {
+		list = append(list, map[string]any{
+			"article_id":      key,
+			"article_content": articleContent[key],
+			"report_content":  val,
+		})
 	}
 
 	// 返回响应
 	res.ResponseSuccess(c, map[string]any{
-		"reports":    reports,
-		"report_num": len(reports),
+		"article_ban":  list,
+		"unread_count": len(list),
 	})
-
 }
 
-// 确认未读举报信息
+// AckUnreadReportsController 确认未读举报信息
+func AckUnreadReportsController(c *gin.Context) {
+
+	// 通过token获取username
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		fmt.Println("GetUnreadReportsController() controller.message.GetUsername err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 通过token获取管理员角色
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		fmt.Println("GetUnreadReportsController() controller.message.GetRole err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	//获取前端发送的数据
+	json, err := readUtil.GetJsonvalue(c)
+	reportId, err := json.GetInt("article_id")
+	if err != nil {
+		fmt.Println("AckUnreadReportsForClassController() controller.message.GetInt err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 确认未读举报消息
+	err = article.AckUnreadReportsService(reportId, username, role)
+	if err != nil {
+		fmt.Println("AckUnreadReportsForClassController() controller.message.AckUnreadReportsForClassService err=", err)
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 返回响应
+	res.ResponseSuccess(c, nil)
+
+}

@@ -116,5 +116,3 @@ func SendTopicTagsController(c *gin.Context) {
 	//返回响应
 	res.ResponseSuccess(c, result)
 }
-
-// 消息通知

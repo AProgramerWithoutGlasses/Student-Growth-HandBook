@@ -4,6 +4,7 @@ import (
 	"fmt"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
 	"github.com/gin-gonic/gin"
+	"studentGrow/dao/redis"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
 	utils "studentGrow/utils/readMessage"
@@ -33,7 +34,7 @@ func Like(c *gin.Context) {
 	//解析数据
 	j, e := utils.GetJsonvalue(c)
 	if e != nil {
-		fmt.Println("Like() controller.article.AnalyzeToMap err=", e)
+		fmt.Println("Like() controller.article.GetJsonvalue err=", e)
 		return
 	}
 
@@ -43,7 +44,11 @@ func Like(c *gin.Context) {
 		return
 	}
 	//点赞
-	article.Like(objId, userId, likeType)
+	err = article.Like(objId, userId, likeType)
+	if err != nil {
+		fmt.Println("Like() controller.article.Like err=", err)
+		return
+	}
 
 	//返回数据
 	res.ResponseSuccess(c, nil)
@@ -54,7 +59,7 @@ func CancelLike(c *gin.Context) {
 	//解析数据
 	j, e := utils.GetJsonvalue(c)
 	if e != nil {
-		fmt.Println("Like() controller.article.AnalyzeToMap err=", e)
+		fmt.Println("Like() controller.article.GetJsonvalue err=", e)
 		return
 	}
 
@@ -64,7 +69,11 @@ func CancelLike(c *gin.Context) {
 	}
 
 	//取消点赞
-	article.CancelLike(objId, userId, likeType)
+	err = article.CancelLike(objId, userId, likeType)
+	if err != nil {
+		fmt.Println("Like() controller.article.AnalyzeToMap err=", err)
+		return
+	}
 
 	//返回数据
 	res.ResponseSuccess(c, nil)
@@ -75,17 +84,22 @@ func CheckLikeOrNot(c *gin.Context) {
 	//解析数据
 	j, e := utils.GetJsonvalue(c)
 	if e != nil {
-		fmt.Println("Like() controller.article.AnalyzeToMap err=", e)
+		fmt.Println("Like() controller.article.GetJsonvalue err=", e)
 		return
 	}
 
 	objId, userId, likeType, err := GetParam(j, "objId", "userId", "likeType")
 	if err != nil {
+		fmt.Println("Like() controller.article.GetParam err=", err)
 		return
 	}
 
 	//检查用户是否已经点赞
-	result := article.IsUserLiked(objId, userId, likeType)
+	result, err := redis.IsUserLiked(objId, userId, likeType)
+	if err != nil {
+		fmt.Println("Like() controller.article.IsUserLiked err=", err)
+		return
+	}
 
 	//返回数据
 	if result {
@@ -100,15 +114,18 @@ func GetObjLikeNum(c *gin.Context) {
 	//解析数据
 	j, e := utils.GetJsonvalue(c)
 	if e != nil {
-		fmt.Println("Like() controller.article.AnalyzeToMap err=", e)
+		fmt.Println("Like() controller.article.GetJsonvalue err=", e)
 		return
 	}
 	objId, _ := j.GetString("objId")
 	likeType, _ := j.GetInt("likeType")
 
 	//获取点赞数
-	likeSum := article.GetObjLikes(objId, likeType)
-
+	likeSum, err := redis.GetObjLikes(objId, likeType)
+	if err != nil {
+		fmt.Println("Like() controller.article.GetObjLikes err=", err)
+		return
+	}
 	//返回数据
 	res.ResponseSuccess(c, likeSum)
 }

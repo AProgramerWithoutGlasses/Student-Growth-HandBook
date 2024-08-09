@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type UserArticleLikeRecord struct {
 	gorm.Model
-	ArticleID uint    //点赞属于文章
+	ArticleID uint    `gorm:"not null"` //点赞属于文章
 	Article   Article //点赞属于文章
-	UserID    uint    // 点赞者用户ID
+	UserID    uint    `gorm:"not null"` // 点赞者用户ID
 	User      User
 	IsRead    bool `gorm:"default:false"` //文章发布者是否已读
 }

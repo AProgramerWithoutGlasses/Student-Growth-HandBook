@@ -10,7 +10,7 @@ import (
 
 // PostCom 类型comment_type:‘article’or‘comment’;id;comment_content;comment_username
 func PostCom(c *gin.Context) {
-	//将数据解析到map中
+	// 读取前端数据
 	json, err := utils.GetJsonvalue(c)
 	if err != nil {
 		fmt.Println("PostCom() controller.article.AnalyzeToMap err=", err)
