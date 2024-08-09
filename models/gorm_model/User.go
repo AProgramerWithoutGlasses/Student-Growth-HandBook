@@ -31,5 +31,5 @@ type User struct {
 	Selects               []UserSelectRecord      //用户拥有收藏
 	UserLoginRecords      []UserLoginRecord       // 用户拥有登录记录
 	ArticleLikes          []UserArticleLikeRecord //用户拥有文章点赞记录
-	CommentLikes          []UserCommentLikeRecord // 用户拥有评论点赞记录
+	CommentLikes          []UserCommentLikeRecord // 用户拥有评论点赞记录 //
 }
