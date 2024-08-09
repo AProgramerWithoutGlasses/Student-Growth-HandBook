@@ -6,6 +6,6 @@ import (
 
 type UserReadRecord struct {
 	gorm.Model
-	UserID uint //属于
-	Aid    int
+	UserID    uint //属于
+	ArticleID uint //属于
 }

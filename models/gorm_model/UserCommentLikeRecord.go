@@ -4,9 +4,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type CommentLike struct {
+type UserCommentLikeRecord struct {
 	gorm.Model
 	CommentID uint    //点赞属于评论
 	Comment   Comment //点赞属于评论
-	IsRead    bool    `gorm:"default:false"`
+	UserID    uint
+	User      User
+	IsRead    bool `gorm:"default:false"`
 }
