@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="---">
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/Article.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/Article.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/stuManage/queryStuController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/stuManage/queryStuController.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/gorm_model/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/User.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/jrx_model/studentList.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/jrx_model/studentList.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +76,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "feature/xun",
+    "git-widget-placeholder": "!10 on feature/xun",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "C:/Users/MR",
@@ -81,7 +86,7 @@
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
-  <component name="RunManager" selected="Go Build.go build studentGrow">
+  <component name="RunManager" selected="Go Build.go build studentGrow (3)">
     <configuration name="go build studentGrow (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="gg" />
       <working_directory value="$PROJECT_DIR$" />
@@ -136,6 +141,11 @@
       <filePath value="$PROJECT_DIR$/routes/ww.go" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build studentGrow (3)" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
