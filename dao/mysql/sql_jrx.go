@@ -4,7 +4,6 @@ import (
 	"fmt"
 	model "studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
-	"time"
 )
 
 // 将新的用户自述在mysql中进行更行
@@ -46,12 +45,7 @@ func GetStuMesList() []jrx_model.StuMesStruct {
 		stuMesSlice[i].Class = userSlice[i].Class
 
 		// 解析 PlusTime 字符串并格式化
-		t, err := time.Parse(time.RFC3339, userSlice[i].PlusTime)
-		if err == nil {
-			stuMesSlice[i].Year = t.Format("2006") // 格式化为 YYYY-MM-DD
-		} else {
-			stuMesSlice[i].Year = userSlice[i].PlusTime // 处理解析错误
-		}
+		stuMesSlice[i].Year = userSlice[i].PlusTime.Format("2006") // 日期只保留年份
 
 		stuMesSlice[i].Gender = userSlice[i].Gender
 		stuMesSlice[i].Telephone = userSlice[i].PhoneNumber

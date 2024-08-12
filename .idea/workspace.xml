@@ -5,50 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.9">
-      <change afterPath="$PROJECT_DIR$/.idea/studentDemo.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controller/message/MsgNotificationController.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dao/mysql/sql_comment.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dao/mysql/sql_msg.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dao/redis/redis_like.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dao/redis/redis_select.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/gorm_model/UserArticleLikeRecord.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/gorm_model/UserCommentLikeRecord.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/gorm_model/UserLoginRecord.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/gorm_model/UserPublisherRecord.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/gorm_model/UserReadRecord.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/gorm_model/UserReportArticleRecord.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/gorm_model/UserSelectRecord.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/routes/routesMsg.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/service/article/CollectService.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/service/article/MsgNotificationService.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/readMessage/GetParams.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/common.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/article/ArticleController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/article/ArticleController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/article/CommentController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/article/CommentController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/article/LikeController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/article/LikeController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/article/TopicAndTagController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/article/TopicAndTagController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_nzx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_nzx.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/Article.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/Article.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/ArticleLike.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/ArticleTag.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/ArticleTag.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/Comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/Comment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/CommentLike.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/Menus.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/Menus.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/ReadRecord.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/Select.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/User.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/error/error.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/error/error.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/routesArticle.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routesArticle.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/article/ArticleService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/article/ArticleService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/article/LikeService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/article/LikeService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/token/reToken.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/token/reToken.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/token/token.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/token/token.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/routesXue.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routesXue.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,12 +35,12 @@
     }
   }
 }</component>
-  <component name="GitLabMergeRequestsSettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "first": "http://192.168.10.6:9980/root/Student-Growth-HandBook.git",
-    "second": "04a1cb2b-30c8-4658-86fe-622979801ea2"
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;http://192.168.10.6:9980/root/Student-Growth-HandBook.git&quot;,
+    &quot;second&quot;: &quot;04a1cb2b-30c8-4658-86fe-622979801ea2&quot;
   }
-}]]></component>
+}</component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
@@ -105,7 +66,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "正在合并 develop",
+    "git-widget-placeholder": "develop",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "C:/Users/Administrator",
@@ -115,6 +76,14 @@
   }
 }]]></component>
   <component name="RunManager" selected="Go 构建.go build studentGrow (2)">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build sql_jrx.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="StudentGrowthPlatform" />
       <working_directory value="$PROJECT_DIR$" />
@@ -158,6 +127,15 @@
       <package value="studentGrow" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/routes/ww.go" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
       <method v="2" />
     </configuration>
     <recent_temporary>
