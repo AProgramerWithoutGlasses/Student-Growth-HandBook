@@ -20,7 +20,7 @@ func ReleaseToken(username, password, role string) (string, error) {
 			ExpiresAt: expirationTime.Unix(), //token的有效期
 			IssuedAt:  time.Now().Unix(),     //token发放的时间
 			Issuer:    "xyq",                 //作者
-			Subject:   "student token",       //主题
+			Subject:   "user token",          //主题
 		},
 	}
 

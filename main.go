@@ -13,6 +13,7 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
+	model "studentGrow/models/gorm_model"
 	"studentGrow/routes"
 	"studentGrow/settings"
 	"syscall"
@@ -40,10 +41,10 @@ func main() {
 		return
 	}
 
-	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.Upvote{})
-	//if err != nil {
-	//	return
-	//}
+	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.Comment{}, &model.ArticleTag{}, &model.UserArticleLikeRecord{}, &model.UserSelectRecord{}, &model.UserCommentLikeRecord{}, &model.UserLoginRecord{}, &model.UserReadRecord{}, model.UserReportArticleRecord{})
+	if err != nil {
+		return
+	}
 
 	// 4. 初始化redis
 	if err := redis.Init(); err != nil {

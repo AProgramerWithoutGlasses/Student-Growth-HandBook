@@ -49,6 +49,14 @@ func DataFormatError() *Error {
 	}
 }
 
+// OverstepCompetence 权限越界
+func OverstepCompetence() *Error {
+	return &Error{
+		Code: res.UnprocessableEntity,
+		Msg:  "permission is out of bounds OR not found",
+	}
+}
+
 // CheckErrors 一键检查错误,并返回给客户端msg
 func CheckErrors(err error, c *gin.Context) {
 	if errors.Is(err, DataFormatError()) {
@@ -71,6 +79,12 @@ func CheckErrors(err error, c *gin.Context) {
 	if errors.Is(err, RejectRepeatSubmission()) {
 		// 拒绝重复提交
 		res.ResponseErrorWithMsg(c, res.ServerErrorCode, RejectRepeatSubmission().Msg)
+		return
+	}
+
+	if errors.Is(err, OverstepCompetence()) {
+		// 权限越界
+		res.ResponseErrorWithMsg(c, res.UnprocessableEntity, OverstepCompetence().Msg)
 		return
 	}
 	// 其他错误
