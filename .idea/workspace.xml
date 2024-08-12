@@ -4,13 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.11">
+    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.12">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/stuManage/addStuController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/stuManage/addStuController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/stuManage/queryStuController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/stuManage/queryStuController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/studentManagerService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/studentManagerService.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -186,7 +181,8 @@
     <MESSAGE value="8.9" />
     <MESSAGE value="---" />
     <MESSAGE value="8.11" />
-    <option name="LAST_COMMIT_MESSAGE" value="8.11" />
+    <MESSAGE value="8.12" />
+    <option name="LAST_COMMIT_MESSAGE" value="8.12" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
