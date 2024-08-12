@@ -4,33 +4,22 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.12">
-      <change afterPath="$PROJECT_DIR$/controller/stuManage/AddMultipleStuController.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controller/stuManage/DeleteStuController.go" afterDir="false" />
+    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.9">
+      <change afterPath="$PROJECT_DIR$/main" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/stuManage/addStuController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/stuManage/addStuController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/stuManage/queryStuController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/stuManage/queryStuController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/studentManagerService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/studentManagerService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Go File" />
-      </list>
-    </option>
-  </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../../Go" />
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="common" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -62,16 +51,18 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="2kMvKf3OFPevwROaIz6upghooza" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
+    "ASKED_ADD_EXTERNAL_FILES": "true",
     "Go Build.go build studentGrow (3).executor": "Run",
     "Go 构建.go build studentGrow (2).executor": "Run",
-    "Go 构建.go build studentGrow (3).executor": "Run",
     "Go 构建.go build studentGrow.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -82,14 +73,29 @@
     "git-widget-placeholder": "feature/xun",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "C:/Users/MR",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/GoLand 2023.3/Student-Growth-HandBook",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+    "settings.editor.selected.configurable": "go.vgo"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\GoLand 2023.3\Student-Growth-HandBook" />
+    </key>
+  </component>
   <component name="RunManager" selected="Go Build.go build studentGrow (3)">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="studentGrow" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build studentGrow (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="gg" />
       <working_directory value="$PROJECT_DIR$" />
@@ -97,15 +103,6 @@
       <package value="studentGrow" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/dao/mysql/sql_jrx.go" />
-      <method v="2" />
-    </configuration>
-    <configuration name="go build studentGrow (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="gg" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="studentGrow" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/main.go" />
       <method v="2" />
     </configuration>
     <configuration name="go build studentGrow (2)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
@@ -127,7 +124,6 @@
       <method v="2" />
     </configuration>
     <configuration name="go build studentGrow" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="StudentGrowthPlatform" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
       <package value="studentGrow" />
@@ -144,22 +140,46 @@
       <filePath value="$PROJECT_DIR$/routes/ww.go" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build studentGrow (3)" />
+        <item itemvalue="Go Build.go build ww.go" />
+        <item itemvalue="Go Build.go build studentGrow (2)" />
+        <item itemvalue="Go Build.go build studentGrow (1)" />
+        <item itemvalue="Go Build.go build studentGrow" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-467a64f6063b-ee0e143f3e2b-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-233.11799.228" />
+        <option value="bundled-gosdk-5df93f7ad4aa-dfc284eb1eb8-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-242.20224.306" />
+        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-GO-242.20224.306" />
       </set>
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -185,25 +205,22 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="8.8" />
     <MESSAGE value="8.9" />
-    <MESSAGE value="---" />
-    <MESSAGE value="8.11" />
-    <MESSAGE value="8.12" />
-    <option name="LAST_COMMIT_MESSAGE" value="8.12" />
+    <option name="LAST_COMMIT_MESSAGE" value="8.9" />
   </component>
   <component name="VgoProject">
+    <auto-vendoring-mode>false</auto-vendoring-mode>
+    <environment>
+      <map>
+        <entry key="GOPROXY" value="https://goproxy.cn,direct" />
+      </map>
+    </environment>
     <settings-migrated>true</settings-migrated>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/main.go</url>
-          <line>21</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="DlvErrorBreakpoint" />
       </default-breakpoints>
