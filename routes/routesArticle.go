@@ -34,4 +34,10 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/hot_articles", article.GetHotArticlesOfDayController)
 	// 首页模糊搜索
 	at.POST("/search_first", article.SelectArticleAndUserListByPageFirstPageController)
+	// 收藏
+	at.POST("/collect", article.CollectArticleController)
+	// 取消收藏
+	at.POST("/cancel_collect", article.CancelCollectArticleController)
+	// 查看收藏列表
+	at.POST("/get_collects", article.GetArticleListForSelectController)
 }
