@@ -41,7 +41,7 @@ func main() {
 		return
 	}
 
-	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.Upvote{})
+	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.UserCasbinRules{}, &model.Comment{}, &model.ArticleTag{}, &model.Menus{}, &model.UserArticleLikeRecord{}, &model.UserLoginRecord{}, &model.UserCommentLikeRecord{}, &model.UserReadRecord{}, &model.UserPublisherRecord{}, &model.UserSelectRecord{})
 	//if err != nil {
 	//	return
 	//}
