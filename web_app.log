@@ -8,7 +8,6 @@
 {"level":"INFO","time":"2024-07-25T20:35:27.617+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
 {"level":"INFO","time":"2024-07-26T15:15:08.773+0800","caller":"学生成长平台/main.go:66","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-07-26T15:15:08.791+0800","caller":"学生成长平台/main.go:73","msg":"Server exiting"}
-<<<<<<< HEAD
 {"level":"INFO","time":"2024-07-27T10:38:45.421+0800","caller":"Student-Growth-HandBook/main.go:66","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-07-27T10:38:45.462+0800","caller":"Student-Growth-HandBook/main.go:73","msg":"Server exiting"}
 {"level":"INFO","time":"2024-07-29T09:20:46.409+0800","caller":"student_demo/main.go:72","msg":"Shut down Server ..."}
@@ -1963,3 +1962,7 @@
 {"level":"INFO","time":"2024-08-12T21:38:37.497+0800","caller":"logger/logger.go:69","msg":"/user/fpage/class","status":200,"method":"POST","path":"/user/fpage/class","query":"","ip":"192.168.22.54","user-agent":"Apifox/1.0.0 (https://apifox.com)","errors":"","cost":0.7275364}
 {"level":"INFO","time":"2024-08-12T21:38:45.944+0800","caller":"合并/main.go:71","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-08-12T21:38:45.944+0800","caller":"合并/main.go:78","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-12T22:12:55.961+0800","caller":"合并/main.go:71","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-12T22:12:55.961+0800","caller":"合并/main.go:78","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-12T22:18:01.683+0800","caller":"studentGrow/main.go:71","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-12T22:18:01.684+0800","caller":"studentGrow/main.go:78","msg":"Server exiting"}
