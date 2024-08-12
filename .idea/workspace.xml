@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="---">
+    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.11">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/stuManage/addStuController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/stuManage/addStuController.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controller/stuManage/queryStuController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/stuManage/queryStuController.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/User.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/User.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/jrx_model/studentList.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/jrx_model/studentList.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/timeConverter/getEnrollMentYear.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routes.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/studentManagerService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/studentManagerService.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,28 +64,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Go Build.go build studentGrow (3).executor": "Run",
-    "Go 构建.go build studentGrow (2).executor": "Run",
-    "Go 构建.go build studentGrow (3).executor": "Run",
-    "Go 构建.go build studentGrow.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "!10 on feature/xun",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "C:/Users/MR",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Go Build.go build studentGrow (3).executor&quot;: &quot;Run&quot;,
+    &quot;Go 构建.go build studentGrow (2).executor&quot;: &quot;Run&quot;,
+    &quot;Go 构建.go build studentGrow (3).executor&quot;: &quot;Run&quot;,
+    &quot;Go 构建.go build studentGrow.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/xun&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/MR&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Go Build.go build studentGrow (3)">
     <configuration name="go build studentGrow (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="gg" />
@@ -185,7 +185,8 @@
     <MESSAGE value="8.8" />
     <MESSAGE value="8.9" />
     <MESSAGE value="---" />
-    <option name="LAST_COMMIT_MESSAGE" value="---" />
+    <MESSAGE value="8.11" />
+    <option name="LAST_COMMIT_MESSAGE" value="8.11" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
@@ -193,12 +194,15 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+        <line-breakpoint type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/main.go</url>
           <line>21</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="DlvErrorBreakpoint" />
+      </default-breakpoints>
     </breakpoint-manager>
   </component>
 </project>

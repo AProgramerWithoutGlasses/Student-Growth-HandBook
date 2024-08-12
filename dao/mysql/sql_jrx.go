@@ -25,11 +25,6 @@ func GetIdByUsername(username string) (int, error) {
 	return int(users.ID), err
 }
 
-// 查询下拉框字段的值
-func GetPullValue() {
-
-}
-
 // 获取不同的班级
 func GetDiffClass() []string {
 	var diffClassSlice []string
@@ -65,4 +60,9 @@ func GetStuMesList(querySql string) []jrx_model.StuMesStruct {
 	}
 
 	return stuMesSlice
+}
+
+// 添加单个学生
+func AddSingleStudent(users *model.User) {
+	DB.Select("name", "username", "password", "class", "identity").Create(users)
 }
