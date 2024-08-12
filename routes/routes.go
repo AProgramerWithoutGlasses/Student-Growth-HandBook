@@ -5,11 +5,13 @@ import (
 	"studentGrow/controller/stuManage"
 	"studentGrow/controller/student"
 	"studentGrow/logger"
+	"studentGrow/utils/middleWare"
 )
 
 func Setup() *gin.Engine {
 	r := gin.New()
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	r.Use(middleWare.CORSMiddleware())
 	// 勋
 	r.POST("/student/getSelfCotnent", student.GetSelfContentContro)
 	r.POST("/student/updateSelfContent", student.UpdateSelfContentContro)
