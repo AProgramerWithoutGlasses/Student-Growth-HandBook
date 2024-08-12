@@ -125,9 +125,7 @@ func FPageClass(c *gin.Context) {
 		"article_read_total":  article_read_total,
 		"chartOption":         chartOption,
 	}
-	fmt.Println(data)
 	response.ResponseSuccess(c, data)
-	//c.JSON(200, gin.H{"data": data})
 }
 
 // FPageGrade 返回前端后台首页数据--年级管理员

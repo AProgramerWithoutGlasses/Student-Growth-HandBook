@@ -44,7 +44,6 @@ func NewCasbinAuth(srv *casbinModels.CasbinService) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		//c.JSON(200, gin.H{"code": 200, "msg": "成功通过中间件"})
 		c.Next()
 	}
 }
