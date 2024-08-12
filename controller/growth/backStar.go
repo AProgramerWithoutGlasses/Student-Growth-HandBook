@@ -9,7 +9,7 @@ import (
 	token2 "studentGrow/utils/token"
 )
 
-// StarClass 返回前端表格数据以选择
+// StarClass 班级管理员返回前端表格数据以选择
 func StarClass(c *gin.Context) {
 	token := c.GetHeader("token")
 	username, err := token2.GetUsername(token)
@@ -35,4 +35,9 @@ func StarClass(c *gin.Context) {
 		return
 	}
 	response.ResponseSuccess(c, starback)
+}
+
+func StarGrade(c *gin.Context) {
+	c.GetHeader("token")
+
 }

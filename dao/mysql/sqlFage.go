@@ -134,6 +134,7 @@ func SelArticleRead(id int) (int64, error) {
 }
 
 // 查询不同tag下的文章的大小
+
 func SelTagArticle() ([]models.TagAmount, error) {
 	var tagcount []models.TagAmount
 	err := DB.Table("article_tags").Select("tag_name,COUNT(*)as count").Group("tag_name").Scan(&tagcount).Error
@@ -147,7 +148,7 @@ func SelTagArticle() ([]models.TagAmount, error) {
 func SelTagArticleTime(date string) ([]models.TagAmount, error) {
 	nowdate, err := time.Parse("2006-01-02", date)
 	var tagcount []models.TagAmount
-	err = DB.Table("articles").Where("create_at = ?", nowdate).Select("tag_name,COUNT(*)as count").Group("tag_name").Scan(&tagcount).Error
+	err = DB.Table("article_tags").Where("created_at = ?", nowdate).Select("tag_name,COUNT(*)as count").Group("tag_name").Scan(&tagcount).Error
 	if err != nil {
 		return nil, err
 	}

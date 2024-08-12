@@ -134,23 +134,27 @@ func ReadAmount(uidslice []int) int64 {
 
 // 柱状图
 func PillarData() ([]string, []int, error) {
-	tagName := make([]string, 7)
-	count := make([]int, 7)
+	// 假设 mysql.SelTagArticle() 返回的是 []models.TagAmount 类型
 	tagcount, err := mysql.SelTagArticle()
 	if err != nil {
 		fmt.Println("PillarData SelTagArticle err", err)
 		return nil, nil, err
 	}
+
 	// 根据人数排序
 	sort.Slice(tagcount, func(i, j int) bool {
 		return tagcount[i].Count > tagcount[j].Count
 	})
-	for i := 0; i < len(tagcount) && i < 7; i++ {
-		for _, tagmodel := range tagcount {
-			tagName[i] = tagmodel.Tag
-			count[i] = tagmodel.Count
-		}
+
+	// 只取前7个或更少的元素
+	tagName := make([]string, 0, 7)
+	count := make([]int, 0, 7)
+
+	for i := 0; i < 7 && i < len(tagcount); i++ {
+		tagName = append(tagName, tagcount[i].Tag)
+		count = append(count, tagcount[i].Count)
 	}
+
 	return tagName, count, nil
 }
 

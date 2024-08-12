@@ -28,7 +28,7 @@ type Claims struct {
 
 // 文章tag和数量结构体
 type TagAmount struct {
-	Tag   string
+	Tag   string `json:"tag" gorm:"column:tag_name"`
 	Count int
 }
 
