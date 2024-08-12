@@ -16,6 +16,7 @@ func AddUserToLikeSet(objId, userId string, likeType int) error {
 		fmt.Println("AddUserToLikeSet() service.article.ArticleLikeService err=", err)
 		return err
 	}
+
 	return nil
 }
 

@@ -94,7 +94,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 func SelectArticleAndUserListByPageFirstPage(keyWords, topic, articleSort string, limit, page int) (result []model.Article, err error) {
 	var articles model.Articles
 	if err = DB.Preload("User").Preload("ArticleTags").
-		Where("topic = ? and key_words like ?", topic, fmt.Sprintf("%%%s%%", keyWords)).
+		Where("topic = ? and content like ?", topic, fmt.Sprintf("%%%s%%", keyWords)).
 		Order("created_at desc").
 		Limit(limit).
 		Offset((page - 1) * limit).Find(&articles).Error; err != nil {

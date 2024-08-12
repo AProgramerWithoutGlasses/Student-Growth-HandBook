@@ -29,8 +29,8 @@ func GetParam(j *jsonvalue.V, a, b, c string) (objId, userId string, likeType in
 	return objId, userId, likeType, err
 }
 
-// Like 点赞
-func Like(c *gin.Context) {
+// LikeController 点赞
+func LikeController(c *gin.Context) {
 	//解析数据
 	j, e := utils.GetJsonvalue(c)
 	if e != nil {
@@ -54,8 +54,8 @@ func Like(c *gin.Context) {
 	res.ResponseSuccess(c, nil)
 }
 
-// CancelLike 取消点赞
-func CancelLike(c *gin.Context) {
+// CancelLikeController 取消点赞
+func CancelLikeController(c *gin.Context) {
 	//解析数据
 	j, e := utils.GetJsonvalue(c)
 	if e != nil {
@@ -79,8 +79,8 @@ func CancelLike(c *gin.Context) {
 	res.ResponseSuccess(c, nil)
 }
 
-// CheckLikeOrNot 检查是否点赞
-func CheckLikeOrNot(c *gin.Context) {
+// CheckLikeOrNotController 检查是否点赞
+func CheckLikeOrNotController(c *gin.Context) {
 	//解析数据
 	j, e := utils.GetJsonvalue(c)
 	if e != nil {
@@ -109,8 +109,8 @@ func CheckLikeOrNot(c *gin.Context) {
 	}
 }
 
-// GetObjLikeNum 获取当前文章或评论的点赞数量
-func GetObjLikeNum(c *gin.Context) {
+// GetObjLikeNumController 获取当前文章或评论的点赞数量
+func GetObjLikeNumController(c *gin.Context) {
 	//解析数据
 	j, e := utils.GetJsonvalue(c)
 	if e != nil {
@@ -128,4 +128,9 @@ func GetObjLikeNum(c *gin.Context) {
 	}
 	//返回数据
 	res.ResponseSuccess(c, likeSum)
+}
+
+// 获取文章或评论的点赞集合
+func GetObjLikedUsersController() {
+
 }

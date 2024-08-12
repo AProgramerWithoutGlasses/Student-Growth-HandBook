@@ -4,23 +4,46 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.9">
-      <change beforePath="$PROJECT_DIR$/.idea/common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/common.iml" afterDir="false" />
+    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/dao/mysql/mysql_like.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_jrx.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/routesXue.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routesXue.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/article/LikeController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/article/LikeController.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dao/mysql/sql_nzx.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/mysql/sql_nzx.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dao/redis/redisToMysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/redis/redisToMysql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dao/redis/redis_like.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/redis/redis_like.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/Article.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/ArticleTag.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/Comment.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/Menus.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/User.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/UserArticleLikeRecord.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/UserCasbinRules.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/UserCommentLikeRecord.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/UserLoginRecord.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/UserPublisherRecord.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/UserReadRecord.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gorm_model/UserSelectRecord.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/gorm_model/Comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/Comment.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/routesArticle.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routesArticle.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
   <component name="GOROOT" url="file://D:/go1.21.5.windows-amd64/go" />
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="common" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -58,6 +81,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
     "Go 构建.go build studentGrow (2).executor": "Run",
     "Go 构建.go build studentGrow.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
@@ -66,20 +90,26 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "!13，feature/xing",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "C:/Users/Administrator",
+    "last_opened_file_path": "C:/Users/Administrator/go/Student-Growth-HandBook/routes",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\go\Student-Growth-HandBook\routes" />
+    </key>
+  </component>
   <component name="RunManager" selected="Go 构建.go build studentGrow (2)">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="common" />
       <working_directory value="$PROJECT_DIR$" />
-      <kind />
+      <kind value="PACKAGE" />
+      <package value="studentGrow" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <method v="2" />
@@ -132,7 +162,7 @@
     <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
       <module name="common" />
       <working_directory value="$PROJECT_DIR$" />
-      <kind />
+      <kind value="DIRECTORY" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
@@ -185,7 +215,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="8.8" />
     <MESSAGE value="8.9" />
-    <option name="LAST_COMMIT_MESSAGE" value="8.9" />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

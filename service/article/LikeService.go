@@ -24,6 +24,7 @@ func Like(objId, userId string, likeType int) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

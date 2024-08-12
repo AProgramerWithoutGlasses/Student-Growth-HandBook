@@ -19,11 +19,13 @@ func routesArticle(r *gin.Engine) {
 	// 获取文章标签
 	at.POST("/publish/get_tags", article.SendTopicTagsController)
 	//文章点赞
-	at.POST("/like")
+	at.POST("/like", article.LikeController)
 	//取消文章点赞
-	at.POST("/cancel_like")
+	at.POST("/cancel_like", article.CancelLikeController)
 	//获取文章点赞数量
-	at.POST("/like_nums")
+	at.POST("/like_nums", article.GetObjLikeNumController)
+	//检查当前是否点赞
+	at.POST("/isLike", article.CheckLikeOrNotController)
 	//封禁文章
 	at.POST("/ban", article.BannedArticleController)
 	//删除文章
