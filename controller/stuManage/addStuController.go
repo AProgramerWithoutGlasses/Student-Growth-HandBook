@@ -5,9 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
+	"studentGrow/pkg/response"
 	"studentGrow/utils/readMessage"
 )
 
+// AddSingleStuContro 添加单个学生
 func AddSingleStuContro(c *gin.Context) {
 	// 接收请求数据
 	stuMessage, err := readMessage.GetJsonvalue(c)
@@ -36,6 +38,7 @@ func AddSingleStuContro(c *gin.Context) {
 		fmt.Println("class GetString() err : ", err)
 	}
 
+	// 将新增学生信息整合到结构体中
 	user := gorm_model.User{
 		Name:     nameValue,
 		Username: usernameValue,
@@ -44,9 +47,9 @@ func AddSingleStuContro(c *gin.Context) {
 		Identity: "学生",
 	}
 
-	fmt.Println(user)
+	// 在数据库中添加该学生信息
 	mysql.AddSingleStudent(&user)
 
-	//response.ResponseSuccess(c)
-
+	// 成功响应
+	response.ResponseSuccess(c, "添加成功！")
 }

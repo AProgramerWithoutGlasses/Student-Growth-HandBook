@@ -95,7 +95,7 @@ func QueryStuContro(c *gin.Context) {
 	response.ResponseSuccess(c, responseStruct)
 }
 
-// 查询分页数据
+// QueryPageStuContro 查询分页数据
 func QueryPageStuContro(c *gin.Context) {
 	// 接收请求数据
 	stuMessage, err := readMessage.GetJsonvalue(c)

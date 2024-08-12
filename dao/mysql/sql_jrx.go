@@ -66,3 +66,8 @@ func GetStuMesList(querySql string) []jrx_model.StuMesStruct {
 func AddSingleStudent(users *model.User) {
 	DB.Select("name", "username", "password", "class", "identity").Create(users)
 }
+
+// 删除单个学生
+func DeleteSingleStudent(id string) {
+	// DB.Delete()
+}

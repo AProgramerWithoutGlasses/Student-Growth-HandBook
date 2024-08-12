@@ -83,6 +83,7 @@ func GetClassStructSlice() []jrx_model.ClassStruct {
 	return classStructSlice
 }
 
+// 根据搜索条件，创建sql语句
 func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryParmaStruct) string {
 	// 将请求的数据转换成map
 	stuMesMap := stuMessage.ForRangeObj()
@@ -168,7 +169,7 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 	return querySql
 }
 
-// 将请求数据整理到结构体
+// GetReqMes 将请求信息整理到结构体
 func GetReqMes(stuMessage *jsonvalue.V) jrx_model.QueryParmaStruct {
 	// 获取请求信息中各个字段的值
 	yearValue, err := stuMessage.GetInt("year")
