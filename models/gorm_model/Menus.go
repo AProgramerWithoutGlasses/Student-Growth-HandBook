@@ -2,28 +2,22 @@ package gorm_model
 
 import (
 	"gorm.io/gorm"
-	"time"
 )
 
 type Menus struct {
 	gorm.Model
-	ParentId      int
-	TreePath      string
-	Name          string
-	Type          int
-	Path          string
-	Component     string
-	Perm          string
-	Visible       int
-	Sort          int
-	Icon          string
-	Redirect      string
-	CreateTime    time.Time
-	UpdateTime    time.Time
-	Roles         string
-	AlwaysShow    int
-	KeepAlive     int
-	DeletedAt     time.Time
-	RequestUrl    string
-	RequestMethod string
+	ParentId      int    `json:"parent_id"`
+	TreePath      string `json:"tree_path"`
+	Name          string `json:"name"`
+	Type          int    `json:"type"`
+	Path          string `json:"path"`
+	Component     string `json:"component"`
+	Perm          string `json:"perm"`
+	Visible       int    `json:"visible"`
+	Sort          int    `json:"sort"`
+	Icon          string `json:"icon"`
+	Redirect      string `json:"redirect"`
+	Roles         string `json:"roles"`
+	RequestUrl    string `json:"request_url "`
+	RequestMethod string `json:"request_method"`
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"studentGrow/dao/mysql"
+	"studentGrow/dao/redis"
 	"studentGrow/models"
 	pkg "studentGrow/pkg/response"
 	"studentGrow/service/userService"
@@ -47,9 +48,15 @@ func HLogin(c *gin.Context) {
 		pkg.ResponseErrorWithMsg(c, 400, "验证码错误")
 		return
 	}
+	//验证用户是否存在
+	if ok := userService.BVerifyExit(user.Username); !ok {
+		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+		return
+	}
+	//记录用户登录
+	redis.UpdateVictor(user.Username)
 	//查询用户角色
-	userId, _ := mysql.SelId(user.Username)
-	casbinId, _ := mysql.SelCasId(userId)
+	casbinId, _ := mysql.SelCasId(user.Username)
 	role, err := mysql.SelRole(casbinId)
 	//获取生成的token
 	tokenString, err := token.ReleaseToken(user.Username, user.Password, role)
@@ -63,7 +70,8 @@ func HLogin(c *gin.Context) {
 	}
 	slice := map[string]any{
 		"username": user.Username,
-		"myToken":  tokenString,
+		"token":    tokenString,
+		"role":     role,
 	}
 	//发送给前端
 	pkg.ResponseSuccess(c, slice)

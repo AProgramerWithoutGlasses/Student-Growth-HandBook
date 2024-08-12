@@ -1,20 +1,23 @@
 package userService
 
 import (
-	"fmt"
 	"studentGrow/dao/mysql"
 )
 
 // 后台登录验证
 func BVerify(username, password string) bool {
-	//查询数据库中相应账号对应的密码
-	sPassword, err := mysql.SelPassword(username)
-	if err != nil {
-		fmt.Println("BVerify mysql.SelPassword() err")
+	number, err := mysql.SelPassword(username, password)
+	if err != nil || number != 1 {
 		return false
 	}
-	if sPassword == password {
-		return true
+	return true
+}
+
+// 验证用户是否为管理员
+func BVerifyExit(username string) bool {
+	number, err := mysql.SelIfexit(username)
+	if err != nil || number != 1 {
+		return false
 	}
-	return false
+	return true
 }

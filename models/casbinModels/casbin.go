@@ -16,7 +16,23 @@ func NewCasbinService(db *gorm.DB) (*CasbinService, error) {
 	}
 
 	// 创建模型
-	m, err := model.NewModelFromFile("./model.conf")
+	//m, err := model.NewModelFromFile("models/model.conf")
+	m, err := model.NewModelFromString(`
+[request_definition]
+r = sub, obj
+
+
+[policy_definition]
+p = sub, obj
+
+[role_definition]
+g = _,_
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = r.sub == p.sub && r.obj == p.obj`)
 	if err != nil {
 		return nil, err
 	}

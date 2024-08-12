@@ -28,7 +28,7 @@ func CaptchaGenerate() (string, string, string, error) {
 	return id, b64s, hcode, nil
 }
 
-// 验证验证码
+// GetCodeAnswer 验证验证码
 func GetCodeAnswer(id, code string) bool {
 	return store.Verify(id, code, true)
 }

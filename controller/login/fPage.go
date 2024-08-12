@@ -1,0 +1,413 @@
+package login
+
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm/utils"
+	"studentGrow/dao/mysql"
+	"studentGrow/pkg/response"
+	"studentGrow/service/permission"
+	tokens "studentGrow/utils/token"
+	"time"
+)
+
+// FPageClass 返回前端后台首页数据--班级管理员
+func FPageClass(c *gin.Context) {
+	//查询用户账号
+	token := c.GetHeader("token")
+	username, err := tokens.GetUsername(token)
+	if err != nil {
+		fmt.Println("FPage tokens.GetUsername err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+	//获取班级
+	class, err := mysql.SelClass(username)
+	if err != nil {
+		fmt.Println("FPage  SelClass err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//把一个班的用户id查出来
+	uidslice, err := mysql.SelUid(class)
+	//把一个班的用户账号查出来
+	usernameslice, err := mysql.SelUsername(class)
+
+	//班级总帖数
+	article_total, err := service.ArticleData(uidslice)
+	if err != nil {
+		fmt.Println("FPage ArticleDataClass err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//今日班级贴子数
+	today_article_total, err := service.NarticleDataClass(uidslice)
+	if err != nil {
+		fmt.Println("FPage NarticleDataClass err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//昨日班级帖子数跟今日的比率
+	article_ratio, err := service.ArticleDataClassRate(uidslice, today_article_total)
+	if err != nil {
+		fmt.Println("FPage ArticleDataClassRate err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//今日访客人数
+	today_visitor_total := service.TodayVictor(usernameslice)
+	//今日跟昨日的对比
+	visitor_ratio, err := service.VictorRate(usernameslice, today_visitor_total)
+	if err != nil {
+		fmt.Println("FPage VictorRate err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//人员总数
+	user_total := len(uidslice)
+
+	//学生总数
+	student_total, err := mysql.SelStudent()
+	if err != nil {
+		fmt.Println("FPage SelStudent err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//教师总数
+	teacher_total, err := mysql.SelTeacher()
+	if err != nil {
+		fmt.Println("FPage SelTeacher err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//班级帖子总赞数
+	upvote_amount := service.LikeAmount(uidslice)
+
+	//班级帖子总阅读数
+	article_read_total := service.ReadAmount(uidslice)
+
+	//柱状图的数据
+	tagname, count, err := service.PillarData()
+	if err != nil {
+		fmt.Println("FPageClass PillarData err", err)
+		return
+	}
+	chartOption := map[string]any{
+		"xAxis": map[string]any{
+			"type": "category",
+			"data": tagname,
+		},
+		"yAis": map[string]string{
+			"type": "value",
+		},
+		"series": map[string]any{
+			"data": count,
+			"type": "bar",
+		},
+	}
+	data := map[string]any{
+		"article_total":       article_total,
+		"today_article_total": today_article_total,
+		"article_ratio":       article_ratio,
+		"today_visitor_total": today_visitor_total,
+		"visitor_ratio":       visitor_ratio,
+		"user_total":          user_total,
+		"student_total":       student_total,
+		"teacher_total":       teacher_total,
+		"upvote_amount":       upvote_amount,
+		"article_read_total":  article_read_total,
+		"chartOption":         chartOption,
+	}
+	fmt.Println(data)
+	//response.ResponseSuccess(c, data)
+	c.JSON(200, gin.H{"data": data})
+}
+
+// FPageGrade 返回前端后台首页数据--年级管理员
+func FPageGrade(c *gin.Context) {
+	var uidSlice []int
+	var usernameslice []string
+	token := c.GetHeader("token")
+	role, err := tokens.GetRole(token)
+	if err != nil {
+		fmt.Println("FPageGrade GetRole err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+	nowdata := time.Now()
+	switch role {
+	case "grade1":
+		uidSlice, usernameslice, err = mysql.SelGradeId(nowdata, -1)
+		if err != nil {
+			fmt.Println("FPageGrade grade1 SelGradeId err", err)
+			return
+		}
+	case "grade2":
+		uidSlice, usernameslice, err = mysql.SelGradeId(nowdata, -2)
+		if err != nil {
+			fmt.Println("FPageGrade grade2 SelGradeId err", err)
+			return
+		}
+	case "grade3":
+		uidSlice, usernameslice, err = mysql.SelGradeId(nowdata, -3)
+		if err != nil {
+			fmt.Println("FPageGrade grade3 SelGradeId err", err)
+			return
+		}
+	case "grade4":
+		uidSlice, usernameslice, err = mysql.SelGradeId(nowdata, -4)
+		if err != nil {
+			fmt.Println("FPageGrade grade4 SelGradeId err", err)
+			return
+		}
+	}
+	//帖子总数
+	article_total, err := service.ArticleData(uidSlice)
+	if err != nil {
+		fmt.Println("FPageGrade ArticleDataClass err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//今日帖子总数
+	today_article_total, err := service.NarticleDataClass(uidSlice)
+	if err != nil {
+		fmt.Println("FPageGrade NarticleDataClass err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//昨日新帖跟今天的比率
+	article_ratio, err := service.ArticleDataClassRate(uidSlice, today_article_total)
+	if err != nil {
+		fmt.Println("FPageGrade ArticleDataClassRate err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//今日访客数
+	today_visitor_total := service.TodayVictor(usernameslice)
+
+	//访客比率
+	visitor_ratio, err := service.VictorRate(usernameslice, today_visitor_total)
+	if err != nil {
+		fmt.Println("FPageGrade VictorRate err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//人员总数
+	user_total := len(uidSlice)
+
+	//学生总数
+	student_total, err := mysql.SelStudent()
+	if err != nil {
+		fmt.Println("FPage SelStudent err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//教师总数
+	teacher_total, err := mysql.SelTeacher()
+	if err != nil {
+		fmt.Println("FPage SelTeacher err", err)
+		response.ResponseError(c, 400)
+		return
+	}
+
+	//总赞数
+	upvote_amount := service.LikeAmount(uidSlice)
+
+	//总阅读数
+	article_read_total := service.ReadAmount(uidSlice)
+
+	//柱状图的数据
+	tagname, count, err := service.PillarData()
+	if err != nil {
+		fmt.Println("FPageClass PillarData err", err)
+		return
+	}
+	chartOption := map[string]any{
+		"xAxis": map[string]any{
+			"type": "category",
+			"data": tagname,
+		},
+		"yAis": map[string]string{
+			"type": "value",
+		},
+		"series": map[string]any{
+			"data": count,
+			"type": "bar",
+		},
+	}
+	data := map[string]any{
+		"article_total":       article_total,
+		"today_article_total": today_article_total,
+		"article_ratio":       article_ratio,
+		"today_visitor_total": today_visitor_total,
+		"visitor_ratio":       visitor_ratio,
+		"user_total":          user_total,
+		"student_total":       student_total,
+		"teacher_total":       teacher_total,
+		"upvote_amount":       upvote_amount,
+		"article_read_total":  article_read_total,
+		"chartOption":         chartOption,
+	}
+
+	response.ResponseSuccess(c, data)
+}
+
+// FPageCollege 学院管理员和超级管理员
+func FPageCollege(c *gin.Context) {
+	//查询所有用户的id及username
+	uidslice, usernameslice, err := mysql.SelCollegeId()
+	if err != nil {
+		fmt.Println("FPageCollege  SelCollegeId err", err)
+		return
+	}
+	//总帖数
+	article_total, err := service.ArticleData(uidslice)
+	if err != nil {
+		fmt.Println("FPageCollege  ArticleData err", err)
+		return
+	}
+
+	//今日总帖数
+	today_article_total, err := service.NarticleDataClass(uidslice)
+	if err != nil {
+		fmt.Println("FPageCollege  ArticleData err", err)
+		return
+	}
+
+	//昨日帖子跟今天的比率
+	article_ratio, err := service.ArticleDataClassRate(uidslice, today_article_total)
+	if err != nil {
+		fmt.Println("FPageCollege  ArticleDataClassRate err", err)
+		return
+	}
+
+	//查询今日访客数
+	today_visitor_total := service.TodayVictor(usernameslice)
+	if err != nil {
+		fmt.Println("FPageCollege  TodayVictor err", err)
+		return
+	}
+
+	//今天和昨天访客比率
+	visitor_ratio, err := service.VictorRate(usernameslice, today_visitor_total)
+	if err != nil {
+		fmt.Println("FPageCollege  VictorRate err", err)
+		return
+	}
+
+	//人员总数
+	user_total := len(uidslice)
+
+	//学生总数
+	student_total, err := mysql.SelStudent()
+	if err != nil {
+		fmt.Println("FPageCollege  SelStudent err", err)
+		return
+	}
+
+	//教师总数
+	teacher_total, err := mysql.SelTeacher()
+	if err != nil {
+		fmt.Println("FPageCollege  SelStudent err", err)
+		return
+	}
+
+	//总赞数
+	upvote_amount := service.LikeAmount(uidslice)
+	if err != nil {
+		fmt.Println("FPageCollege  LikeAmount err", err)
+		return
+	}
+
+	//总阅读数
+	article_read_total := service.ReadAmount(uidslice)
+
+	//柱状图的数据
+	tagname, count, err := service.PillarData()
+	if err != nil {
+		fmt.Println("FPageClass PillarData err", err)
+		return
+	}
+	chartOption := map[string]any{
+		"xAxis": map[string]any{
+			"type": "category",
+			"data": tagname,
+		},
+		"yAis": map[string]string{
+			"type": "value",
+		},
+		"series": map[string]any{
+			"data": count,
+			"type": "bar",
+		},
+	}
+	data := map[string]any{
+		"article_total":       article_total,
+		"today_article_total": today_article_total,
+		"article_ratio":       article_ratio,
+		"today_visitor_total": today_visitor_total,
+		"visitor_ratio":       visitor_ratio,
+		"user_total":          user_total,
+		"student_total":       student_total,
+		"teacher_total":       teacher_total,
+		"upvote_amount":       upvote_amount,
+		"article_read_total":  article_read_total,
+		"chartOption":         chartOption,
+	}
+
+	response.ResponseSuccess(c, data)
+}
+
+// Pillar 柱状图(首页)
+func Pillar(c *gin.Context) {
+	//接收前端传来的data值
+	var tagname []string
+	var count []int
+	var nowtime map[string]any
+	err := c.ShouldBindJSON(&nowtime)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "接收数据失败")
+		return
+	}
+	date, ok := nowtime["date"]
+
+	if !ok {
+		response.ResponseErrorWithMsg(c, 400, "不存在data键")
+		return
+	}
+	if date == " " {
+		tagname, count, err = service.PillarData()
+	} else {
+		tagname, count, err = service.PillarDataTime(utils.ToString(date))
+	}
+
+	chartOption := map[string]any{
+		"xAxis": map[string]any{
+			"type": "category",
+			"data": tagname,
+		},
+		"yAis": map[string]string{
+			"type": "value",
+		},
+		"series": map[string]any{
+			"data": count,
+			"type": "bar",
+		},
+	}
+	data := map[string]any{
+		"chartOption": chartOption,
+	}
+	response.ResponseSuccess(c, data)
+}
