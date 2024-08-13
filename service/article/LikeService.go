@@ -68,9 +68,9 @@ func Like(objId, username string, likeType int) error {
 	}
 	switch likeType {
 	case 0:
-		redis.ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "like"}
+		ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "like"}
 	case 1:
-		redis.CommentLikeChan <- nzx_model.RedisLikeCommentData{Cid: id, Username: username, Operator: "like"}
+		CommentLikeChan <- nzx_model.RedisLikeCommentData{Cid: id, Username: username, Operator: "like"}
 	}
 
 	return nil
@@ -140,9 +140,9 @@ func CancelLike(objId, username string, likeType int) error {
 	}
 	switch likeType {
 	case 0:
-		redis.ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "cancel_like"}
+		ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "cancel_like"}
 	case 1:
-		redis.CommentLikeChan <- nzx_model.RedisLikeCommentData{Cid: id, Username: username, Operator: "cancel_like"}
+		CommentLikeChan <- nzx_model.RedisLikeCommentData{Cid: id, Username: username, Operator: "cancel_like"}
 	}
 
 	return nil

@@ -37,7 +37,7 @@ func CollectService(username, aid string) error {
 		fmt.Println("Collect() service.article.Atoi err=", err)
 		return err
 	}
-	redis.ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "collect"}
+	ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "collect"}
 	return nil
 }
 
@@ -73,7 +73,7 @@ func CancelCollectService(aid, username string) error {
 			fmt.Println("Collect() service.article.Atoi err=", err)
 			return err
 		}
-		redis.ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "cancel_collect"}
+		ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "cancel_collect"}
 	}
 
 	return nil

@@ -6,7 +6,7 @@ import (
 	"studentGrow/dao/mysql"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
-	logic "studentGrow/service/comment"
+	"studentGrow/service/comment"
 	utils "studentGrow/utils/readMessage"
 	"studentGrow/utils/token"
 )
@@ -50,7 +50,7 @@ func PostCom(c *gin.Context) {
 	}
 
 	//新增评论
-	err = logic.PostComment(commentType, username, commentContent, id)
+	err = comment.PostComment(commentType, username, commentContent, id)
 
 	if err != nil {
 		fmt.Println("PostCom() controller.article.PostComment err=", err)
@@ -61,55 +61,60 @@ func PostCom(c *gin.Context) {
 
 // GetLel1CommentsController 获取一级评论
 func GetLel1CommentsController(c *gin.Context) {
-	// 读取前端数据
-	json, err := utils.GetJsonvalue(c)
+	var input struct {
+		Aid      int    `json:"article_id"`
+		SortWay  string `json:"comment_way"`
+		Limit    int    `json:"comment_count"`
+		Page     int    `json:"comment_page"`
+		Username string `json:"username"`
+	}
+
+	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		fmt.Println("GetLel1CommentsController() controller.article.GetJsonvalue err=", err)
+		fmt.Println("GetLel1CommentsController() controller.article.BindJSON err=", err)
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	// 获取文章id
-	aid, err := json.GetInt("article_id")
+	comments, err := comment.GetLel1CommentsService(input.Aid, input.Limit, input.Page, input.Username, input.SortWay)
 	if err != nil {
-		fmt.Println("GetLel1CommentsController() controller.article.GetInt err=", err)
-		myErr.CheckErrors(err, c)
-		return
-	}
-	comments, err := mysql.QueryLevelOneComments(aid)
-	if err != nil {
-		fmt.Println("GetLel1CommentsController() controller.article.QueryLevelOneComments err=", err)
+		fmt.Println("GetLel1CommentsController() controller.article.GetLel1CommentsService err=", err)
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	res.ResponseSuccess(c, comments)
+	res.ResponseSuccess(c, map[string]any{
+		"comment_list": comments,
+		"comment_num":  len(comments),
+	})
 }
 
-// GetLe2CommentsController 获取二级评论
-func GetLe2CommentsController(c *gin.Context) {
-	// 读取前端数据
-	json, err := utils.GetJsonvalue(c)
-	if err != nil {
-		fmt.Println("GetLe2CommentsController() controller.article.GetJsonvalue err=", err)
-		myErr.CheckErrors(err, c)
-		return
+// GetSonCommentsController 获取子评论列表
+func GetSonCommentsController(c *gin.Context) {
+	var input struct {
+		Cid      int    `json:"comment_id"`
+		Username string `json:"username"`
+		Limit    int    `json:"limit"`
+		Page     int    `json:"page"`
 	}
-	// 获取父级评论id
-	pid, err := json.GetInt("comment_id")
+
+	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		fmt.Println("GetLe2CommentsController() controller.article.GetInt err=", err)
+		fmt.Println("GetSonCommentsController() controller.article.BindJSON err=", err)
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	comments, err := mysql.QueryLevelTwoComments(pid)
+	comments, err := comment.GetLelSonCommentListService(input.Cid, input.Limit, input.Page, input.Username)
+
 	if err != nil {
-		fmt.Println("GetLe2CommentsController() controller.article.QueryLevelTwoComments err=", err)
+		fmt.Println("GetSonCommentsController() controller.article.QueryLevelTwoComments err=", err)
 		myErr.CheckErrors(err, c)
 		return
 	}
-	res.ResponseSuccess(c, comments)
+	res.ResponseSuccess(c, map[string]any{
+		"comment_se_list": comments,
+	})
 }
 
 // DeleteCommentController 删除评论
