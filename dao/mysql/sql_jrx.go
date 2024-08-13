@@ -70,7 +70,7 @@ func AddSingleStudent(users *model.User) {
 	DB.Select("name", "username", "password", "class", "identity").Create(users)
 }
 
-// DeleteSingleStudent 删除单个学生
+// 删除单个学生
 func DeleteSingleStudent(id int) error {
 	err := DB.Table("users").Where("id = ?", id).Delete(nil).Error
 	return err
