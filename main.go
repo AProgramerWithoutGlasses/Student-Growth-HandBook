@@ -39,7 +39,7 @@ func main() {
 		fmt.Printf("mysql.Init() rdb.Ping().Result() err : %v\n", err)
 		return
 	}
-	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.Comment{}, &model.ArticleTag{}, &model.Menus{}, &model.UserCasbinRules{}, &model.UserArticleLikeRecord{}, &model.UserCommentLikeRecord{}, &model.UserLoginRecord{}, &model.UserPublisherRecord{}, &model.UserReadRecord{}, &model.UserSelectRecord{})
+	//err := mysql.DB.AutoMigrate(&gorm_model.Star{})
 	//if err != nil {
 	//	return
 	//}

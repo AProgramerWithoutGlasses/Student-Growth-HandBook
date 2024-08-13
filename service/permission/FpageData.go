@@ -102,6 +102,9 @@ func VictorRate(usernameslice []string, todayVictor int) (float64, error) {
 			yesdayVictor += 1
 		}
 	}
+	if todayVictor == 0 || yesdayVictor == 0 {
+		return 0, nil
+	}
 	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(todayVictor-yesdayVictor)/float64(todayVictor)), 64)
 	return rate, err
 }
