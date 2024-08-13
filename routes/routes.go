@@ -20,9 +20,10 @@ func Setup() *gin.Engine {
 	r.POST("/stuManage/addSingleStudent", stuManage.AddSingleStuContro)
 	r.POST("/stuManage/addMultipleStudent", stuManage.AddMultipleStuContro)
 	r.POST("/stuManage/deleteStudent", stuManage.DeleteStuControl)
-	r.POST("/stuManage/banStudent", stuManage.BanStuControl)
-	/*	r.POST("/stuManage/editStudent", stuManage.EditStuContro)
-		r.POST("/stuManage/setStudentManager", stuManage.setStuManagerContro)
+	r.POST("/stuManage/setStudentManager", stuManage.StuManagerControl)
+	/*	r.POST("/stuManage/banStudent", stuManage.BanStuContro)
+		r.POST("/stuManage/editStudent", stuManage.EditStuControl)
+
 		r.POST("/stuManage/outputMultipleStudent", stuManage.outputMultipleStuContro)
 	*/
 
