@@ -3,6 +3,7 @@ package stuManage
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"studentGrow/dao/mysql"
@@ -59,6 +60,38 @@ var queryParmaStruct jrx_model.QueryParmaStruct
 var querySql string
 var queryAllStuNumber int
 
+/*
+func QueryStuContro(c *gin.Context) {
+	// 接收参数
+	var input struct {
+		Year          int    `form:"year"`
+		Class         string `form:"class"`
+		Gender        int    `form:"gender"`
+		IsDisable     bool   `form:"isDisable"`
+		searchSelect  string `form:"searchSelect"`
+		searchMessage string `form:"searchMessage"`
+	}
+
+	if err := c.Bind(&input); err != nil {
+		response.ResponseError(c, response.ParamFail)
+		return
+	}
+	// 参数校验
+
+	// 调用server层方法
+
+		data,err :=  server.QueryStu(input.Year,input.Class,input.Gender)
+		if err != nil {
+			log.logger("QueryStuContro failed:%v",err)
+				response.ResponseError(c, response.ParamFail)
+		        return
+		}
+
+
+	// 返回响应
+	response.ResponseSuccess(c, data)
+}
+*/
 // QueryStuContro 查询学生信息
 func QueryStuContro(c *gin.Context) {
 	// 接收请求数据
@@ -69,14 +102,23 @@ func QueryStuContro(c *gin.Context) {
 
 	// 将请求数据整理到结构体
 	queryParmaStruct = service.GetReqMes(stuMessage)
-
 	// 获取sql语句
 	querySql = service.CreateQuerySql(stuMessage, queryParmaStruct)
 	queryPageSql := querySql + " limit " + strconv.Itoa(8) + " offset " + strconv.Itoa(0)
 
 	// 响应数据的获取
-	stuInfo := mysql.GetStuMesList(querySql)         // 所有学生数据
-	stuPageInfo := mysql.GetStuMesList(queryPageSql) // 当页学生数据
+	stuInfo, err := mysql.GetStuMesList(querySql) // 所有学生数据
+	if err != nil {
+		zap.L().Error("mysql.GetStuMesList(querySql) failed", zap.Error(err))
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
+	stuPageInfo, err := mysql.GetStuMesList(queryPageSql) // 当页学生数据
+	if err != nil {
+		zap.L().Error("mysql.GetStuMesList(queryPageSql) failed", zap.Error(err))
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
 	yearStructSlice := service.GetYearStructSlice()
 	classStructSlice := service.GetClassStructSlice()
 
@@ -124,7 +166,7 @@ func QueryPageStuContro(c *gin.Context) {
 	querySql = querySql + " limit " + strconv.Itoa(limitValue) + " offset " + strconv.Itoa(offsetValue)
 
 	// 响应数据的获取
-	stuPageInfo := mysql.GetStuMesList(querySql) // 当页学生数据
+	stuPageInfo, _ := mysql.GetStuMesList(querySql) // 当页学生数据
 	yearStructSlice := service.GetYearStructSlice()
 	classStructSlice := service.GetClassStructSlice()
 
