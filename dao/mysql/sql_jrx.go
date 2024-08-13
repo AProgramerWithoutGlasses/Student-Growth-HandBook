@@ -21,7 +21,7 @@ func GetSelfContent(id int) (string, error) {
 // 根据学号获取id
 func GetIdByUsername(username string) (int, error) {
 	var users model.User
-	err := DB.Unscoped().Where("username = ?", username).First(&users).Error // Unscoped()用于解除搜索时会自动加上deleted_at字段的限制
+	err := DB.Where("username = ?", username).First(&users).Error
 	return int(users.ID), err
 }
 

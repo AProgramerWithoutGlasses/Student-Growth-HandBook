@@ -11,12 +11,14 @@ import (
 func EditStuControl(c *gin.Context) {
 	var user jrx_model.ChangeStuMesStruct
 
+	// 接收数据
 	if err := c.Bind(&user); err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("stuManage.EditStuControl() c.Bind() err : ", zap.Error(err))
 		return
 	}
 
+	// 业务处理
 	id, err := mysql.GetIdByUsername(user.Username)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 500, err.Error())
@@ -30,6 +32,7 @@ func EditStuControl(c *gin.Context) {
 		return
 	}
 
+	// 响应
 	response.ResponseSuccess(c, "")
 
 }
