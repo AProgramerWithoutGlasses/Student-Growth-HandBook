@@ -83,9 +83,17 @@ func GetLel1CommentsController(c *gin.Context) {
 		return
 	}
 
+	// 获取文章评论数
+	commentNum, err := mysql.QueryArticleCommentNum(input.Aid)
+	if err != nil {
+		zap.L().Error("GetLel1CommentsController() controller.article.QueryArticleCommentNum err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
 	res.ResponseSuccess(c, map[string]any{
 		"comment_list": comments,
-		"comment_num":  len(comments),
+		"comment_num":  commentNum,
 	})
 }
 
