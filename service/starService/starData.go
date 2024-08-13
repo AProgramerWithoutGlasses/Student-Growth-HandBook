@@ -80,4 +80,12 @@ func StarGridClass(usernameslice []string) ([]models.StarBack, error) {
 	return stakback, nil
 }
 
-//实现分页查询
+// PageQuery 实现分页查询
+//func PageQuery(starback []models.StarBack, page, limit int) {
+//	length := len(starback)
+//	left := (page - 1) * limit
+//	right := page * limit
+//	if {
+//
+//	}
+//}

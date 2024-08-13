@@ -373,18 +373,15 @@ func Pillar(c *gin.Context) {
 	//接收前端传来的data值
 	var tagname []string
 	var count []int
-	var nowtime map[string]any
-	err := c.Bind(&nowtime)
+	var nowtime struct {
+		date string
+	}
+	err := c.ShouldBindQuery(&nowtime)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "接收数据失败")
 		return
 	}
-	date, ok := nowtime["date"]
-
-	if !ok {
-		response.ResponseErrorWithMsg(c, 400, "不存在data键")
-		return
-	}
+	date := nowtime.date
 	if date == " " {
 		tagname, count, err = service.PillarData()
 	} else {
