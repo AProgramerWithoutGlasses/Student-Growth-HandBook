@@ -104,7 +104,7 @@ func FPageClass(c *gin.Context) {
 			"type": "category",
 			"data": tagname,
 		},
-		"yAis": map[string]string{
+		"yAxis": map[string]string{
 			"type": "value",
 		},
 		"series": map[string]any{
@@ -237,7 +237,7 @@ func FPageGrade(c *gin.Context) {
 			"type": "category",
 			"data": tagname,
 		},
-		"yAis": map[string]string{
+		"yAxis": map[string]string{
 			"type": "value",
 		},
 		"series": map[string]any{
@@ -343,7 +343,7 @@ func FPageCollege(c *gin.Context) {
 			"type": "category",
 			"data": tagname,
 		},
-		"yAis": map[string]string{
+		"yAxis": map[string]string{
 			"type": "value",
 		},
 		"series": map[string]any{
@@ -393,7 +393,7 @@ func Pillar(c *gin.Context) {
 			"type": "category",
 			"data": tagname,
 		},
-		"yAis": map[string]string{
+		"yAxis": map[string]string{
 			"type": "value",
 		},
 		"series": map[string]any{
