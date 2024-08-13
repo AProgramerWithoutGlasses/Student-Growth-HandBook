@@ -33,6 +33,18 @@ func PostComment(commentType, username, content string, id int) error {
 			zap.L().Error("PostComment() service.article.InsertIntoCommentsForArticle err=", zap.Error(err))
 			return err
 		}
+		// 增加文章评论数
+		num, err := mysql.QueryArticleCommentNum(id)
+		if err != nil {
+			zap.L().Error("PostComment() service.article.QueryArticleCommentNum err=", zap.Error(err))
+			return err
+		}
+		err = mysql.UpdateArticleCommentNum(id, num+1)
+		if err != nil {
+			zap.L().Error("PostComment() service.article.UpdateArticleCommentNum err=", zap.Error(err))
+			return err
+		}
+
 	case "comment":
 		//向数据库插入评论数据
 		err = mysql.InsertIntoCommentsForComment(content, id, uid)
