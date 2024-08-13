@@ -1966,3 +1966,5 @@
 {"level":"INFO","time":"2024-08-12T22:12:55.961+0800","caller":"合并/main.go:78","msg":"Server exiting"}
 {"level":"INFO","time":"2024-08-12T22:18:01.683+0800","caller":"studentGrow/main.go:71","msg":"Shut down Server ..."}
 {"level":"INFO","time":"2024-08-12T22:18:01.684+0800","caller":"studentGrow/main.go:78","msg":"Server exiting"}
+{"level":"INFO","time":"2024-08-13T11:29:39.573+0800","caller":"Student-Growth-HandBook/main.go:76","msg":"Shut down Server ..."}
+{"level":"INFO","time":"2024-08-13T11:29:39.573+0800","caller":"Student-Growth-HandBook/main.go:83","msg":"Server exiting"}

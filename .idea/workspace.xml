@@ -4,18 +4,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="加跨域">
-      <change afterPath="$PROJECT_DIR$/models/casbinModels/casbinModel.go" afterDir="false" />
+    <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.13">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/redis/redisToMysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/article/RedisToMysqlService.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gorm_model/Article.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/gorm_model/Article.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/article/CollectService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/article/CollectService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/article/LikeService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/article/LikeService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/permission/FpageData.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/permission/FpageData.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/permission/grantPermisson.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/permission/grantPermisson.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/article/RedisToMysqlService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/article/RedisToMysqlService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_app.log" beforeDir="false" afterPath="$PROJECT_DIR$/web_app.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,7 +26,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="feature/xun" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -91,7 +84,7 @@
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/Administrator/go/Student-Growth-HandBook/models/casbinModels",
+    "last_opened_file_path": "C:/Users/MR",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
@@ -108,7 +101,7 @@
       <recent name="C:\Users\Administrator\go\Student-Growth-HandBook\dao" />
     </key>
   </component>
-  <component name="RunManager" selected="Go 构建.go build studentGrow">
+  <component name="RunManager" selected="Go Build.go build studentGrow">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="common" />
       <working_directory value="$PROJECT_DIR$" />
@@ -205,7 +198,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="feature/xun" />
+                        <option value="develop" />
                       </list>
                     </value>
                   </entry>
@@ -221,7 +214,8 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="8.8" />
     <MESSAGE value="8.9" />
-    <option name="LAST_COMMIT_MESSAGE" value="8.9" />
+    <MESSAGE value="8.13" />
+    <option name="LAST_COMMIT_MESSAGE" value="8.13" />
   </component>
   <component name="VgoProject">
     <auto-vendoring-mode>false</auto-vendoring-mode>
