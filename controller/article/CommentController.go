@@ -142,8 +142,16 @@ func DeleteCommentController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
+
+	// 通过token获取username
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("DeleteCommentController() controller.article.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 	// 删除评论
-	err = mysql.DeleteComment(cid)
+	err = mysql.DeleteComment(cid, username)
 	if err != nil {
 		zap.L().Error("DeleteCommentController() controller.article.DeleteComment err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
