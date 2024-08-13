@@ -1,4 +1,4 @@
-package pkg
+package service
 
 // 对用户权限进行修改
 //func UpdateRolePermissions(userId int, role string, newFunctions []string) (bool, error) {

@@ -7,7 +7,7 @@ import (
 type Article struct {
 	gorm.Model
 	Content       string `gorm:"size:350"json:"content"`
-	WordCount     int    `gorm:"default:0"json:"wordCount"`
+	WordCount     int    `gorm:"not null"json:"wordCount"`
 	Pic           string
 	Video         string
 	Topic         string                  `json:"topic"`
@@ -18,8 +18,8 @@ type Article struct {
 	CommentAmount int                     `gorm:"default:0"json:"commentAmount"`
 	ReportAmount  int                     `gorm:"default:0"json:"reportAmount"`
 	Ban           bool                    `gorm:"default:false"json:"-"`
-	UserID        uint                    `gorm:"not null"` //文章属于用户
-	User          User                    `json:"user"`     //文章属于用户
+	UserID        uint                    //文章属于用户
+	User          User                    `json:"user"` //文章属于用户
 	Comments      []Comment               //文章拥有评论
 	ArticleLikes  []UserArticleLikeRecord //文章拥有点赞
 	ArticleTags   []ArticleTag            //文章拥有标签

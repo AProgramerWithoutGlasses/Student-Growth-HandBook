@@ -25,9 +25,20 @@ type ClassStruct struct {
 	Class    string `json:"label"`
 }
 
+// ResponseStruct 返回查询结果给前端
 type ResponseStruct struct {
 	Year            []YearStruct   `json:"year"`
 	Class           []ClassStruct  `json:"class"`
 	StuInfo         []StuMesStruct `json:"stuInfo"`
 	AllStudentCount int            `json:"allStudentCount"`
+}
+
+// queryParmaStruct 用于获取查询参数
+type QueryParmaStruct struct {
+	Year          int    `json:"year"`
+	Class         string `json:"class"`
+	Gender        string `json:"gender"`
+	IsDisable     bool   `json:"is_disable"`
+	SearchSelect  string `json:"search_select"`
+	SearchMessage string `json:"search_message"`
 }
