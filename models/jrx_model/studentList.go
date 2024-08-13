@@ -45,8 +45,8 @@ type QueryParmaStruct struct {
 
 // 修改学生信息
 type ChangeStuMesStruct struct {
-	Username     string `json:"username"`
-	Class        string `json:"class"`
-	Phone_number string `json:"telephone"`
-	Password     string `json:"password"`
+	Username     string `json:"username" form:"username"`
+	Class        string `json:"class" form:"class"`
+	Phone_number string `json:"telephone" form:"phone_number"`
+	Password     string `json:"password" form:"password"`
 }

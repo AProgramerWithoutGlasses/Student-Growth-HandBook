@@ -13,14 +13,14 @@ func BanStuControl(c *gin.Context) {
 	stuMessage, err := readMessage.GetJsonvalue(c)
 	if err != nil {
 		fmt.Println("stuManage.BanStuControl() readMessage.GetJsonvalue() err : ", err)
-		response.ResponseErrorWithMsg(c, 400, err.Error())
+		response.ResponseErrorWithMsg(c, 500, err.Error())
 		return
 	}
 
 	usernameValue, err := stuMessage.GetString("username")
 	if err != nil {
 		fmt.Println("stuManage.BanStuControl() username GetString() err : ", err)
-		response.ResponseErrorWithMsg(c, 400, err.Error())
+		response.ResponseErrorWithMsg(c, 500, err.Error())
 		return
 	}
 
@@ -28,7 +28,7 @@ func BanStuControl(c *gin.Context) {
 	id, err := mysql.GetIdByUsername(usernameValue)
 	if err != nil {
 		fmt.Println("stuManage.DeleteStuControl() mysql.GetIdByUsername() err : ", err)
-		response.ResponseErrorWithMsg(c, 400, err.Error())
+		response.ResponseErrorWithMsg(c, 500, err.Error())
 		return
 	}
 
@@ -36,7 +36,7 @@ func BanStuControl(c *gin.Context) {
 	err = mysql.BanStudent(id)
 	if err != nil {
 		fmt.Println("stuManage.DeleteStuControl() mysql.BanStudent() err : ", err)
-		response.ResponseErrorWithMsg(c, 400, err.Error())
+		response.ResponseErrorWithMsg(c, 500, err.Error())
 		return
 	}
 	response.ResponseSuccess(c, 200)

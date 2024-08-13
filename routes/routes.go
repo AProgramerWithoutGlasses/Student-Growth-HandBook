@@ -25,11 +25,6 @@ func Setup() *gin.Engine {
 	r.POST("/stuManage/editStudent", stuManage.EditStuControl)
 	r.POST("/stuManage/banStudent", stuManage.BanStuControl)
 
-	/*
-
-
-		r.POST("/stuManage/outputMultipleStudent", stuManage.outputMultipleStuContro)
-	*/
-
+	r.POST("/stuManage/outputMultipleStudent", stuManage.OutputMultipleStuControl)
 	return r
 }
