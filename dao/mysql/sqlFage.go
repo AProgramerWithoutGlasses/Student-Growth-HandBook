@@ -150,7 +150,7 @@ func SelTagArticleTime(date string) ([]models.TagAmount, error) {
 	//获取第二天的开始时间（00:00:00），用于查询截止到当天结束的时间范围
 	to := nowDate.Add(24 * time.Hour)
 	var tagcount []models.TagAmount
-	err = DB.Table("article_tags").Where("created_at BETWEEN ? AND ?", nowdate, to).Select("tag_name,COUNT(*)as count").Group("tag_name").Scan(&tagcount).Error
+	err = DB.Table("article_tags").Where("created_at BETWEEN ? AND ?", nowDate, to).Select("tag_name,COUNT(*)as count").Group("tag_name").Scan(&tagcount).Error
 	if err != nil {
 		return nil, err
 	}
