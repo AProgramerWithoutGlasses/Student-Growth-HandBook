@@ -95,3 +95,9 @@ func ChangeStudentMessage(id int, users jrx_model.ChangeStuMesStruct) error {
 	err := DB.Model(&model.User{}).Where("id = ?", id).Updates(users).Error
 	return err
 }
+
+// 将用户设置为管理员
+func SetStuManager(id int) error {
+	err := DB.Model(&model.User{}).Where("id = ?", id).Update("is_manager", 1).Error
+	return err
+}
