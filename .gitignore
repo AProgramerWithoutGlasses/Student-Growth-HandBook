@@ -3,3 +3,4 @@ main
 *.exe
 /web_app.log
 /config.yaml
+./.idea

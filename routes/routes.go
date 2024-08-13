@@ -11,6 +11,7 @@ import (
 func Setup() *gin.Engine {
 	r := gin.New()
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+
 	r.Use(middleWare.CORSMiddleware()) // 跨域中间件
 
 	routesArticle(r)
