@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-var List = []string{"article_like-", "comment_like-"}
+var List = []string{"article", "comment"}
 
 // AddUserToLikeSet 添加用户到文章或评论点赞集合中
 func AddUserToLikeSet(objId, userId string, likeType int) error {

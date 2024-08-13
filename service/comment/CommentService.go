@@ -2,6 +2,7 @@ package comment
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"sort"
 	"strconv"
 	"studentGrow/dao/mysql"
@@ -18,7 +19,7 @@ func PostComment(commentType, username, content string, id int) error {
 	uid, err := mysql.SelectUserByUsername(username)
 	fmt.Println(uid)
 	if err != nil {
-		fmt.Println("PostComment() service.article.SelectUserByUsername err=", err)
+		zap.L().Error("PostComment() service.article.SelectUserByUsername err=", zap.Error(err))
 		return err
 	}
 
@@ -29,12 +30,14 @@ func PostComment(commentType, username, content string, id int) error {
 		//向数据库插入评论数据
 		err = mysql.InsertIntoCommentsForArticle(content, id, uid)
 		if err != nil {
+			zap.L().Error("PostComment() service.article.InsertIntoCommentsForArticle err=", zap.Error(err))
 			return err
 		}
 	case "comment":
 		//向数据库插入评论数据
 		err = mysql.InsertIntoCommentsForComment(content, id, uid)
 		if err != nil {
+			zap.L().Error("PostComment() service.article.InsertIntoCommentsForComment err=", zap.Error(err))
 			return err
 		}
 	}
@@ -46,7 +49,7 @@ func GetLel1CommentsService(aid, limit, page int, username, sortWay string) ([]g
 	// 分页查询评论
 	comments, err := mysql.QueryLevelOneComments(aid, limit, page)
 	if err != nil {
-		fmt.Println("GetLel1CommentsService() service.article.QueryLevelOneComments err=", err)
+		zap.L().Error("GetLel1CommentsService() service.article.QueryLevelOneComments err=", zap.Error(err))
 		return nil, err
 	}
 	// 排序
@@ -57,14 +60,14 @@ func GetLel1CommentsService(aid, limit, page int, username, sortWay string) ([]g
 	for i := 0; i < len(comments); i++ {
 		liked, err := redis.IsUserLiked(strconv.Itoa(int(comments[i].ID)), username, 1)
 		if err != nil {
-			fmt.Println("GetLel1CommentsService() service.article.IsUserLiked err=", err)
+			zap.L().Error("GetLel1CommentsService() service.article.IsUserLiked err=", zap.Error(err))
 			return nil, err
 		}
 		comments[i].IsLike = liked
 
 		num, err := mysql.QuerySonCommentNum(int(comments[i].ID))
 		if err != nil {
-			fmt.Println("GetLelSonCommentListService() service.article.QuerySonCommentNum err=", err)
+			zap.L().Error("GetLel1CommentsService() service.article.QuerySonCommentNum err=", zap.Error(err))
 			return nil, err
 		}
 		comments[i].ReplyCount = num
@@ -79,7 +82,7 @@ func GetLelSonCommentListService(cid, limit, page int, username string) ([]gorm_
 	// 获取文章对应的评论
 	comments, err := mysql.QueryLevelSonComments(cid, limit, page)
 	if err != nil {
-		fmt.Println("GetLelSonCommentListService() service.article.QueryLevelTwoComments err=", err)
+		zap.L().Error("GetLelSonCommentListService() service.article.QueryLevelSonComments err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -87,7 +90,7 @@ func GetLelSonCommentListService(cid, limit, page int, username string) ([]gorm_
 	for i := 0; i < len(comments); i++ {
 		liked, err := redis.IsUserLiked(strconv.Itoa(int(comments[i].ID)), username, 1)
 		if err != nil {
-			fmt.Println("GetLelSonCommentListService() service.article.IsUserLiked err=", err)
+			zap.L().Error("GetLelSonCommentListService() service.article.IsUserLiked err=", zap.Error(err))
 			return nil, err
 		}
 		comments[i].IsLike = liked
