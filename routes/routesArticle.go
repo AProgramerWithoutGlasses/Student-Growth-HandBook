@@ -16,7 +16,7 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/comment", token.AuthMiddleware(), article.PostCom)
 	// 获取文章标签
 	at.POST("/publish/get_tags", article.SendTopicTagsController)
-	//文章点赞
+	//文章或评论点赞
 	at.POST("/like", token.AuthMiddleware(), article.LikeController)
 	//封禁文章
 	at.POST("/ban", token.AuthMiddleware(), article.BannedArticleController)
@@ -30,10 +30,7 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/search_first", article.SelectArticleAndUserListByPageFirstPageController)
 	// 收藏
 	at.POST("/collect", token.AuthMiddleware(), article.CollectArticleController)
-	// 获取一级评论
-	at.POST("/get_lel1comment", article.GetLel1CommentsController)
-	// 获取子评论
-	at.POST("/get_lel2comment", article.GetSonCommentsController)
+
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表

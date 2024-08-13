@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"studentGrow/dao/redis"
 	model "studentGrow/models/gorm_model"
+	myErr "studentGrow/pkg/error"
 )
 
 // InsertIntoCommentsForArticle 向数据库插入评论数据(回复文章)
@@ -95,11 +96,15 @@ func QuerySonCommentNum(cid int) (int, error) {
 }
 
 // DeleteComment 删除评论
-func DeleteComment(cid int) error {
+func DeleteComment(cid int, username string) error {
 	comment := model.Comment{}
-	if err := DB.Where("id = ?", cid).First(&comment).Error; err != nil {
+	if err := DB.Preload("User").Where("id = ?", cid).First(&comment).Error; err != nil {
 		fmt.Println("DeleteComment() dao.mysql.nzx_sql err=", err)
 		return err
+	}
+
+	if username != comment.User.Username {
+		return myErr.OverstepCompetence()
 	}
 
 	if comment.Pid == 0 {
