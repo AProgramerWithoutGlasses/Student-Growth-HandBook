@@ -8,16 +8,20 @@ import (
 	"studentGrow/utils/readMessage"
 )
 
-func DeleteStuControl(c *gin.Context) {
+func BanStuControl(c *gin.Context) {
 	// 接收请求信息
 	stuMessage, err := readMessage.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("readMessage.GetJsonvalue() err : ", err)
+		fmt.Println("stuManage.BanStuControl() readMessage.GetJsonvalue() err : ", err)
+		response.ResponseErrorWithMsg(c, 400, err.Error())
+		return
 	}
 
 	usernameValue, err := stuMessage.GetString("username")
 	if err != nil {
-		fmt.Println("username GetString() err : ", err)
+		fmt.Println("stuManage.BanStuControl() username GetString() err : ", err)
+		response.ResponseErrorWithMsg(c, 400, err.Error())
+		return
 	}
 
 	// 根据学号获取id
@@ -28,10 +32,10 @@ func DeleteStuControl(c *gin.Context) {
 		return
 	}
 
-	// mysql中删除该学生
-	err = mysql.DeleteSingleStudent(id)
+	// mysql中封禁该学生
+	err = mysql.BanStudent(id)
 	if err != nil {
-		fmt.Println("stuManage.DeleteStuControl() mysql.DeleteSingleStudent() err : ", err)
+		fmt.Println("stuManage.DeleteStuControl() mysql.BanStudent() err : ", err)
 		response.ResponseErrorWithMsg(c, 400, err.Error())
 		return
 	}

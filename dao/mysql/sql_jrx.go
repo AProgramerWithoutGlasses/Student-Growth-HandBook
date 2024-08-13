@@ -67,7 +67,14 @@ func AddSingleStudent(users *model.User) {
 	DB.Select("name", "username", "password", "class", "identity").Create(users)
 }
 
-// 删除单个学生
-func DeleteSingleStudent(id string) {
-	// DB.Delete()
+// DeleteSingleStudent 删除单个学生
+func DeleteSingleStudent(id int) error {
+	err := DB.Table("users").Where("id = ?", id).Delete(nil).Error
+	return err
+}
+
+// 封禁该用户
+func BanStudent(id int) error {
+	err := DB.Model(&model.User{}).Where("id = ?", id).Update("ban", 1).Error
+	return err
 }
