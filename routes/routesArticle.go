@@ -30,6 +30,8 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/search_first", article.SelectArticleAndUserListByPageFirstPageController)
 	// 收藏
 	at.POST("/collect", token.AuthMiddleware(), article.CollectArticleController)
+	// 获取一级评论
+	at.POST("/get_lel1comment", article.GetLel1CommentsController)
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表

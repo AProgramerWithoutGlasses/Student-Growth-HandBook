@@ -11,7 +11,7 @@ import (
 func Setup() *gin.Engine {
 	r := gin.New()
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
-	r.Use(middleWare.CORSMiddleware()) // 跨域中间件
+	r.Use(middleWare.CORSMiddleware())
 
 	routesArticle(r)
 	routesTopic(r)
@@ -19,7 +19,7 @@ func Setup() *gin.Engine {
 
 	RoutesXue(r)
 
-	// 勋
+	// 勋x
 	r.POST("/student/getSelfCotnent", student.GetSelfContentContro)
 	r.POST("/student/updateSelfContent", student.UpdateSelfContentContro)
 	r.POST("/stuManage/queryStudent/class", stuManage.QueryStuContro)

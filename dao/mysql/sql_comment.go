@@ -56,23 +56,42 @@ func InsertIntoCommentsForComment(content string, uid int, pid int) error {
 }
 
 // QueryLevelOneComments 查询一级评论
-func QueryLevelOneComments(aid int) ([]model.Comment, error) {
+func QueryLevelOneComments(aid, limit, page int) ([]model.Comment, error) {
 	var comments []model.Comment
-	if err := DB.Preload("User").Where("article_id = ?", aid).Find(&comments).Error; err != nil {
+	if err := DB.Preload("User").Where("article_id = ?", aid).
+		Order("created_at desc").
+		Limit(limit).Offset((page - 1) * limit).
+		Find(&comments).
+		Error; err != nil {
 		fmt.Println("QueryLevelOneComments() dao.mysql.nzx_sql err=", err)
 		return nil, err
 	}
 	return comments, nil
 }
 
-// QueryLevelTwoComments 查询二级评论
-func QueryLevelTwoComments(pid int) ([]model.Comment, error) {
+// QueryLevelSonComments 查询子评论
+func QueryLevelSonComments(pid, limit, page int) ([]model.Comment, error) {
 	var comments []model.Comment
-	if err := DB.Preload("User").Where("pid = ?", pid).Find(&comments).Error; err != nil {
+	if err := DB.Preload("User").Where("pid = ?", pid).
+		Order("created_at desc").
+		Limit(limit).Offset((page - 1) * limit).
+		Find(&comments).
+		Error; err != nil {
 		fmt.Println("QueryLevelTwoComments() dao.mysql.nzx_sql err=", err)
 		return nil, err
 	}
 	return comments, nil
+}
+
+// QuerySonCommentNum 查询子评论数量
+func QuerySonCommentNum(cid int) (int, error) {
+	var count int64
+	if err := DB.Where("pid = ?", cid).Count(&count).Error; err != nil {
+		fmt.Println("QuerySonCommentNum() dao.mysql.nzx_sql err=", err)
+		return -1, err
+	}
+	return int(count), nil
+
 }
 
 // DeleteComment 删除评论

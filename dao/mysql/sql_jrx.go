@@ -33,13 +33,16 @@ func GetDiffClass() []string {
 }
 
 // GetStuMesList 根据搜索框内容查询学生信息列表
-func GetStuMesList(querySql string) []jrx_model.StuMesStruct {
+func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 
 	// 从mysql中获取数据到user表中
 	var userSlice []model.User
 
 	//DB.Select("name", "username", "password", "class", "plus_time", "gender", "phone_number", "ban", "is_manager").Where("YEAR(plus_time) = ?  and class IS NULL OR class = ? and gender = ? and ban = ?", parmaStruct.Year, parmaStruct.Class, parmaStruct.Gender, parmaStruct.IsDisable).Find(&userSlice)
-	DB.Raw(querySql).Find(&userSlice)
+	err := DB.Raw(querySql).Find(&userSlice).Error
+	if err != nil {
+		return nil, err
+	}
 
 	// 从user表中获取数据到stuMesSlice中
 	stuMesSlice := make([]jrx_model.StuMesStruct, len(userSlice))
@@ -59,7 +62,7 @@ func GetStuMesList(querySql string) []jrx_model.StuMesStruct {
 		fmt.Println("转化成功", k, user)
 	}
 
-	return stuMesSlice
+	return stuMesSlice, nil
 }
 
 // 添加单个学生

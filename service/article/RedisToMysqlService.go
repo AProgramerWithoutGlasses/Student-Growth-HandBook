@@ -64,7 +64,7 @@ func writeToMysql() {
 				}
 			}
 		default:
-			// fmt.Println("等待redis数据传入...")
+			//fmt.Println("等待redis数据传入...")
 		}
 	}
 }
