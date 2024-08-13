@@ -41,7 +41,7 @@ func main() {
 		return
 	}
 
-	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.Comment{}, &model.ArticleTag{}, &model.UserArticleLikeRecord{}, &model.UserSelectRecord{}, &model.UserCommentLikeRecord{}, &model.UserLoginRecord{}, &model.UserReadRecord{}, model.UserReportArticleRecord{})
+	err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.Comment{}, &model.ArticleTag{}, &model.UserArticleLikeRecord{}, &model.UserCollectRecord{}, &model.UserCommentLikeRecord{}, &model.UserLoginRecord{}, &model.UserReadRecord{}, model.UserReportArticleRecord{})
 	if err != nil {
 		return
 	}
@@ -51,6 +51,9 @@ func main() {
 		fmt.Printf("redis.Init() rdb.Ping().Result() err : %v\n", err)
 		return
 	}
+
+	// redis读写mysql
+	redis.InitMyMQ()
 
 	// 5. 注册路由
 	r := routes.Setup()

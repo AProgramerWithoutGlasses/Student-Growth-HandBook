@@ -23,7 +23,8 @@ type Article struct {
 	Comments      []Comment               //文章拥有评论
 	ArticleLikes  []UserArticleLikeRecord //文章拥有点赞
 	ArticleTags   []ArticleTag            //文章拥有标签
-	Selects       []UserSelectRecord      //文章拥有收藏
+	Collects      []UserCollectRecord     //文章拥有收藏
+	IsLike        bool                    `gorm:"-"`
 }
 
 // Articles 自定义加权排序

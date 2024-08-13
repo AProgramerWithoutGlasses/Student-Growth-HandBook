@@ -2,12 +2,19 @@ package article
 
 import (
 	"fmt"
+	"strconv"
+	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
+	"studentGrow/models/nzx_model"
 )
 
+/*
+redis
+*/
+
 // Like 点赞
-func Like(objId, userId string, likeType int) error {
-	err := redis.AddUserToLikeSet(redis.List[likeType]+objId, userId, likeType)
+func Like(objId, username string, likeType int) error {
+	err := redis.AddUserToLikeSet(redis.List[likeType]+objId, username, likeType)
 	if err != nil {
 		fmt.Println("Like() service.article.likeService.AddUserToLikeSet err=", err)
 		return err
@@ -25,19 +32,60 @@ func Like(objId, userId string, likeType int) error {
 		}
 	}
 
+	id, err := strconv.Atoi(objId)
+
+	// 增加文章或评论的点赞数量
+	switch likeType {
+	case 0:
+		num, err := mysql.QueryArticleLikeNum(id)
+		if err != nil {
+			fmt.Println("Like() service.article.likeService.QueryArticleLikeNum err=", err)
+			return err
+		}
+		err = mysql.UpdateArticleLikeNum(id, num+1)
+		if err != nil {
+			fmt.Println("Like() service.article.likeService.UpdateArticleLikeNum err=", err)
+			return err
+		}
+	case 1:
+		num, err := mysql.QueryCommentLikeNum(id)
+		if err != nil {
+			fmt.Println("Like() service.article.likeService.QueryCommentLikeNum err=", err)
+			return err
+		}
+		err = mysql.UpdateCommentLikeNum(id, num+1)
+		if err != nil {
+			fmt.Println("Like() service.article.likeService.UpdateCommentLikeNum err=", err)
+			return err
+		}
+	}
+
+	// 写入通道
+
+	if err != nil {
+		fmt.Println("Like() service.article.Atoi err=", err)
+		return err
+	}
+	switch likeType {
+	case 0:
+		redis.ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "like"}
+	case 1:
+		redis.CommentLikeChan <- nzx_model.RedisLikeCommentData{Cid: id, Username: username, Operator: "like"}
+	}
+
 	return nil
 }
 
 // CancelLike 取消点赞
-func CancelLike(objId, userId string, likeType int) error {
+func CancelLike(objId, username string, likeType int) error {
 
-	ok, err := redis.IsUserLiked(objId, userId, likeType)
+	ok, err := redis.IsUserLiked(objId, username, likeType)
 	if err != nil {
 		fmt.Println("CancelLike() service.article.likeService.IsUserLiked err=", err)
 		return err
 	}
 	if ok {
-		err = redis.RemoveUserFromLikeSet(objId, userId, likeType)
+		err = redis.RemoveUserFromLikeSet(objId, username, likeType)
 		if err != nil {
 			fmt.Println("CancelLike() service.article.likeService.RemoveUserFromLikeSet err=", err)
 			return err
@@ -55,11 +103,53 @@ func CancelLike(objId, userId string, likeType int) error {
 			}
 		}
 	}
+
+	id, err := strconv.Atoi(objId)
+
+	// 减少文章或评论的点赞数量
+	switch likeType {
+	case 0:
+		num, err := mysql.QueryArticleLikeNum(id)
+		if err != nil {
+			fmt.Println("Like() service.article.likeService.QueryArticleLikeNum err=", err)
+			return err
+		}
+		err = mysql.UpdateArticleLikeNum(id, num-1)
+		if err != nil {
+			fmt.Println("Like() service.article.likeService.UpdateArticleLikeNum err=", err)
+			return err
+		}
+	case 1:
+		num, err := mysql.QueryCommentLikeNum(id)
+		if err != nil {
+			fmt.Println("Like() service.article.likeService.QueryCommentLikeNum err=", err)
+			return err
+		}
+		err = mysql.UpdateCommentLikeNum(id, num-1)
+		if err != nil {
+			fmt.Println("Like() service.article.likeService.UpdateCommentLikeNum err=", err)
+			return err
+		}
+	}
+
+	// 写入通道
+
+	if err != nil {
+		fmt.Println("CancelLike() service.article.Atoi err=", err)
+		return err
+	}
+	switch likeType {
+	case 0:
+		redis.ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "cancel_like"}
+	case 1:
+		redis.CommentLikeChan <- nzx_model.RedisLikeCommentData{Cid: id, Username: username, Operator: "cancel_like"}
+	}
+
 	return nil
 }
 
 // LikeObjOrNot 检查是否点赞并点赞
-func LikeObjOrNot(objId, userId string, likeType int) error {
+func LikeObjOrNot(objId, username string, likeType int) error {
 	//获取当前点赞文章列表
 	slice, err := redis.GetObjLikedUsers(objId, likeType)
 	if err != nil {
@@ -71,20 +161,83 @@ func LikeObjOrNot(objId, userId string, likeType int) error {
 		likeUsers[s] = struct{}{}
 	}
 	//若存在该用户，则取消点赞
-	_, ok := likeUsers[userId]
+	_, ok := likeUsers[username]
 	if len(likeUsers) > 0 && ok {
-		err = CancelLike(objId, userId, likeType)
+		err = CancelLike(objId, username, likeType)
 		if err != nil {
 			fmt.Println("LikeObjOrNot() service.article.likeService.CancelLike err=", err)
 			return err
 		}
 	} else {
 		//反之，点赞
-		err = Like(objId, userId, likeType)
+		err = Like(objId, username, likeType)
 		if err != nil {
 			fmt.Println("LikeObjOrNot() service.article.likeService.Like err=", err)
 			return err
 		}
 	}
 	return nil
+}
+
+/*
+mysql
+*/
+
+// LikeToMysql 点赞
+func LikeToMysql(objId, likeType int, username string) error {
+
+	userId, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		fmt.Println("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", err)
+		return err
+	}
+	// 插入点赞记录
+	err = mysql.InsertLikeRecord(objId, likeType, userId)
+	if err != nil {
+		fmt.Println("LikeToMysql() service.article.likeService.InsertLikeRecord err=", err)
+		return err
+	}
+
+	// 更新点赞数
+	num, err := mysql.QueryLikeNum(objId, likeType)
+	if err != nil {
+		fmt.Println("LikeToMysql() service.article.likeService.QueryLikeNum err=", err)
+		return err
+	}
+	err = mysql.UpdateLikeNum(objId, likeType, num+1)
+	if err != nil {
+		fmt.Println("LikeToMysql() service.article.likeService.UpdateLikeNum err=", err)
+		return err
+	}
+	return nil
+}
+
+// CancelLikeToMysql 取消点赞
+func CancelLikeToMysql(objId, likeType int, username string) error {
+	userId, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		fmt.Println("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", err)
+		return err
+	}
+
+	// 删除点赞记录
+	err = mysql.DeleteLikeRecord(objId, likeType, userId)
+	if err != nil {
+		fmt.Println("CancelLikeToMysql() service.article.likeService.DeleteLikeRecord err=", err)
+		return err
+	}
+
+	// 更新点赞数
+	num, err := mysql.QueryLikeNum(objId, likeType)
+	if err != nil {
+		fmt.Println("LikeToMysql() service.article.likeService.QueryLikeNum err=", err)
+		return err
+	}
+	err = mysql.UpdateLikeNum(objId, likeType, num-1)
+	if err != nil {
+		fmt.Println("LikeToMysql() service.article.likeService.UpdateLikeNum err=", err)
+		return err
+	}
+	return nil
+
 }

@@ -29,8 +29,9 @@ type User struct {
 	Followers             []User                  `gorm:"many2many:user_followers"` //用户和用户之间的关注关系
 	Articles              []Article               //用户拥有的文章列表
 	ReadRecords           []UserReadRecord        //用户浏览记录
-	Selects               []UserSelectRecord      //用户拥有收藏
+	Collect               []UserCollectRecord     //用户拥有收藏
 	UserLoginRecords      []UserLoginRecord       // 用户拥有登录记录
 	ArticleLikes          []UserArticleLikeRecord //用户拥有文章点赞记录
 	CommentLikes          []UserCommentLikeRecord // 用户拥有评论点赞记录
+	Comments              []Comment               //用户拥有评论
 }

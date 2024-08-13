@@ -7,8 +7,8 @@ import (
 
 var Selection = "select-"
 
-// AddArticleToSelectSet 添加文章到用户收藏集合中
-func AddArticleToSelectSet(uid string, aid string) error {
+// AddArticleToCollectSet 添加文章到用户收藏集合中
+func AddArticleToCollectSet(uid string, aid string) error {
 	if err := RDB.SAdd(Selection+uid, aid).Err(); err != nil {
 		fmt.Println("AddArticleToSelectSet() service.article.SAdd err=", err)
 		return err
@@ -16,8 +16,8 @@ func AddArticleToSelectSet(uid string, aid string) error {
 	return nil
 }
 
-// IsUserSelected 检查用户是否已经收藏
-func IsUserSelected(uid string, aid string) (bool, error) {
+// IsUserCollected 检查用户是否已经收藏
+func IsUserCollected(uid string, aid string) (bool, error) {
 	result, err := RDB.SIsMember(Selection+uid, aid).Result()
 	if err != nil {
 		fmt.Println("IsUserSelected() service.article.SIsMember err=", err)
@@ -27,8 +27,8 @@ func IsUserSelected(uid string, aid string) (bool, error) {
 	return result, nil
 }
 
-// SetArticleSelections 设置文章收藏数
-func SetArticleSelections(aid string, selectNum int) error {
+// SetArticleCollections 设置文章收藏数
+func SetArticleCollections(aid string, selectNum int) error {
 	if err := RDB.HIncrBy(Selection, aid, int64(selectNum)).Err(); err != nil {
 		fmt.Println("IsUserSelected() service.article.SIsMember err=", err)
 		return err
@@ -36,8 +36,8 @@ func SetArticleSelections(aid string, selectNum int) error {
 	return nil
 }
 
-// GetArticleSelections 获取文章收藏数
-func GetArticleSelections(aid string) (int, error) {
+// GetArticleCollections 获取文章收藏数
+func GetArticleCollections(aid string) (int, error) {
 	selectNum, err := RDB.HGet(Selection, aid).Result()
 	if err != nil {
 		fmt.Println("GetArticleSelections() service.article.HGet err=", err)
@@ -51,8 +51,8 @@ func GetArticleSelections(aid string) (int, error) {
 	return res, nil
 }
 
-// GetUserSelectionSet 获取用户的收藏集合
-func GetUserSelectionSet(uid string) ([]string, error) {
+// GetUserCollectionSet 获取用户的收藏集合
+func GetUserCollectionSet(uid string) ([]string, error) {
 	slice, err := RDB.SMembers(Selection + uid).Result()
 	if err != nil {
 		fmt.Println("GetUserSelectionSet() service.article.SMembers err=", err)
@@ -62,8 +62,8 @@ func GetUserSelectionSet(uid string) ([]string, error) {
 	return slice, nil
 }
 
-// RemoveUserSelectionSet 将文章从用户收藏集合中移除
-func RemoveUserSelectionSet(aid, uid string) error {
+// RemoveUserCollectionSet 将文章从用户收藏集合中移除
+func RemoveUserCollectionSet(aid, uid string) error {
 	err := RDB.SRem(Selection+uid, aid).Err()
 	if err != nil {
 		fmt.Println("RemoveUserFromLikeSet() service.article.ArticleLikeService err=", err)

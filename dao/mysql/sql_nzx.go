@@ -319,6 +319,63 @@ func SearchHotArticlesOfDay(startOfDay time.Time, endOfDay time.Time) (model.Art
 	return articles, nil
 }
 
+// UpdateArticleCommentNum 设置文章评论数
+func UpdateArticleCommentNum(aid, num int) error {
+	if err := DB.Where("id = ?", aid).Update("comment_amount", num).Error; err != nil {
+		fmt.Println("UpdateArticleCommentNum() dao.mysql.sql_nzx")
+		return err
+	}
+	return nil
+}
+
+// QueryArticleCommentNum 获取文章评论数
+func QueryArticleCommentNum(aid int) (int, error) {
+	article := model.Article{}
+	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
+		fmt.Println("QueryArticleCommentNum() dao.mysql.sql_nzx")
+		return -1, err
+	}
+	return article.CommentAmount, nil
+}
+
+// UpdateArticleLikeNum 设置文章点赞数
+func UpdateArticleLikeNum(aid, num int) error {
+	if err := DB.Where("id = ?", aid).Update("like_amount", num).Error; err != nil {
+		fmt.Println("UpdateArticleLikeNum() dao.mysql.sql_nzx")
+		return err
+	}
+	return nil
+}
+
+// QueryArticleLikeNum 获取文章点赞数
+func QueryArticleLikeNum(aid int) (int, error) {
+	article := model.Article{}
+	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
+		fmt.Println("QueryArticleLikeNum() dao.mysql.sql_nzx")
+		return -1, err
+	}
+	return article.LikeAmount, nil
+}
+
+// UpdateArticleCollectNum 设置文章收藏数
+func UpdateArticleCollectNum(aid, num int) error {
+	if err := DB.Where("id = ?", aid).Update("collect_amount", num).Error; err != nil {
+		fmt.Println("UpdateArticleLikeNum() dao.mysql.sql_nzx")
+		return err
+	}
+	return nil
+}
+
+// QueryArticleCollectNum 获取文章收藏数
+func QueryArticleCollectNum(aid int) (int, error) {
+	article := model.Article{}
+	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
+		fmt.Println("QueryArticleLikeNum() dao.mysql.sql_nzx")
+		return -1, err
+	}
+	return article.CollectAmount, nil
+}
+
 // InsertIntoArticle 插入文章信息
 //func InsertIntoArticle(username, content, topic string, tags []string, file[]) {
 //

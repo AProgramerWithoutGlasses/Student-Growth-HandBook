@@ -2,71 +2,89 @@ package article
 
 import (
 	"fmt"
+	"strconv"
+	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
+	"studentGrow/models/nzx_model"
 )
 
-// SelectService Select 收藏
-func SelectService(uid, aid string) error {
+// CollectService Collect 收藏
+func CollectService(username, aid string) error {
 	// 收藏文章
-	err := redis.AddArticleToSelectSet(uid, aid)
+	err := redis.AddArticleToCollectSet(username, aid)
 	if err != nil {
-		fmt.Println("Select() service.article.AddArticleToSelectSet err=", err)
+		fmt.Println("Collect() service.article.AddArticleToCollectSet err=", err)
 		return err
 	}
 	// 获取文章收藏数
-	selections, err := redis.GetArticleSelections(aid)
+	selections, err := redis.GetArticleCollections(aid)
 	if err != nil {
-		fmt.Println("Select() service.article.GetArticleSelections err=", err)
+		fmt.Println("Collect() service.article.GetArticleCollections err=", err)
 		return err
 	}
 	// 收藏数+1
 	if selections >= 0 {
-		err = redis.SetArticleSelections(aid, selections+1)
+		err = redis.SetArticleCollections(aid, selections+1)
 		if err != nil {
-			fmt.Println("Select() service.article.SetArticleSelections err=", err)
+			fmt.Println("Collect() service.article.SetArticleCollections err=", err)
 			return err
 		}
 	}
+
+	// 写入通道
+	articleId, err := strconv.Atoi(aid)
+	if err != nil {
+		fmt.Println("Collect() service.article.Atoi err=", err)
+		return err
+	}
+	redis.ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "collect"}
 	return nil
 }
 
-// CancelSelectService CancelSelect 取消收藏
-func CancelSelectService(aid, uid string) error {
-	isExist, err := redis.IsUserSelected(uid, aid)
+// CancelCollectService CancelCollect 取消收藏
+func CancelCollectService(aid, username string) error {
+	isExist, err := redis.IsUserCollected(username, aid)
 	if err != nil {
-		fmt.Println("CancelSelect() service.article.IsUserSelected err=", err)
+		fmt.Println("CancelCollect() service.article.IsUserCollected err=", err)
 		return err
 	}
 
 	if isExist {
-		err = redis.RemoveUserSelectionSet(aid, uid)
+		err = redis.RemoveUserCollectionSet(aid, username)
 		if err != nil {
-			fmt.Println("CancelSelect() service.article.RemoveUserSelectionSet err=", err)
+			fmt.Println("CancelCollect() service.article.RemoveUserCollectionSet err=", err)
 			return err
 		}
-		selections, err := redis.GetArticleSelections(aid)
+		selections, err := redis.GetArticleCollections(aid)
 		if err != nil {
-			fmt.Println("CancelSelect() service.article.RemoveUserSelectionSet err=", err)
+			fmt.Println("CancelCollect() service.article.RemoveUserCollectionSet err=", err)
 			return err
 		}
 		if selections > 0 {
-			err := redis.SetArticleSelections(aid, selections-1)
+			err := redis.SetArticleCollections(aid, selections-1)
 			if err != nil {
-				fmt.Println("CancelSelect() service.article.SetArticleSelections err=", err)
+				fmt.Println("CancelCollect() service.article.SetArticleCollections err=", err)
 				return err
 			}
 		}
+		// 写入通道
+		articleId, err := strconv.Atoi(aid)
+		if err != nil {
+			fmt.Println("Collect() service.article.Atoi err=", err)
+			return err
+		}
+		redis.ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "cancel_collect"}
 	}
 
 	return nil
 }
 
-// SelectOrNotService SelectOrNot 检查是否收藏并收藏或取消收藏
-func SelectOrNotService(aid, uid string) error {
+// CollectOrNotService CollectOrNot 检查是否收藏并收藏或取消收藏
+func CollectOrNotService(aid, username string) error {
 	// 获取当前用户收藏列表
-	slice, err := redis.GetUserSelectionSet(uid)
+	slice, err := redis.GetUserCollectionSet(username)
 	if err != nil {
-		fmt.Println("SelectOrNot() service.article.GetUserSelectionSet err=", err)
+		fmt.Println("CollectOrNot() service.article.GetUserCollectionSet err=", err)
 		return err
 	}
 
@@ -75,21 +93,83 @@ func SelectOrNotService(aid, uid string) error {
 		selectArticles[s] = struct{}{}
 	}
 
-	// 若存在该文章,则收藏
+	// 若存在该文章,则取消收藏
 	_, ok := selectArticles[aid]
 	if len(selectArticles) > 0 && ok {
-		err = CancelSelectService(aid, uid)
+		err = CancelCollectService(aid, username)
 		if err != nil {
-			fmt.Println("SelectOrNot() service.article.GetUserSelectionSet err=", err)
+			fmt.Println("CollectOrNot() service.article.GetUserCollectionSet err=", err)
 			return err
 		}
 	} else {
 		// 反之，收藏
-		err = SelectService(uid, aid)
+		err = CollectService(username, aid)
 		if err != nil {
-			fmt.Println("SelectOrNot() service.article.GetUserSelectionSet err=", err)
+			fmt.Println("CollectOrNot() service.article.GetUserCollectionSet err=", err)
 			return err
 		}
+	}
+	return nil
+}
+
+/*
+mysql
+*/
+
+// CollectToMysql 收藏
+func CollectToMysql(aid int, username string) error {
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		fmt.Println("CollectToMysql() service.article.GetIdByUsername err=", err)
+		return err
+	}
+	// 添加收藏记录
+	err = mysql.InsertCollectRecord(aid, uid)
+	if err != nil {
+		fmt.Println("CollectToMysql() service.article.InsertCollectRecord err=", err)
+		return err
+	}
+
+	// 获取收藏数
+	num, err := mysql.QueryCollectNum(aid)
+	if err != nil {
+		fmt.Println("CollectToMysql() service.article.QueryCollectNum err=", err)
+		return err
+	}
+	// 收藏数+1
+	err = mysql.UpdateCollectNum(aid, num+1)
+	if err != nil {
+		fmt.Println("CollectToMysql() service.article.UpdateCollectNum err=", err)
+		return err
+	}
+	return nil
+}
+
+// CancelCollectToMysql 取消收藏
+func CancelCollectToMysql(aid int, username string) error {
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		fmt.Println("CollectToMysql() service.article.GetIdByUsername err=", err)
+		return err
+	}
+	// 删除收藏记录
+	err = mysql.DeleteCollectRecord(aid, uid)
+	if err != nil {
+		fmt.Println("CollectToMysql() service.article.InsertCollectRecord err=", err)
+		return err
+	}
+
+	// 获取收藏数
+	num, err := mysql.QueryCollectNum(aid)
+	if err != nil {
+		fmt.Println("CollectToMysql() service.article.QueryCollectNum err=", err)
+		return err
+	}
+	// 收藏数-1
+	err = mysql.UpdateCollectNum(aid, num-1)
+	if err != nil {
+		fmt.Println("CollectToMysql() service.article.UpdateCollectNum err=", err)
+		return err
 	}
 	return nil
 }

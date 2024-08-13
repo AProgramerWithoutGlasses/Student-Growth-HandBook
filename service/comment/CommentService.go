@@ -2,21 +2,18 @@ package comment
 
 import (
 	"fmt"
-	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
+	"strconv"
 	"studentGrow/dao/mysql"
+	"studentGrow/dao/redis"
+	"studentGrow/models/gorm_model"
 )
 
 // PostComment 发布评论
-func PostComment(j *jsonvalue.V) error {
+func PostComment(commentType, username, content string, id int) error {
 	//类型comment_type:‘article’or‘comment’;id;comment_content;comment_username
 
-	//获取数据
-	commentType, _ := j.GetString("comment_type")
-	commentContent, _ := j.GetString("comment_content")
-	commentUsername, _ := j.GetString("comment_username")
-
 	//获取用户id
-	uid, err := mysql.SelectUserByUsername(commentUsername)
+	uid, err := mysql.SelectUserByUsername(username)
 	fmt.Println(uid)
 	if err != nil {
 		fmt.Println("PostComment() service.article.SelectUserByUsername err=", err)
@@ -27,25 +24,61 @@ func PostComment(j *jsonvalue.V) error {
 	switch commentType {
 	//给文章评论
 	case "article":
-		//获取文章id
-		aid, _ := j.GetInt("id")
-		fmt.Println("aid:", aid)
 		//向数据库插入评论数据
-		err = mysql.InsertIntoCommentsForArticle(commentContent, aid, uid)
-
+		err = mysql.InsertIntoCommentsForArticle(content, id, uid)
 		if err != nil {
 			return err
 		}
 	case "comment":
-		//获取评论id
-		//pid, err := utils.StringToInt(m["id"])
-		pid, _ := j.GetInt("id")
-		fmt.Println("pid:", pid)
 		//向数据库插入评论数据
-		err = mysql.InsertIntoCommentsForComment(commentContent, pid, uid)
+		err = mysql.InsertIntoCommentsForComment(content, id, uid)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// GetLel1CommentListService 获取一级评论列表
+func GetLel1CommentListService(username string, aid int) ([]gorm_model.Comment, error) {
+	// 获取文章对应的评论
+	comments, err := mysql.QueryLevelOneComments(aid)
+	if err != nil {
+		fmt.Println("GetLel1CommentList() service.article.QueryLevelOneComments err=", err)
+		return nil, err
+	}
+
+	// 该用户是否点赞
+	for i := 0; i < len(comments); i++ {
+		liked, err := redis.IsUserLiked(strconv.Itoa(int(comments[i].ID)), username, 1)
+		if err != nil {
+			fmt.Println("GetLel1CommentList() service.article.IsUserLiked err=", err)
+			return nil, err
+		}
+		comments[i].IsLike = liked
+	}
+
+	return comments, nil
+}
+
+// GetLel2CommentListService 获取二级评论列表
+func GetLel2CommentListService(username string, cid int) ([]gorm_model.Comment, error) {
+	// 获取文章对应的评论
+	comments, err := mysql.QueryLevelTwoComments(cid)
+	if err != nil {
+		fmt.Println("GetLel1CommentList() service.article.QueryLevelTwoComments err=", err)
+		return nil, err
+	}
+
+	// 该用户是否点赞
+	for i := 0; i < len(comments); i++ {
+		liked, err := redis.IsUserLiked(strconv.Itoa(int(comments[i].ID)), username, 1)
+		if err != nil {
+			fmt.Println("GetLel1CommentList() service.article.IsUserLiked err=", err)
+			return nil, err
+		}
+		comments[i].IsLike = liked
+	}
+
+	return comments, nil
 }

@@ -29,6 +29,12 @@ func GetArticleService(j *jsonvalue.V) (error, map[string]any) {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetInt err=", err)
 		return err, nil
 	}
+	// 获取uid
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetIdByUsername err=", err)
+		return err, nil
+	}
 
 	//查找文章信息
 	err, article := mysql.SelectArticleById(aid)
@@ -50,9 +56,16 @@ func GetArticleService(j *jsonvalue.V) (error, map[string]any) {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.IsUserLiked err=", err)
 		return err, nil
 	}
-	selected, err := redis.IsUserSelected(username, strconv.Itoa(aid))
+	selected, err := redis.IsUserCollected(username, strconv.Itoa(aid))
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.IsUserSelected err=", err)
+		return err, nil
+	}
+
+	// 存储到浏览记录
+	err = mysql.InsertReadRecord(uid, aid)
+	if err != nil {
+		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.InsertReadRecord err=", err)
 		return err, nil
 	}
 
@@ -392,7 +405,7 @@ func SelectArticleAndUserListByPageFirstPageService(j *jsonvalue.V) ([]map[strin
 	// 遍历文章集合并判断当前用户是否点赞或收藏该文章
 	var list []map[string]any
 	for _, article := range articles {
-		okSelect, err := redis.IsUserSelected(strconv.Itoa(int(article.ID)), username)
+		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(article.ID)), username)
 		okLike, err := redis.IsUserLiked(strconv.Itoa(article.LikeAmount), username, 0)
 		if err != nil {
 			fmt.Println("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserSelectedService err=", err)

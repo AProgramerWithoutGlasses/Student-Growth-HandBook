@@ -147,7 +147,7 @@ func ReportArticle(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-
+	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
 		fmt.Println("ReportArticle() controller.article.getArticle.GetUsername err=", err)
