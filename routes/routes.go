@@ -19,7 +19,7 @@ func Setup() *gin.Engine {
 
 	RoutesXue(r)
 
-	// 勋
+	// 勋x
 	r.POST("/student/getSelfCotnent", student.GetSelfContentContro)
 	r.POST("/student/updateSelfContent", student.UpdateSelfContentContro)
 	/*	r.POST("/stuManage/queryStudent", stuManage.QueryStuContro)
