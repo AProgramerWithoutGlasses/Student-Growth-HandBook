@@ -374,7 +374,7 @@ func Pillar(c *gin.Context) {
 	var tagname []string
 	var count []int
 	var nowtime map[string]any
-	err := c.ShouldBindJSON(&nowtime)
+	err := c.Bind(&nowtime)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "接收数据失败")
 		return
