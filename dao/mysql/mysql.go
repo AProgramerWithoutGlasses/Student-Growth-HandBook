@@ -16,7 +16,7 @@ func Init() error {
 	password := viper.GetString("mysql.password") //密码
 	host := viper.GetString("mysql.host")         //数据库地址，可以是Ip或者域名
 	port := viper.GetInt("mysql.port")            //数据库端口
-	Dbname := viper.GetString("mysql.dbname")     //数据库名
+	Dbname := viper.GetString("mysql.dbname")     //数据库名updated_at
 	timeout := "5s"                               //连接超时，5秒
 	//root:root@tcp(127.0.0.1:3306)/gorm?
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=%s", username, password, host, port, Dbname, timeout)

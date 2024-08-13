@@ -25,44 +25,56 @@ func GetIdByUsername(username string) (int, error) {
 	return int(users.ID), err
 }
 
-// 查询下拉框字段的值
-func GetPullValue() {
-
+// 获取不同的班级
+func GetDiffClass() []string {
+	var diffClassSlice []string
+	DB.Table("users").Select("class").Distinct("class").Order("class ASC").Scan(&diffClassSlice)
+	return diffClassSlice
 }
 
-// 根据搜索框内容查询学生信息列表
-func GetStuMesList() []jrx_model.StuMesStruct {
+// GetStuMesList 根据搜索框内容查询学生信息列表
+func GetStuMesList(querySql string) []jrx_model.StuMesStruct {
+
 	// 从mysql中获取数据到user表中
 	var userSlice []model.User
-	DB.Unscoped().Select("name", "username", "password", "class", "PlusTime", "gender", "PhoneNumber", "ban").Find(&userSlice)
 
-	// 从user表中获取数据到StuMesStruct中
+	//DB.Select("name", "username", "password", "class", "plus_time", "gender", "phone_number", "ban", "is_manager").Where("YEAR(plus_time) = ?  and class IS NULL OR class = ? and gender = ? and ban = ?", parmaStruct.Year, parmaStruct.Class, parmaStruct.Gender, parmaStruct.IsDisable).Find(&userSlice)
+	DB.Raw(querySql).Find(&userSlice)
+
+	// 从user表中获取数据到stuMesSlice中
 	stuMesSlice := make([]jrx_model.StuMesStruct, len(userSlice))
 	for i := 0; i < len(userSlice); i++ {
 		stuMesSlice[i].Name = userSlice[i].Name
 		stuMesSlice[i].Username = userSlice[i].Username
 		stuMesSlice[i].Password = userSlice[i].Password
 		stuMesSlice[i].Class = userSlice[i].Class
-
-		// 解析 PlusTime 字符串并格式化
 		stuMesSlice[i].Year = userSlice[i].PlusTime.Format("2006") // 日期只保留年份
-
 		stuMesSlice[i].Gender = userSlice[i].Gender
 		stuMesSlice[i].Telephone = userSlice[i].PhoneNumber
 		stuMesSlice[i].Ban = userSlice[i].Ban
-		// stuMes[i].IsManager = users[i].is_manager
+		stuMesSlice[i].IsManager = userSlice[i].IsManager
 	}
 
 	for k, user := range stuMesSlice {
-		fmt.Println(k, user)
+		fmt.Println("转化成功", k, user)
 	}
 
 	return stuMesSlice
 }
 
-// 获取不同的班级
-func GetDiffClass() []string {
-	var diffClassSlice []string
-	DB.Table("users").Select("class").Distinct("class").Order("class ASC").Scan(&diffClassSlice)
-	return diffClassSlice
+// 添加单个学生
+func AddSingleStudent(users *model.User) {
+	DB.Select("name", "username", "password", "class", "identity").Create(users)
+}
+
+// DeleteSingleStudent 删除单个学生
+func DeleteSingleStudent(id int) error {
+	err := DB.Table("users").Where("id = ?", id).Delete(nil).Error
+	return err
+}
+
+// 封禁该用户
+func BanStudent(id int) error {
+	err := DB.Model(&model.User{}).Where("id = ?", id).Update("ban", 1).Error
+	return err
 }

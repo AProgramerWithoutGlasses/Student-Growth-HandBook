@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// IntervalConversion 换算时间间隔 例如：X小时前
+// IntervalConversion 换算时间间隔 例如：X小时前 xxxx
 func IntervalConversion(t time.Time) string {
 	now := time.Now()
 	delta := now.Sub(t)

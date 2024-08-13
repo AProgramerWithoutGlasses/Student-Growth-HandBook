@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	_ "studentGrow/controller/article"
+	"studentGrow/controller/stuManage"
 	"studentGrow/controller/student"
 	"studentGrow/logger"
 	"studentGrow/utils/middleWare"
@@ -22,12 +22,13 @@ func Setup() *gin.Engine {
 	// 勋
 	r.POST("/student/getSelfCotnent", student.GetSelfContentContro)
 	r.POST("/student/updateSelfContent", student.UpdateSelfContentContro)
-	/*	r.POST("/stuManage/queryStudent", stuManage.QueryStuContro)
-		r.POST("/stuManage/addSingleStudent", stuManage.AddSingleStuContro)
-		r.POST("/stuManage/addMultipleStudent", stuManage.AddMultipleStuContro)
-		r.POST("/stuManage/deleteStudent", stuManage.DeleteStuContro)
-		r.POST("/stuManage/banStudent", stuManage.BanStuContro)
-		r.POST("/stuManage/editStudent", stuManage.EditStuContro)
+	r.POST("/stuManage/queryStudent/class", stuManage.QueryStuContro)
+	r.POST("/stuManage/queryPageStudent", stuManage.QueryPageStuContro)
+	r.POST("/stuManage/addSingleStudent", stuManage.AddSingleStuContro)
+	r.POST("/stuManage/addMultipleStudent", stuManage.AddMultipleStuContro)
+	r.POST("/stuManage/deleteStudent", stuManage.DeleteStuControl)
+	r.POST("/stuManage/banStudent", stuManage.BanStuControl)
+	/*	r.POST("/stuManage/editStudent", stuManage.EditStuContro)
 		r.POST("/stuManage/setStudentManager", stuManage.setStuManagerContro)
 		r.POST("/stuManage/outputMultipleStudent", stuManage.outputMultipleStuContro)
 	*/

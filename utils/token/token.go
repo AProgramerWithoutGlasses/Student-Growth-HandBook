@@ -26,7 +26,7 @@ func ReleaseToken(username, password, role string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(JwtKey) //根据前面自定义的Jwt秘钥生成token
-
+	tokenString = "Bearer " + tokenString
 	if err != nil {
 		//返回生成的错误
 		return "", err
