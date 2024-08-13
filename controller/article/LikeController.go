@@ -1,8 +1,8 @@
 package article
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"strconv"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
@@ -16,21 +16,21 @@ func LikeController(c *gin.Context) {
 	//解析数据
 	json, err := utils.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("Like() controller.article.GetJsonvalue err=", err)
+		zap.L().Error("Like() controller.article.GetJsonvalue err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("Like() controller.article.GetUsername err=", err)
+		zap.L().Error("Like() controller.article.GetUsername err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 	// 获取被点赞id
 	id, err := json.GetInt("id")
 	if err != nil {
-		fmt.Println("Like() controller.article.GetInt err=", err)
+		zap.L().Error("Like() controller.article.GetInt err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -38,7 +38,7 @@ func LikeController(c *gin.Context) {
 	// 获取被点赞类型
 	likeType, err := json.GetInt("like_type")
 	if err != nil {
-		fmt.Println("Like() controller.article.GetInt err=", err)
+		zap.L().Error("Like() controller.article.GetInt err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -46,7 +46,7 @@ func LikeController(c *gin.Context) {
 	//点赞
 	err = article.LikeObjOrNot(strconv.Itoa(id), username, likeType)
 	if err != nil {
-		fmt.Println("Like() controller.article.Like err=", err)
+		zap.L().Error("Like() controller.article.LikeObjOrNot err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
