@@ -7,7 +7,7 @@ import (
 	"studentGrow/utils/readMessage"
 )
 
-func StuManagerControl(c *gin.Context) {
+func SetStuManagerControl(c *gin.Context) {
 	reqMessage, err := readMessage.GetJsonvalue(c)
 	if err != nil {
 		fmt.Println("get json value error:", err)
