@@ -62,13 +62,13 @@ func SelArticle(id int, date time.Time) (int64, error) {
 
 	// 获取当天的开始时间（00:00:00）
 	from := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
-
+	nowdate := from.Add(-8 * time.Hour)
 	// 获取第二天的开始时间（00:00:00），用于查询截止到当天结束的时间范围
-	to := from.Add(24 * time.Hour)
+	to := nowdate.Add(24 * time.Hour)
 
 	// 使用 BETWEEN 查询当天的记录数
 	err := DB.Table("articles").Where("user_id = ? ", id).
-		Where("created_at BETWEEN ? AND ?", from, to).
+		Where("created_at BETWEEN ? AND ?", nowdate, to).
 		Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
@@ -146,8 +146,11 @@ func SelTagArticle() ([]models.TagAmount, error) {
 // SelTagArticleTime 查询不同tag不同时间下的文章的大小
 func SelTagArticleTime(date string) ([]models.TagAmount, error) {
 	nowdate, err := time.Parse("2006-01-02", date)
+	nowDate := nowdate.Add(-8 * time.Hour)
+	//获取第二天的开始时间（00:00:00），用于查询截止到当天结束的时间范围
+	to := nowDate.Add(24 * time.Hour)
 	var tagcount []models.TagAmount
-	err = DB.Table("article_tags").Where("created_at = ?", nowdate).Select("tag_name,COUNT(*)as count").Group("tag_name").Scan(&tagcount).Error
+	err = DB.Table("article_tags").Where("created_at BETWEEN ? AND ?", nowdate, to).Select("tag_name,COUNT(*)as count").Group("tag_name").Scan(&tagcount).Error
 	if err != nil {
 		return nil, err
 	}
