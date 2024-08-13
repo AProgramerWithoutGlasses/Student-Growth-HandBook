@@ -14,6 +14,7 @@ import (
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
 	"studentGrow/routes"
+	"studentGrow/service/article"
 	"studentGrow/settings"
 	"syscall"
 	"time"
@@ -52,7 +53,7 @@ func main() {
 	}
 
 	// redis读写mysql
-	redis.InitMyMQ()
+	article.InitMyMQ()
 
 	// 5. 注册路由
 	r := routes.Setup()

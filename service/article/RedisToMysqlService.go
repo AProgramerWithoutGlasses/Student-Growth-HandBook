@@ -1,10 +1,9 @@
-package redis
+package article
 
 import (
 	"fmt"
 	nzxMod "studentGrow/models/nzx_model"
 	myErr "studentGrow/pkg/error"
-	"studentGrow/service/article"
 )
 
 var (
@@ -26,12 +25,12 @@ func writeToMysql() {
 		case articleLike := <-ArticleLikeChan:
 			switch articleLike.Operator {
 			case "like":
-				err := article.LikeToMysql(articleLike.Aid, 0, articleLike.Username)
+				err := LikeToMysql(articleLike.Aid, 0, articleLike.Username)
 				if err != nil {
 					fmt.Println("writeToMysql() dao.redis.LikeToMysql err=", err)
 				}
 			case "cancel_like":
-				err := article.CancelLikeToMysql(articleLike.Aid, 0, articleLike.Username)
+				err := CancelLikeToMysql(articleLike.Aid, 0, articleLike.Username)
 				if err != nil {
 					fmt.Println("writeToMysql() dao.redis.CancelLikeToMysql err=", err)
 				}
@@ -41,12 +40,12 @@ func writeToMysql() {
 		case commentLike := <-CommentLikeChan:
 			switch commentLike.Operator {
 			case "like":
-				err := article.LikeToMysql(commentLike.Cid, 1, commentLike.Username)
+				err := LikeToMysql(commentLike.Cid, 1, commentLike.Username)
 				if err != nil {
 					fmt.Println("writeToMysql() dao.redis.LikeToMysql err=", err)
 				}
 			case "cancel_like":
-				err := article.CancelLikeToMysql(commentLike.Cid, 1, commentLike.Username)
+				err := CancelLikeToMysql(commentLike.Cid, 1, commentLike.Username)
 				if err != nil {
 					fmt.Println("writeToMysql() dao.redis.CancelLikeToMysql err=", err)
 				}
@@ -54,12 +53,12 @@ func writeToMysql() {
 		case articleCollect := <-ArticleCollectChan:
 			switch articleCollect.Operator {
 			case "collect":
-				err := article.CollectToMysql(articleCollect.Aid, articleCollect.Username)
+				err := CollectToMysql(articleCollect.Aid, articleCollect.Username)
 				if err != nil {
 					fmt.Println("writeToMysql() dao.redis.CollectToMysql err=", err)
 				}
 			case "cancel_collect":
-				err := article.CancelCollectToMysql(articleCollect.Aid, articleCollect.Username)
+				err := CancelCollectToMysql(articleCollect.Aid, articleCollect.Username)
 				if err != nil {
 					fmt.Println("writeToMysql() dao.redis.CancelCollectToMysql err=", err)
 				}

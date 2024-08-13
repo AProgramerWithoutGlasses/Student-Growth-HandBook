@@ -26,3 +26,12 @@ type Article struct {
 	Collects      []UserCollectRecord     //文章拥有收藏
 	IsLike        bool                    `gorm:"-"`
 }
+
+// Articles 自定义加权排序
+type Articles []Article
+
+func (a Articles) Len() int      { return len(a) }
+func (a Articles) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a Articles) Less(i, j int) bool {
+	return float64(a[i].LikeAmount)*0.5+float64(a[i].CollectAmount)*0.2+float64(a[i].CommentAmount)*0.3 > float64(a[j].LikeAmount)*0.5+float64(a[j].CollectAmount)*0.2+float64(a[j].CommentAmount)*0.3 // 降序
+}
