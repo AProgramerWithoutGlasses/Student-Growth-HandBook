@@ -51,19 +51,19 @@ func NowYearChange(num int) string {
 func GetYearStructSlice() []jrx_model.YearStruct {
 	var yearStructSlice = []jrx_model.YearStruct{
 		{
-			Id_Year: "1",
+			Id_Year: NowYearChange(-3),
 			Year:    NowYearChange(-3),
 		},
 		{
-			Id_Year: "2",
+			Id_Year: NowYearChange(-2),
 			Year:    NowYearChange(-2),
 		},
 		{
-			Id_Year: "3",
+			Id_Year: NowYearChange(-1),
 			Year:    NowYearChange(-1),
 		},
 		{
-			Id_Year: "4",
+			Id_Year: NowYearChange(0),
 			Year:    NowYearChange(0),
 		},
 	}
@@ -76,7 +76,7 @@ func GetClassStructSlice() []jrx_model.ClassStruct {
 	classStructSlice := make([]jrx_model.ClassStruct, len(diffClassSlice))
 	for i, class := range diffClassSlice {
 		classStructSlice[i] = jrx_model.ClassStruct{
-			Id_class: strconv.Itoa(i + 1),
+			Id_class: class,
 			Class:    class,
 		}
 	}
