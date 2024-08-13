@@ -12,6 +12,7 @@ import (
 // StarClass 班级管理员返回前端表格数据以选择
 func StarClass(c *gin.Context) {
 	token := c.GetHeader("token")
+	//获取username
 	username, err := token2.GetUsername(token)
 	if err != nil {
 		fmt.Println("starClass GetUsername err", err)
@@ -35,9 +36,4 @@ func StarClass(c *gin.Context) {
 		return
 	}
 	response.ResponseSuccess(c, starback)
-}
-
-func StarGrade(c *gin.Context) {
-	c.GetHeader("token")
-
 }
