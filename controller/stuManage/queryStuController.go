@@ -92,6 +92,7 @@ func QueryStuContro(c *gin.Context) {
 	response.ResponseSuccess(c, data)
 }
 */
+
 // QueryStuContro 查询学生信息
 func QueryStuContro(c *gin.Context) {
 	// 接收请求数据
