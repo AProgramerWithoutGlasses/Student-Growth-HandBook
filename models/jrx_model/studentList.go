@@ -42,3 +42,11 @@ type QueryParmaStruct struct {
 	SearchSelect  string `json:"search_select"`
 	SearchMessage string `json:"search_message"`
 }
+
+// 修改学生信息
+type ChangeStuMesStruct struct {
+	Username     string `json:"username"`
+	Class        string `json:"class"`
+	Phone_number string `json:"telephone"`
+	Password     string `json:"password"`
+}
