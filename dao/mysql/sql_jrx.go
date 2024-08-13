@@ -78,6 +78,20 @@ func DeleteSingleStudent(id int) error {
 
 // 封禁该用户
 func BanStudent(id int) error {
-	err := DB.Model(&model.User{}).Where("id = ?", id).Update("ban", 1).Error
+	var users model.User
+	DB.Take(&users, id)
+	var err error
+	if users.Ban == false {
+		err = DB.Model(&model.User{}).Where("id = ?", id).Update("ban", 1).Error
+	} else if users.Ban == true {
+		err = DB.Model(&model.User{}).Where("id = ?", id).Update("ban", 0).Error
+	}
+
+	return err
+}
+
+// 修改用户信息
+func ChangeStudentMessage(id int, users jrx_model.ChangeStuMesStruct) error {
+	err := DB.Model(&model.User{}).Where("id = ?", id).Updates(users).Error
 	return err
 }
