@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="1f30e0e0-6bf2-4aa7-8752-24341dd04ade" name="更改" comment="8.13">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/middleWare/corsMiddleWare.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/middleWare/corsMiddleWare.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

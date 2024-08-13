@@ -16,8 +16,8 @@ func Setup() *gin.Engine {
 	// 勋
 	r.POST("/student/getSelfCotnent", student.GetSelfContentContro)
 	r.POST("/student/updateSelfContent", student.UpdateSelfContentContro)
-	r.POST("/stuManage/queryStudent/class", stuManage.QueryStuContro)
-	r.POST("/stuManage/queryPageStudent", stuManage.QueryPageStuContro)
+	r.GET("/stuManage/queryStudent/class", stuManage.QueryStuContro)
+	r.GET("/stuManage/queryPageStudent", stuManage.QueryPageStuContro)
 	r.POST("/stuManage/addSingleStudent", stuManage.AddSingleStuContro)
 	r.POST("/stuManage/addMultipleStudent", stuManage.AddMultipleStuContro)
 	r.POST("/stuManage/deleteStudent", stuManage.DeleteStuControl)
