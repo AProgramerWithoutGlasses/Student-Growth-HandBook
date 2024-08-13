@@ -86,7 +86,7 @@ func QueryLevelSonComments(pid, limit, page int) ([]model.Comment, error) {
 // QuerySonCommentNum 查询子评论数量
 func QuerySonCommentNum(cid int) (int, error) {
 	var count int64
-	if err := DB.Where("pid = ?", cid).Count(&count).Error; err != nil {
+	if err := DB.Model(&model.Comment{}).Where("pid = ?", cid).Count(&count).Error; err != nil {
 		fmt.Println("QuerySonCommentNum() dao.mysql.nzx_sql err=", err)
 		return -1, err
 	}
