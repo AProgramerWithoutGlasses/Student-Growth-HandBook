@@ -32,6 +32,8 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/collect", token.AuthMiddleware(), article.CollectArticleController)
 	// 获取一级评论
 	at.POST("/get_lel1comment", article.GetLel1CommentsController)
+	// 获取子评论
+	at.POST("/get_lel2comment", article.GetSonCommentsController)
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表

@@ -1,7 +1,7 @@
 package article
 
 import (
-	"fmt"
+	"go.uber.org/zap"
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
@@ -16,18 +16,18 @@ redis
 func Like(objId, username string, likeType int) error {
 	err := redis.AddUserToLikeSet(redis.List[likeType]+objId, username, likeType)
 	if err != nil {
-		fmt.Println("Like() service.article.likeService.AddUserToLikeSet err=", err)
+		zap.L().Error("Like() service.article.likeService.AddUserToLikeSet err=", zap.Error(err))
 		return err
 	}
 	likes, err := redis.GetObjLikes(objId, likeType)
 	if err != nil {
-		fmt.Println("Like() service.article.likeService.GetObjLikes err=", err)
+		zap.L().Error("Like() service.article.likeService.GetObjLikes err=", zap.Error(err))
 		return err
 	}
 	if likes >= 0 {
 		err = redis.SetObjLikes(objId, likes+1, likeType)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.SetObjLikes err=", err)
+			zap.L().Error("Like() service.article.likeService.SetObjLikes err=", zap.Error(err))
 			return err
 		}
 	}
@@ -39,33 +39,29 @@ func Like(objId, username string, likeType int) error {
 	case 0:
 		num, err := mysql.QueryArticleLikeNum(id)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.QueryArticleLikeNum err=", err)
+			zap.L().Error("Like() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
 			return err
 		}
 		err = mysql.UpdateArticleLikeNum(id, num+1)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.UpdateArticleLikeNum err=", err)
+			zap.L().Error("Like() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
 			return err
 		}
 	case 1:
 		num, err := mysql.QueryCommentLikeNum(id)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.QueryCommentLikeNum err=", err)
+			zap.L().Error("Like() service.article.likeService.v err=", zap.Error(err))
 			return err
 		}
 		err = mysql.UpdateCommentLikeNum(id, num+1)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.UpdateCommentLikeNum err=", err)
+			zap.L().Error("Like() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
 			return err
 		}
 	}
 
 	// 写入通道
 
-	if err != nil {
-		fmt.Println("Like() service.article.Atoi err=", err)
-		return err
-	}
 	switch likeType {
 	case 0:
 		ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "like"}
@@ -81,24 +77,24 @@ func CancelLike(objId, username string, likeType int) error {
 
 	ok, err := redis.IsUserLiked(objId, username, likeType)
 	if err != nil {
-		fmt.Println("CancelLike() service.article.likeService.IsUserLiked err=", err)
+		zap.L().Error("CancelLike() service.article.likeService.IsUserLiked err=", zap.Error(err))
 		return err
 	}
 	if ok {
 		err = redis.RemoveUserFromLikeSet(objId, username, likeType)
 		if err != nil {
-			fmt.Println("CancelLike() service.article.likeService.RemoveUserFromLikeSet err=", err)
+			zap.L().Error("CancelLike() service.article.likeService.RemoveUserFromLikeSet err=", zap.Error(err))
 			return err
 		}
 		likes, err := redis.GetObjLikes(objId, likeType)
 		if err != nil {
-			fmt.Println("CancelLike() service.article.likeService.GetObjLikes err=", err)
+			zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
 			return err
 		}
 		if likes > 0 {
 			err = redis.SetObjLikes(objId, likes-1, likeType)
 			if err != nil {
-				fmt.Println("CancelLike() service.article.likeService.SetObjLikes err=", err)
+				zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
 				return err
 			}
 		}
@@ -111,33 +107,28 @@ func CancelLike(objId, username string, likeType int) error {
 	case 0:
 		num, err := mysql.QueryArticleLikeNum(id)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.QueryArticleLikeNum err=", err)
+			zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
 			return err
 		}
 		err = mysql.UpdateArticleLikeNum(id, num-1)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.UpdateArticleLikeNum err=", err)
+			zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
 			return err
 		}
 	case 1:
 		num, err := mysql.QueryCommentLikeNum(id)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.QueryCommentLikeNum err=", err)
+			zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
 			return err
 		}
 		err = mysql.UpdateCommentLikeNum(id, num-1)
 		if err != nil {
-			fmt.Println("Like() service.article.likeService.UpdateCommentLikeNum err=", err)
+			zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
 			return err
 		}
 	}
 
 	// 写入通道
-
-	if err != nil {
-		fmt.Println("CancelLike() service.article.Atoi err=", err)
-		return err
-	}
 	switch likeType {
 	case 0:
 		ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "cancel_like"}
@@ -153,7 +144,7 @@ func LikeObjOrNot(objId, username string, likeType int) error {
 	//获取当前点赞文章列表
 	slice, err := redis.GetObjLikedUsers(objId, likeType)
 	if err != nil {
-		fmt.Println("LikeObjOrNot() service.article.likeService.GetObjLikedUsers err=", err)
+		zap.L().Error("LikeObjOrNot() service.article.likeService.GetObjLikedUsers err=", zap.Error(err))
 		return err
 	}
 	likeUsers := make(map[string]struct{})
@@ -165,14 +156,14 @@ func LikeObjOrNot(objId, username string, likeType int) error {
 	if len(likeUsers) > 0 && ok {
 		err = CancelLike(objId, username, likeType)
 		if err != nil {
-			fmt.Println("LikeObjOrNot() service.article.likeService.CancelLike err=", err)
+			zap.L().Error("LikeObjOrNot() service.article.likeService.CancelLike err=", zap.Error(err))
 			return err
 		}
 	} else {
 		//反之，点赞
 		err = Like(objId, username, likeType)
 		if err != nil {
-			fmt.Println("LikeObjOrNot() service.article.likeService.Like err=", err)
+			zap.L().Error("LikeObjOrNot() service.article.likeService.Like err=", zap.Error(err))
 			return err
 		}
 	}
@@ -188,25 +179,25 @@ func LikeToMysql(objId, likeType int, username string) error {
 
 	userId, err := mysql.GetIdByUsername(username)
 	if err != nil {
-		fmt.Println("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", err)
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", zap.Error(err))
 		return err
 	}
 	// 插入点赞记录
 	err = mysql.InsertLikeRecord(objId, likeType, userId)
 	if err != nil {
-		fmt.Println("LikeToMysql() service.article.likeService.InsertLikeRecord err=", err)
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.InsertLikeRecord err=", zap.Error(err))
 		return err
 	}
 
 	// 更新点赞数
 	num, err := mysql.QueryLikeNum(objId, likeType)
 	if err != nil {
-		fmt.Println("LikeToMysql() service.article.likeService.QueryLikeNum err=", err)
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.QueryLikeNum err=", zap.Error(err))
 		return err
 	}
 	err = mysql.UpdateLikeNum(objId, likeType, num+1)
 	if err != nil {
-		fmt.Println("LikeToMysql() service.article.likeService.UpdateLikeNum err=", err)
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.UpdateLikeNum err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -216,26 +207,26 @@ func LikeToMysql(objId, likeType int, username string) error {
 func CancelLikeToMysql(objId, likeType int, username string) error {
 	userId, err := mysql.GetIdByUsername(username)
 	if err != nil {
-		fmt.Println("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", err)
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", zap.Error(err))
 		return err
 	}
 
 	// 删除点赞记录
 	err = mysql.DeleteLikeRecord(objId, likeType, userId)
 	if err != nil {
-		fmt.Println("CancelLikeToMysql() service.article.likeService.DeleteLikeRecord err=", err)
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.DeleteLikeRecord err=", zap.Error(err))
 		return err
 	}
 
 	// 更新点赞数
 	num, err := mysql.QueryLikeNum(objId, likeType)
 	if err != nil {
-		fmt.Println("LikeToMysql() service.article.likeService.QueryLikeNum err=", err)
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.QueryLikeNum err=", zap.Error(err))
 		return err
 	}
 	err = mysql.UpdateLikeNum(objId, likeType, num-1)
 	if err != nil {
-		fmt.Println("LikeToMysql() service.article.likeService.UpdateLikeNum err=", err)
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.UpdateLikeNum err=", zap.Error(err))
 		return err
 	}
 	return nil
