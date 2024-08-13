@@ -32,6 +32,7 @@ func RoutesXue(router *gin.Engine) {
 		userLoginAfter.POST("/fpage/grade", login.FPageGrade)
 		userLoginAfter.POST("/fpage/college", login.FPageCollege)
 		userLoginAfter.POST("/fpage/superman", login.FPageCollege)
+		//
 		userLoginAfter.GET("/fpage/pillar", login.Pillar)
 	}
 
