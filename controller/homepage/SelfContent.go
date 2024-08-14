@@ -1,4 +1,4 @@
-package student
+package homepage
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ func GetSelfContentContro(c *gin.Context) {
 	// 根据学号获取id
 	id, err := mysql.GetIdByUsername(selfContentStruct.Username)
 	if err != nil {
-		fmt.Println("student.UpdateSelfContentContro() mysql.GetIdByUsername() err : ", err)
+		fmt.Println("homepage.UpdateSelfContentContro() mysql.GetIdByUsername() err : ", err)
 	}
 
 	// 根据id，查找数据库中对应的selfContent
@@ -54,7 +54,7 @@ func UpdateSelfContentContro(c *gin.Context) {
 	// 根据学号获取id
 	id, err := mysql.GetIdByUsername(selfContentStruct.Username)
 	if err != nil {
-		fmt.Println("student.UpdateSelfContentContro() mysql.GetIdByUsername() err : ", err)
+		fmt.Println("homepage.UpdateSelfContentContro() mysql.GetIdByUsername() err : ", err)
 	}
 
 	// 在mysql中根据id查询到旧selfContent，用newSelfContent将其替换。
