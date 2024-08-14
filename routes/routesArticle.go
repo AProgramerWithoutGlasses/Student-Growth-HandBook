@@ -31,7 +31,7 @@ func routesArticle(r *gin.Engine) {
 	// 收藏
 	at.POST("/collect", token.AuthMiddleware(), article.CollectArticleController)
 	// 发布文章
-	r.POST("/publish", token.AuthMiddleware(), article.PublishArticleController)
+	at.POST("/publish", token.AuthMiddleware(), article.PublishArticleController)
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表

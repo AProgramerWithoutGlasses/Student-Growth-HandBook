@@ -419,3 +419,8 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 	}
 	return int(article.ID), nil
 }
+
+// QueryArticleByClass 根据班级分页查询文章
+func QueryArticleByClass(classId, limit, page int, username, keyWord, sortWay string) {
+
+}
