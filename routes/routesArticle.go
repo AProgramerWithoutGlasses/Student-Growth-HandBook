@@ -3,13 +3,11 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/article"
-	"studentGrow/utils/middleWare"
 	"studentGrow/utils/token"
 )
 
 func routesArticle(r *gin.Engine) {
 	at := r.Group("/article")
-	at.Use(middleWare.CORSMiddleware())
 	// 获取文章内容
 	at.POST("/content", article.GetArticleIdController)
 	// 获取文章列表
@@ -34,6 +32,8 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/collect", token.AuthMiddleware(), article.CollectArticleController)
 	// 发布文章
 	at.POST("/publish", token.AuthMiddleware(), article.PublishArticleController)
+	// 班级分类文章列表
+	at.POST("/class_search", article.GetArticleByClassController)
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表

@@ -8,24 +8,24 @@ import (
 )
 
 // GetUnreadReportsForService 获取举报信息列表
-func GetUnreadReportsForService(username string, role string) (reports []gorm_model.UserReportArticleRecord, err error) {
+func GetUnreadReportsForService(username, role string, limit, page int) (reports []gorm_model.UserReportArticleRecord, err error) {
 
 	// 选择管理员角色
 	switch role {
 	case "class":
-		reports, err = mysql.GetUnreadReportsForClass(username)
+		reports, err = mysql.GetUnreadReportsForClass(username, limit, page)
 	case "grade1":
-		reports, err = mysql.GetUnreadReportsForGrade(1)
+		reports, err = mysql.GetUnreadReportsForGrade(1, limit, page)
 	case "grade2":
-		reports, err = mysql.GetUnreadReportsForGrade(2)
+		reports, err = mysql.GetUnreadReportsForGrade(2, limit, page)
 	case "grade3":
-		reports, err = mysql.GetUnreadReportsForGrade(3)
+		reports, err = mysql.GetUnreadReportsForGrade(3, limit, page)
 	case "grade4":
-		reports, err = mysql.GetUnreadReportsForGrade(4)
+		reports, err = mysql.GetUnreadReportsForGrade(4, limit, page)
 	case "college":
-		reports, err = mysql.GetUnreadReportsForSuperman()
+		reports, err = mysql.GetUnreadReportsForSuperman(limit, page)
 	case "superman":
-		reports, err = mysql.GetUnreadReportsForSuperman()
+		reports, err = mysql.GetUnreadReportsForSuperman(limit, page)
 	default:
 		return nil, myErr.NotFoundError()
 	}
