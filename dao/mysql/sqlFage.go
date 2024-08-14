@@ -92,7 +92,7 @@ func SelUsername(class string) ([]string, error) {
 // SelStudent 查询所有学生人数
 func SelStudent() (int64, error) {
 	var number int64
-	err := DB.Table("users").Where("identity = ?", "student").Count(&number).Error
+	err := DB.Table("users").Where("identity = ?", "homepage").Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err

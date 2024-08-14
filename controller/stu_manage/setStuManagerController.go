@@ -1,4 +1,4 @@
-package stuManage
+package stu_manage
 
 import (
 	"fmt"

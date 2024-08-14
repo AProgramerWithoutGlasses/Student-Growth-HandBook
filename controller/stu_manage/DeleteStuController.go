@@ -1,29 +1,18 @@
-package stuManage
+package stu_manage
 
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
+	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 )
-
-type name struct {
-	Name      string `json:"name"`
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	Class     string `json:"class"`
-	Year      int    `json:"year"`
-	Gender    string `json:"gender"`
-	Telephone string `json:"telephone"`
-	Ban       bool   `json:"ban"`
-	IsManager bool   `json:"isManager"`
-}
 
 // 删除选中用户
 func DeleteStuControl(c *gin.Context) {
 	// 接收请求
 	var input struct {
-		Selected_students []name
+		Selected_students []jrx_model.StuMesStruct `json:"selected_students"`
 	}
 	err := c.Bind(&input)
 	if err != nil {
