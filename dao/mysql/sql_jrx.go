@@ -91,7 +91,7 @@ func BanStudent(id int) error {
 	return err
 }
 
-// 修改用户信息
+// 修改用户信息username
 func ChangeStudentMessage(id int, users jrx_model.ChangeStuMesStruct) error {
 	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Updates(users).Error
 	return err
@@ -100,5 +100,11 @@ func ChangeStudentMessage(id int, users jrx_model.ChangeStuMesStruct) error {
 // 将用户设置为管理员
 func SetStuManager(id int) error {
 	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("is_manager", 1).Error
+	return err
+}
+
+// 判断用户是否存在
+func ExistedUsername(username string) error {
+	err := DB.Where("username = ?", username).First(&gorm_model.User{}).Error
 	return err
 }
