@@ -60,7 +60,7 @@ func main() {
 	r := routes.Setup()
 
 	// 6. 初始化oss
-	err = oss.Init()
+	err := oss.Init()
 	if err != nil {
 		zap.L().Error("main() oss.Init err=", zap.Error(err))
 		return
