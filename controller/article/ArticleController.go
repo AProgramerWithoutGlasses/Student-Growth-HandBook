@@ -248,6 +248,13 @@ func PublishArticleController(c *gin.Context) {
 	pics := form.File["pic"]
 	video := form.File["video"]
 
-	article.PublishArticleService(username, content, topic, wordCount, tags, pics, video)
+	err = article.PublishArticleService(username, content, topic, wordCount, tags, pics, video)
+	if err != nil {
+		zap.L().Error("PublishArticleController() controller.article.getArticle.PublishArticleService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, nil)
 
 }
