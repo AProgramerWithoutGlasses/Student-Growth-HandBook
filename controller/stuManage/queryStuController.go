@@ -1,4 +1,4 @@
-package stu_manage
+package stuManage
 
 import (
 	"fmt"
@@ -98,7 +98,7 @@ func QueryStuContro(c *gin.Context) {
 	// 接收请求数据
 	stuMessage, err := readMessage.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("stu_manage.QueryStuContro() readMessage.GetJsonvalue() err :", err)
+		fmt.Println("stuManage.QueryStuContro() readMessage.GetJsonvalue() err :", err)
 	}
 
 	// 将请求数据整理到结构体
@@ -143,7 +143,7 @@ func QueryPageStuContro(c *gin.Context) {
 	// 接收请求数据
 	stuMessage, err := readMessage.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("stu_manage.QueryStuContro() readMessage.GetJsonvalue() err :", err)
+		fmt.Println("stuManage.QueryStuContro() readMessage.GetJsonvalue() err :", err)
 	}
 
 	offsetValue, err := stuMessage.GetInt("page")

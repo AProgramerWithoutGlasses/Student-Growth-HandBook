@@ -1,4 +1,4 @@
-package stu_manage
+package stuManage
 
 import (
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -14,8 +14,8 @@ func AddMultipleStuControl(c *gin.Context) {
 	// 获取上传的Excel文件
 	file, _, err := c.Request.FormFile("file")
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 500, "stu_manage.AddMultipleStuControl() c.Request.FormFile() failed : "+err.Error())
-		zap.L().Error("stu_manage.AddMultipleStuControl() c.Request.FormFile() failed : " + err.Error())
+		response.ResponseErrorWithMsg(c, 500, "stuManage.AddMultipleStuControl() c.Request.FormFile() failed : "+err.Error())
+		zap.L().Error("stuManage.AddMultipleStuControl() c.Request.FormFile() failed : " + err.Error())
 		return
 	}
 	defer file.Close()
@@ -23,8 +23,8 @@ func AddMultipleStuControl(c *gin.Context) {
 	// 解析Excel文件并获取数据
 	f, err := excelize.OpenReader(file)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 500, "stu_manage.AddMultipleStuControl() excelize.OpenReader() failed : "+err.Error())
-		zap.L().Error("stu_manage.AddMultipleStuControl() excelize.OpenReader() failed : " + err.Error())
+		response.ResponseErrorWithMsg(c, 500, "stuManage.AddMultipleStuControl() excelize.OpenReader() failed : "+err.Error())
+		zap.L().Error("stuManage.AddMultipleStuControl() excelize.OpenReader() failed : " + err.Error())
 		return
 	}
 
@@ -41,8 +41,8 @@ func AddMultipleStuControl(c *gin.Context) {
 		}
 		err = mysql.AddSingleStudent(&user)
 		if err != nil {
-			response.ResponseErrorWithMsg(c, 500, "stu_manage.AddMultipleStuControl() excelize.OpenReader() failed : "+err.Error())
-			zap.L().Error("stu_manage.AddMultipleStuControl() excelize.OpenReader() failed : " + err.Error())
+			response.ResponseErrorWithMsg(c, 500, "stuManage.AddMultipleStuControl() excelize.OpenReader() failed : "+err.Error())
+			zap.L().Error("stuManage.AddMultipleStuControl() excelize.OpenReader() failed : " + err.Error())
 			return
 		}
 	}

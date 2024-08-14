@@ -1,4 +1,4 @@
-package stu_manage
+package stuManage
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ func AddSingleStuContro(c *gin.Context) {
 	// 接收请求数据
 	stuMessage, err := readMessage.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("stu_manage.AddSingleStuContro() readMessage.GetJsonvalue() err :", err)
+		fmt.Println("stuManage.AddSingleStuContro() readMessage.GetJsonvalue() err :", err)
 	}
 
 	// 获取请求信息中各个字段的值

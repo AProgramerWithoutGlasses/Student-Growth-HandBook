@@ -1,4 +1,4 @@
-package stu_manage
+package stuManage
 
 import (
 	"github.com/gin-gonic/gin"
