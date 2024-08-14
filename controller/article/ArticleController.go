@@ -195,24 +195,15 @@ func GetHotArticlesOfDayController(c *gin.Context) {
 // SelectArticleAndUserListByPageFirstPageController 前台首页模糊搜索文章列表
 func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
 	in := struct {
-		Username string `json:"username"`
-		KeyWords string `json:"key_word"`
-		Topic    string `json:"topic_name"`
-		SortWay  string `json:"article_sort"`
-		Limit    int    `json:"article_count"`
-		Page     int    `json:"article_page"`
+		username string
+		keyWords string
+		topic    string
+		SortWay  string
+		limit    int
+		page     int
 	}{}
 
-	err := c.ShouldBindJSON(&in)
-	if err != nil {
-		zap.L().Error("SelectArticleAndUserListByPageFirstPageController() controller.article.ShouldBindJSON err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
-	fmt.Println("------", in.Username, in.Topic)
-
-	articles, err := article.SelectArticleAndUserListByPageFirstPageService(in.Username, in.KeyWords, in.Topic, in.SortWay, in.Limit, in.Page)
+	articles, err := article.SelectArticleAndUserListByPageFirstPageService(in.username, in.keyWords, in.topic, in.SortWay, in.limit, in.page)
 	if err != nil {
 		zap.L().Error("SelectArticleAndUserListByPageFirstPageController() controller.article.SelectArticleAndUserListByPageFirstPageService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -225,12 +216,12 @@ func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
 // GetArticleByClassController 班级分类获取文章列表
 func GetArticleByClassController(c *gin.Context) {
 	input := struct {
-		Username string `json:"username"`
-		KeyWords string `json:"key_word"`
-		SortWay  string `json:"article_sort"`
-		ClassId  int    `json:"class_id"`
-		Limit    int    `json:"article_count"`
-		Page     int    `json:"article_page"`
+		username string
+		keyWords string
+		sortWay  string
+		classId  int
+		limit    int
+		page     int
 	}{}
 
 	err := c.ShouldBindJSON(&input)
@@ -241,7 +232,7 @@ func GetArticleByClassController(c *gin.Context) {
 	}
 
 	// 获取列表
-	articles, err := article.GetArticlesByClassService(input.KeyWords, input.Username, input.SortWay, input.Limit, input.Page, input.ClassId)
+	articles, err := article.GetArticlesByClassService(input.keyWords, input.username, input.sortWay, input.limit, input.page, input.classId)
 	if err != nil {
 		zap.L().Error("GetArticleByClassController() controller.article.GetArticlesByClassService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)

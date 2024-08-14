@@ -91,7 +91,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 // SelectArticleAndUserListByPageFirstPage 前台模糊查询文章列表
 func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page int) (result model.Articles, err error) {
 	var articles model.Articles
-	if err = DB.Preload("User").Preload("ArticleTags").Preload("ArticlePics").
+	if err = DB.Preload("User").Preload("ArticleTags").Preload("ArticlePic").
 		Where("topic = ? and content like ?", topic, fmt.Sprintf("%%%s%%", keyWords)).
 		Order("created_at desc").
 		Limit(limit).
