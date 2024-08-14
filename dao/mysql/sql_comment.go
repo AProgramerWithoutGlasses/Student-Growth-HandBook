@@ -67,6 +67,10 @@ func QueryLevelOneComments(aid, limit, page int) ([]model.Comment, error) {
 		fmt.Println("QueryLevelOneComments() dao.mysql.nzx_sql err=", err)
 		return nil, err
 	}
+
+	if len(comments) == 0 {
+		return nil, myErr.NotFoundError()
+	}
 	return comments, nil
 }
 
@@ -80,6 +84,10 @@ func QueryLevelSonComments(pid, limit, page int) ([]model.Comment, error) {
 		Error; err != nil {
 		fmt.Println("QueryLevelTwoComments() dao.mysql.nzx_sql err=", err)
 		return nil, err
+	}
+
+	if len(comments) == 0 {
+		return nil, myErr.NotFoundError()
 	}
 	return comments, nil
 }

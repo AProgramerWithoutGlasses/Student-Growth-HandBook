@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 	"studentGrow/models/gorm_model"
+	myErr "studentGrow/pkg/error"
 )
 
 // InsertReadRecord 插入浏览记录
@@ -24,6 +25,10 @@ func QueryReadListByUserId(uid int) (readRecords []gorm_model.UserReadRecord, er
 	if err = DB.Where("user_id = ?", uid).Find(&readRecords).Error; err != nil {
 		fmt.Println("QueryReadListByUserId() dao.mysql.mysql_read")
 		return nil, err
+	}
+
+	if len(readRecords) == 0 {
+		return nil, myErr.NotFoundError()
 	}
 	return readRecords, nil
 }

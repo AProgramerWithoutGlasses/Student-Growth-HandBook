@@ -100,6 +100,10 @@ func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page
 		return nil, err
 	}
 
+	if len(articles) == 0 {
+		return nil, myErr.NotFoundError()
+	}
+
 	return articles, nil
 }
 
@@ -432,5 +436,10 @@ func QueryArticleByClass(limit, page int, class, keyWord string) (model.Articles
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 		return nil, err
 	}
+
+	if len(articles) == 0 {
+		return nil, myErr.NotFoundError()
+	}
+
 	return articles, nil
 }
