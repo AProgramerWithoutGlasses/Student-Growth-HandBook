@@ -13,8 +13,8 @@ func SelGradeId(data time.Time, year int) ([]int, []string, error) {
 	// 计算时间间隔的左端
 	CurrentYear := data.AddDate(year+1, 0, 0)
 	YearAgo := data.AddDate(year, 0, 0)
-	err := DB.Model("&User{}").Select("id").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&uidslice).Error
-	err = DB.Model("&User{}").Select("username").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&usernameslice).Error
+	err := DB.Table("users").Select("id").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&uidslice).Error
+	err = DB.Table("users").Select("username").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&usernameslice).Error
 	if err != nil {
 		return nil, nil, err
 	}

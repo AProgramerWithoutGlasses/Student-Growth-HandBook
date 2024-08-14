@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
+	"studentGrow/utils/timeConverter"
 )
 
 // StarGridClass 查询表格所有数据
-func StarGridClass(usernameslice []string) ([]models.StarBack, error) {
+func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 	var stakback []models.StarBack
 	for _, username := range usernameslice {
 		//结构体对象存放数据
@@ -92,4 +93,21 @@ func PageQuery(starback []models.StarBack, page, limit int) []models.StarBack {
 		return starback[left:]
 	}
 	return starback[left:right]
+}
+
+// StarGrade 把表中数据以年级分开
+func StarGuidGrade(usernamesli []string, year int) ([]string, error) {
+	var gradeusersli []string
+	for _, username := range usernamesli {
+		plus, err := mysql.SelPlus(username)
+		if err != nil {
+			fmt.Println("StarGrade SelPlus err", err)
+			return nil, err
+		}
+		grade := timeConverter.GetUserGrade(plus)
+		if grade == year {
+			gradeusersli = append(gradeusersli, username)
+		}
+	}
+	return gradeusersli, nil
 }
