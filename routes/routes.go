@@ -19,7 +19,7 @@ func Setup() *gin.Engine {
 	r.POST("/stuManage/queryStudent/class", stuManage.QueryStuContro)
 	r.GET("/stuManage/queryPageStudent", stuManage.QueryPageStuContro)
 	r.POST("/stuManage/addSingleStudent", stuManage.AddSingleStuContro)
-	r.POST("/stuManage/addMultipleStudent", stuManage.AddMultipleStuContro)
+	r.POST("/stuManage/addMultipleStudent", stuManage.AddMultipleStuControl)
 	r.POST("/stuManage/deleteStudent", stuManage.DeleteStuControl)
 	r.POST("/stuManage/setStudentManager", stuManage.SetStuManagerControl)
 	r.POST("/stuManage/editStudent", stuManage.EditStuControl)
