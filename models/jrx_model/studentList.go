@@ -1,6 +1,6 @@
 package jrx_model
 
-// 学生信息表（为贴合apifox的字段，备用）
+// 学生信息表（为贴合apifox的字段，备用）en
 type StuMesStruct struct {
 	Name      string `json:"name"`
 	Username  string `json:"username"`
