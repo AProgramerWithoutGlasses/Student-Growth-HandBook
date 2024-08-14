@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
-	"studentGrow/service/article"
+	"studentGrow/service/message"
 	readUtil "studentGrow/utils/readMessage"
 	"studentGrow/utils/token"
 )
@@ -30,7 +30,7 @@ func GetUnreadReportsController(c *gin.Context) {
 	}
 
 	// 获取未读举报列表
-	reports, err := article.GetUnreadReportsForService(username, role)
+	reports, err := message.GetUnreadReportsForService(username, role)
 	if err != nil {
 		fmt.Println("GetUnreadReportsController() controller.message.GetUnreadReportsService err=", err)
 		myErr.CheckErrors(err, c)
@@ -93,7 +93,7 @@ func AckUnreadReportsController(c *gin.Context) {
 	}
 
 	// 确认未读举报消息
-	err = article.AckUnreadReportsService(reportId, username, role)
+	err = message.AckUnreadReportsService(reportId, username, role)
 	if err != nil {
 		fmt.Println("AckUnreadReportsForClassController() controller.message.AckUnreadReportsForClassService err=", err)
 		myErr.CheckErrors(err, c)

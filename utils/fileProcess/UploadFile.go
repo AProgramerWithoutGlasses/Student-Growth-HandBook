@@ -1,0 +1,42 @@
+package fileProcess
+
+import (
+	uuid2 "github.com/google/uuid"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"mime/multipart"
+	"studentGrow/aliyun/oss"
+	"time"
+)
+
+// UploadFile 将文件上传至oss
+func UploadFile(fileType string, fileHeader *multipart.FileHeader) (string, error) {
+	file, err := fileHeader.Open()
+	if err != nil {
+		zap.L().Error("UploadFile() utils.fileProcess.Open err=", zap.Error(err))
+		return "", err
+	}
+	defer func(file multipart.File) {
+		err = file.Close()
+		if err != nil {
+			zap.L().Error("UploadFile() utils.fileProcess.Close err=", zap.Error(err))
+			return
+		}
+	}(file)
+	// 获取文件名称
+	fileName := fileHeader.Filename
+	// 随机生成唯一值，防止文件覆盖
+	uuid := uuid2.NewString()
+	fileName = uuid + fileName
+	// 获取当前时间
+	datePath := time.Now().Format("2006/01/02")
+	// 拼接，按日期文件夹分类
+	fileName = fileType + "/" + datePath + "/" + fileName
+	// 创建请求
+	err = oss.Bucket.PutObject(fileName, file)
+	if err != nil {
+		zap.L().Error("UploadFile() utils.fileProcess.PutObject err=", zap.Error(err))
+		return "", err
+	}
+	return "https://" + viper.GetString("bucketname") + "." + viper.GetString("endpoint") + "/" + fileName, nil
+}

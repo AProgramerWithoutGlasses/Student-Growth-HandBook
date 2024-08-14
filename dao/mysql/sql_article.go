@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	_ "gorm.io/gorm"
 	"sort"
@@ -376,7 +377,45 @@ func QueryArticleCollectNum(aid int) (int, error) {
 	return article.CollectAmount, nil
 }
 
-// InsertIntoArticle 插入文章信息
-//func InsertIntoArticle(username, content, topic string, tags []string, file[]) {
-//
-//}
+// InsertArticleContent 插入文章内容
+func InsertArticleContent(content, topic string, uid, wordCount int, tags []string, picPath []string, videoPath string) (int, error) {
+	article := model.Article{
+		UserID:    uint(uid),
+		Content:   content,
+		Topic:     topic,
+		Video:     videoPath,
+		WordCount: wordCount,
+	}
+	if err := DB.Create(&article).Error; err != nil {
+		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+		return -1, err
+	}
+	// 同步标签中间表
+	for _, tagName := range tags {
+		tag := model.Tag{}
+		if err := DB.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
+			zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+			return -1, err
+		}
+		if err := DB.Create(&model.ArticleTag{
+			ArticleID: article.ID,
+			TagID:     tag.ID,
+		}).Error; err != nil {
+			zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+			return -1, err
+		}
+	}
+
+	if len(picPath) > 0 {
+		for _, pic := range picPath {
+			if err := DB.Create(model.ArticlePic{
+				ArticleID: article.ID,
+				Pic:       pic,
+			}).Error; err != nil {
+				zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+				return -1, err
+			}
+		}
+	}
+	return int(article.ID), nil
+}

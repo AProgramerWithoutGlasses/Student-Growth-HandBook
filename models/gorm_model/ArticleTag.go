@@ -6,7 +6,8 @@ import (
 
 type ArticleTag struct {
 	gorm.Model
-	TagName   string  `json:"TagName"`
-	ArticleID uint    `gorm:"not null"` //标签属于文章
-	Article   Article //标签属于文章
+	ArticleID uint `gorm:"not null"`
+	Article   Article
+	TagID     uint `gorm:"not null"`
+	Tag       Tag
 }

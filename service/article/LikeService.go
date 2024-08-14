@@ -59,7 +59,6 @@ func Like(objId, username string, likeType int) error {
 			return err
 		}
 	}
-
 	// 写入通道
 
 	switch likeType {
@@ -101,32 +100,6 @@ func CancelLike(objId, username string, likeType int) error {
 	}
 
 	id, err := strconv.Atoi(objId)
-
-	// 减少文章或评论的点赞数量
-	switch likeType {
-	case 0:
-		num, err := mysql.QueryArticleLikeNum(id)
-		if err != nil {
-			zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
-			return err
-		}
-		err = mysql.UpdateArticleLikeNum(id, num-1)
-		if err != nil {
-			zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
-			return err
-		}
-	case 1:
-		num, err := mysql.QueryCommentLikeNum(id)
-		if err != nil {
-			zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
-			return err
-		}
-		err = mysql.UpdateCommentLikeNum(id, num-1)
-		if err != nil {
-			zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
-			return err
-		}
-	}
 
 	// 写入通道
 	switch likeType {
@@ -200,6 +173,33 @@ func LikeToMysql(objId, likeType int, username string) error {
 		zap.L().Error("CancelLikeToMysql() service.article.likeService.UpdateLikeNum err=", zap.Error(err))
 		return err
 	}
+
+	// 增加文章或评论的点赞数量
+	switch likeType {
+	case 0:
+		num, err := mysql.QueryArticleLikeNum(objId)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
+			return err
+		}
+		err = mysql.UpdateArticleLikeNum(objId, num-1)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
+			return err
+		}
+	case 1:
+		num, err := mysql.QueryCommentLikeNum(objId)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
+			return err
+		}
+		err = mysql.UpdateCommentLikeNum(objId, num-1)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -229,6 +229,34 @@ func CancelLikeToMysql(objId, likeType int, username string) error {
 		zap.L().Error("CancelLikeToMysql() service.article.likeService.UpdateLikeNum err=", zap.Error(err))
 		return err
 	}
+
+	// 减少文章或评论的点赞数量
+
+	switch likeType {
+	case 0:
+		num, err := mysql.QueryArticleLikeNum(objId)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
+			return err
+		}
+		err = mysql.UpdateArticleLikeNum(objId, num-1)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
+			return err
+		}
+	case 1:
+		num, err := mysql.QueryCommentLikeNum(objId)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
+			return err
+		}
+		err = mysql.UpdateCommentLikeNum(objId, num-1)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
+			return err
+		}
+	}
+
 	return nil
 
 }

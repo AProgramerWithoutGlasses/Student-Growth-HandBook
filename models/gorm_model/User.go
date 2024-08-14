@@ -34,4 +34,5 @@ type User struct {
 	ArticleLikes          []UserArticleLikeRecord //用户拥有文章点赞记录
 	CommentLikes          []UserCommentLikeRecord // 用户拥有评论点赞记录
 	Comments              []Comment               //用户拥有评论
+	MsgRecords            []MsgRecord             // 用户拥有通知消息
 }

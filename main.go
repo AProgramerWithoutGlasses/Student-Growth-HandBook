@@ -10,9 +10,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"studentGrow/aliyun/oss"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
+	"studentGrow/models/gorm_model"
 	"studentGrow/routes"
 	"studentGrow/service/article"
 	"studentGrow/settings"
@@ -41,10 +43,10 @@ func main() {
 		return
 	}
 
-	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.Comment{}, &model.ArticleTag{}, &model.UserArticleLikeRecord{}, &model.UserCollectRecord{}, &model.UserCommentLikeRecord{}, &model.UserLoginRecord{}, &model.UserReadRecord{}, model.UserReportArticleRecord{})
-	//if err != nil {
-	//	return
-	//}
+	err := mysql.DB.AutoMigrate(&gorm_model.UserClass{})
+	if err != nil {
+		return
+	}
 
 	// 4. 初始化redis
 	if err := redis.Init(); err != nil {
@@ -57,6 +59,13 @@ func main() {
 
 	// 5. 注册路由
 	r := routes.Setup()
+
+	// 6. 初始化oss
+	err = oss.Init()
+	if err != nil {
+		zap.L().Error("main() oss.Init err=", zap.Error(err))
+		return
+	}
 
 	// 6. 启动服务（优雅关机）
 	srv := &http.Server{

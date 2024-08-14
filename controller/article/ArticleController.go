@@ -3,6 +3,8 @@ package article
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"strconv"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
@@ -207,14 +209,45 @@ func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
 	res.ResponseSuccess(c, list)
 }
 
-// PublishArticle 发布文章
-//func PublishArticle(c *gin.Context) {
-//	//解析formdata
-//	form, err := readUtil.GetFormData(c)
-//	if err != nil {
-//		return
-//	}
-//
-//	//发布文章
-//	//article.PublishArticleService(form)
-//}
+// PublishArticleController 发布文章
+func PublishArticleController(c *gin.Context) {
+	// 通过token获取username
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("PublishArticleController() controller.article.getArticle.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = c.Request.ParseMultipartForm(10 << 23) // 最大 80MB
+
+	if err != nil {
+		zap.L().Error("PublishArticleController() controller.article.getArticle.ParseMultipartForm err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		zap.L().Error("PublishArticleController() controller.article.getArticle.MultipartForm err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 获取基本数据
+	content := form.Value["article_content"][0]
+	wordCount, err := strconv.Atoi(form.Value["word_count"][0])
+	if err != nil {
+		zap.L().Error("PublishArticleController() controller.article.getArticle.Atoi err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	tags := form.Value["article_tags"]
+	topic := form.Value["article_topic"][0]
+	// 获取图片和视频文件
+	pics := form.File["pic"]
+	video := form.File["video"]
+
+	article.PublishArticleService(username, content, topic, wordCount, tags, pics, video)
+
+}
