@@ -105,7 +105,7 @@ func QueryStuContro(c *gin.Context) {
 	queryParmaStruct = service.GetReqMes(stuMessage)
 	// 获取sql语句
 	querySql = service.CreateQuerySql(stuMessage, queryParmaStruct)
-	queryPageSql := querySql + " limit " + strconv.Itoa(8) + " offset " + strconv.Itoa(0)
+	queryPageSql := querySql + " limit " + strconv.Itoa(10) + " offset " + strconv.Itoa(0)
 
 	// 响应数据的获取
 	stuInfo, err := mysql.GetStuMesList(querySql) // 所有学生数据
