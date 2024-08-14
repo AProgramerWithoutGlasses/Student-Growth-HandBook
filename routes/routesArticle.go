@@ -30,7 +30,8 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/search_first", article.SelectArticleAndUserListByPageFirstPageController)
 	// 收藏
 	at.POST("/collect", token.AuthMiddleware(), article.CollectArticleController)
-
+	// 发布文章
+	r.POST("/publish", token.AuthMiddleware(), article.PublishArticleController)
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表
@@ -39,6 +40,5 @@ func routesArticle(r *gin.Engine) {
 	//at.POST("/like_nums", article.GetObjLikeNumController)
 	//检查当前是否点赞
 	//at.POST("/isLike", article.CheckLikeOrNotController)
-	//发布文章
-	//r.POST("/article/publish", article.PublishArticle)
+
 }
