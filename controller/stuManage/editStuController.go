@@ -1,4 +1,4 @@
-package stu_manage
+package stuManage
 
 import (
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ func EditStuControl(c *gin.Context) {
 	// 接收数据
 	if err := c.Bind(&user); err != nil {
 		response.ResponseError(c, response.ParamFail)
-		zap.L().Error("stu_manage.EditStuControl() c.Bind() err : ", zap.Error(err))
+		zap.L().Error("stuManage.EditStuControl() c.Bind() err : ", zap.Error(err))
 		return
 	}
 
