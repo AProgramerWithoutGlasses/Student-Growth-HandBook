@@ -3,6 +3,7 @@ module studentGrow
 go 1.21
 
 require (
+	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/Andrew-M-C/go.jsonvalue v1.3.8
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2
 	github.com/casbin/casbin/v2 v2.98.0
@@ -60,6 +61,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.34.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
