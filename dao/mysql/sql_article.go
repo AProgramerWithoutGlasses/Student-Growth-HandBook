@@ -96,7 +96,7 @@ func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page
 		Order("created_at desc").
 		Limit(limit).
 		Offset((page - 1) * limit).Find(&articles).Error; err != nil {
-		fmt.Println("SelectArticleAndUserListByPageFirstPage() dao.mysql.sql_nzx")
+		zap.L().Error("SelectArticleAndUserListByPageFirstPage() dao.mysql.sql_nzx err=", zap.Error(err))
 		return nil, err
 	}
 
