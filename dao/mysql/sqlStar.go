@@ -4,11 +4,10 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
+	"time"
 )
 
-// 根据id 查询文章id 切片
-
-// SelGuid 根据学号查名字，等一系列数据
+// SelName 根据学号查名字，等一系列数据
 func SelName(username string) (string, error) {
 	var name string
 	err := DB.Table("users").Select("name").Where("username = ?", username).Scan(&name).Error
@@ -70,7 +69,7 @@ func SelHot(id int) (int, error) {
 	return collect + like, nil
 }
 
-// 查询状态
+// SelStatus 查询状态
 func SelStatus(username string) (bool, error) {
 	var star gorm_model.Star
 	result := DB.Find(&star).Where("username = ?", username).Where("session = ?", 0)
@@ -81,4 +80,34 @@ func SelStatus(username string) (bool, error) {
 	} else {
 		return false, result.Error
 	}
+}
+
+// SelGrade 查询表里学号合集
+func SelStarUser() ([]string, error) {
+	var alluser []string
+	err := DB.Table("stars").Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	if err != nil {
+		return nil, err
+	}
+	return alluser, nil
+}
+
+// SelPlus 查询入学时间
+func SelPlus(username string) (time.Time, error) {
+	var plus time.Time
+	err := DB.Table("users").Select("plus_time").Where("username = ?", username).Scan(&plus).Error
+	if err != nil {
+		return time.Time{}, err
+	}
+	return plus, nil
+}
+
+// SelGrade 查询表里学号合集
+func SelStarColl() ([]string, error) {
+	var alluser []string
+	err := DB.Table("stars").Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	if err != nil {
+		return nil, err
+	}
+	return alluser, nil
 }
