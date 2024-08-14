@@ -145,3 +145,8 @@ func StarCollege(c *gin.Context) {
 	data := starService.PageQuery(starback, page.Page, page.Limit)
 	response.ResponseSuccess(c, data)
 }
+
+// 搜索表格数据
+func Search() {
+
+}

@@ -16,7 +16,7 @@ func ArticleData(uidslice []int) (int64, error) {
 	for _, id := range uidslice {
 		number, err := mysql.SelArticleNum(id)
 		if err != nil {
-			fmt.Errorf("ArticleData mysql.SelArticleNum err", err)
+			fmt.Println("ArticleData mysql.SelArticleNum err", err)
 		}
 		allNumber += number
 	}
@@ -31,7 +31,7 @@ func NarticleDataClass(uidslice []int) (int64, error) {
 	for _, id := range uidslice {
 		number, err := mysql.SelArticle(id, data)
 		if err != nil {
-			fmt.Errorf("ArticleData mysql.SelArticleNum err", err)
+			fmt.Println("ArticleData mysql.SelArticleNum err", err)
 		}
 		allNumber += number
 	}
@@ -154,7 +154,12 @@ func PillarData() ([]string, []int, error) {
 	count := make([]int, 0, 7)
 
 	for i := 0; i < 7 && i < len(tagcount); i++ {
-		tagName = append(tagName, tagcount[i].Tag)
+		tagnames, err := mysql.TagName(tagcount[i].Tag)
+		if err != nil {
+			fmt.Println("PillarDataTime TagName err", err)
+			return nil, nil, err
+		}
+		tagName = append(tagName, tagnames)
 		count = append(count, tagcount[i].Count)
 	}
 
@@ -176,7 +181,12 @@ func PillarDataTime(date string) ([]string, []int, error) {
 	})
 	for i := 0; i < len(tagcount) && i < 7; i++ {
 		for _, tagmodel := range tagcount {
-			tagName[i] = tagmodel.Tag
+			tagname, err := mysql.TagName(tagmodel.Tag)
+			if err != nil {
+				fmt.Println("PillarDataTime TagName err", err)
+				return nil, nil, err
+			}
+			tagName[i] = tagname
 			count[i] = tagmodel.Count
 		}
 	}
