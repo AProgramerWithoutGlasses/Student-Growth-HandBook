@@ -337,7 +337,7 @@ func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, S
 	// 查询符合模糊搜索的文章集合
 	articles, err := mysql.SelectArticleAndUserListByPageFirstPage(keyWords, topic, limit, page)
 	if err != nil {
-		fmt.Println("SelectArticleAndUserListByPageFirstPageService() service.article.SelectArticleAndUserListByPageFirstPage err=", err)
+		zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.SelectArticleAndUserListByPageFirstPage err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -350,7 +350,7 @@ func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, S
 		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(articles[i].ID)), username)
 		okLike, err := redis.IsUserLiked(strconv.Itoa(articles[i].LikeAmount), username, 0)
 		if err != nil {
-			fmt.Println("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserSelectedService err=", err)
+			zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserLiked err=", zap.Error(err))
 			return nil, err
 		}
 		articles[i].IsCollect = okSelect

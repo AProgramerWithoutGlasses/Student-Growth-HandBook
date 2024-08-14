@@ -205,7 +205,7 @@ func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
 
 	articles, err := article.SelectArticleAndUserListByPageFirstPageService(in.username, in.keyWords, in.topic, in.SortWay, in.limit, in.page)
 	if err != nil {
-		fmt.Println("SelectArticleAndUserListByPageFirstPageController() controller.article.SelectArticleAndUserListByPageFirstPageService err=", err)
+		zap.L().Error("SelectArticleAndUserListByPageFirstPageController() controller.article.SelectArticleAndUserListByPageFirstPageService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
