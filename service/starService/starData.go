@@ -7,7 +7,7 @@ import (
 	"studentGrow/utils/timeConverter"
 )
 
-// StarGridClass 查询表格所有数据
+// StarGrid 查询表格所有数据
 func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 	var stakback []models.StarBack
 	for _, username := range usernameslice {
@@ -95,7 +95,7 @@ func PageQuery(starback []models.StarBack, page, limit int) []models.StarBack {
 	return starback[left:right]
 }
 
-// StarGrade 把表中数据以年级分开
+// StarGuidGrade StarGrade 把表中数据以年级分开
 func StarGuidGrade(usernamesli []string, year int) ([]string, error) {
 	var gradeusersli []string
 	for _, username := range usernamesli {
@@ -110,4 +110,24 @@ func StarGuidGrade(usernamesli []string, year int) ([]string, error) {
 		}
 	}
 	return gradeusersli, nil
+}
+
+// SearchGrade 年级管理员搜索
+func SearchGrade(name string, year int) ([]string, error) {
+	var backString []string
+	//查询表格未公布的所有数据
+	usernamesli, err := mysql.SelStarUser()
+	if err != nil {
+		return nil, err
+	}
+	//根据管理员权限查找数据
+	gUsername, err := StarGuidGrade(usernamesli, year)
+	//找到这些数据中与name相同的值
+	for _, username := range gUsername {
+		tusername, _ := mysql.SelName(username)
+		if tusername == name {
+			backString = append(backString, tusername)
+		}
+	}
+	return backString, nil
 }

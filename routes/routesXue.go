@@ -23,6 +23,8 @@ func RoutesXue(router *gin.Engine) {
 		user.POST("/code", login.RidCode)
 		//2.接收数据查询是否登录成功id
 		user.POST("/hlogin", login.HLogin)
+		//前台登录
+		user.POST("/qlogin", login.QLogin)
 	}
 
 	userLoginAfter := router.Group("user")

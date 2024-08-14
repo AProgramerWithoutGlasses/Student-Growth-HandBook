@@ -374,7 +374,7 @@ func Pillar(c *gin.Context) {
 	var tagname []string
 	var count []int
 	var Num struct {
-		Date string `json:"date" form:"date"`
+		Date string `form:"date"`
 	}
 	err := c.Bind(&Num)
 	if err != nil {
