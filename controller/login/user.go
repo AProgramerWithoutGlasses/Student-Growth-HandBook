@@ -76,3 +76,52 @@ func HLogin(c *gin.Context) {
 	//发送给前端
 	pkg.ResponseSuccess(c, slice)
 }
+
+// QLogin 登录验证，成功返回token
+func QLogin(c *gin.Context) {
+	// 定义用户实例
+	var user = new(models.Login)
+	var role string
+	//获取前端返回的数据
+	if err := c.BindJSON(&user); err != nil {
+		pkg.ResponseErrorWithMsg(c, 400, "Hlogin 获取数据失败")
+		fmt.Println("Hlogin BindJSON(&userService) err")
+		return
+	}
+	//验证密码
+	if ok := userService.BVerify(user.Username, user.Password); !ok {
+		pkg.ResponseErrorWithMsg(c, 400, "密码错误")
+		return
+	}
+	//验证验证码
+	if ok := userService.GetCodeAnswer(user.Id, user.Code); !ok {
+		pkg.ResponseErrorWithMsg(c, 400, "验证码错误")
+		return
+	}
+	//验证用户是否存在
+	ok := userService.BVerifyExit(user.Username)
+	if ok {
+		role = "1"
+	} else {
+		role = "0"
+	}
+	//记录用户登录
+	redis.UpdateVictor(user.Username)
+	//获取生成的token
+	tokenString, err := token.ReleaseToken(user.Username, user.Password, role)
+	if err != nil {
+		fmt.Println("Hlogin的login.ReleaseToken()")
+		return
+	}
+	if err != nil {
+		fmt.Println("HLogin SelId err")
+		return
+	}
+	slice := map[string]any{
+		"username": user.Username,
+		"token":    tokenString,
+		"role":     role,
+	}
+	//发送给前端
+	pkg.ResponseSuccess(c, slice)
+}
