@@ -20,7 +20,7 @@ func SelName(username string) (string, error) {
 // SelId 根据账号查找id
 func SelId(username string) (int, error) {
 	var id int
-	err := DB.Model("&User{}").Select("id").Where("username = ?", username).Scan(&id).Error
+	err := DB.Table("users").Select("id").Where("username = ?", username).Scan(&id).Error
 	if err != nil {
 		return 0, err
 	}
@@ -40,7 +40,7 @@ func Selfans(id int) (int64, error) {
 // Score 查询积分
 func Score(username string) (int, error) {
 	var score int
-	err := DB.Model("&User{}").Select("point").Where("username = ?", username).Error
+	err := DB.Table("users").Select("point").Where("username = ?", username).Error
 	if err != nil {
 		return 0, err
 	}
@@ -50,7 +50,7 @@ func Score(username string) (int, error) {
 // Frequency 被推举次数
 func Frequency(username string) (int64, error) {
 	var number int64
-	err := DB.Model("&Star{}").Where("username = ?", username).Count(&number).Error
+	err := DB.Table("stars").Where("username = ?", username).Count(&number).Error
 	if err != nil {
 		return 0, err
 	}
@@ -61,8 +61,8 @@ func Frequency(username string) (int64, error) {
 func SelHot(id int) (int, error) {
 	var like int
 	var collect int
-	err := DB.Model("&Article{}").Select("like_amount").Where("user_id =?", id).Scan(&like).Error
-	err = DB.Model("&Article{}").Select("collect_amount").Where("user_id = ?", id).Scan(&collect).Error
+	err := DB.Table("articles").Select("like_amount").Where("user_id =?", id).Scan(&like).Error
+	err = DB.Table("articles").Select("collect_amount").Where("user_id = ?", id).Scan(&collect).Error
 	if err != nil {
 		return 0, err
 	}
@@ -82,7 +82,7 @@ func SelStatus(username string) (bool, error) {
 	}
 }
 
-// SelGrade 查询表里学号合集
+// SelStarUser SelGrade 查询未公布的学号合集
 func SelStarUser() ([]string, error) {
 	var alluser []string
 	err := DB.Table("stars").Where("session = ?", 0).Select("username").Scan(&alluser).Error
@@ -102,7 +102,7 @@ func SelPlus(username string) (time.Time, error) {
 	return plus, nil
 }
 
-// SelGrade 查询表里学号合集
+// SelStarColl 院级查询表里学号合集
 func SelStarColl() ([]string, error) {
 	var alluser []string
 	err := DB.Table("stars").Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&alluser).Error
@@ -110,4 +110,24 @@ func SelStarColl() ([]string, error) {
 		return nil, err
 	}
 	return alluser, nil
+}
+
+// SelSearchUser 根据名字班级查找学号--班级管理员搜索
+func SelSearchUser(name string, class string) ([]string, error) {
+	var username []string
+	err := DB.Table("users").Where("class = ?", class).Where("name = ?", name).Select("username").Scan(&username).Error
+	if err != nil {
+		return nil, err
+	}
+	return username, nil
+}
+
+// SelSearchColl 院级管理员搜索
+func SelSearchColl(name string) ([]string, error) {
+	var usernamesli []string
+	err := DB.Table("stars").Where("name = ?", name).Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&usernamesli).Error
+	if err != nil {
+		return nil, err
+	}
+	return usernamesli, nil
 }

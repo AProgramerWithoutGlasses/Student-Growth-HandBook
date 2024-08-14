@@ -3,6 +3,7 @@ package growth
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
 	"studentGrow/pkg/response"
 	"studentGrow/service/starService"
@@ -146,7 +147,98 @@ func StarCollege(c *gin.Context) {
 	response.ResponseSuccess(c, data)
 }
 
-// 搜索表格数据
-func Search() {
+// Search 搜索表格数据
+func Search(c *gin.Context) {
+	var usernamesli []string
+	var datas struct {
+		Name  string `form:"search"`
+		Page  int    `form:"page"`
+		Limit int    `form:"pageCapacity"`
+	}
+	err := c.Bind(&datas)
+	if err != nil {
+		zap.L().Error("Search Bind err", zap.Error(err))
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
+	token := c.GetHeader("token")
+	role, err := token2.GetRole(token)
+	username, err := token2.GetUsername(token)
+	if err != nil {
+		zap.L().Error("Search err", zap.Error(err))
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
+	switch role {
+	case "class":
+		class, err := mysql.SelClass(username)
+		if err != nil {
+			zap.L().Error("Search SelClass err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
+		}
+		usernamesli, err = mysql.SelSearchUser(datas.Name, class)
+		if err != nil {
+			zap.L().Error("Search SelSearchUser err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
+		}
+	case "grade1":
+		usernamesli, err = starService.SearchGrade(datas.Name, 1)
+		if err != nil {
+			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
+		}
+	case "grade2":
+		usernamesli, err = starService.SearchGrade(datas.Name, 2)
+		if err != nil {
+			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
+		}
+	case "grade3":
+		usernamesli, err = starService.SearchGrade(datas.Name, 3)
+		if err != nil {
+			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
+		}
+	case "grade4":
+		usernamesli, err = starService.SearchGrade(datas.Name, 4)
+		if err != nil {
+			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
+		}
+	case "college":
+		usernamesli, err = mysql.SelSearchColl(datas.Name)
+		if err != nil {
+			zap.L().Error("Search SelSearchColl err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
+		}
+	case "superman":
+		usernamesli, err = mysql.SelSearchColl(datas.Name)
+		if err != nil {
+			zap.L().Error("Search SelSearchColl err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
+		}
+	}
 
+	if usernamesli == nil {
+		response.ResponseErrorWithMsg(c, 400, "数据未找到")
+	}
+
+	//表格所需所有数据
+	starback, err := starService.StarGrid(usernamesli)
+	if err != nil {
+		fmt.Println("StarGrade starback err", err)
+		return
+	}
+
+	//实现分页
+	data := starService.PageQuery(starback, datas.Page, datas.Limit)
+	response.ResponseSuccess(c, data)
 }
