@@ -164,7 +164,7 @@ func QueryPageStuContro(c *gin.Context) {
 	}
 
 	// limit 分页查询语句的拼接
-	querySql = querySql + " limit " + strconv.Itoa(limitValue) + " offset " + strconv.Itoa(offsetValue)
+	querySql = querySql + " limit " + strconv.Itoa(limitValue) + " offset " + strconv.Itoa((offsetValue-1)*limitValue)
 
 	// 响应数据的获取
 	stuPageInfo, _ := mysql.GetStuMesList(querySql) // 当页学生数据
