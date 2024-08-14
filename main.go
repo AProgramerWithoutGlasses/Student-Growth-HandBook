@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"studentGrow/aliyun/oss"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
@@ -41,7 +42,7 @@ func main() {
 		return
 	}
 
-	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.Upvote{})
+	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.Comment{}, &model.ArticleTag{}, &model.UserArticleLikeRecord{}, &model.UserCollectRecord{}, &model.UserCommentLikeRecord{}, &model.UserLoginRecord{}, &model.UserReadRecord{}, model.UserReportArticleRecord{})
 	//if err != nil {
 	//	return
 	//}
@@ -57,6 +58,13 @@ func main() {
 
 	// 5. 注册路由
 	r := routes.Setup()
+
+	// 6. 初始化oss
+	err = oss.Init()
+	if err != nil {
+		zap.L().Error("main() oss.Init err=", zap.Error(err))
+		return
+	}
 
 	// 6. 启动服务（优雅关机）
 	srv := &http.Server{

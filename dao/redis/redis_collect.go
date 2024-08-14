@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-var Selection = "select-"
+var Selection = "select"
 
 // AddArticleToCollectSet 添加文章到用户收藏集合中
 func AddArticleToCollectSet(uid string, aid string) error {

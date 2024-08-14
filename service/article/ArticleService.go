@@ -4,12 +4,15 @@ import (
 	"fmt"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
+	"mime/multipart"
 	"sort"
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	model "studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
+	"studentGrow/utils/fileProcess"
 	"studentGrow/utils/timeConverter"
 	"time"
 )
@@ -116,41 +119,6 @@ func GetArticleListService(j *jsonvalue.V) ([]model.Article, error) {
 
 	return result, nil
 }
-
-// GetArticleListFirstPageService 前台首页模糊搜索文章列表
-//func GetArticleListFirstPageService(j *jsonvalue.V) ([]model.Article, error) {
-//	keyWords, e1 := j.GetString("key_word")
-//	topic, e2 := j.GetString("topic_name")
-//	sort, e3 := j.GetString("article_sort")
-//	limit, e4 := j.GetInt("article_count")
-//	page, e5 := j.GetInt("article_page")
-//
-//	if e1 != nil || e2 != nil || e3 != nil || e4 != nil || e5 != nil {
-//		fmt.Println("GetArticleListFirstPageService() service.article.GetString err=")
-//		return nil, myErr.DataFormatError()
-//	}
-//
-//}
-
-// PublishArticleService 发布文章
-//func PublishArticleService() map[string]any{
-//
-//}
-
-// GetTopicTagsService GetTopicTags 根据话题获得对应的标签mysql
-//func GetTopicTagsService(j *jsonvalue.V) []map[string]any {
-//	//解析获得话题
-//	topic, err := j.GetString("topic")
-//	fmt.Println(topic)
-//	if err != nil {
-//		fmt.Println("GetTopicTags() service.article.GetString err=", err)
-//		return nil
-//	}
-//
-//	//查询标签
-//	return mysql.SelectTagsByTopic(topic)
-//
-//}
 
 // AddTopicsService 添加话题
 func AddTopicsService(j *jsonvalue.V) error {
@@ -429,4 +397,66 @@ func SelectArticleAndUserListByPageFirstPageService(j *jsonvalue.V) ([]map[strin
 	}
 
 	return list, nil
+}
+
+// PublishArticleService 发布文章
+func PublishArticleService(username, content, topic string, wordCount int, tags []string, pics []*multipart.FileHeader, video []*multipart.FileHeader) error {
+	// 检查文本内容字数
+	if len(content) < 30 || len(content) > 300 {
+		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
+		return myErr.DataFormatError()
+	}
+
+	// 检查标签
+	if len(tags) <= 0 {
+		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
+		return myErr.DataFormatError()
+	}
+
+	//  将图片上传至oss
+	var picPath []string
+	if len(pics) > 0 {
+		for _, pic := range pics {
+			url, err := fileProcess.UploadFile("image", pic)
+			if err != nil {
+				zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(myErr.DataFormatError()))
+				return err
+			}
+			picPath = append(picPath, url)
+		}
+	}
+
+	//  检查视频数量
+	if len(video) > 1 {
+		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
+		return myErr.DataFormatError()
+	}
+
+	// 将视频上传至oss
+	var videoPath string
+	if len(video) > 0 {
+		url, err := fileProcess.UploadFile("video", video[0])
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(myErr.DataFormatError()))
+			return err
+		}
+		videoPath = url
+	}
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		zap.L().Error("PublishArticleService() service.article.GetIdByUsername err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+
+	// 插入新文章
+	aid, err := mysql.InsertArticleContent(content, topic, uid, wordCount, tags, picPath, videoPath)
+	if err != nil {
+		zap.L().Error("PublishArticleService() service.article.InsertArticleContent err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+
+	// 将文章更新到redis点赞、收藏
+	redis.RDB.HSet("article", strconv.Itoa(aid), 0)
+	redis.RDB.HSet("collect", strconv.Itoa(aid), 0)
+	return nil
 }
