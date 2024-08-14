@@ -101,11 +101,20 @@ func QueryStuContro(c *gin.Context) {
 		fmt.Println("stuManage.QueryStuContro() readMessage.GetJsonvalue() err :", err)
 	}
 
+	offsetValue, err := stuMessage.GetInt("page")
+	if err != nil {
+		fmt.Println("page GetInt() err", err)
+	}
+
+	limitValue, err := stuMessage.GetInt("limit")
+	if err != nil {
+		fmt.Println("limit GetInt() err", err)
+	}
+
 	// 将请求数据整理到结构体
 	queryParmaStruct = service.GetReqMes(stuMessage)
 	// 获取sql语句
 	querySql = service.CreateQuerySql(stuMessage, queryParmaStruct)
-	queryPageSql := querySql + " limit " + strconv.Itoa(10) + " offset " + strconv.Itoa(0)
 
 	// 响应数据的获取
 	stuInfo, err := mysql.GetStuMesList(querySql) // 所有学生数据
@@ -114,7 +123,22 @@ func QueryStuContro(c *gin.Context) {
 		response.ResponseError(c, response.ServerErrorCode)
 		return
 	}
-	stuPageInfo, err := mysql.GetStuMesList(queryPageSql) // 当页学生数据
+
+	// 获取所有符合条件的学生数量
+	queryAllStuNumber = len(stuInfo)
+
+	// 重置sql语句中的分页部分
+	whereSqlIndex := strings.Index(querySql, "limit")
+	if whereSqlIndex != -1 {
+		afterWhere := querySql[:whereSqlIndex]
+		querySql = afterWhere
+	}
+
+	// limit 分页查询语句的拼接
+	querySql = querySql + " limit " + strconv.Itoa(limitValue) + " offset " + strconv.Itoa((offsetValue-1)*limitValue)
+
+	// 响应数据的获取
+	stuPageInfo, err := mysql.GetStuMesList(querySql) // 当页学生数据
 	if err != nil {
 		zap.L().Error("mysql.GetStuMesList(queryPageSql) failed", zap.Error(err))
 		response.ResponseError(c, response.ServerErrorCode)
@@ -122,9 +146,6 @@ func QueryStuContro(c *gin.Context) {
 	}
 	yearStructSlice := service.GetYearStructSlice()
 	classStructSlice := service.GetClassStructSlice()
-
-	// 获取所有符合条件的学生数量
-	queryAllStuNumber = len(stuInfo)
 
 	// 响应结构体的初始化
 	responseStruct := jrx_model.ResponseStruct{
