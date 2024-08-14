@@ -5,7 +5,6 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	_ "gorm.io/gorm"
-	"sort"
 	model "studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 	"studentGrow/utils/timeConverter"
@@ -37,10 +36,8 @@ func SelectUserByUsername(username string) (uid int, err error) {
 // SelectArticleById 通过id查找文章
 func SelectArticleById(aid int) (err error, article *model.Article) {
 	//查询用户 select * from articles where id = aid
-	// First自动检查记录是否存在
-	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
-		// 处理查询错误
-		fmt.Println("Error:", err)
+	if err := DB.Preload("ArticlePics").Preload("ArticleTags").Preload("User").
+		Where("id = ?", aid).First(&article).Error; err != nil {
 		return err, nil
 	} else {
 		return nil, article
@@ -92,19 +89,15 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 }
 
 // SelectArticleAndUserListByPageFirstPage 前台模糊查询文章列表
-func SelectArticleAndUserListByPageFirstPage(keyWords, topic, articleSort string, limit, page int) (result []model.Article, err error) {
+func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page int) (result model.Articles, err error) {
 	var articles model.Articles
-	if err = DB.Preload("User").Preload("ArticleTags").
+	if err = DB.Preload("User").Preload("ArticleTags").Preload("ArticlePic").
 		Where("topic = ? and content like ?", topic, fmt.Sprintf("%%%s%%", keyWords)).
 		Order("created_at desc").
 		Limit(limit).
 		Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		fmt.Println("SelectArticleAndUserListByPageFirstPage() dao.mysql.sql_nzx")
 		return nil, err
-	}
-
-	if articleSort == "hot" {
-		sort.Sort(articles)
 	}
 
 	return articles, nil
@@ -259,7 +252,6 @@ func ReportArticleById(aid int, uid int, msg string) error {
 
 	if result.Error != nil {
 		bg.Rollback()
-		panic("ss")
 		return result.Error
 	}
 	// 查询更新结果
@@ -420,7 +412,25 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 	return int(article.ID), nil
 }
 
-// QueryArticleByClass 根据班级分页查询文章
-func QueryArticleByClass(classId, limit, page int, username, keyWord, sortWay string) {
+// QueryClassByClassId 根据classid查找class
+func QueryClassByClassId(classId int) (string, error) {
+	class := model.UserClass{}
+	if err := DB.Where("id = ?", classId).First(&class).Error; err != nil {
+		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+		return "", err
+	}
+	return class.Class, nil
+}
 
+// QueryArticleByClass 根据班级分页查询文章
+func QueryArticleByClass(limit, page int, class, keyWord string) (model.Articles, error) {
+	var articles model.Articles
+	if err := DB.Preload("User", "class = ?", class).
+		Where("content like ?", keyWord).
+		Order("created_at desc").
+		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+		return nil, err
+	}
+	return articles, nil
 }

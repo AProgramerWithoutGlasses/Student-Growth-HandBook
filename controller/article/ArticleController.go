@@ -22,7 +22,10 @@ func GetArticleIdController(c *gin.Context) {
 		return
 	}
 	// 获取文章详情
-	err, data := article.GetArticleService(json)
+	art, err := article.GetArticleService(json)
+	if err != nil {
+		return
+	}
 	//错误检查
 	if err != nil {
 		fmt.Println(" GetArticleIdController() controller.article.GetArticleService err=", err)
@@ -30,7 +33,7 @@ func GetArticleIdController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, data)
+	res.ResponseSuccess(c, art)
 }
 
 // GetArticleListController 获取文章列表
@@ -191,22 +194,51 @@ func GetHotArticlesOfDayController(c *gin.Context) {
 
 // SelectArticleAndUserListByPageFirstPageController 前台首页模糊搜索文章列表
 func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
-	//获取前端发送的数据
-	json, err := readUtil.GetJsonvalue(c)
+	in := struct {
+		username string
+		keyWords string
+		topic    string
+		SortWay  string
+		limit    int
+		page     int
+	}{}
+
+	articles, err := article.SelectArticleAndUserListByPageFirstPageService(in.username, in.keyWords, in.topic, in.SortWay, in.limit, in.page)
 	if err != nil {
-		fmt.Println("SelectArticleAndUserListByPageFirstPageController() controller.article.getArticle.GetJsonvalue err=", err)
+		fmt.Println("SelectArticleAndUserListByPageFirstPageController() controller.article.SelectArticleAndUserListByPageFirstPageService err=", err)
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	list, err := article.SelectArticleAndUserListByPageFirstPageService(json)
+	res.ResponseSuccess(c, articles)
+}
+
+// GetArticleByClassController 班级分类获取文章列表
+func GetArticleByClassController(c *gin.Context) {
+	input := struct {
+		username string
+		keyWords string
+		sortWay  string
+		classId  int
+		limit    int
+		page     int
+	}{}
+
+	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		fmt.Println("SelectArticleAndUserListByPageFirstPageController() controller.article.getArticle.SelectArticleAndUserListByPageFirstPageService err=", err)
+		zap.L().Error("GetArticleByClassController() controller.article.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	res.ResponseSuccess(c, list)
+	// 获取列表
+	articles, err := article.GetArticlesByClassService(input.keyWords, input.username, input.sortWay, input.limit, input.page, input.classId)
+	if err != nil {
+		zap.L().Error("GetArticleByClassController() controller.article.GetArticlesByClassService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	res.ResponseSuccess(c, articles)
 }
 
 // PublishArticleController 发布文章

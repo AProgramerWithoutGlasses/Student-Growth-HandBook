@@ -18,76 +18,58 @@ import (
 )
 
 // GetArticleService 获取文章详情
-func GetArticleService(j *jsonvalue.V) (error, map[string]any) {
+func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 	//获取文章id
 	aid, err := j.GetInt("article_id")
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetInt err=", err)
-		return err, nil
+		return nil, err
 	}
 
 	// 获取用户名
 	username, err := j.GetString("username")
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetInt err=", err)
-		return err, nil
-	}
-	// 获取uid
-	uid, err := mysql.GetIdByUsername(username)
-	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetIdByUsername err=", err)
-		return err, nil
+		return nil, err
 	}
 
 	//查找文章信息
 	err, article := mysql.SelectArticleById(aid)
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.SelectArticleById err=", err)
-		return err, nil
-	}
-	//查找用户信息
-	err, user := mysql.SelectUserById(int(article.UserID))
-
-	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.SelectUserById err=", err)
-		return err, nil
+		return nil, err
 	}
 
 	// 查询是否点赞或收藏
 	liked, err := redis.IsUserLiked(strconv.Itoa(aid), username, 0)
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.IsUserLiked err=", err)
-		return err, nil
+		return nil, err
 	}
+	article.IsLike = liked
 	selected, err := redis.IsUserCollected(username, strconv.Itoa(aid))
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.IsUserSelected err=", err)
-		return err, nil
+		return nil, err
 	}
+	article.IsCollect = selected
+
+	// 计算发布时间
+	article.PostTime = timeConverter.IntervalConversion(article.CreatedAt)
 
 	// 存储到浏览记录
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetIdByUsername err=", err)
+		return nil, err
+	}
 	err = mysql.InsertReadRecord(uid, aid)
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.InsertReadRecord err=", err)
-		return err, nil
+		return nil, err
 	}
 
-	data := map[string]any{
-		"article_id":          article.ID,
-		"username":            user.Username,
-		"user_image":          user.HeadShot,
-		"user_class":          user.Class,
-		"article_post_time":   timeConverter.IntervalConversion(article.CreatedAt),
-		"article_content":     map[string]string{"article_text": article.Content, "article_image": article.Pic, "article_video": article.Video},
-		"topic_id":            article.Topic,
-		"article_collect_sum": article.CollectAmount,
-		"article_like_sum":    article.LikeAmount,
-		"article_comment_sum": article.CommentAmount,
-		"if_like":             liked,
-		"if_collect":          selected,
-	}
-
-	return nil, data
+	return article, err
 }
 
 // GetArticleListService 后台获取文章列表
@@ -350,53 +332,35 @@ func SearchHotArticlesOfDayService(j *jsonvalue.V) (model.Articles, error) {
 }
 
 // SelectArticleAndUserListByPageFirstPageService 前台首页模糊查询文章列表
-func SelectArticleAndUserListByPageFirstPageService(j *jsonvalue.V) ([]map[string]any, error) {
-	keyWords, e1 := j.GetString("key_word")
-	topic, e2 := j.GetString("topic_name")
-	articleSort, e3 := j.GetString("article_sort")
-	limit, e4 := j.GetInt("article_count")
-	page, e5 := j.GetInt("article_page")
-	username, e6 := j.GetString("username")
-
-	if e1 != nil || e2 != nil || e3 != nil || e4 != nil || e5 != nil || e6 != nil {
-		fmt.Println("SelectArticleAndUserListByPageFirstPageService() service.article.GetString err=")
-		return nil, myErr.DataFormatError()
-	}
+func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, SortWay string, limit, page int) ([]model.Article, error) {
 
 	// 查询符合模糊搜索的文章集合
-	articles, err := mysql.SelectArticleAndUserListByPageFirstPage(keyWords, topic, articleSort, limit, page)
+	articles, err := mysql.SelectArticleAndUserListByPageFirstPage(keyWords, topic, limit, page)
 	if err != nil {
 		fmt.Println("SelectArticleAndUserListByPageFirstPageService() service.article.SelectArticleAndUserListByPageFirstPage err=", err)
 		return nil, err
 	}
 
+	if SortWay == "hot" {
+		sort.Sort(articles)
+	}
+
 	// 遍历文章集合并判断当前用户是否点赞或收藏该文章
-	var list []map[string]any
-	for _, article := range articles {
-		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(article.ID)), username)
-		okLike, err := redis.IsUserLiked(strconv.Itoa(article.LikeAmount), username, 0)
+	for i := 0; i < len(articles); i++ {
+		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(articles[i].ID)), username)
+		okLike, err := redis.IsUserLiked(strconv.Itoa(articles[i].LikeAmount), username, 0)
 		if err != nil {
 			fmt.Println("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserSelectedService err=", err)
 			return nil, err
 		}
-		list = append(list, map[string]any{
-			"user_headshot":   article.User.HeadShot,
-			"user_class":      article.User.Class,
-			"name":            article.User.Name,
-			"article_id":      article.ID,
-			"upvote_amount":   article.LikeAmount,
-			"collect_amount":  article.CollectAmount,
-			"comment_amount":  article.CommentAmount,
-			"article_content": article.Content,
-			"tag_name":        article.ArticleTags,
-			"if_like":         okLike,
-			"if_collect":      okSelect,
-			"post_time":       timeConverter.IntervalConversion(article.CreatedAt),
-		})
+		articles[i].IsCollect = okSelect
+		articles[i].IsLike = okLike
 
+		// 计算发布时间
+		articles[i].PostTime = timeConverter.IntervalConversion(articles[i].CreatedAt)
 	}
 
-	return list, nil
+	return articles, nil
 }
 
 // PublishArticleService 发布文章
@@ -459,4 +423,40 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	redis.RDB.HSet("article", strconv.Itoa(aid), 0)
 	redis.RDB.HSet("collect", strconv.Itoa(aid), 0)
 	return nil
+}
+
+// GetArticlesByClassService 班级分类查询文章
+func GetArticlesByClassService(keyWords, username, sortWay string, limit, page, classId int) ([]model.Article, error) {
+	// 获取class
+	class, err := mysql.QueryClassByClassId(classId)
+	if err != nil {
+		zap.L().Error("GetArticlesByClassService() service.article.QueryClassByClassId err=", zap.Error(err))
+		return nil, err
+	}
+
+	articles, err := mysql.QueryArticleByClass(limit, page, class, keyWords)
+	if err != nil {
+		zap.L().Error("GetArticlesByClassService() service.article.QueryArticleByClass err=", zap.Error(err))
+		return nil, err
+	}
+
+	if sortWay == "hot" {
+		sort.Sort(articles)
+	}
+
+	// 遍历文章集合并判断当前用户是否点赞或收藏该文章
+	for i := 0; i < len(articles); i++ {
+		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(articles[i].ID)), username)
+		okLike, err := redis.IsUserLiked(strconv.Itoa(articles[i].LikeAmount), username, 0)
+		if err != nil {
+			fmt.Println("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserSelectedService err=", err)
+			return nil, err
+		}
+		articles[i].IsCollect = okSelect
+		articles[i].IsLike = okLike
+
+		// 计算发布时间
+		articles[i].PostTime = timeConverter.IntervalConversion(articles[i].CreatedAt)
+	}
+	return articles, nil
 }

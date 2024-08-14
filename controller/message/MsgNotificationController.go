@@ -3,6 +3,7 @@ package message
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/message"
@@ -29,10 +30,22 @@ func GetUnreadReportsController(c *gin.Context) {
 		return
 	}
 
-	// 获取未读举报列表
-	reports, err := message.GetUnreadReportsForService(username, role)
+	input := struct {
+		limit int
+		page  int
+	}{}
+
+	err = c.ShouldBindJSON(&input)
 	if err != nil {
-		fmt.Println("GetUnreadReportsController() controller.message.GetUnreadReportsService err=", err)
+		zap.L().Error("GetUnreadReportsController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 获取未读举报列表
+	reports, err := message.GetUnreadReportsForService(username, role, input.limit, input.page)
+	if err != nil {
+		zap.L().Error("GetUnreadReportsController() controller.message.GetUnreadReportsForService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
