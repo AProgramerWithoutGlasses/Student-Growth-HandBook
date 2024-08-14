@@ -92,6 +92,7 @@ func QueryStuContro(c *gin.Context) {
 	response.ResponseSuccess(c, data)
 }
 */
+
 // QueryStuContro 查询学生信息
 func QueryStuContro(c *gin.Context) {
 	// 接收请求数据
@@ -104,7 +105,7 @@ func QueryStuContro(c *gin.Context) {
 	queryParmaStruct = service.GetReqMes(stuMessage)
 	// 获取sql语句
 	querySql = service.CreateQuerySql(stuMessage, queryParmaStruct)
-	queryPageSql := querySql + " limit " + strconv.Itoa(8) + " offset " + strconv.Itoa(0)
+	queryPageSql := querySql + " limit " + strconv.Itoa(10) + " offset " + strconv.Itoa(0)
 
 	// 响应数据的获取
 	stuInfo, err := mysql.GetStuMesList(querySql) // 所有学生数据
@@ -163,7 +164,7 @@ func QueryPageStuContro(c *gin.Context) {
 	}
 
 	// limit 分页查询语句的拼接
-	querySql = querySql + " limit " + strconv.Itoa(limitValue) + " offset " + strconv.Itoa(offsetValue)
+	querySql = querySql + " limit " + strconv.Itoa(limitValue) + " offset " + strconv.Itoa((offsetValue-1)*limitValue)
 
 	// 响应数据的获取
 	stuPageInfo, _ := mysql.GetStuMesList(querySql) // 当页学生数据
