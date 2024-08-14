@@ -3,11 +3,13 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/article"
+	"studentGrow/utils/middleWare"
 	"studentGrow/utils/token"
 )
 
 func routesArticle(r *gin.Engine) {
 	at := r.Group("/article")
+	at.Use(middleWare.CORSMiddleware())
 	// 获取文章内容
 	at.POST("/content", article.GetArticleIdController)
 	// 获取文章列表
