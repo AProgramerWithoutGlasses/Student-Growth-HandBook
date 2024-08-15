@@ -382,6 +382,7 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	if len(pics) > 0 {
 		for _, pic := range pics {
 			url, err := fileProcess.UploadFile("image", pic)
+			fmt.Println(url)
 			if err != nil {
 				zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(myErr.DataFormatError()))
 				return err

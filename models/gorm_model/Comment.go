@@ -18,6 +18,7 @@ type Comment struct {
 	CommentLikes []UserCommentLikeRecord //评论拥有点赞
 	IsLike       bool                    `gorm:"-"json:"comment_if_like"`
 	Time         string                  `gorm:"-" json:"comment_time"`
+	PostTime     string                  `gorm:"-" json:"post_time"`
 }
 
 // Comments 自定义加权排序

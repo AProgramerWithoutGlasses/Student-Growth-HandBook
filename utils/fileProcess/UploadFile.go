@@ -1,6 +1,7 @@
 package fileProcess
 
 import (
+	"fmt"
 	uuid2 "github.com/google/uuid"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -38,5 +39,6 @@ func UploadFile(fileType string, fileHeader *multipart.FileHeader) (string, erro
 		zap.L().Error("UploadFile() utils.fileProcess.PutObject err=", zap.Error(err))
 		return "", err
 	}
-	return "https://" + viper.GetString("bucketname") + "." + viper.GetString("endpoint") + "/" + fileName, nil
+	url := fmt.Sprintf("https://%s.%s/%s", viper.GetString("aliyun.oss.file.bucketname"), viper.GetString("aliyun.oss.file.endpoint"), fileName)
+	return url, nil
 }

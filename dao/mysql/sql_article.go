@@ -404,7 +404,7 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 
 	if len(picPath) > 0 {
 		for _, pic := range picPath {
-			if err := DB.Create(model.ArticlePic{
+			if err := DB.Create(&model.ArticlePic{
 				ArticleID: article.ID,
 				Pic:       pic,
 			}).Error; err != nil {

@@ -3,13 +3,14 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/article"
+	"studentGrow/utils/middleWare"
 	"studentGrow/utils/token"
 )
 
 func routesArticle(r *gin.Engine) {
 	at := r.Group("/article")
 	// 获取文章内容
-	at.POST("/content", article.GetArticleIdController)
+	at.POST("/content", middleWare.SetHTTPHeaders, article.GetArticleIdController)
 	// 获取文章列表
 	at.POST("/list", article.GetArticleListController)
 	// 对文章进行评论

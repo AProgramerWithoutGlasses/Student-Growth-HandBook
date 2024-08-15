@@ -8,5 +8,6 @@ type UserArticleLikeRecord struct {
 	Article   Article //点赞属于文章
 	UserID    uint    `gorm:"not null"` // 点赞者用户ID
 	User      User
-	IsRead    bool `gorm:"default:false"` //文章发布者是否已读
+	IsRead    bool   `gorm:"default:false"` //文章发布者是否已读
+	PostTime  string `gorm:"-" json:"post_time"`
 }
