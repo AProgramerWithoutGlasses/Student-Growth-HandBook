@@ -183,7 +183,14 @@ func ElectClass(c *gin.Context) {
 	for _, student := range Responsedata.ElectedArr {
 		username := student.Username
 		name := student.Name
-		err := mysql.CreatClass(username, name)
+		//防止有重复数据
+		number, err := mysql.Selstarexit(username)
+		if err != nil || number != 0 {
+			response.ResponseErrorWithMsg(c, 400, "数据已存在")
+			return
+		}
+		//添加数据
+		err = mysql.CreatClass(username, name)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "推选失败")
 			return
