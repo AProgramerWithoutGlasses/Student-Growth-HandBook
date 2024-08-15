@@ -219,6 +219,7 @@ func GetReqMes(stuMessage *jsonvalue.V) jrx_model.QueryParmaStruct {
 	return queryParmaStruct
 }
 
+// 获取导出学生信息的 excel表格
 func GetSelectedStuExcel(selectedStuMesStruct jrx_model.SelectedStuMesStruct) (*bytes.Buffer, error) {
 	// 提取处学号数组
 	usernameSlice := make([]string, len(selectedStuMesStruct.Selected_students))
