@@ -3,6 +3,7 @@ package stuManage
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
@@ -38,18 +39,29 @@ func AddSingleStuContro(c *gin.Context) {
 		fmt.Println("class GetString() err : ", err)
 	}
 
+	genderValue, err := stuMessage.GetString("gender")
+	if err != nil {
+		fmt.Println("gender GetString() err : ", err)
+	}
+
 	// 将新增学生信息整合到结构体中
 	user := gorm_model.User{
 		Name:     nameValue,
 		Username: usernameValue,
 		Password: passwordValue,
 		Class:    classValue,
+		Gender:   genderValue,
 		Identity: "学生",
 	}
 
 	// 在数据库中添加该学生信息
-	mysql.AddSingleStudent(&user)
+	err = mysql.AddSingleStudent(&user)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 500, "添加失败, 该用户已存在")
+		zap.L().Error("stuManage.AddMultipleStuControl() mysql.AddSingleStudent() failed: " + err.Error())
+		return
+	}
 
 	// 成功响应
-	response.ResponseSuccess(c, "添加成功！")
+	response.ResponseSuccess(c, nameValue+" 信息添加成功！")
 }

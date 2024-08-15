@@ -67,7 +67,7 @@ func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 
 // 添加单个学生
 func AddSingleStudent(users *gorm_model.User) error {
-	err := DB.Select("name", "username", "password", "class", "identity").Create(users).Error
+	err := DB.Select("name", "username", "password", "class", "gender", "identity").Create(users).Error
 	return err
 }
 
@@ -109,6 +109,7 @@ func ExistedUsername(username string) error {
 	return err
 }
 
+// 查询选中的用户
 func QuerySelectedUser(usernameSlice []string) ([]gorm_model.User, error) {
 	var users []gorm_model.User
 	err := DB.Where("username IN (?)", usernameSlice).Find(&users).Error
