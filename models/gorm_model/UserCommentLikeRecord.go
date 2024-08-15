@@ -6,9 +6,9 @@ import (
 
 type UserCommentLikeRecord struct {
 	gorm.Model
-	CommentID uint    //点赞属于评论
+	CommentID uint    `gorm:"not null"` //点赞属于评论
 	Comment   Comment //点赞属于评论
-	UserID    uint
+	UserID    uint    `gorm:"not null"`
 	User      User
 	IsRead    bool `gorm:"default:false"`
 }

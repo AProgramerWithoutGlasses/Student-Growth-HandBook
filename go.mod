@@ -6,9 +6,12 @@ require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/Andrew-M-C/go.jsonvalue v1.3.8
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/google/uuid v1.4.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/spf13/viper v1.19.0
 	go.uber.org/zap v1.21.0

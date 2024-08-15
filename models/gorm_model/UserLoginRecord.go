@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type UserLoginRecord struct {
 	gorm.Model
-	username string
-	UserID   uint // 用户登录记录属于用户
+	Username string
+	UserID   uint `gorm:"not null"` // 用户登录记录属于用户
 	User     User // 用户登录记录属于用户
 }
