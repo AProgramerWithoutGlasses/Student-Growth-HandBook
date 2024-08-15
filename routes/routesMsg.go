@@ -22,4 +22,7 @@ func routesMsg(r *gin.Engine) {
 	// 获取管理员消息
 	msg.GET("/get_manager", message.GetManagerMsgController)
 
+	// 获取点赞消息
+	msg.GET("/get_thumbList", message.GetLikeMsgController)
+
 }
