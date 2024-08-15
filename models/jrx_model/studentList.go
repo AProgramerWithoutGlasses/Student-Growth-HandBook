@@ -65,5 +65,5 @@ type StuMesYearIntStruct struct {
 }
 
 type SelectedStuMesStruct struct {
-	Selected_students []StuMesYearIntStruct `json:"selected_students"`
+	Selected_students []StuMesStruct `json:"selected_students"`
 }
