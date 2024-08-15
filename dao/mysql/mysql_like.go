@@ -102,14 +102,14 @@ func QueryLikeRecordByUserArticle(uid, page, limit int) ([]gorm_model.Article, e
 	}
 
 	if len(articles) == 0 {
-		zap.L().Error("QueryLikeRecordByUserArticle() dao.mysql.mysql_like.Find err=", zap.Error(myErr.NotFoundError()))
+		zap.L().Error("QueryLikeRecordByUserArticle() dao.mysql.mysql_like err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 
 	return articles, nil
 }
 
-// QueryLikeRecordNumByUserArticle 通过uid分页查询其文章的未读点赞记录数量
+// QueryLikeRecordNumByUserArticle 通过uid查询其文章的未读点赞记录数量
 func QueryLikeRecordNumByUserArticle(uid int) (int, error) {
 	var count int64
 
@@ -141,7 +141,7 @@ func QueryLikeRecordByUserComment(uid, page, limit int) ([]gorm_model.Comment, e
 	return comments, nil
 }
 
-// QueryLikeRecordNumByUserComment 通过uid分页查询其评论的未读点赞记录数量
+// QueryLikeRecordNumByUserComment 通过uid查询其评论的未读点赞记录数量
 func QueryLikeRecordNumByUserComment(uid int) (int, error) {
 	var count int64
 

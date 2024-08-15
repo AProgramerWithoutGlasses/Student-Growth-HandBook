@@ -5,7 +5,6 @@ import (
 	"go.uber.org/zap"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
-	"studentGrow/service/article"
 	"studentGrow/service/message"
 )
 
@@ -52,9 +51,9 @@ func GetManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	msg, UnreadCount, err := message.GetSystemMsgService(in.Limit, in.Page, in.Username)
+	msg, UnreadCount, err := message.GetManagerMsgService(in.Limit, in.Page, in.Username)
 	if err != nil {
-		zap.L().Error("GetManagerMsgController() controller.message.GetSystemMsgService err=", zap.Error(err))
+		zap.L().Error("GetManagerMsgController() controller.message.GetManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -80,9 +79,9 @@ func GetLikeMsgController(c *gin.Context) {
 		return
 	}
 
-	list, num, err := article.GetArticleAndCommentLikedList(in.Username, in.Page, in.Limit)
+	list, num, err := message.GetArticleAndCommentLikedMsgService(in.Username, in.Page, in.Limit)
 	if err != nil {
-		zap.L().Error("GetLikeMsgController() controller.message.GetArticleAndCommentLikedList err=", zap.Error(err))
+		zap.L().Error("GetLikeMsgController() controller.message.GetArticleAndCommentLikedMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -91,4 +90,33 @@ func GetLikeMsgController(c *gin.Context) {
 		"thumbsUp":     list,
 		"unread_count": num,
 	})
+}
+
+// GetCollectMsgController 获取收藏消息
+func GetCollectMsgController(c *gin.Context) {
+	in := struct {
+		Username string `json:"username"`
+		Page     int    `json:"page"`
+		Limit    int    `json:"limit"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("GetCollectMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	list, num, err := message.GetCollectMsgService(in.Username, in.Page, in.Limit)
+	if err != nil {
+		zap.L().Error("GetCollectMsgController() controller.message.GetCollectMsgService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, map[string]any{
+		"star":         list,
+		"unread_count": num,
+	})
+
 }
