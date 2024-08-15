@@ -1,7 +1,9 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
 	"reflect"
 	"strconv"
@@ -215,4 +217,43 @@ func GetReqMes(stuMessage *jsonvalue.V) jrx_model.QueryParmaStruct {
 	}
 
 	return queryParmaStruct
+}
+
+func GetSelectedStuExcel(selectedStuMesStruct jrx_model.SelectedStuMesStruct) (*bytes.Buffer, error) {
+	// 提取处学号数组
+	usernameSlice := make([]string, len(selectedStuMesStruct.Selected_students))
+	for i, v := range selectedStuMesStruct.Selected_students {
+		usernameSlice[i] = v.Username
+	}
+	fmt.Println(usernameSlice)
+	users, err := mysql.QuerySelectedUser(usernameSlice)
+	if err != nil {
+		return nil, err
+	}
+
+	// 创建 Excel 文件
+	f := excelize.NewFile()
+
+	// 设置表头
+	f.SetCellValue("Sheet1", "A1", "入学年份")
+	f.SetCellValue("Sheet1", "B1", "班级")
+	f.SetCellValue("Sheet1", "C1", "姓名")
+	f.SetCellValue("Sheet1", "D1", "学号")
+
+	// 填充数据
+	for i, user := range users {
+		row := i + 2 // 从第二行开始填充数据
+		f.SetCellValue("Sheet1", fmt.Sprintf("D%d", row), user.PlusTime.Format("2006"))
+		f.SetCellValue("Sheet1", fmt.Sprintf("A%d", row), user.Class)
+		f.SetCellValue("Sheet1", fmt.Sprintf("B%d", row), user.Name)
+		f.SetCellValue("Sheet1", fmt.Sprintf("C%d", row), user.Username)
+	}
+
+	// 将 Excel 文件写入内存
+	excelData, err := f.WriteToBuffer()
+	if err != nil {
+		return nil, err
+	}
+
+	return excelData, err
 }
