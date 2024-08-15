@@ -38,7 +38,7 @@ func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 	// 从mysql中获取数据到user表中
 	var userSlice []gorm_model.User
 
-	//DB.Select("name", "username", "password", "class", "plus_time", "gender", "phone_number", "ban", "is_manager").Where("YEAR(plus_time) = ?  and class IS NULL OR class = ? and gender = ? and ban = ?", parmaStruct.Year, parmaStruct.Class, parmaStruct.Gender, parmaStruct.IsDisable).Find(&userSlice)
+	// DB.Select("name", "username", "password", "class", "plus_time", "gender", "phone_number", "ban", "is_manager").Where("YEAR(plus_time) = ?  and class IS NULL OR class = ? and gender = ? and ban = ?", parmaStruct.Year, parmaStruct.Class, parmaStruct.Gender, parmaStruct.IsDisable).Find(&userSlice)
 	err := DB.Raw(querySql).Order("class ASC").Find(&userSlice).Error
 	if err != nil {
 		return nil, err
