@@ -43,6 +43,12 @@ func RoutesXue(router *gin.Engine) {
 	elected.Use(middleWare.CORSMiddleware(), token.AuthMiddleware())
 	{
 		elected.GET("/select", growth.Search)
+		elected.POST("/elected/class", growth.ElectClass)
+		elected.POST("/elected/grade", growth.ElectGrade)
+		elected.POST("/elected/college", growth.ElectCollege)
+		elected.POST("/public/college", growth.PublicStar)
+		elected.GET("/termStar", growth.StarPub)
+
 	}
 
 }

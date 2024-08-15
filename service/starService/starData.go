@@ -131,3 +131,87 @@ func SearchGrade(name string, year int) ([]string, error) {
 	}
 	return backString, nil
 }
+
+// StarClass 返回成长之星的班级之星
+func StarClass(session int) ([]models.StarClass, error) {
+	var StarClasssli []models.StarClass
+	//查询出所有班级之星
+	usernamesli, err := mysql.SelStarClass(session)
+	if err != nil {
+		return nil, err
+	}
+	//通过班级进行分组
+	starMap, err := GroupByClass(usernamesli)
+	if err != nil {
+		return nil, err
+	}
+	//对结构体赋值
+	for class, name := range starMap {
+		starclass := models.StarClass{
+			ClassName: class,
+			ClassStar: name,
+		}
+		StarClasssli = append(StarClasssli, starclass)
+	}
+	return StarClasssli, nil
+}
+
+// GroupByClass 通过班级进行分组
+func GroupByClass(usernamesli []string) (map[string][]string, error) {
+	starmap := make(map[string][]string)
+	for _, username := range usernamesli {
+		class, err := mysql.SelClass(username)
+		name, err := mysql.SelName(username)
+		if err != nil {
+			return nil, err
+		}
+		if _, exists := starmap[class]; !exists {
+			starmap[class] = []string{name}
+		} else {
+			starmap[class] = append(starmap[class], name)
+		}
+	}
+	return starmap, nil
+}
+
+// StarGrade 返回年级之星
+func StarGrade(session int) ([]models.StarGrade, error) {
+	var starGrade []models.StarGrade
+	usernamesli, err := mysql.SelStarGrade(session)
+	if err != nil {
+		return nil, err
+	}
+	for _, username := range usernamesli {
+		name, _ := mysql.SelName(username)
+		class, _ := mysql.SelClass(username)
+		//赋值结构体
+		stargrade := models.StarGrade{
+			GradeName:  name,
+			GradeClass: class,
+		}
+		//加入切片
+		starGrade = append(starGrade, stargrade)
+	}
+	return starGrade, nil
+}
+
+// StarCollege 返回院级之星
+func StarCollege(session int) ([]models.StarGrade, error) {
+	var starGrade []models.StarGrade
+	usernamesli, err := mysql.SelStarCollege(session)
+	if err != nil {
+		return nil, err
+	}
+	for _, username := range usernamesli {
+		name, _ := mysql.SelName(username)
+		class, _ := mysql.SelClass(username)
+		//赋值结构体
+		stargrade := models.StarGrade{
+			GradeName:  name,
+			GradeClass: class,
+		}
+		//加入切片
+		starGrade = append(starGrade, stargrade)
+	}
+	return starGrade, nil
+}

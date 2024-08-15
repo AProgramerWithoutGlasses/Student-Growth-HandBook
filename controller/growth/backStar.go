@@ -10,7 +10,18 @@ import (
 	token2 "studentGrow/utils/token"
 )
 
-// Search 搜索表格数据
+// Student 定义接收前端数据结构体
+type Student struct {
+	Username         string `json:"username"`
+	Name             string `json:"name"`
+	Userarticletotal int    `json:"user_article_total"`
+	Userfans         int    `json:"userfans"`
+	Score            int    `json:"score"`
+	Hot              int    `json:"hot"`
+	Frequency        int    `json:"frequency"`
+}
+
+// Search 搜索表格数据token
 func Search(c *gin.Context) {
 	var usernamesli []string
 	//获取前端传来的数据
@@ -154,6 +165,140 @@ func Search(c *gin.Context) {
 	data := map[string]any{
 		"tableData": tableData,
 		"total":     total,
+	}
+	response.ResponseSuccess(c, data)
+}
+
+// ElectClass  班级管理员推选数据
+func ElectClass(c *gin.Context) {
+	var Responsedata struct {
+		ElectedArr []Student `json:"electedArr"`
+	}
+	err := c.Bind(&Responsedata)
+	if err != nil {
+		zap.L().Error("Search Bind err", zap.Error(err))
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "为获取到数据")
+		return
+	}
+	for _, student := range Responsedata.ElectedArr {
+		username := student.Username
+		name := student.Name
+		err := mysql.CreatClass(username, name)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "推选失败")
+			return
+		}
+	}
+}
+
+// ElectGrade 年级管理员推选数据
+func ElectGrade(c *gin.Context) {
+	var Responsedata struct {
+		ElectedArr []Student `json:"electedArr"`
+	}
+	err := c.Bind(&Responsedata)
+	if err != nil {
+		zap.L().Error("Search Bind err", zap.Error(err))
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "为获取到数据")
+		return
+	}
+	for _, user := range Responsedata.ElectedArr {
+		username := user.Username
+		err := mysql.UpdateGrade(username)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "推选失败")
+			return
+		}
+	}
+}
+
+// ElectCollege 院级管理员推选
+func ElectCollege(c *gin.Context) {
+	var Responsedata struct {
+		ElectedArr []Student `json:"electedArr"`
+	}
+	err := c.Bind(&Responsedata)
+	if err != nil {
+		zap.L().Error("Search Bind err", zap.Error(err))
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "为获取到数据")
+		return
+	}
+	for _, user := range Responsedata.ElectedArr {
+		username := user.Username
+		err := mysql.UpdateCollege(username)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "推选失败")
+			return
+		}
+	}
+}
+
+// PublicStar 公布成长之星
+func PublicStar(c *gin.Context) {
+	//获取session字段的最大值
+	nowSession, err := mysql.SelMax()
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "获取值失败")
+		return
+	}
+	session := nowSession + 1
+	//更新字段
+	err = mysql.UpdateSession(session)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "公布失败")
+		return
+	}
+}
+
+// StarPub 搜索成长之星
+func StarPub(c *gin.Context) {
+	var session int
+	//接收前端数据
+	var term struct {
+		TermNumber int `form:"termNumber"`
+	}
+	err := c.Bind(&term)
+	if err != nil {
+		zap.L().Error("Search Bind err", zap.Error(err))
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
+	//设置session的值
+	if term.TermNumber == 0 {
+		//找到最大的session最新一期进行展示
+		session, err = mysql.SelMax()
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "获取最新数据失败")
+			return
+		}
+	} else {
+		session = term.TermNumber
+	}
+	//班级成长之星
+	classData, err := starService.StarClass(session)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "班级之星查找失败")
+		return
+	}
+
+	//年级之星
+	gradeData, err := starService.StarGrade(session)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "年级之星查找失败")
+		return
+	}
+
+	//院级之星
+	hospitalData, err := starService.StarCollege(session)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "院级之星查找失败")
+		return
+	}
+
+	data := map[string]any{
+		"classData":    classData,
+		"gradeData":    gradeData,
+		"hospitalData": hospitalData,
 	}
 	response.ResponseSuccess(c, data)
 }

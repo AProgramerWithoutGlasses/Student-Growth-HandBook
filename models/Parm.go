@@ -2,13 +2,6 @@ package models
 
 import "github.com/dgrijalva/jwt-go"
 
-// 图形验证码
-type Code struct {
-	Id    string `json:"id"`
-	Hcode string `json:"hcode"`
-	B64   string `json:"b_64"`
-}
-
 // Login 后台登录的结构体
 type Login struct {
 	Username string `json:"username" binding:"len=11"`
@@ -26,13 +19,13 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// 文章tag和数量结构体
+// TagAmount 文章tag和数量结构体
 type TagAmount struct {
 	Tag   int `json:"tag" gorm:"column:tag_id"`
 	Count int
 }
 
-// 成长之星返回前端的结构体
+// StarBack 成长之星返回前端的结构体
 type StarBack struct {
 	Username           string `json:"username"`
 	Frequency          int64  `json:"frequency"`
@@ -42,4 +35,16 @@ type StarBack struct {
 	Score              int    `json:"score"`
 	Hot                int    `json:"hot"`
 	Status             bool   `json:"status"`
+}
+
+// StarClass 成长之星按班级分类的结构体
+type StarClass struct {
+	ClassName string   `json:"className"`
+	ClassStar []string `json:"classStar"`
+}
+
+// StarGrade 年级之星数据的结构体
+type StarGrade struct {
+	GradeName  string `json:"gradeName"`
+	GradeClass string `json:"gradeClass"`
 }
