@@ -1,8 +1,6 @@
 package mysql
 
 import (
-	"errors"
-	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	"time"
 )
@@ -67,23 +65,6 @@ func SelHot(id int) (int, error) {
 		return 0, err
 	}
 	return collect + like, nil
-}
-
-// SelStatus 查询状态
-func SelStatus(username string) (bool, error) {
-	var star []gorm_model.Star
-	err := DB.Where("username = ?", username).Where("session = ?", 0).Find(&star).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
-		} else {
-			return false, err
-		}
-	}
-	if len(star) == 0 {
-		return false, nil
-	}
-	return true, nil
 }
 
 // SelStarUser SelGrade 查询未公布的学号合集
