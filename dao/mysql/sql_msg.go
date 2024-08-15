@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 	time "studentGrow/utils/timeConverter"
@@ -152,4 +153,56 @@ func AckUnreadReportsForSuperman(reportsId int) error {
 	return nil
 }
 
-//
+// QuerySystemMsg 查询系统消息
+func QuerySystemMsg(page, limit int, username string) ([]gorm_model.MsgRecord, error) {
+	var msg []gorm_model.MsgRecord
+
+	if err := DB.Preload("User", "username = ?", username).Where("type = ?", 1).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
+		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
+		return nil, err
+	}
+
+	if len(msg) == 0 {
+		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(myErr.NotFoundError()))
+		return nil, myErr.NotFoundError()
+	}
+
+	return msg, nil
+}
+
+// QueryUnreadSystemMsg 查询未读系统通知条数
+func QueryUnreadSystemMsg(username string) (int, error) {
+	var count int64
+	if err := DB.Preload("User", "username = ?", username).Where("type = ?", 1).Count(&count).Error; err != nil {
+		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+}
+
+// QueryManagerMsg 获取管理员消息通知
+func QueryManagerMsg(page, limit int, username string) ([]gorm_model.MsgRecord, error) {
+	var msg []gorm_model.MsgRecord
+
+	if err := DB.Preload("User", "username = ?", username).Where("type = ?", 2).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
+		zap.L().Error("QueryManagerMsg() dao.mysql.sql_msg", zap.Error(err))
+		return nil, err
+	}
+
+	if len(msg) == 0 {
+		zap.L().Error("QueryManagerMsg() dao.mysql.sql_msg", zap.Error(myErr.NotFoundError()))
+		return nil, myErr.NotFoundError()
+	}
+
+	return msg, nil
+}
+
+// QueryUnreadManagerMsg 获取未读管理员消息通知
+func QueryUnreadManagerMsg(username string) (int, error) {
+	var count int64
+	if err := DB.Preload("User", "username = ?", username).Where("type = ?", 2).Count(&count).Error; err != nil {
+		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+}

@@ -20,7 +20,6 @@ func UpdateLikeNum(objId, likeType, likeNum int) error {
 			fmt.Println("UpdateLikeNum() dao.mysql.mysql_like")
 			return err
 		}
-
 	}
 	return nil
 }
@@ -88,5 +87,4 @@ func DeleteLikeRecord(objId, likeType, uid int) error {
 	return nil
 }
 
-// 根据用户id查询收到的点赞消息记录
-//func QueryLike
+// 查询点赞记录

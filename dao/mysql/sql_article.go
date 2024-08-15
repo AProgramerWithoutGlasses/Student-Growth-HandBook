@@ -382,46 +382,37 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 		Video:     videoPath,
 		WordCount: wordCount,
 	}
-	// 開啓事務
-	err := DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(&article).Error; err != nil {
+	if err := DB.Create(&article).Error; err != nil {
+		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+		return -1, err
+	}
+	// 同步标签中间表
+	for _, tagName := range tags {
+		tag := model.Tag{}
+		if err := DB.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
 			zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
-			return err
+			return -1, err
 		}
-		// 同步标签中间表
-		for _, tagName := range tags {
-			tag := model.Tag{}
-			if err := tx.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
-				zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
-				return err
-			}
-			if err := tx.Create(&model.ArticleTag{
-				ArticleID: article.ID,
-				TagID:     tag.ID,
-			}).Error; err != nil {
-				zap.L().Error("InsertArticleContent() dao.mysql.sql_article.Create", zap.Error(err))
-				return err
-			}
+		if err := DB.Create(&model.ArticleTag{
+			ArticleID: article.ID,
+			TagID:     tag.ID,
+		}).Error; err != nil {
+			zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+			return -1, err
 		}
-
-		if len(picPath) > 0 {
-			for _, pic := range picPath {
-				if err := tx.Create(model.ArticlePic{
-					ArticleID: article.ID,
-					Pic:       pic,
-				}).Error; err != nil {
-					zap.L().Error("InsertArticleContent() dao.mysql.sql_article.Create", zap.Error(err))
-					return err
-				}
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		zap.L().Error("InsertArticleContent() dao.mysql.sql_article.Transaction", zap.Error(err))
-		return 0, err
 	}
 
+	if len(picPath) > 0 {
+		for _, pic := range picPath {
+			if err := DB.Create(&model.ArticlePic{
+				ArticleID: article.ID,
+				Pic:       pic,
+			}).Error; err != nil {
+				zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+				return -1, err
+			}
+		}
+	}
 	return int(article.ID), nil
 }
 

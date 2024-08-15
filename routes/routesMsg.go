@@ -13,4 +13,13 @@ func routesMsg(r *gin.Engine) {
 
 	// 确认举报信息
 	gp.POST("/ack", token.AuthMiddleware(), message.AckUnreadReportsController)
+
+	msg := r.Group("/message")
+
+	// 获取系统消息
+	msg.GET("/get_system", message.GetSystemMsgController)
+
+	// 获取管理员消息
+	msg.GET("/get_manager", message.GetManagerMsgController)
+
 }

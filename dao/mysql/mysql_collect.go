@@ -43,3 +43,8 @@ func DeleteCollectRecord(aid, uid int) error {
 	}
 	return nil
 }
+
+// QueryCollectRecordByUserArticles 通过用户的所有文章查找其收藏记录(该用户的文章被谁收藏了记录)
+func QueryCollectRecordByUserArticles(uid, page, limit int) {
+	DB.Preload("")
+}
