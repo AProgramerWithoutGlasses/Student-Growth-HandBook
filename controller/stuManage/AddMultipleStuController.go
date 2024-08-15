@@ -55,7 +55,7 @@ func AddMultipleStuControl(c *gin.Context) {
 			duplicatedUserStr = duplicatedUserStr + v + ", "
 		}
 		duplicatedUserStr = duplicatedUserStr[:len(duplicatedUserStr)-2]
-		response.ResponseErrorWithMsg(c, 500, "导入失败，请清除已存在的学生学号: "+duplicatedUserStr)
+		response.ResponseErrorWithMsg(c, 500, "导入失败，请不要导入已存在的学生学号: "+duplicatedUserStr)
 		zap.L().Error("导入失败，请不要导入已存在的学生学号: " + duplicatedUserStr)
 		return
 	}
@@ -67,6 +67,7 @@ func AddMultipleStuControl(c *gin.Context) {
 			Name:     row[1],
 			Username: row[2],
 			Password: row[3],
+			Gender:   row[4],
 			Identity: "学生",
 		}
 		err = mysql.AddSingleStudent(&user)

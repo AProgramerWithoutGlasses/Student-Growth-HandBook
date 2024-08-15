@@ -1,5 +1,6 @@
 package stuManage
 
+import "C"
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -13,88 +14,23 @@ import (
 	"studentGrow/utils/readMessage"
 )
 
-// { 响应
-//
-//		code:
-//		msg:
-//		data: {
-//				year: [2021, 2022, 2023, 2024]
-//				class: [计科221, 计科222, ]
-//				stuInfo: [{name: "张四", userName: "20221544", password: "22mm", gender: true, }, {}, {}]
-//				allStudentCount: 230
-//			   }
-//	}
-//
-// {	请求
-//
-//		year:
-//		class:
-//		gender:
-//		isDisable:
-//
-//		searchSelect: [name, username, telephone]
-//		searchMessage:
-//	}
-
-//// 用于入学年份下拉框
-//type YearStruct struct {
-//	Id_Year string `json:"value"`
-//	Year    string `json:"label"`
-//}
-//
-//// 用于班级下拉框
-//type ClassStruct struct {
-//	Id_class string `json:"value"`
-//	Class    string `json:"label"`
-//}
-//
-//type ResponseStruct struct {
-//	Year            []YearStruct              `json:"year"`
-//	Class           []ClassStruct             `json:"class"`
-//	StuInfo         []gorm_model.StuMesStruct `json:"stuInfo"`
-//	AllStudentCount int                       `json:"allStudentCount"`
-//}
-
 // 用于存储查询参数
 var queryParmaStruct jrx_model.QueryParmaStruct
 var querySql string
 var queryAllStuNumber int
 
-/*
-func QueryStuContro(c *gin.Context) {
-	// 接收参数
-	var input struct {
-		Year          int    `form:"year"`
-		Class         string `form:"class"`
-		Gender        int    `form:"gender"`
-		IsDisable     bool   `form:"isDisable"`
-		searchSelect  string `form:"searchSelect"`
-		searchMessage string `form:"searchMessage"`
-	}
-
-	if err := c.Bind(&input); err != nil {
-		response.ResponseError(c, response.ParamFail)
-		return
-	}
-	// 参数校验
-
-	// 调用server层方法
-
-		data,err :=  server.QueryStu(input.Year,input.Class,input.Gender)
-		if err != nil {
-			log.logger("QueryStuContro failed:%v",err)
-				response.ResponseError(c, response.ParamFail)
-		        return
-		}
-
-
-	// 返回响应
-	response.ResponseSuccess(c, data)
-}
-*/
+//token := c.GetHeader("token")
+//username, err := token2.GetUsername(token)
+//
+//role, err := token2.GetRole(token)
+//switch role {
+//case "grade1":
+//
+//}
 
 // QueryStuContro 查询学生信息
 func QueryStuContro(c *gin.Context) {
+
 	// 接收请求数据
 	stuMessage, err := readMessage.GetJsonvalue(c)
 	if err != nil {

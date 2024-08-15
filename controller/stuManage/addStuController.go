@@ -38,12 +38,18 @@ func AddSingleStuContro(c *gin.Context) {
 		fmt.Println("class GetString() err : ", err)
 	}
 
+	genderValue, err := stuMessage.GetString("gender")
+	if err != nil {
+		fmt.Println("gender GetString() err : ", err)
+	}
+
 	// 将新增学生信息整合到结构体中
 	user := gorm_model.User{
 		Name:     nameValue,
 		Username: usernameValue,
 		Password: passwordValue,
 		Class:    classValue,
+		Gender:   genderValue,
 		Identity: "学生",
 	}
 
@@ -51,5 +57,5 @@ func AddSingleStuContro(c *gin.Context) {
 	mysql.AddSingleStudent(&user)
 
 	// 成功响应
-	response.ResponseSuccess(c, "添加成功！")
+	response.ResponseSuccess(c, nameValue+" 信息添加成功！")
 }
