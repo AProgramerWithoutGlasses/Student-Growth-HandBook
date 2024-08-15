@@ -71,15 +71,19 @@ func SelHot(id int) (int, error) {
 
 // SelStatus 查询状态
 func SelStatus(username string) (bool, error) {
-	var star gorm_model.Star
-	result := DB.Find(&star).Where("username = ?", username).Where("session = ?", 0)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return false, nil
-	} else if result.Error == nil {
-		return true, nil
-	} else {
-		return false, result.Error
+	var star []gorm_model.Star
+	err := DB.Where("username = ?", username).Where("session = ?", 0).Find(&star).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		} else {
+			return false, err
+		}
 	}
+	if len(star) == 0 {
+		return false, nil
+	}
+	return true, nil
 }
 
 // SelStarUser SelGrade 查询未公布的学号合集
