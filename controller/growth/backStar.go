@@ -13,7 +13,6 @@ import (
 // Search 搜索表格数据
 func Search(c *gin.Context) {
 	var usernamesli []string
-
 	//获取前端传来的数据
 	var datas struct {
 		Name  string `form:"search"`
@@ -149,8 +148,12 @@ func Search(c *gin.Context) {
 		fmt.Println("StarGrade starback err", err)
 		return
 	}
-
+	total := len(starback)
 	//实现分页
-	data := starService.PageQuery(starback, datas.Page, datas.Limit)
+	tableData := starService.PageQuery(starback, datas.Page, datas.Limit)
+	data := map[string]any{
+		"tableData": tableData,
+		"total":     total,
+	}
 	response.ResponseSuccess(c, data)
 }
