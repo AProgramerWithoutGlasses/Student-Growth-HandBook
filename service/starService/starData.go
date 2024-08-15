@@ -64,7 +64,7 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 		}
 
 		//查询状态
-		status, err := mysql.SelStatus(username)
+		status := false
 
 		star := models.StarBack{
 			Username:           username,
