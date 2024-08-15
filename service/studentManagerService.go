@@ -100,7 +100,7 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 	for k, v := range stuMesMap {
 		switch k {
 		case "year":
-			if v.IsNull() || queryParmaStruct.Year == 0 { //如果字段值为 null 或 零值 	// IsNull()只对值为null的起效，不对其余类型的空值起效
+			if v.IsNull() || queryParmaStruct.Year == 0 || v.String() == "" { //如果字段值为 null 或 零值 	// IsNull()只对值为null的起效，不对其余类型的空值起效
 				fmt.Println("year null")
 			} else { // 如果字段值有值
 				fmt.Println("year")
@@ -139,7 +139,7 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 			}
 
 		case "isDisable":
-			if v.IsNull() {
+			if v.IsNull() || v.String() == "" {
 				fmt.Println("isDisable null")
 			} else {
 				fmt.Println("isDisable")
