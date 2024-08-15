@@ -43,7 +43,10 @@ func StarClass(c *gin.Context) {
 	}
 
 	//换算页数
-	data := starService.PageQuery(starback, page.Page, page.Limit)
+	tableData := starService.PageQuery(starback, page.Page, page.Limit)
+	data := map[string]any{
+		"tableData": tableData,
+	}
 	response.ResponseSuccess(c, data)
 }
 
@@ -110,8 +113,11 @@ func StarGrade(c *gin.Context) {
 		return
 	}
 
-	//实现分页
-	data := starService.PageQuery(starback, page.Page, page.Limit)
+	//换算页数
+	tableData := starService.PageQuery(starback, page.Page, page.Limit)
+	data := map[string]any{
+		"tableData": tableData,
+	}
 	response.ResponseSuccess(c, data)
 }
 
@@ -142,8 +148,11 @@ func StarCollege(c *gin.Context) {
 		return
 	}
 
-	//实现分页
-	data := starService.PageQuery(starback, page.Page, page.Limit)
+	//换算页数
+	tableData := starService.PageQuery(starback, page.Page, page.Limit)
+	data := map[string]any{
+		"tableData": tableData,
+	}
 	response.ResponseSuccess(c, data)
 }
 
