@@ -135,3 +135,97 @@ func SelSearchColl(name string) ([]string, error) {
 	}
 	return usernamesli, nil
 }
+
+// CreatClass 班级管理员推选班级之星
+func CreatClass(username string, name string) error {
+	stars := gorm_model.Star{
+		Username: username,
+		Name:     name,
+		Type:     1,
+		Session:  0,
+	}
+	err := DB.Create(&stars).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateGrade 年级管理员推选更新数据
+func UpdateGrade(username string) error {
+	var star gorm_model.Star
+	err := DB.Where("username = ?", username).Where("session = ?", 0).First(&star).Error
+	if err != nil {
+		return err
+	}
+	star.Type = 2
+	err = DB.Save(&star).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateCollege 院级管理员推选更新数据
+func UpdateCollege(username string) error {
+	var star gorm_model.Star
+	err := DB.Where("username = ?", username).Where("session = ?", 0).First(&star).Error
+	if err != nil {
+		return err
+	}
+	star.Type = 3
+	err = DB.Save(&star).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SelMax 查询session字段最大值
+func SelMax() (int, error) {
+	var maxnum int
+	err := DB.Table("stars").Select("MAX(session)").Scan(&maxnum).Error
+	if err != nil {
+		return 0, err
+	}
+	return maxnum, nil
+}
+
+// UpdateSession 更新字段
+func UpdateSession(session int) error {
+	err := DB.Table("stars").Where("session = ?", 0).Updates(map[string]interface{}{"session": session}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SelStarClass 查找指定届数的班级之星
+func SelStarClass(session int) ([]string, error) {
+	var username []string
+	err := DB.Table("stars").Where("session = ?", session).Where("type = ?", 1).Select("username").Scan(&username).Error
+	if err != nil {
+		return nil, err
+	}
+	return username, nil
+}
+
+// SelStarGrade 查找指定届数的班级之星
+func SelStarGrade(session int) ([]string, error) {
+	var username []string
+	err := DB.Table("stars").Where("session = ?", session).Where("type = ?", 2).Select("username").Scan(&username).Error
+	if err != nil {
+		return nil, err
+	}
+	return username, nil
+}
+
+// SelStarCollege 查找指定届数的班级之星
+func SelStarCollege(session int) ([]string, error) {
+	var username []string
+	err := DB.Table("stars").Where("session = ?", session).Where("type = ?", 3).Select("username").Scan(&username).Error
+	if err != nil {
+		return nil, err
+	}
+	return username, nil
+}
