@@ -25,6 +25,13 @@ func GetIdByUsername(username string) (int, error) {
 	return int(users.ID), err
 }
 
+// 根据id获取姓名
+func GetNameById(id int) (string, error) {
+	var users gorm_model.User
+	err := DB.Where("id = ?", id).First(&users).Error
+	return users.Name, err
+}
+
 // 获取不同的班级
 func GetDiffClass() []string {
 	var diffClassSlice []string
@@ -78,17 +85,20 @@ func DeleteSingleStudent(id int) error {
 }
 
 // 封禁该用户
-func BanStudent(id int) error {
+func BanStudent(id int) (int, error) {
+	var temp int
 	var users gorm_model.User
 	DB.Take(&users, id)
 	var err error
 	if users.Ban == false {
 		err = DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("ban", 1).Error
+		temp = 1
 	} else if users.Ban == true {
 		err = DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("ban", 0).Error
+		temp = 0
 	}
 
-	return err
+	return temp, err
 }
 
 // 修改用户信息username

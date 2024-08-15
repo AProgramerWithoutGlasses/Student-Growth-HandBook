@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strconv"
 	"studentGrow/dao/mysql"
+	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"time"
 )
@@ -257,4 +258,27 @@ func GetSelectedStuExcel(selectedStuMesStruct jrx_model.SelectedStuMesStruct) (*
 	}
 
 	return excelData, err
+}
+
+// banUserService
+func BanUserService(user gorm_model.User) (name string, temp int, err error) {
+	// 根据学号获取id
+	id, err := mysql.GetIdByUsername(user.Username)
+	if err != nil {
+		return name, temp, err
+	}
+
+	// 获取该学生姓名
+	name, err = mysql.GetNameById(id)
+	if err != nil {
+		return name, temp, err
+	}
+
+	// mysql中封禁该学生
+	temp, err = mysql.BanStudent(id)
+	if err != nil {
+		return name, temp, err
+	}
+
+	return name, temp, err
 }
