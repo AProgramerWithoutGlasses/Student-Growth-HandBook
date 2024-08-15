@@ -2,12 +2,10 @@ package article
 
 import (
 	"go.uber.org/zap"
-	"sort"
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/models/nzx_model"
-	"studentGrow/utils/timeConverter"
 )
 
 /*
@@ -260,75 +258,4 @@ func CancelLikeToMysql(objId, likeType int, username string) error {
 	}
 
 	return nil
-}
-
-// GetArticleAndCommentLikedList 获取文章或评论被点赞列表
-func GetArticleAndCommentLikedList(username string, page, limit int) (nzx_model.Outs, int, error) {
-	// 获取uid
-	uid, err := mysql.GetIdByUsername(username)
-	if err != nil {
-		zap.L().Error("GetArticleAndCommentLikedList() service.article.likeService.GetIdByUsername err=", zap.Error(err))
-		return nil, -1, err
-	}
-
-	// 获取文章点赞列表
-	articles, err := mysql.QueryLikeRecordByUserArticle(uid, page, limit)
-	if err != nil {
-		zap.L().Error("GetArticleAndCommentLikedList() service.article.likeService.QueryLikeRecordByUserArticle err=", zap.Error(err))
-		return nil, -1, err
-	}
-
-	// 获取评论点赞列表
-	comments, err := mysql.QueryLikeRecordByUserComment(uid, page, limit)
-	if err != nil {
-		zap.L().Error("GetArticleAndCommentLikedList() service.article.likeService.QueryLikeRecordByUserComment err=", zap.Error(err))
-		return nil, -1, err
-	}
-
-	// 获取文章点赞未读消息总数
-	articleNum, err := mysql.QueryLikeRecordNumByUserArticle(uid)
-	if err != nil {
-		zap.L().Error("GetArticleAndCommentLikedList() service.article.likeService.QueryLikeRecordNumByUserArticle err=", zap.Error(err))
-		return nil, -1, err
-	}
-	// 获取评论点赞未读消息总数
-	commentNum, err := mysql.QueryLikeRecordNumByUserComment(uid)
-	if err != nil {
-		zap.L().Error("GetArticleAndCommentLikedList() service.article.likeService.QueryLikeRecordNumByUserArticle err=", zap.Error(err))
-		return nil, -1, err
-	}
-
-	var list nzx_model.Outs
-
-	for _, article := range articles {
-		for _, like := range article.ArticleLikes {
-			list = append(list, nzx_model.Out{
-				Username:     like.User.Username,
-				Name:         like.User.Name,
-				Content:      article.Content,
-				UserHeadshot: like.User.HeadShot,
-				PostTime:     timeConverter.IntervalConversion(like.CreatedAt),
-				IsRead:       like.IsRead,
-				CreatedAt:    like.CreatedAt,
-			})
-		}
-	}
-
-	for _, comment := range comments {
-		for _, like := range comment.CommentLikes {
-			list = append(list, nzx_model.Out{
-				Username:     like.User.Username,
-				Name:         like.User.Name,
-				Content:      comment.Content,
-				UserHeadshot: like.User.HeadShot,
-				PostTime:     timeConverter.IntervalConversion(like.CreatedAt),
-				IsRead:       like.IsRead,
-				CreatedAt:    like.CreatedAt,
-			})
-		}
-	}
-
-	sort.Sort(list)
-
-	return list, articleNum + commentNum, nil
 }

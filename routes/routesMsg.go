@@ -25,4 +25,7 @@ func routesMsg(r *gin.Engine) {
 	// 获取点赞消息
 	msg.GET("/get_thumbList", message.GetLikeMsgController)
 
+	// 获取收藏消息
+	msg.GET("/get_starList", message.GetCollectMsgController)
+
 }
