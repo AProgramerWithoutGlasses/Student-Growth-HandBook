@@ -244,10 +244,10 @@ func GetSelectedStuExcel(selectedStuMesStruct jrx_model.SelectedStuMesStruct) (*
 	// 填充数据
 	for i, user := range users {
 		row := i + 2 // 从第二行开始填充数据
-		f.SetCellValue("Sheet1", fmt.Sprintf("D%d", row), user.PlusTime.Format("2006"))
-		f.SetCellValue("Sheet1", fmt.Sprintf("A%d", row), user.Class)
-		f.SetCellValue("Sheet1", fmt.Sprintf("B%d", row), user.Name)
-		f.SetCellValue("Sheet1", fmt.Sprintf("C%d", row), user.Username)
+		f.SetCellValue("Sheet1", fmt.Sprintf("A%d", row), user.PlusTime.Format("2006"))
+		f.SetCellValue("Sheet1", fmt.Sprintf("B%d", row), user.Class)
+		f.SetCellValue("Sheet1", fmt.Sprintf("C%d", row), user.Name)
+		f.SetCellValue("Sheet1", fmt.Sprintf("D%d", row), user.Username)
 	}
 
 	// 将 Excel 文件写入内存
