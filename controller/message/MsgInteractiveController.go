@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
+	"studentGrow/service/article"
 	"studentGrow/service/message"
 )
 
@@ -61,5 +62,33 @@ func GetManagerMsgController(c *gin.Context) {
 	res.ResponseSuccess(c, map[string]any{
 		"manager_info": msg,
 		"unread_count": UnreadCount,
+	})
+}
+
+// GetLikeMsgController 获取点赞消息
+func GetLikeMsgController(c *gin.Context) {
+	in := struct {
+		Username string `json:"username"`
+		Page     int    `json:"page"`
+		Limit    int    `json:"limit"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("GetLikeMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	list, num, err := article.GetArticleAndCommentLikedList(in.Username, in.Page, in.Limit)
+	if err != nil {
+		zap.L().Error("GetLikeMsgController() controller.message.GetArticleAndCommentLikedList err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, map[string]any{
+		"thumbsUp":     list,
+		"unread_count": num,
 	})
 }
