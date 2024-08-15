@@ -40,11 +40,8 @@ func RoutesXue(router *gin.Engine) {
 
 	//暂时不添加中间件
 	elected := router.Group("star")
-	elected.Use(middleWare.CORSMiddleware())
+	elected.Use(middleWare.CORSMiddleware(), token.AuthMiddleware())
 	{
-		elected.GET("/inittable/class", growth.StarClass)
-		elected.GET("/inittable/grade", growth.StarGrade)
-		elected.GET("/inittable/college", growth.StarCollege)
 		elected.GET("/select", growth.Search)
 	}
 
