@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"studentGrow/controller/growth"
 	"studentGrow/controller/login"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/casbinModels"
@@ -35,6 +36,16 @@ func RoutesXue(router *gin.Engine) {
 		userLoginAfter.POST("/fpage/college", login.FPageCollege)
 		userLoginAfter.POST("/fpage/superman", login.FPageCollege)
 		userLoginAfter.GET("/fpage/pillar", login.Pillar)
+	}
+
+	//暂时不添加中间件
+	elected := router.Group("star")
+	elected.Use(middleWare.CORSMiddleware())
+	{
+		elected.GET("/inittable/class", growth.StarClass)
+		elected.GET("/inittable/grade", growth.StarGrade)
+		elected.GET("/inittable/college", growth.StarCollege)
+		elected.GET("/select", growth.Search)
 	}
 
 }
