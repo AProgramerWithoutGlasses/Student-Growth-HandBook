@@ -108,3 +108,9 @@ func ExistedUsername(username string) error {
 	err := DB.Where("username = ?", username).First(&gorm_model.User{}).Error
 	return err
 }
+
+func QuerySelectedUser(usernameSlice []string) ([]gorm_model.User, error) {
+	var users []gorm_model.User
+	err := DB.Where("username IN (?)", usernameSlice).Find(&users).Error
+	return users, err
+}

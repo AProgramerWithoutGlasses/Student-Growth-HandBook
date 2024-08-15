@@ -50,3 +50,20 @@ type ChangeStuMesStruct struct {
 	Phone_number string `json:"telephone"`
 	Password     string `json:"password"`
 }
+
+// 学生信息表（为贴合apifox的字段，备用）(year int)
+type StuMesYearIntStruct struct {
+	Name      string `json:"name"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Class     string `json:"class"`
+	Year      int    `json:"year"`
+	Gender    string `json:"gender"`
+	Telephone string `json:"telephone"`
+	Ban       bool   `json:"ban"`
+	IsManager bool   `json:"isManager"`
+}
+
+type SelectedStuMesStruct struct {
+	Selected_students []StuMesYearIntStruct `json:"selected_students"`
+}
