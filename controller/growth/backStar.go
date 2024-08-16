@@ -69,7 +69,6 @@ func Search(c *gin.Context) {
 		}
 		if datas.Name == "" {
 			usernamesli, err = mysql.SelUsername(class)
-
 		} else {
 			usernamesli, err = mysql.SelSearchUser(datas.Name, class)
 		}
@@ -153,12 +152,6 @@ func Search(c *gin.Context) {
 		}
 	}
 
-	//判断是否找到数据
-	if usernamesli == nil {
-		response.ResponseErrorWithMsg(c, 400, "数据未找到")
-		return
-	}
-
 	//表格所需所有数据
 	starback, err := starService.StarGrid(usernamesli)
 	if err != nil {
@@ -235,7 +228,7 @@ func ElectCollege(c *gin.Context) {
 	err := c.Bind(&Responsedata)
 	if err != nil {
 		zap.L().Error("Search Bind err", zap.Error(err))
-		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "为获取到数据")
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
 		return
 	}
 	for _, user := range Responsedata.ElectedArr {
@@ -353,3 +346,6 @@ func StarPub(c *gin.Context) {
 	}
 	response.ResponseSuccess(c, data)
 }
+
+//返回前台成长之星
+//func
