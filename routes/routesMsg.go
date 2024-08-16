@@ -17,18 +17,18 @@ func routesMsg(r *gin.Engine) {
 	msg := r.Group("/message")
 
 	// 获取系统消息
-	msg.POST("/get_system", message.GetSystemMsgController)
+	msg.GET("/get_system", message.GetSystemMsgController)
 
 	// 获取管理员消息
-	msg.POST("/get_manager", message.GetManagerMsgController)
+	msg.GET("/get_manager", message.GetManagerMsgController)
 
 	// 获取点赞消息
-	msg.POST("/get_thumbList", message.GetLikeMsgController)
+	msg.GET("/get_thumbList", message.GetLikeMsgController)
 
 	// 获取收藏消息
-	msg.POST("/get_starList", message.GetCollectMsgController)
+	msg.GET("/get_starList", message.GetCollectMsgController)
 
 	// 获取评论消息
-	msg.POST("/get_comList", message.GetCommentMsgController)
+	msg.GET("/get_comList", message.GetCommentMsgController)
 
 }
