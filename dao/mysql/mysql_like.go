@@ -51,7 +51,7 @@ func QueryLikeNum(objId, likeType int) (int, error) {
 //
 //	switch likeType {
 //	case 0:
-//		articleLike := gorm_model.UserArticleLikeRecord{ArticleID: uint(objId), UserID: uint(uid)}
+//		articleLike := gorm_model.UserLikeRecord{ArticleID: uint(objId), UserID: uint(uid), Type: likeType}
 //		if err := DB.Model(gorm_model.UserArticleLikeRecord{}).Create(&articleLike).Error; err != nil {
 //			fmt.Println("InsertLikeRecord() dao.mysql.mysql_like")
 //			return err
