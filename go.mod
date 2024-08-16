@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/Andrew-M-C/go.jsonvalue v1.3.8
+	github.com/AzureAD/microsoft-authentication-library-for-go v1.1.0
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/casbin/casbin/v2 v2.98.0
 	github.com/casbin/gorm-adapter/v3 v3.26.0
