@@ -20,6 +20,7 @@ func Setup() *gin.Engine {
 	// 勋
 	routesHomepage(r)
 	routesStudentManage(r)
+	routesTeacherManage(r)
 
 	// 雪
 	RoutesXue(r)

@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strconv"
 	"studentGrow/dao/mysql"
+	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"time"
 )
@@ -73,8 +74,11 @@ func GetYearStructSlice() []jrx_model.YearStruct {
 }
 
 // 获取返回给前端的class结构体切片
-func GetClassStructSlice() []jrx_model.ClassStruct {
-	diffClassSlice := mysql.GetDiffClass() // 从mysql中获取不同的class
+func GetClassStructSlice() ([]jrx_model.ClassStruct, error) {
+	diffClassSlice, err := mysql.GetDiffClass() // 从mysql中获取不同的class
+	if err != nil {
+		return nil, err
+	}
 	classStructSlice := make([]jrx_model.ClassStruct, len(diffClassSlice))
 	for i, class := range diffClassSlice {
 		classStructSlice[i] = jrx_model.ClassStruct{
@@ -82,7 +86,7 @@ func GetClassStructSlice() []jrx_model.ClassStruct {
 			Class:    class,
 		}
 	}
-	return classStructSlice
+	return classStructSlice, err
 }
 
 // 根据搜索条件，创建sql语句
@@ -257,4 +261,66 @@ func GetSelectedStuExcel(selectedStuMesStruct jrx_model.SelectedStuMesStruct) (*
 	}
 
 	return excelData, err
+}
+
+// banUserService
+func BanUserService(user gorm_model.User) (name string, temp int, err error) {
+	// 根据学号获取id
+	id, err := mysql.GetIdByUsername(user.Username)
+	if err != nil {
+		return name, temp, err
+	}
+
+	// 获取该学生姓名
+	name, err = mysql.GetNameById(id)
+	if err != nil {
+		return name, temp, err
+	}
+
+	// mysql中封禁该学生
+	temp, err = mysql.BanStudent(id)
+	if err != nil {
+		return name, temp, err
+	}
+
+	return name, temp, err
+}
+
+// GetStuMesList 根据搜索框内容查询学生信息列表
+func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
+	// 从mysql中获取数据到user表中
+	userSlice, err := mysql.GetUserListBySql(querySql)
+	if err != nil {
+		return nil, err
+	}
+
+	// 从user表中获取数据到stuMesSlice中
+	stuMesSlice := make([]jrx_model.StuMesStruct, len(userSlice))
+	for i := 0; i < len(userSlice); i++ {
+		stuMesSlice[i].Name = userSlice[i].Name
+		stuMesSlice[i].Username = userSlice[i].Username
+		stuMesSlice[i].Password = userSlice[i].Password
+		stuMesSlice[i].Class = userSlice[i].Class
+		stuMesSlice[i].Year = userSlice[i].PlusTime.Format("2006") // 日期只保留年份
+		stuMesSlice[i].Gender = userSlice[i].Gender
+		stuMesSlice[i].Telephone = userSlice[i].PhoneNumber
+		stuMesSlice[i].Ban = userSlice[i].Ban
+
+		if userSlice[i].IsManager {
+			managerType, err := GetManagerType(userSlice[i].Username)
+			if err != nil {
+				return nil, err
+			}
+			stuMesSlice[i].ManagerType = managerType
+		} else {
+			stuMesSlice[i].ManagerType = "无"
+		}
+
+	}
+
+	for k, user := range stuMesSlice {
+		fmt.Println("转化成功", k, user)
+	}
+
+	return stuMesSlice, err
 }

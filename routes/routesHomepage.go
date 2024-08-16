@@ -7,8 +7,8 @@ import (
 
 // 前台个人主页
 func routesHomepage(r *gin.Engine) {
-	rt := r.Group("/user")
+	rh := r.Group("/user")
 
-	rt.POST("/getSelfCotnent", homepage.GetSelfContentContro)
-	rt.POST("/updateSelfContent", homepage.UpdateSelfContentContro)
+	rh.POST("/getSelfCotnent", homepage.GetSelfContentContro)
+	rh.POST("/updateSelfContent", homepage.UpdateSelfContentContro)
 }
