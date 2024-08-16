@@ -6,9 +6,13 @@ import (
 )
 
 // GetEnrollmentYear 根据年级计算入学年份xxxx年9月1日
-func GetEnrollmentYear(plusTime time.Time, grade int) (time.Time, error) {
+func GetEnrollmentYear(grade int) (time.Time, error) {
 	// 获取当前年份
-	currentYear := plusTime.Year()
+	currentYear, currentMonth, _ := time.Now().Date()
+
+	if currentMonth < 9 {
+		currentYear--
+	}
 
 	// 根据年级计算入学年份
 	switch grade {
@@ -28,10 +32,12 @@ func GetEnrollmentYear(plusTime time.Time, grade int) (time.Time, error) {
 // GetUserGrade 根据入学年份计算年级
 func GetUserGrade(plusTime time.Time) int {
 	// 获取当前年份
-	currentYear := plusTime.Year()
-
-	// 计算入学时间到现在的年数
+	currentYear, currentMonth, _ := time.Now().Date()
 	year := currentYear - plusTime.Year()
+
+	if currentMonth < 9 {
+		year--
+	}
 
 	switch year {
 	case 0:
@@ -45,4 +51,5 @@ func GetUserGrade(plusTime time.Time) int {
 	default:
 		return -1
 	}
+
 }

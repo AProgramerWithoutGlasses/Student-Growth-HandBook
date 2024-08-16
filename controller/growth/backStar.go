@@ -93,6 +93,7 @@ func Search(c *gin.Context) {
 	case "grade2":
 		if datas.Name == "" {
 			usernamesli, err = starService.StarGuidGrade(alluser, 2)
+			fmt.Println(usernamesli)
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 2)
 		}
@@ -161,10 +162,17 @@ func Search(c *gin.Context) {
 	total := len(starback)
 	//实现分页
 	tableData := starService.PageQuery(starback, datas.Page, datas.Limit)
+	//查询状态
+	status, err := mysql.SelStatus(username)
+	if err != nil {
+		response.ResponseError(c, 400)
+		return
+	}
 	data := map[string]any{
 		"tableData":   tableData,
 		"total":       total,
 		"peopleLimit": peopleLimit,
+		"isDisabled":  status,
 	}
 	response.ResponseSuccess(c, data)
 }
@@ -254,6 +262,13 @@ func PublicStar(c *gin.Context) {
 	err = mysql.UpdateSession(session)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "公布失败")
+		return
+	}
+
+	//更新所有管理员状态字段
+	err = mysql.UpdateStatus()
+	if err != nil {
+		response.ResponseError(c, 400)
 		return
 	}
 
@@ -381,4 +396,14 @@ func BackStarCollege(c *gin.Context) {
 		"starlist": starlist,
 	}
 	response.ResponseSuccess(c, data)
+}
+
+// ChangeStatus 修改是否可以再次推选
+func ChangeStatus(c *gin.Context) {
+	token := c.GetHeader("token")
+	username, err := token2.GetUsername(token)
+	err = mysql.UpdateOne(username)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "修改状态失败")
+	}
 }

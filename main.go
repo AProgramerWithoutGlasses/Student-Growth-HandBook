@@ -10,9 +10,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"studentGrow/aliyun/oss"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
+	"studentGrow/models/gorm_model"
 	"studentGrow/routes"
 	"studentGrow/settings"
 	"syscall"
@@ -39,10 +41,10 @@ func main() {
 		fmt.Printf("mysql.Init() rdb.Ping().Result() err : %v\n", err)
 		return
 	}
-	//err := mysql.DB.AutoMigrate(&gorm_model.Star{})
-	//if err != nil {
-	//	return
-	//}
+	err := mysql.DB.AutoMigrate(&gorm_model.UserCasbinRules{})
+	if err != nil {
+		return
+	}
 
 	// 4. 初始化redis
 	if err := redis.Init(); err != nil {
@@ -53,7 +55,14 @@ func main() {
 	// 5. 注册路由
 	r := routes.Setup()
 
-	// 6. 启动服务（优雅关机）
+	//6.初始化oss
+	err = oss.Init()
+	if err != nil {
+		zap.L().Error("main() oss.Init err=", zap.Error(err))
+		return
+	}
+
+	// 7. 启动服务（优雅关机）
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", viper.GetInt("app.port")),
 		Handler: r,
