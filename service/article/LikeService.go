@@ -150,17 +150,17 @@ mysql
 // LikeToMysql 点赞
 func LikeToMysql(objId, likeType int, username string) error {
 
-	userId, err := mysql.GetIdByUsername(username)
-	if err != nil {
-		zap.L().Error("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", zap.Error(err))
-		return err
-	}
-	// 插入点赞记录
-	err = mysql.InsertLikeRecord(objId, likeType, userId)
-	if err != nil {
-		zap.L().Error("CancelLikeToMysql() service.article.likeService.InsertLikeRecord err=", zap.Error(err))
-		return err
-	}
+	//userId, err := mysql.GetIdByUsername(username)
+	//if err != nil {
+	//	zap.L().Error("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", zap.Error(err))
+	//	return err
+	//}
+	//// 插入点赞记录
+	//err = mysql.InsertLikeRecord(objId, likeType, userId)
+	//if err != nil {
+	//	zap.L().Error("CancelLikeToMysql() service.article.likeService.InsertLikeRecord err=", zap.Error(err))
+	//	return err
+	//}
 
 	// 更新点赞数
 	num, err := mysql.QueryLikeNum(objId, likeType)
@@ -205,18 +205,18 @@ func LikeToMysql(objId, likeType int, username string) error {
 
 // CancelLikeToMysql 取消点赞
 func CancelLikeToMysql(objId, likeType int, username string) error {
-	userId, err := mysql.GetIdByUsername(username)
-	if err != nil {
-		zap.L().Error("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", zap.Error(err))
-		return err
-	}
+	//userId, err := mysql.GetIdByUsername(username)
+	//if err != nil {
+	//	zap.L().Error("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", zap.Error(err))
+	//	return err
+	//}
 
 	// 删除点赞记录
-	err = mysql.DeleteLikeRecord(objId, likeType, userId)
-	if err != nil {
-		zap.L().Error("CancelLikeToMysql() service.article.likeService.DeleteLikeRecord err=", zap.Error(err))
-		return err
-	}
+	//err = mysql.DeleteLikeRecord(objId, likeType, userId)
+	//if err != nil {
+	//	zap.L().Error("CancelLikeToMysql() service.article.likeService.DeleteLikeRecord err=", zap.Error(err))
+	//	return err
+	//}
 
 	// 更新点赞数
 	num, err := mysql.QueryLikeNum(objId, likeType)
