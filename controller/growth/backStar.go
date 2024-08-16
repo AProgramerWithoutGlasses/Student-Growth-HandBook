@@ -328,6 +328,7 @@ func StarPub(c *gin.Context) {
 		session, err = mysql.SelMax()
 		if session == 0 {
 			response.ResponseSuccess(c, "")
+			return
 		}
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "获取最新数据失败")
