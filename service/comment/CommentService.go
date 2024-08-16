@@ -8,6 +8,7 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/models/gorm_model"
+	myErr "studentGrow/pkg/error"
 	timeUtil "studentGrow/utils/timeConverter"
 )
 
@@ -52,6 +53,8 @@ func PostComment(commentType, username, content string, id int) error {
 			zap.L().Error("PostComment() service.article.InsertIntoCommentsForComment err=", zap.Error(err))
 			return err
 		}
+	default:
+		return myErr.DataFormatError()
 	}
 	return nil
 }
