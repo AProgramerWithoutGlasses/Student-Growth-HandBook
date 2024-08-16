@@ -26,7 +26,7 @@ func PostComment(commentType, username, content string, id int) error {
 	//判断评论类型
 	switch commentType {
 	//给文章评论
-	case "article":
+	case "0":
 		//向数据库插入评论数据
 		err = mysql.InsertIntoCommentsForArticle(content, id, uid)
 		if err != nil {
@@ -45,7 +45,7 @@ func PostComment(commentType, username, content string, id int) error {
 			return err
 		}
 
-	case "comment":
+	case "1":
 		//向数据库插入评论数据
 		err = mysql.InsertIntoCommentsForComment(content, id, uid)
 		if err != nil {
