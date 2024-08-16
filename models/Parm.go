@@ -8,7 +8,6 @@ type Login struct {
 	Password string `json:"password" binding:"max=17"`
 	Code     string `json:"verify" binging:""`
 	Id       string `json:"verifyId"`
-	Level    string `json:"level"`
 }
 
 // Claims Token结构体

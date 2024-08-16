@@ -34,7 +34,7 @@ func HLogin(c *gin.Context) {
 	var user = new(models.Login)
 	//获取前端返回的数据
 	if err := c.BindJSON(&user); err != nil {
-		pkg.ResponseErrorWithMsg(c, 400, "Hlogin 获取数据失败")
+		pkg.ResponseErrorWithMsg(c, 400, "账号不存在")
 		fmt.Println("Hlogin BindJSON(&userService) err")
 		return
 	}
