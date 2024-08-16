@@ -122,24 +122,12 @@ func AddTopicsService(j *jsonvalue.V) error {
 }
 
 // GetAllTopicsService 获取所有话题
-func GetAllTopicsService() (topics []map[string]any, err error) {
+func GetAllTopicsService() ([]model.Topic, error) {
 	// 获取所有话题
-	slice, err := redis.RDB.SMembers("topics").Result()
-
+	topics, err := mysql.QueryAllTopics()
 	if err != nil {
-		fmt.Println("GetAllTopicsService() service.article.SMembers err=", err)
+		zap.L().Error("GetAllTopicsService() service.article.QueryAllTopics err=", zap.Error(err))
 		return nil, err
-	}
-	// 检查是否存在记录
-	if len(slice) == 0 {
-		return nil, myErr.NotFoundError()
-	}
-	//生成数据包
-	for i, v := range slice {
-		topics = append(topics, map[string]any{
-			"id":   i,
-			"name": v,
-		})
 	}
 	return topics, nil
 }
@@ -172,33 +160,22 @@ func AddTagsByTopicService(j *jsonvalue.V) error {
 }
 
 // GetTagsByTopicService 获取话题对应的标签
-func GetTagsByTopicService(j *jsonvalue.V) (tags []map[string]any, err error) {
+func GetTagsByTopicService(topicId int) ([]map[string]any, error) {
 	//获取想要添加标签的对应话题
-	topic, err := j.GetString("topic")
+	tags, err := mysql.QueryTagsByTopic(topicId)
 	if err != nil {
-		fmt.Println("GetTagsByTopicService() service.article.GetString err=", err)
+		zap.L().Error("GetTagsByTopicService() service.article.QueryTagsByTopic err=", zap.Error(err))
 		return nil, err
 	}
 
-	// 获取对应的标签
-	slice, err := redis.RDB.SMembers(topic).Result()
-
-	if err != nil {
-		fmt.Println("GetTagsByTopicService() service.article.SMembers err=", err)
-		return nil, err
-	}
-
-	if len(slice) == 0 {
-		return nil, myErr.NotFoundError()
-	}
-
-	for i, v := range slice {
-		tags = append(tags, map[string]any{
+	var list []map[string]any
+	for i, v := range tags {
+		list = append(list, map[string]any{
 			"id":   i,
-			"name": v,
+			"name": v.TagName,
 		})
 	}
-	return tags, nil
+	return list, nil
 }
 
 // BannedArticleService 解封或封禁文章
@@ -417,6 +394,13 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	aid, err := mysql.InsertArticleContent(content, topic, uid, wordCount, tags, picPath, videoPath)
 	if err != nil {
 		zap.L().Error("PublishArticleService() service.article.InsertArticleContent err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+
+	// 上传标签
+	err = mysql.InsertArticleTags(tags, aid)
+	if err != nil {
+		zap.L().Error("PublishArticleService() service.article.InsertArticleTags err=", zap.Error(myErr.DataFormatError()))
 		return err
 	}
 

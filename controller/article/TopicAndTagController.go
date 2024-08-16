@@ -73,15 +73,17 @@ func AddTagsByTopicController(c *gin.Context) {
 
 // GetTagsByTopicController 获取标签
 func GetTagsByTopicController(c *gin.Context) {
-	//获取前端发送的数据
-	json, err := readUtil.GetJsonvalue(c)
+	in := struct {
+		TopicID int `json:"topic_id"`
+	}{}
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		fmt.Println("AddArticleTagsController() controller.article.getArticle.GetJsonvalue err=", err)
+		fmt.Println("SendTopicTagsController() controller.article.getArticle.ShouldBindJSON err=")
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	result, err := article.GetTagsByTopicService(json)
+	result, err := article.GetTagsByTopicService(in.TopicID)
 	if err != nil {
 		fmt.Println("AddArticleTagsController() controller.article.getArticle.GetTagsByTopicService err=", err)
 		if errors.Is(err, myErr.NotFoundError()) {
@@ -96,17 +98,18 @@ func GetTagsByTopicController(c *gin.Context) {
 
 // SendTopicTagsController 发送话题标签数据
 func SendTopicTagsController(c *gin.Context) {
-	//获取前端发送的数据
-	json, err := readUtil.GetJsonvalue(c)
-
+	in := struct {
+		TopicID int `json:"topic_id"`
+	}{}
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetJsonvalue err=")
+		fmt.Println("SendTopicTagsController() controller.article.getArticle.ShouldBindJSON err=")
 		myErr.CheckErrors(err, c)
 		return
 	}
 
 	//获取到查询的标签
-	result, err := article.GetTagsByTopicService(json)
+	result, err := article.GetTagsByTopicService(in.TopicID)
 	if err != nil {
 		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetTagsByTopicService err=")
 		myErr.CheckErrors(err, c)

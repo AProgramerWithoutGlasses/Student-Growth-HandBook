@@ -26,7 +26,7 @@ func routesArticle(r *gin.Engine) {
 	//举报文章
 	at.POST("/report", token.AuthMiddleware(), article.ReportArticle)
 	// 获取今日热帖
-	at.POST("/hot_articles", article.GetHotArticlesOfDayController)
+	at.POST("/hotpost/title", article.GetHotArticlesOfDayController)
 	// 首页模糊搜索
 	at.POST("/search_first", article.SelectArticleAndUserListByPageFirstPageController)
 	// 收藏
@@ -43,5 +43,4 @@ func routesArticle(r *gin.Engine) {
 	//at.POST("/like_nums", article.GetObjLikeNumController)
 	//检查当前是否点赞
 	//at.POST("/isLike", article.CheckLikeOrNotController)
-
 }

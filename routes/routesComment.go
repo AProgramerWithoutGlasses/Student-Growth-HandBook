@@ -12,5 +12,5 @@ func routesComment(r *gin.Engine) {
 	// 获取子评论
 	ct.POST("/get_lel2comment", article.GetSonCommentsController)
 	// 删除评论
-	ct.POST("/delete_comment", article.DeleteCommentController)
+	ct.POST("/delete", article.DeleteCommentController)
 }

@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type Tag struct {
 	gorm.Model
-	Topic   string `json:"topic"`
+	TopicID uint
+	Topic   Topic
 	TagName string `json:"tag_name"`
 }
