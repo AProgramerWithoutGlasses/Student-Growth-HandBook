@@ -2,13 +2,14 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"studentGrow/controller/teacherManage"
 )
 
 // 后台老师管理路由
 func routesTeacherManage(r *gin.Engine) {
-	//rt := r.Group("/teacherManage")
+	rt := r.Group("/teacherManage")
 
-	//rt.GET("/queryTeacher", teacherManage.QueryTeacher)
+	rt.GET("/queryTeacher", teacherManage.QueryTeacherControl)
 	//rt.POST("/addSingleStudent", stuManage.AddSingleStuContro)
 	//rt.POST("/addMultipleStudent", stuManage.AddMultipleStuControl)
 	//rt.POST("/queryStudent/class", stuManage.QueryStuContro)
