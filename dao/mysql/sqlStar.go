@@ -213,7 +213,8 @@ func SelStatus(username string) (bool, error) {
 
 // UpdateStatus 批量更新管理员的状态字段
 func UpdateStatus() error {
-	err := DB.Table("stars").Where("status = ? ", true).Updates(map[string]interface{}{"status": false}).Error
+	ok := true
+	err := DB.Table("user_casbin_rules").Where("status = ? ", ok).Updates(map[string]interface{}{"status": !ok}).Error
 	if err != nil {
 		return err
 	}
