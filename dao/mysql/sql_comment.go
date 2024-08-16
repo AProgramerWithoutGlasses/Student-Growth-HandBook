@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
 	"studentGrow/dao/redis"
@@ -191,4 +192,21 @@ func QueryCommentNumForLel1(cid int) (int, error) {
 		return -1, err
 	}
 	return int(count), nil
+}
+
+// QueryUserAllComments 查找用户的所有一级评论
+func QueryUserAllComments(uid int) (model.Comments, error) {
+	comments := model.Comments{}
+	if err := DB.Where("user_id = ? and pid = ?", uid, 0).Order("created_at desc").
+		Find(&comments).Error; err != nil {
+		zap.L().Error("QueryUserAllComments() dao.mysql.mysql_like.Find err=", zap.Error(err))
+		return nil, err
+	}
+
+	if len(comments) == 0 {
+		zap.L().Error("QueryUserAllComments() dao.mysql.sql_comment.Find err=", zap.Error(myErr.NotFoundError()))
+		return nil, myErr.NotFoundError()
+	}
+
+	return comments, nil
 }

@@ -120,3 +120,28 @@ func GetCollectMsgController(c *gin.Context) {
 	})
 
 }
+
+// GetCommentMsgController 获取评论消息
+func GetCommentMsgController(c *gin.Context) {
+	in := struct {
+		Username string `json:"username"`
+		Page     int    `json:"page"`
+		Limit    int    `json:"limit"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("GetCollectMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	comments, err := message.GetCommentMsgService(in.Username, in.Page, in.Limit)
+	if err != nil {
+		zap.L().Error("GetCollectMsgController() controller.message.GetCommentMsgService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, comments)
+}

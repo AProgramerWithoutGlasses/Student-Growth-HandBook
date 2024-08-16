@@ -2,7 +2,6 @@ package message
 
 import (
 	"go.uber.org/zap"
-	"sort"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/nzx_model"
@@ -46,7 +45,7 @@ func GetManagerMsgService(limit, page int, username string) ([]gorm_model.MsgRec
 }
 
 // GetArticleAndCommentLikedMsgService  获取点赞消息
-func GetArticleAndCommentLikedMsgService(username string, page, limit int) (nzx_model.Outs, int, error) {
+func GetArticleAndCommentLikedMsgService(username string, page, limit int) ([]nzx_model.Out, int, error) {
 	// 获取uid
 	uid, err := mysql.GetIdByUsername(username)
 	if err != nil {
@@ -54,66 +53,52 @@ func GetArticleAndCommentLikedMsgService(username string, page, limit int) (nzx_
 		return nil, -1, err
 	}
 
-	// 获取文章点赞列表
-	articles, err := mysql.QueryLikeRecordByUserArticle(uid, page, limit)
+	// 获取点赞列表
+	likes, err := mysql.QueryLikeRecordByUser(uid, page, limit)
 	if err != nil {
 		zap.L().Error("GetArticleAndCommentLikedMsgService() service.article.likeService.QueryLikeRecordByUserArticle err=", zap.Error(err))
 		return nil, -1, err
 	}
 
-	// 获取评论点赞列表
-	comments, err := mysql.QueryLikeRecordByUserComment(uid, page, limit)
-	if err != nil {
-		zap.L().Error("GetArticleAndCommentLikedMsgService() service.article.likeService.QueryLikeRecordByUserComment err=", zap.Error(err))
-		return nil, -1, err
-	}
-
 	// 获取文章点赞未读消息总数
-	articleNum, err := mysql.QueryLikeRecordNumByUserArticle(uid)
+	sum, err := mysql.QueryLikeRecordNumByUser(uid)
 	if err != nil {
-		zap.L().Error("GetArticleAndCommentLikedMsgService() service.article.likeService.QueryLikeRecordNumByUserArticle err=", zap.Error(err))
-		return nil, -1, err
-	}
-	// 获取评论点赞未读消息总数
-	commentNum, err := mysql.QueryLikeRecordNumByUserComment(uid)
-	if err != nil {
-		zap.L().Error("GetArticleAndCommentLikedMsgService() service.article.likeService.QueryLikeRecordNumByUserArticle err=", zap.Error(err))
+		zap.L().Error("GetArticleAndCommentLikedMsgService() service.article.likeService.QueryLikeRecordNumByUser err=", zap.Error(err))
 		return nil, -1, err
 	}
 
-	var list nzx_model.Outs
+	var list []nzx_model.Out
 
-	for _, article := range articles {
-		for _, like := range article.ArticleLikes {
-			list = append(list, nzx_model.Out{
-				Username:     like.User.Username,
-				Name:         like.User.Name,
-				Content:      article.Content,
-				UserHeadshot: like.User.HeadShot,
-				PostTime:     timeConverter.IntervalConversion(like.CreatedAt),
-				IsRead:       like.IsRead,
-				CreatedAt:    like.CreatedAt,
-			})
+	for _, like := range likes {
+		// 判断文章点赞还是评论点赞
+		usernameL := like.Article.User.Username
+		name := like.Article.User.Name
+		content := like.Article.Content
+		userHeadshot := like.Article.User.HeadShot
+		likeType := 0
+		articleId := like.ArticleID
+		if like.Type == 1 {
+			username = like.Comment.User.Username
+			name = like.Comment.User.Name
+			content = like.Comment.Content
+			userHeadshot = like.Comment.User.HeadShot
+			likeType = 1
+			articleId = like.Comment.ArticleID
 		}
+
+		list = append(list, nzx_model.Out{
+			Username:     usernameL,
+			Name:         name,
+			Content:      content,
+			UserHeadshot: userHeadshot,
+			PostTime:     timeConverter.IntervalConversion(like.CreatedAt),
+			IsRead:       like.IsRead,
+			Type:         likeType,
+			ArticleId:    articleId,
+		})
 	}
 
-	for _, comment := range comments {
-		for _, like := range comment.CommentLikes {
-			list = append(list, nzx_model.Out{
-				Username:     like.User.Username,
-				Name:         like.User.Name,
-				Content:      comment.Content,
-				UserHeadshot: like.User.HeadShot,
-				PostTime:     timeConverter.IntervalConversion(like.CreatedAt),
-				IsRead:       like.IsRead,
-				CreatedAt:    like.CreatedAt,
-			})
-		}
-	}
-
-	sort.Sort(list)
-
-	return list, articleNum + commentNum, nil
+	return list, sum, nil
 }
 
 // GetCollectMsgService 获取收藏消息
@@ -126,7 +111,7 @@ func GetCollectMsgService(username string, page, limit int) ([]map[string]any, i
 	}
 
 	// 获取收藏消息列表
-	articles, err := mysql.QueryCollectRecordByUserArticles(uid, page, limit)
+	articleCollects, err := mysql.QueryCollectRecordByUserArticles(uid, page, limit)
 	if err != nil {
 		zap.L().Error("GetCollectMsgService() service.article.likeService.QueryCollectRecordByUserArticles err=", zap.Error(err))
 		return nil, -1, err
@@ -140,19 +125,108 @@ func GetCollectMsgService(username string, page, limit int) ([]map[string]any, i
 	}
 
 	var list []map[string]any
-	for _, article := range articles {
-		for _, collect := range article.Collects {
-			list = append(list, map[string]any{
-				"username":        collect.User.Username,
-				"name":            collect.User.Name,
-				"article_content": article.Content,
-				"user_headshot":   collect.User.HeadShot,
-				"post_time":       timeConverter.IntervalConversion(collect.CreatedAt),
-				"is_read":         collect.IsRead,
-			})
-		}
+
+	for _, collect := range articleCollects {
+		list = append(list, map[string]any{
+			"username":        collect.User.Username,
+			"name":            collect.User.Name,
+			"article_content": collect.Article.Content,
+			"user_headshot":   collect.User.HeadShot,
+			"post_time":       timeConverter.IntervalConversion(collect.CreatedAt),
+			"is_read":         collect.IsRead,
+		})
 	}
 
 	return list, collectNum, nil
+
+}
+
+// GetCommentMsgService 获取评论消息
+func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMsgs, error) {
+	// 获取uid
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		zap.L().Error("GetCommentMsgService() service.article.likeService.GetIdByUsername err=", zap.Error(err))
+		return nil, err
+	}
+
+	// 获取所有评论及回复
+	comments, err := mysql.QueryCommentRecordByUserArticles(uid, page, limit)
+	if err != nil {
+		zap.L().Error("GetCommentMsgService() service.article.likeService.QueryCommentRecordByUserArticles err=", zap.Error(err))
+		return nil, err
+	}
+
+	var commentMsgs nzx_model.CommentMsgs
+
+	for _, comment := range comments {
+		// 判断其为文章评论还是评论回复
+		content := comment.Article.Content
+		commentType := 0
+		if comment.Pid != 0 {
+			content = comment.Content
+			commentType = 1
+		}
+
+		commentMsgs = append(commentMsgs, nzx_model.CommentMsg{
+			Username:     comment.Article.User.Username,
+			Name:         comment.Article.User.Name,
+			Content:      content,
+			UserHeadshot: comment.Article.User.HeadShot,
+			PostTime:     timeConverter.IntervalConversion(comment.CreatedAt),
+			IsRead:       comment.IsRead,
+			Type:         commentType,
+			ArticleId:    comment.ArticleID,
+		})
+	}
+
+	return commentMsgs, nil
+
+	//commentMsgs := make([]nzx_model.CommentMsgs, page+5) // 每个元素为一页，一页limit条记录
+	//itemCount := 0                                       // 记录项数
+	//isLimit := false                                     // 是否超出记录限制
+
+	//// 根据用户的一级评论获取评论回复
+	//for _, lel1 := range lel1Comments {
+	//	// 满足客户端传来的记录总数据，则退出循环
+	//	if isLimit {
+	//		break
+	//	}
+	//	comments, err := mysql.QueryCommentRecordByUserComments(int(lel1.ID))
+	//	if err != nil {
+	//		zap.L().Error("GetCommentMsgService() service.article.likeService.QueryCommentRecordByUserComments err=", zap.Error(err))
+	//		return
+	//	}
+	//	// 遍历回复记录
+	//	for _, comment := range comments {
+	//		itemCount++
+	//		// 若回复项数超出客户端传来的页数，则退出循环
+	//		if itemCount/limit > page-1 {
+	//			isLimit = true
+	//			break
+	//		}
+	//		commentMsgs[itemCount/limit] = append(commentMsgs[itemCount/limit], nzx_model.CommentMsg{
+	//			Username:     comment.User.Username,
+	//			Name:         comment.User.Name,
+	//			Content:      lel1.Content,
+	//			UserHeadshot: comment.User.HeadShot,
+	//			PostTime:     timeConverter.IntervalConversion(comment.CreatedAt),
+	//			IsRead:       comment.IsRead,
+	//			Type:         1,
+	//			ArticleId:    lel1.ArticleID,
+	//			CreatedAt:    comment.CreatedAt,
+	//		})
+	//	}
+	//}
+	//// 如果查询到的记录总数不满足客户端要求
+	//if !isLimit {
+	//	// 若第page页没有记录
+	//	if len(commentMsgs[page-1]) == 0 {
+	//		return nil, myErr.NotFoundError()
+	//	} else {
+	//		// 若page页还有记录
+	//
+	//	}
+	//}
 
 }
