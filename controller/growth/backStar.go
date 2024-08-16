@@ -93,7 +93,6 @@ func Search(c *gin.Context) {
 	case "grade2":
 		if datas.Name == "" {
 			usernamesli, err = starService.StarGuidGrade(alluser, 2)
-			fmt.Println(usernamesli)
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 2)
 		}
@@ -326,6 +325,9 @@ func StarPub(c *gin.Context) {
 	if term.TermNumber == 0 {
 		//找到最大的session最新一期进行展示
 		session, err = mysql.SelMax()
+		if session == 0 {
+			return
+		}
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "获取最新数据失败")
 			return
