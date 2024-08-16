@@ -367,6 +367,7 @@ func BackStarClass(c *gin.Context) {
 	starlist, err := starService.QStarClass(1)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+		return
 	}
 	data := map[string]any{
 		"starlist": starlist,

@@ -59,9 +59,9 @@ func RoutesXue(router *gin.Engine) {
 		elected.POST("/public/college", growth.PublicStar)
 		//搜索第几届成长之星的接口
 		elected.GET("/termStar", growth.StarPub)
-		elected.Use(middleWare.SetHTTPHeaders).GET("/class_star", growth.BackStarClass)
-		elected.Use(middleWare.SetHTTPHeaders).GET("/grade_star", growth.BackStarGrade)
-		elected.Use(middleWare.SetHTTPHeaders).GET("/college_star", growth.BackStarCollege)
+		elected.GET("/class_star", growth.BackStarClass)
+		elected.GET("/grade_star", growth.BackStarGrade)
+		elected.GET("/college_star", growth.BackStarCollege)
 		elected.POST("/change_disabled", growth.ChangeStatus)
 	}
 }
