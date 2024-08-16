@@ -6,4 +6,5 @@ type UserCasbinRules struct {
 	gorm.Model
 	CUsername string
 	CasbinCid string
+	Status    bool `gorm:"default:false"`
 }

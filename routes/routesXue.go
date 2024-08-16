@@ -31,24 +31,37 @@ func RoutesXue(router *gin.Engine) {
 	userLoginAfter := router.Group("user")
 	userLoginAfter.Use(middleWare.CORSMiddleware(), token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
 	{
+		//班级管理员首页
 		userLoginAfter.POST("/fpage/class", login.FPageClass)
+		//年级管理员首页
 		userLoginAfter.POST("/fpage/grade", login.FPageGrade)
+		//学院管理员首页
 		userLoginAfter.POST("/fpage/college", login.FPageCollege)
+		//超级管理员首页
 		userLoginAfter.POST("/fpage/superman", login.FPageCollege)
+		//首页柱状图
 		userLoginAfter.GET("/fpage/pillar", login.Pillar)
 	}
 
-	//暂时不添加中间件
+	//暂时不添加casbin中间件
 	elected := router.Group("star")
 	elected.Use(middleWare.CORSMiddleware(), token.AuthMiddleware())
 	{
+		//成长之星退选时展示的表格
 		elected.GET("/select", growth.Search)
+		//班级管理员推选
 		elected.POST("/elected/class", growth.ElectClass)
+		//年级管理员推选
 		elected.POST("/elected/grade", growth.ElectGrade)
+		//学院管理员推选
 		elected.POST("/elected/college", growth.ElectCollege)
+		//院级管理员公布
 		elected.POST("/public/college", growth.PublicStar)
+		//搜索第几届成长之星的接口
 		elected.GET("/termStar", growth.StarPub)
-
+		elected.Use(middleWare.SetHTTPHeaders).GET("/class_star", growth.BackStarClass)
+		elected.Use(middleWare.SetHTTPHeaders).GET("/grade_star", growth.BackStarGrade)
+		elected.Use(middleWare.SetHTTPHeaders).GET("/college_star", growth.BackStarCollege)
+		elected.POST("/change_disabled", growth.ChangeStatus)
 	}
-
 }

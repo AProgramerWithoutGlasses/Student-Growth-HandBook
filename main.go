@@ -22,7 +22,7 @@ import (
 )
 
 func main() {
-	// 1. 加载配置 --
+	// 1. 加载配置
 	if err := settings.Init(); err != nil {
 		fmt.Printf("settings.Init() viper.ReadInConfig() err : %v\n", err)
 		return
@@ -59,14 +59,14 @@ func main() {
 	// 5. 注册路由
 	r := routes.Setup()
 
-	// 6. 初始化oss
+	//6.初始化oss
 	err := oss.Init()
 	if err != nil {
 		zap.L().Error("main() oss.Init err=", zap.Error(err))
 		return
 	}
 
-	// 6. 启动服务（优雅关机）
+	// 7. 启动服务（优雅关机）
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", viper.GetInt("app.port")),
 		Handler: r,

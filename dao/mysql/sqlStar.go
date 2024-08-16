@@ -200,3 +200,37 @@ func Selstarexit(username string) (int64, error) {
 	}
 	return number, nil
 }
+
+// SelStatus 查询管理员是否可以添加数据
+func SelStatus(username string) (bool, error) {
+	var status bool
+	err := DB.Table("user_casbin_rules").Where("c_username = ?", username).Select("status").Scan(&status).Error
+	if err != nil {
+		return false, err
+	}
+	return status, nil
+}
+
+// UpdateStatus 批量更新管理员的状态字段
+func UpdateStatus() error {
+	err := DB.Table("stars").Where("status = ? ", true).Updates(map[string]interface{}{"status": false}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateOne 更新一个管理员的字段
+func UpdateOne(username string) error {
+	var user gorm_model.UserCasbinRules
+	err := DB.Where("c_username = ?", username).First(&user).Error
+	if err != nil {
+		return err
+	}
+	user.Status = true
+	err = DB.Save(&user).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
