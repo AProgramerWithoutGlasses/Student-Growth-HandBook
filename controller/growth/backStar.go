@@ -206,12 +206,12 @@ func ElectGrade(c *gin.Context) {
 	err := c.Bind(&Responsedata)
 	if err != nil {
 		zap.L().Error("Search Bind err", zap.Error(err))
-		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "为获取到数据")
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
 		return
 	}
 	for _, user := range Responsedata.ElectedArr {
 		username := user.Username
-		//添加数据
+		//更新数据
 		err := mysql.UpdateGrade(username)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "推选失败")
@@ -347,5 +347,38 @@ func StarPub(c *gin.Context) {
 	response.ResponseSuccess(c, data)
 }
 
-//返回前台成长之星
-//func
+// BackStarClass 返回前台班级成长之星
+func BackStarClass(c *gin.Context) {
+	starlist, err := starService.QStarClass(1)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+	}
+	data := map[string]any{
+		"starlist": starlist,
+	}
+	response.ResponseSuccess(c, data)
+}
+
+// BackStarGrade 返回前台年级成长之星
+func BackStarGrade(c *gin.Context) {
+	starlist, err := starService.QStarClass(2)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+	}
+	data := map[string]any{
+		"starlist": starlist,
+	}
+	response.ResponseSuccess(c, data)
+}
+
+// BackStarCollege 返回前台年级成长之星
+func BackStarCollege(c *gin.Context) {
+	starlist, err := starService.QStarClass(3)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+	}
+	data := map[string]any{
+		"starlist": starlist,
+	}
+	response.ResponseSuccess(c, data)
+}

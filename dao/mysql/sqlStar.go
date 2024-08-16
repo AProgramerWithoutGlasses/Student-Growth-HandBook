@@ -135,7 +135,7 @@ func CreatClass(username string, name string) error {
 // UpdateGrade 年级管理员推选更新数据
 func UpdateGrade(username string) error {
 	var star gorm_model.Star
-	err := DB.Where("username = ?", username).Where("session = ?", 0).First(&star).Error
+	err := DB.Where("username = ?", username).Where("session = ?", 0).Where("type = ?", 1).First(&star).Error
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,7 @@ func UpdateGrade(username string) error {
 // UpdateCollege 院级管理员推选更新数据
 func UpdateCollege(username string) error {
 	var star gorm_model.Star
-	err := DB.Where("username = ?", username).Where("session = ?", 0).First(&star).Error
+	err := DB.Where("username = ?", username).Where("session = ?", 0).Where("type = ?", 2).First(&star).Error
 	if err != nil {
 		return err
 	}
@@ -174,37 +174,17 @@ func SelMax() (int, error) {
 
 // UpdateSession 更新字段
 func UpdateSession(session int) error {
-	err := DB.Table("stars").Where("session = ?", 0).Updates(map[string]interface{}{"session": session}).Error
+	err := DB.Table("stars").Where("session = ? ", 0).Updates(map[string]interface{}{"session": session}).Error
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// SelStarClass 查找指定届数的班级之星
-func SelStarClass(session int) ([]string, error) {
+// SelStar 查找指定届数的班级之星
+func SelStar(session int, starType int) ([]string, error) {
 	var username []string
-	err := DB.Table("stars").Where("session = ?", session).Where("type = ?", 1).Select("username").Scan(&username).Error
-	if err != nil {
-		return nil, err
-	}
-	return username, nil
-}
-
-// SelStarGrade 查找指定届数的班级之星
-func SelStarGrade(session int) ([]string, error) {
-	var username []string
-	err := DB.Table("stars").Where("session = ?", session).Where("type = ?", 2).Select("username").Scan(&username).Error
-	if err != nil {
-		return nil, err
-	}
-	return username, nil
-}
-
-// SelStarCollege 查找指定届数的班级之星
-func SelStarCollege(session int) ([]string, error) {
-	var username []string
-	err := DB.Table("stars").Where("session = ?", session).Where("type = ?", 3).Select("username").Scan(&username).Error
+	err := DB.Table("stars").Where("session = ?", session).Where("type = ?", starType).Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}

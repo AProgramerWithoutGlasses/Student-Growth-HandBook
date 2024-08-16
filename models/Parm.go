@@ -47,3 +47,10 @@ type StarGrade struct {
 	GradeName  string `json:"gradeName"`
 	GradeClass string `json:"gradeClass"`
 }
+
+// 前台成长之星数据的结构体
+type StarStu struct {
+	Username     string `json:"username"`
+	Name         string `json:"name"`
+	UserHeadshot string `json:"user_headshot"`
+}
