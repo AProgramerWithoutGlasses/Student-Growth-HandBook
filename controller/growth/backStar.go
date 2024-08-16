@@ -310,6 +310,7 @@ func PublicStar(c *gin.Context) {
 
 // StarPub 搜索第几届成长之星
 func StarPub(c *gin.Context) {
+	//定义届数
 	var session int
 	//接收前端数据
 	var term struct {
@@ -326,7 +327,7 @@ func StarPub(c *gin.Context) {
 		//找到最大的session最新一期进行展示
 		session, err = mysql.SelMax()
 		if session == 0 {
-			return
+			response.ResponseSuccess(c, "")
 		}
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "获取最新数据失败")
