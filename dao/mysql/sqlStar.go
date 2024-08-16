@@ -211,7 +211,7 @@ func SelStarCollege(session int) ([]string, error) {
 	return username, nil
 }
 
-// 查找这条数据是否存在数据库中
+// Selstarexit 查找这条数据是否存在数据库中
 func Selstarexit(username string) (int64, error) {
 	var number int64
 	err := DB.Table("stars").Where("username = ?", username).Where("session = ?", 0).Count(&number).Error

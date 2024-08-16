@@ -21,8 +21,10 @@ type Student struct {
 	Frequency        int    `json:"frequency"`
 }
 
-// Search 搜索表格数据token
+// Search 搜索表格数据
 func Search(c *gin.Context) {
+	//返回前端限制人数
+	var peopleLimit int
 	var usernamesli []string
 	//获取前端传来的数据
 	var datas struct {
@@ -71,7 +73,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = mysql.SelSearchUser(datas.Name, class)
 		}
-
+		peopleLimit = 3
 		if err != nil {
 			zap.L().Error("Search SelSearchUser err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -82,44 +84,48 @@ func Search(c *gin.Context) {
 			usernamesli, err = starService.StarGuidGrade(alluser, 1)
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 1)
-			if err != nil {
-				zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
-				response.ResponseError(c, response.ServerErrorCode)
-				return
-			}
+		}
+		peopleLimit = 5
+		if err != nil {
+			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
 		}
 	case "grade2":
 		if datas.Name == "" {
 			usernamesli, err = starService.StarGuidGrade(alluser, 2)
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 2)
-			if err != nil {
-				zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
-				response.ResponseError(c, response.ServerErrorCode)
-				return
-			}
+		}
+		peopleLimit = 5
+		if err != nil {
+			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
 		}
 	case "grade3":
 		if datas.Name == "" {
 			usernamesli, err = starService.StarGuidGrade(alluser, 3)
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 3)
-			if err != nil {
-				zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
-				response.ResponseError(c, response.ServerErrorCode)
-				return
-			}
+		}
+		peopleLimit = 5
+		if err != nil {
+			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
 		}
 	case "grade4":
 		if datas.Name == "" {
 			usernamesli, err = starService.StarGuidGrade(alluser, 4)
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 4)
-			if err != nil {
-				zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
-				response.ResponseError(c, response.ServerErrorCode)
-				return
-			}
+		}
+		peopleLimit = 5
+		if err != nil {
+			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
+			response.ResponseError(c, response.ServerErrorCode)
+			return
 		}
 	case "college":
 		if datas.Name == "" {
@@ -127,7 +133,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = mysql.SelSearchColl(datas.Name)
 		}
-
+		peopleLimit = 10
 		if err != nil {
 			zap.L().Error("Search SelSearchColl err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -139,7 +145,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = mysql.SelSearchColl(datas.Name)
 		}
-
+		peopleLimit = 0
 		if err != nil {
 			zap.L().Error("Search SelSearchColl err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -163,8 +169,9 @@ func Search(c *gin.Context) {
 	//实现分页
 	tableData := starService.PageQuery(starback, datas.Page, datas.Limit)
 	data := map[string]any{
-		"tableData": tableData,
-		"total":     total,
+		"tableData":   tableData,
+		"total":       total,
+		"peopleLimit": peopleLimit,
 	}
 	response.ResponseSuccess(c, data)
 }
@@ -211,6 +218,7 @@ func ElectGrade(c *gin.Context) {
 	}
 	for _, user := range Responsedata.ElectedArr {
 		username := user.Username
+		//添加数据
 		err := mysql.UpdateGrade(username)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "推选失败")
@@ -255,9 +263,45 @@ func PublicStar(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, 400, "公布失败")
 		return
 	}
+
+	//展示最新一期
+	session, err = mysql.SelMax()
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "获取最新数据失败")
+		return
+	}
+
+	//返回数据
+	//班级成长之星
+	classData, err := starService.StarClass(session)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "班级之星查找失败")
+		return
+	}
+
+	//年级之星
+	gradeData, err := starService.StarGrade(session)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "年级之星查找失败")
+		return
+	}
+
+	//院级之星
+	hospitalData, err := starService.StarCollege(session)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, 400, "院级之星查找失败")
+		return
+	}
+
+	data := map[string]any{
+		"classData":    classData,
+		"gradeData":    gradeData,
+		"hospitalData": hospitalData,
+	}
+	response.ResponseSuccess(c, data)
 }
 
-// StarPub 搜索成长之星
+// StarPub 搜索第几届成长之星
 func StarPub(c *gin.Context) {
 	var session int
 	//接收前端数据
