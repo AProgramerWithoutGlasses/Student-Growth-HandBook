@@ -31,6 +31,7 @@ func SelClass(username string) (string, error) {
 	return class, nil
 }
 
+// SelIfexit 查找用户是否存在
 func SelIfexit(username string) (int64, error) {
 	var number int64
 	err := DB.Table("user_casbin_rules").Where("c_username = ?", username).Count(&number).Error
@@ -38,4 +39,14 @@ func SelIfexit(username string) (int64, error) {
 		return 0, err
 	}
 	return number, nil
+}
+
+// SelHead 查找用户头像
+func SelHead(username string) (string, error) {
+	var headshot string
+	err := DB.Table("users").Where("username = ?", username).Select("head_shot").Scan(&headshot).Error
+	if err != nil {
+		return "", err
+	}
+	return headshot, nil
 }

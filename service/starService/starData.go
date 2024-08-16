@@ -9,7 +9,7 @@ import (
 
 // StarGrid 查询表格所有数据
 func StarGrid(usernameslice []string) ([]models.StarBack, error) {
-	var stakback []models.StarBack
+	var starBack []models.StarBack
 	for _, username := range usernameslice {
 		//结构体对象存放数据
 		//var star models.StarBack
@@ -29,7 +29,7 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 		}
 
 		//查询粉丝数
-		userfans, err := mysql.Selfans(id)
+		userFans, err := mysql.Selfans(id)
 		if err != nil {
 			fmt.Println("StarGridClass Selfans err", err)
 			return nil, err
@@ -63,35 +63,41 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 			return nil, err
 		}
 
-		//查询状态
-		status := false
-
 		star := models.StarBack{
 			Username:           username,
 			Frequency:          frequency,
 			Name:               name,
 			User_article_total: article,
-			Userfans:           userfans,
+			Userfans:           userFans,
 			Score:              score,
 			Hot:                hot,
-			Status:             status,
+			Status:             false,
 		}
-		stakback = append(stakback, star)
+		starBack = append(starBack, star)
 	}
-	return stakback, nil
+	return starBack, nil
 }
 
 // PageQuery 实现分页查询
 func PageQuery(starback []models.StarBack, page, limit int) []models.StarBack {
+	if limit <= 0 {
+		// 返回空切片，limit 应该大于0
+		return []models.StarBack{}
+	}
 	length := len(starback)
 	left := (page - 1) * limit
-	right := page * limit
+	right := left + limit
+
+	// 修正right的计算，确保不会超出slice的长度
+	if right > length {
+		right = length
+	}
+
+	// 如果left超出length，返回空切片
 	if left >= length {
-		return nil
+		return []models.StarBack{}
 	}
-	if right > length+1 {
-		return starback[left:]
-	}
+
 	return starback[left:right]
 }
 
@@ -136,7 +142,7 @@ func SearchGrade(name string, year int) ([]string, error) {
 func StarClass(session int) ([]models.StarClass, error) {
 	var StarClasssli []models.StarClass
 	//查询出所有班级之星
-	usernamesli, err := mysql.SelStarClass(session)
+	usernamesli, err := mysql.SelStar(session, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +183,7 @@ func GroupByClass(usernamesli []string) (map[string][]string, error) {
 // StarGrade 返回年级之星
 func StarGrade(session int) ([]models.StarGrade, error) {
 	var starGrade []models.StarGrade
-	usernamesli, err := mysql.SelStarGrade(session)
+	usernamesli, err := mysql.SelStar(session, 2)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +204,7 @@ func StarGrade(session int) ([]models.StarGrade, error) {
 // StarCollege 返回院级之星
 func StarCollege(session int) ([]models.StarGrade, error) {
 	var starGrade []models.StarGrade
-	usernamesli, err := mysql.SelStarCollege(session)
+	usernamesli, err := mysql.SelStar(session, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -214,4 +220,31 @@ func StarCollege(session int) ([]models.StarGrade, error) {
 		starGrade = append(starGrade, stargrade)
 	}
 	return starGrade, nil
+}
+
+// QStarClass 返回前台成长之星
+func QStarClass(starType int) ([]models.StarStu, error) {
+	var starlist []models.StarStu
+	session, err := mysql.SelMax()
+	if err != nil {
+		return nil, err
+	}
+	usernameslic, err := mysql.SelStar(session, starType)
+	if err != nil {
+		return nil, err
+	}
+	for _, username := range usernameslic {
+		name, err := mysql.SelName(username)
+		headshot, err := mysql.SelHead(username)
+		starstu := models.StarStu{
+			Username:     username,
+			Name:         name,
+			UserHeadshot: headshot,
+		}
+		if err != nil {
+			return nil, err
+		}
+		starlist = append(starlist, starstu)
+	}
+	return starlist, nil
 }
