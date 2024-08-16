@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"fmt"
-	"go.uber.org/zap"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 )
@@ -86,68 +85,4 @@ func DeleteLikeRecord(objId, likeType, uid int) error {
 		return myErr.DataFormatError()
 	}
 	return nil
-}
-
-// QueryLikeRecordByUserArticle 通过uid分页查询其文章的点赞记录
-func QueryLikeRecordByUserArticle(uid, page, limit int) ([]gorm_model.Article, error) {
-
-	var articles []gorm_model.Article
-
-	if err := DB.Preload("User", "id = ?", uid).Preload("ArticleLikes").Preload("ArticleLikes.User").
-		Where("user_id = ?", uid).
-		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
-		Find(&articles).Error; err != nil {
-		zap.L().Error("QueryLikeRecordByUserArticle() dao.mysql.mysql_like.Find err=", zap.Error(err))
-		return nil, err
-	}
-
-	if len(articles) == 0 {
-		zap.L().Error("QueryLikeRecordByUserArticle() dao.mysql.mysql_like err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
-	}
-
-	return articles, nil
-}
-
-// QueryLikeRecordNumByUserArticle 通过uid查询其文章的未读点赞记录数量
-func QueryLikeRecordNumByUserArticle(uid int) (int, error) {
-	var count int64
-
-	if err := DB.Preload("ArticleLikes", "is_read = ?", false).Model(gorm_model.Article{}).Where("user_id = ?", uid).Count(&count).Error; err != nil {
-		zap.L().Error("QueryLikeRecordNumByUserArticle() dao.mysql.mysql_like.Count err=", zap.Error(err))
-		return -1, err
-	}
-	return int(count), nil
-}
-
-// QueryLikeRecordByUserComment 通过uid分页查询其评论的点赞记录
-func QueryLikeRecordByUserComment(uid, page, limit int) ([]gorm_model.Comment, error) {
-
-	var comments []gorm_model.Comment
-
-	if err := DB.Preload("User", "id = ?", uid).Preload("CommentLikes").Preload("CommentLikes.User").
-		Where("user_id = ?", uid).
-		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
-		Find(&comments).Error; err != nil {
-		zap.L().Error("QueryLikeRecordByUserComment() dao.mysql.mysql_like.Find err=", zap.Error(err))
-		return nil, err
-	}
-
-	if len(comments) == 0 {
-		zap.L().Error("QueryLikeRecordByUserComment() dao.mysql.mysql_like err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
-	}
-
-	return comments, nil
-}
-
-// QueryLikeRecordNumByUserComment 通过uid查询其评论的未读点赞记录数量
-func QueryLikeRecordNumByUserComment(uid int) (int, error) {
-	var count int64
-
-	if err := DB.Preload("CommentLikes", "is_read = ?", false).Model(gorm_model.Comment{}).Where("user_id = ?", uid).Count(&count).Error; err != nil {
-		zap.L().Error("QueryLikeRecordNumByUserComment() dao.mysql.mysql_like.Count err=", zap.Error(err))
-		return -1, err
-	}
-	return int(count), nil
 }

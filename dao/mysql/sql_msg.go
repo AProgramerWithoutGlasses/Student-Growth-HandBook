@@ -173,7 +173,7 @@ func QuerySystemMsg(page, limit int, username string) ([]gorm_model.MsgRecord, e
 // QueryUnreadSystemMsg 查询未读系统通知条数
 func QueryUnreadSystemMsg(username string) (int, error) {
 	var count int64
-	if err := DB.Preload("User", "username = ?", username).Where("type = ?", 1).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "username = ?", username).Where("type = ? and is_read = ?", 1, false).Count(&count).Error; err != nil {
 		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
 		return -1, err
 	}
@@ -200,9 +200,121 @@ func QueryManagerMsg(page, limit int, username string) ([]gorm_model.MsgRecord, 
 // QueryUnreadManagerMsg 获取未读管理员消息通知
 func QueryUnreadManagerMsg(username string) (int, error) {
 	var count int64
-	if err := DB.Preload("User", "username = ?", username).Where("type = ?", 2).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "username = ?", username).Where("type = ?", 2).Count(&count).Error; err != nil {
 		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
 		return -1, err
 	}
 	return int(count), nil
+}
+
+// QueryLikeRecordByUser 分页查询其文章和评论的点赞记录
+func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, error) {
+	var likes []gorm_model.UserLikeRecord
+	if err := DB.Preload("Article.User").
+		Preload("Comment.User").
+		Where("article_id IN (SELECT id FROM articles WHERE user_id = ?) OR comment_id IN (SELECT id FROM comments WHERE user_id = ?)", uid, uid).
+		Limit(limit).
+		Offset((page - 1) * limit).Order("created_at desc").
+		Find(&likes).Error; err != nil {
+		zap.L().Error("QueryLikeRecordByUser() dao.mysql.mysql_like.Find err=", zap.Error(err))
+		return nil, err
+	}
+	return likes, nil
+}
+
+func QueryLikeRecordNumByUser(uid int) (int, error) {
+	var count int64
+
+	if err := DB.Model(&gorm_model.UserLikeRecord{}).Where("is_read = ? and article_id IN (SELECT id FROM articles WHERE user_id = ?) OR comment_id IN (SELECT id FROM comments WHERE user_id = ?)", false, uid, uid).Count(&count).Error; err != nil {
+		zap.L().Error("QueryLikeRecordNumByUserArticle() dao.mysql.mysql_like.Count err=", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+}
+
+// QueryCollectRecordByUserArticles 通过用户的所有文章查找其收藏记录(该用户的文章被谁收藏了记录)
+func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCollectRecord, error) {
+	var articleCollects []gorm_model.UserCollectRecord
+
+	if err := DB.Preload("Article.User", "articles.user_id = ? and articles.ban = ?", uid, false).
+		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
+		Find(&articleCollects).Error; err != nil {
+		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.mysql_like.Find err=", zap.Error(err))
+		return nil, err
+	}
+
+	if len(articleCollects) == 0 {
+		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.mysql_like err=", zap.Error(myErr.NotFoundError()))
+		return nil, myErr.NotFoundError()
+	}
+	return articleCollects, nil
+}
+
+// QueryCollectRecordNumByUserArticle 通过uid查询其文章的未读收藏记录数量
+func QueryCollectRecordNumByUserArticle(uid int) (int, error) {
+	var count int64
+
+	if err := DB.Model(gorm_model.UserCollectRecord{}).Preload("Article", "user_id = ? and ban = ?", uid, false).Where("is_read = ?", false).Count(&count).Error; err != nil {
+		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.mysql_like.Count err=", zap.Error(err))
+		return -1, err
+	}
+
+	return int(count), nil
+}
+
+// QueryCommentRecordByUserArticles 通过用户的所有文章和评论查找其评论记录(该用户的文章或评论被谁评论了记录)
+func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments, error) {
+	var comments gorm_model.Comments
+	var commentIDs []uint
+
+	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", uid).Pluck("pid", &commentIDs).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.mysql_like.Pluck err=", zap.Error(err))
+		return nil, err
+	}
+
+	if len(commentIDs) <= 0 {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.mysql_like err=", zap.Error(myErr.NotFoundError()))
+		return nil, myErr.NotFoundError()
+	}
+
+	if err := DB.Preload("Article.User").
+		Where("pid in ?", commentIDs).
+		Or("articles.user_id = ? and articles.ban = ?", uid, false).
+		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
+		Find(&comments).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.mysql_like err=", zap.Error(err))
+		return nil, err
+	}
+
+	if len(comments) == 0 {
+		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.sql_comment err=", zap.Error(myErr.NotFoundError()))
+		return nil, myErr.NotFoundError()
+	}
+
+	return comments, nil
+}
+
+// QueryCommentRecordNumByUserArticle 通过uid查找文章评论未读记录
+func QueryCommentRecordNumByUserArticle(uid int) (int, error) {
+	var count int64
+	if err := DB.Model(gorm_model.Comment{}).Preload("Article", "user_id = ? and ban = ?", uid, false).Where("is_read = ?", false).Count(&count).Error; err != nil {
+		zap.L().Error("QueryCommentRecordNumByUserArticle() dao.mysql.mysql_like.Count err=", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+}
+
+// QueryCommentRecordByUserComments 通过用户的评论查找其被评论记录
+func QueryCommentRecordByUserComments(cid int) (gorm_model.Comments, error) {
+	comments := gorm_model.Comments{}
+	if err := DB.Where("pid = ?", cid).Order("created_at desc").Find(&comments).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.mysql_like.Find err=", zap.Error(err))
+		return nil, err
+	}
+
+	if len(comments) == 0 {
+		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_comment err=", zap.Error(myErr.NotFoundError()))
+		return nil, myErr.NotFoundError()
+	}
+	return comments, nil
 }

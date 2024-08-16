@@ -10,24 +10,24 @@ type Article struct {
 	WordCount     int    `gorm:"default:0"json:"word_count"`
 	Pic           string
 	Video         string
-	Topic         string                  `json:"article_topic"`
-	Status        bool                    `gorm:"not null;default:true"json:"article_status"`
-	ReadAmount    int                     `gorm:"default:0"json:"read_amount"`
-	LikeAmount    int                     `gorm:"default:0"json:"Like_amount"`
-	CollectAmount int                     `gorm:"default:0"json:"collect_amount"`
-	CommentAmount int                     `gorm:"default:0"json:"comment_amount"`
-	ReportAmount  int                     `gorm:"default:0"json:"report_amount"`
-	Ban           bool                    `gorm:"default:false"json:"-"`
-	UserID        uint                    `gorm:"not null"` //文章属于用户
-	User          User                    `json:"user"`     //文章属于用户
-	Comments      []Comment               //文章拥有评论
-	ArticleLikes  []UserArticleLikeRecord //文章拥有点赞
-	ArticleTags   []ArticleTag            `json:"article_tags"` //文章拥有标签
-	ArticlePics   []ArticlePic            `json:"article_pics"` //文章拥有图片
-	Collects      []UserCollectRecord     //文章拥有收藏
-	IsLike        bool                    `gorm:"-" json:"is_like"`
-	IsCollect     bool                    `gorm:"-" json:"is_collect"`
-	PostTime      string                  `gorm:"-" json:"post_time"`
+	Topic         string              `json:"article_topic"`
+	Status        bool                `gorm:"not null;default:true"json:"article_status"`
+	ReadAmount    int                 `gorm:"default:0"json:"read_amount"`
+	LikeAmount    int                 `gorm:"default:0"json:"Like_amount"`
+	CollectAmount int                 `gorm:"default:0"json:"collect_amount"`
+	CommentAmount int                 `gorm:"default:0"json:"comment_amount"`
+	ReportAmount  int                 `gorm:"default:0"json:"report_amount"`
+	Ban           bool                `gorm:"default:false"json:"-"`
+	UserID        uint                `gorm:"not null"` //文章属于用户
+	User          User                `json:"user"`     //文章属于用户
+	Comments      []Comment           //文章拥有评论
+	ArticleLikes  []UserLikeRecord    //文章拥有点赞
+	ArticleTags   []ArticleTag        `json:"article_tags"` //文章拥有标签
+	ArticlePics   []ArticlePic        `json:"article_pics"` //文章拥有图片
+	Collects      []UserCollectRecord //文章拥有收藏
+	IsLike        bool                `gorm:"-" json:"is_like"`
+	IsCollect     bool                `gorm:"-" json:"is_collect"`
+	PostTime      string              `gorm:"-" json:"post_time"`
 }
 
 // Articles 自定义加权排序
