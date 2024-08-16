@@ -173,9 +173,9 @@ func GetAllUserCount(identity string) (int64, error) {
 }
 
 // GetStuMesList 根据搜索框内容查询学生信息列表
-func GetTeacherList(querySql string) ([]gorm_model.User, error) {
+func GetTeacherList(querySql string) ([]jrx_model.QueryTeacherResStruct, error) {
 	// 从mysql中获取数据到user表中
-	var userSlice []gorm_model.User
+	var userSlice []jrx_model.QueryTeacherResStruct
 
 	err := DB.Raw(querySql).Find(&userSlice).Error
 	if err != nil {

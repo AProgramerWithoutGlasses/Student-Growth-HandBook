@@ -2,42 +2,52 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"studentGrow/dao/mysql"
-	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 )
 
 // 查询老师
-func QueryTeacher(queryTeacherParama jrx_model.QueryTeacherParamStruct) ([]gorm_model.User, int64, error) {
+func QueryTeacher(queryTeacherParama jrx_model.QueryTeacherParamStruct) ([]jrx_model.QueryTeacherResStruct, int, error) {
 	// 获取老师总数量
-	allTeacherCount, err := mysql.GetAllUserCount("老师")
+	allTeacherCount64, err := mysql.GetAllUserCount("老师")
 	if err != nil {
-		return nil, allTeacherCount, err
+		return nil, 0, err
 	}
+
+	// 类型转换
+	allTeacherCount := int(allTeacherCount64)
 
 	// 获取老师列表
 	queryTeacherSql := GetQueryTeacherSql(queryTeacherParama)
+	fmt.Println("sql:", queryTeacherSql)
+
 	teacherList, err := mysql.GetTeacherList(queryTeacherSql)
+	for k, v := range teacherList {
+		fmt.Println(k, v.Name, v.Username, v.Gender, v.Password, *v.Ban, *v.IsManager)
+	}
 	if err != nil {
 		return nil, allTeacherCount, err
 	}
-
-	// 获取老师属于哪一级管理员
 
 	return teacherList, allTeacherCount, err
 }
 
 // 获得查询老师的sql语句
 func GetQueryTeacherSql(queryTeacherParama jrx_model.QueryTeacherParamStruct) string {
-	querySql := `Select name, username, password, gender, is_manager, ban, from users where identity = '老师'`
+	querySql := `Select name, username, password, gender, is_manager, ban from users where identity = '老师'`
 
 	if queryTeacherParama.Gender != "" {
 		querySql = querySql + " and gender = '" + queryTeacherParama.Gender + "'"
 	}
 
 	if queryTeacherParama.Ban != nil {
-		querySql = querySql + " and ban = '" + strconv.FormatBool(*queryTeacherParama.Ban) + "'"
+		querySql = querySql + " and ban = " + strconv.FormatBool(*queryTeacherParama.Ban)
+	}
+
+	if queryTeacherParama.IsManager != nil {
+		querySql = querySql + " and is_manager = " + strconv.FormatBool(*queryTeacherParama.IsManager)
 	}
 
 	if len(queryTeacherParama.SearchSelect) > 0 {
