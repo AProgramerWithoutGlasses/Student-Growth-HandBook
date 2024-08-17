@@ -248,3 +248,44 @@ func QStarClass(starType int) ([]models.StarStu, error) {
 	}
 	return starlist, nil
 }
+
+// SelNumClass 查询表中跟管理员一个班的有多少人
+func SelNumClass(class string) (int, error) {
+	var classnum int
+	//1.查询表中目前的人员
+	usernamesli, err := mysql.SelStarUser()
+	if err != nil {
+		return 0, err
+	}
+	//2.匹配
+	for _, username := range usernamesli {
+		thisclass, err := mysql.SelClass(username)
+		if err != nil {
+			return 0, err
+		}
+		if thisclass == class {
+			classnum += 1
+		}
+	}
+	return classnum, nil
+}
+
+// SelNumGrade 查询年级管理员已推选的人数
+func SelNumGrade(year int) (int, error) {
+	var classNum int
+	usernamesli, err := mysql.SelNotClass()
+	if err != nil {
+		return 0, err
+	}
+	for _, username := range usernamesli {
+		plus, err := mysql.SelPlus(username)
+		if err != nil {
+			return 0, err
+		}
+		grade := timeConverter.GetUserGrade(plus)
+		if grade == year {
+			classNum += 1
+		}
+	}
+	return classNum, nil
+}
