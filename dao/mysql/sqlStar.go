@@ -67,7 +67,7 @@ func SelHot(id int) (int, error) {
 	return collect + like, nil
 }
 
-// SelStarUser SelGrade 查询未公布的学号合集
+// SelStarUser 查询未公布的学号合集
 func SelStarUser() ([]string, error) {
 	var alluser []string
 	err := DB.Table("stars").Where("session = ?", 0).Select("username").Scan(&alluser).Error
@@ -234,4 +234,14 @@ func UpdateOne(username string) error {
 		return err
 	}
 	return nil
+}
+
+// SelNotClass 查询被推选为年级院级成长之星的学号合集
+func SelNotClass() ([]string, error) {
+	var username []string
+	err := DB.Table("stars").Where("type <> ? ", 1).Select("username").Scan(&username).Error
+	if err != nil {
+		return nil, err
+	}
+	return username, nil
 }

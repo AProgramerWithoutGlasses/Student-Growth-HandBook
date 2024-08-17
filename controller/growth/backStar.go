@@ -178,13 +178,30 @@ func Search(c *gin.Context) {
 
 // ElectClass  班级管理员推选数据
 func ElectClass(c *gin.Context) {
+	//获取管理员班级
+	token := c.GetHeader("token")
+	username, err := token2.GetUsername(token)
+	class, err := mysql.SelClass(username)
+	//查找表中存在几条已推选的数据
+	Number, err := starService.SelNumClass(class)
+	if err != nil {
+		response.ResponseError(c, 400)
+		return
+	}
+	//接收前端数据
 	var Responsedata struct {
 		ElectedArr []Student `json:"electedArr"`
 	}
-	err := c.Bind(&Responsedata)
+	err = c.Bind(&Responsedata)
 	if err != nil {
 		zap.L().Error("Search Bind err", zap.Error(err))
-		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "为获取到数据")
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
+		return
+	}
+	//判断是否超出权限范围
+	length := len(Responsedata.ElectedArr)
+	if Star := length + Number; Star > 3 {
+		response.ResponseSuccess(c, "No seats left")
 		return
 	}
 	for _, student := range Responsedata.ElectedArr {
@@ -207,15 +224,43 @@ func ElectClass(c *gin.Context) {
 
 // ElectGrade 年级管理员推选数据
 func ElectGrade(c *gin.Context) {
+	//代表年级管理员已推选的个数
+	var number int
+	//拿到角色
+	token := c.GetHeader("token")
+	role, err := token2.GetRole(token)
+	//获取number的值
+	switch role {
+	case "grade1":
+		number, err = starService.SelNumGrade(1)
+	case "grade2":
+		number, err = starService.SelNumGrade(2)
+	case "grade3":
+		number, err = starService.SelNumGrade(3)
+	case "grade4":
+		number, err = starService.SelNumGrade(4)
+	}
+	if err != nil {
+		response.ResponseError(c, 400)
+	}
 	var Responsedata struct {
 		ElectedArr []Student `json:"electedArr"`
 	}
-	err := c.Bind(&Responsedata)
+	err = c.Bind(&Responsedata)
 	if err != nil {
 		zap.L().Error("Search Bind err", zap.Error(err))
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
 		return
 	}
+
+	//查询这次需要推选的人
+	length := len(Responsedata.ElectedArr)
+	if star := number + length; star > 5 {
+		response.ResponseSuccess(c, "No seats left")
+		return
+	}
+
+	//开始添加
 	for _, user := range Responsedata.ElectedArr {
 		username := user.Username
 		//更新数据
