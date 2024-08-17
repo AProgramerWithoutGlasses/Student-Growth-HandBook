@@ -477,3 +477,45 @@ func GetArticlesByClassService(keyWords, username, sortWay string, limit, page, 
 	}
 	return articles, nil
 }
+
+// ReviseArticleStatusService 修改文章的私密状态
+func ReviseArticleStatusService(aid int, status bool) error {
+	// 检查私密状态
+	curStatus, err := mysql.QueryArticleStatusById(aid)
+	if err != nil {
+		zap.L().Error("ReviseArticleStatus() service.article.QueryArticleStatusById", zap.Error(err))
+		return err
+	}
+	if curStatus == status {
+		zap.L().Error("ReviseArticleStatus() service.article", zap.Error(myErr.HasExistError()))
+		return myErr.HasExistError()
+	}
+
+	// 修改状态
+	err = mysql.UpdateArticleStatusById(aid, status)
+	if err != nil {
+		zap.L().Error("ReviseArticleStatus() service.article.UpdateArticleStatusById", zap.Error(err))
+		return err
+	}
+
+	/*
+		回滚积分
+	*/
+
+	point := constant.PointConstant
+	if status == false {
+		point = -constant.PointConstant
+	}
+
+	user, err := mysql.QueryUserByArticleId(aid)
+	if err != nil {
+		zap.L().Error("DeleteArticleService() service.article.QueryUserByArticleId err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+	err = UpdatePointByUsernamePointAid(user.Username, point, aid)
+	if err != nil {
+		zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+	return nil
+}

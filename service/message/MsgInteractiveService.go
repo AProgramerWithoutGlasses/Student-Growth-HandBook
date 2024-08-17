@@ -272,3 +272,45 @@ func AckSystemMsgService(username string) error {
 	}
 	return nil
 }
+
+// PublishManagerMsgService 发布管理员通知
+func PublishManagerMsgService(username, content string) error {
+	// 权限验证
+
+	// 添加通知
+	ids, err := mysql.QueryAllUserId()
+	if err != nil {
+		zap.L().Error("PublishManagerMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
+		return err
+	}
+	for _, uid := range ids {
+		err = mysql.AddManagerMsg(username, content, int(uid))
+		if err != nil {
+			zap.L().Error("PublishManagerMsgService() service.article.likeService.AddManagerMsg err=", zap.Error(err))
+			return err
+		}
+	}
+	return nil
+}
+
+// PublishSystemMsgService 发布系统通知
+func PublishSystemMsgService(content, role string) error {
+	// 权限验证
+	if role != "SuperMan" {
+		return myErr.OverstepCompetence()
+	}
+	// 添加通知
+	ids, err := mysql.QueryAllUserId()
+	if err != nil {
+		zap.L().Error("PublishSystemMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
+		return err
+	}
+	for _, uid := range ids {
+		err = mysql.AddSystemMsg(content, int(uid))
+		if err != nil {
+			zap.L().Error("PublishSystemMsgService() service.article.likeService.AddSystemMsg err=", zap.Error(err))
+			return err
+		}
+	}
+	return nil
+}

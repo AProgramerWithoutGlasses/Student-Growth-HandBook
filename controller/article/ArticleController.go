@@ -390,3 +390,29 @@ func PublishArticleController(c *gin.Context) {
 	res.ResponseSuccess(c, nil)
 
 }
+
+// ReviseArticleStatusController 修改文章私密状态
+func ReviseArticleStatusController(c *gin.Context) {
+	in := struct {
+		ArticleId int  `json:"article_id"`
+		Status    bool `json:"article_status"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("ReviseArticleStatusController() controller.article.getArticle.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = article.ReviseArticleStatusService(in.ArticleId, in.Status)
+	if err != nil {
+		zap.L().Error("ReviseArticleStatusController() controller.article.getArticle.ReviseArticleStatusService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, nil)
+}
+
+//

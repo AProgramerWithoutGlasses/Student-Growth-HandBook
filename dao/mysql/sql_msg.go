@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 	"go.uber.org/zap"
+	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 	time "studentGrow/utils/timeConverter"
@@ -180,7 +181,7 @@ func QueryUnreadSystemMsg(uid int) (int, error) {
 	return int(count), nil
 }
 
-// QueryManagerMsg 获取管理员消息通知
+// QueryManagerMsg 查询管理员消息通知
 func QueryManagerMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
 	var msg []gorm_model.MsgRecord
 
@@ -216,7 +217,7 @@ func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, e
 		Limit(limit).
 		Offset((page - 1) * limit).Order("created_at desc").
 		Find(&likes).Error; err != nil {
-		zap.L().Error("QueryLikeRecordByUser() dao.mysql.mysql_like.Find err=", zap.Error(err))
+		zap.L().Error("QueryLikeRecordByUser() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
 	}
 	return likes, nil
@@ -226,7 +227,7 @@ func QueryLikeRecordNumByUser(uid int) (int, error) {
 	var count int64
 
 	if err := DB.Model(&gorm_model.UserLikeRecord{}).Where("is_read = ? and article_id IN (SELECT id FROM articles WHERE user_id = ?) OR comment_id IN (SELECT id FROM comments WHERE user_id = ?)", false, uid, uid).Count(&count).Error; err != nil {
-		zap.L().Error("QueryLikeRecordNumByUserArticle() dao.mysql.mysql_like.Count err=", zap.Error(err))
+		zap.L().Error("QueryLikeRecordNumByUserArticle() dao.mysql.sql_msg.Count err=", zap.Error(err))
 		return -1, err
 	}
 	return int(count), nil
@@ -239,12 +240,12 @@ func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCo
 	if err := DB.Preload("Article.User", "articles.user_id = ? and articles.ban = ?", uid, false).
 		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
 		Find(&articleCollects).Error; err != nil {
-		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.mysql_like.Find err=", zap.Error(err))
+		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(articleCollects) == 0 {
-		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.mysql_like err=", zap.Error(myErr.NotFoundError()))
+		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 	return articleCollects, nil
@@ -255,7 +256,7 @@ func QueryCollectRecordNumByUserArticle(uid int) (int, error) {
 	var count int64
 
 	if err := DB.Model(gorm_model.UserCollectRecord{}).Preload("Article", "user_id = ? and ban = ?", uid, false).Where("is_read = ?", false).Count(&count).Error; err != nil {
-		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.mysql_like.Count err=", zap.Error(err))
+		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.sql_msg.Count err=", zap.Error(err))
 		return -1, err
 	}
 
@@ -268,12 +269,12 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 	var commentIDs []uint
 
 	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", uid).Pluck("pid", &commentIDs).Error; err != nil {
-		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.mysql_like.Pluck err=", zap.Error(err))
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(commentIDs) <= 0 {
-		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.mysql_like err=", zap.Error(myErr.NotFoundError()))
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 
@@ -282,12 +283,12 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 		Or("articles.user_id = ? and articles.ban = ?", uid, false).
 		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
 		Find(&comments).Error; err != nil {
-		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.mysql_like err=", zap.Error(err))
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(comments) == 0 {
-		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.sql_comment err=", zap.Error(myErr.NotFoundError()))
+		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 
@@ -298,7 +299,7 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 func QueryCommentRecordNumByUserArticle(uid int) (int, error) {
 	var count int64
 	if err := DB.Model(gorm_model.Comment{}).Preload("Article", "user_id = ? and ban = ?", uid, false).Where("is_read = ?", false).Count(&count).Error; err != nil {
-		zap.L().Error("QueryCommentRecordNumByUserArticle() dao.mysql.mysql_like.Count err=", zap.Error(err))
+		zap.L().Error("QueryCommentRecordNumByUserArticle() dao.mysql.sql_msg.Count err=", zap.Error(err))
 		return -1, err
 	}
 	return int(count), nil
@@ -308,12 +309,12 @@ func QueryCommentRecordNumByUserArticle(uid int) (int, error) {
 func QueryCommentRecordByUserComments(cid int) (gorm_model.Comments, error) {
 	comments := gorm_model.Comments{}
 	if err := DB.Where("pid = ?", cid).Order("created_at desc").Find(&comments).Error; err != nil {
-		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.mysql_like.Find err=", zap.Error(err))
+		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(comments) == 0 {
-		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_comment err=", zap.Error(myErr.NotFoundError()))
+		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 	return comments, nil
@@ -322,7 +323,7 @@ func QueryCommentRecordByUserComments(cid int) (gorm_model.Comments, error) {
 // UpdateSystemRecordRead 确认系统消息
 func UpdateSystemRecordRead(uid int) error {
 	if err := DB.Model(&gorm_model.MsgRecord{}).Where("user_id = ? and type = ?", uid, 1).Update("is_read", true).Error; err != nil {
-		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_comment err=", zap.Error(err))
+		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -331,7 +332,7 @@ func UpdateSystemRecordRead(uid int) error {
 // UpdateManagerRecordRead 确认管理员消息
 func UpdateManagerRecordRead(uid int) error {
 	if err := DB.Model(&gorm_model.MsgRecord{}).Where("user_id = ? and type = ?", uid, 2).Update("is_read", true).Error; err != nil {
-		zap.L().Error("UpdateManagerRecordRead() dao.mysql.sql_comment err=", zap.Error(err))
+		zap.L().Error("UpdateManagerRecordRead() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -340,7 +341,7 @@ func UpdateManagerRecordRead(uid int) error {
 // UpdateLikeRecordRead 确认点赞
 func UpdateLikeRecordRead(msgId int) error {
 	if err := DB.Model(&gorm_model.UserLikeRecord{}).Where("id = ?", msgId).Update("is_read", true).Error; err != nil {
-		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_comment err=", zap.Error(err))
+		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -349,7 +350,7 @@ func UpdateLikeRecordRead(msgId int) error {
 // UpdateCollectRecordRead 确认收藏
 func UpdateCollectRecordRead(msgId int) error {
 	if err := DB.Model(&gorm_model.UserCollectRecord{}).Where("id = ?", msgId).Update("is_read", true).Error; err != nil {
-		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_comment err=", zap.Error(err))
+		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -358,8 +359,55 @@ func UpdateCollectRecordRead(msgId int) error {
 // UpdateCommentRecordRead 确认评论
 func UpdateCommentRecordRead(cid int) error {
 	if err := DB.Model(&gorm_model.Comment{}).Where("id = ?", cid).Update("is_read", true).Error; err != nil {
-		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_comment err=", zap.Error(err))
+		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
 	return nil
+}
+
+// AddManagerMsg 添加管理员通知
+func AddManagerMsg(username, content string, uid int) error {
+	managerMsg := gorm_model.MsgRecord{
+		Content:  content,
+		Username: username,
+		UserID:   uint(uid),
+		Type:     constant.ManagerMsgConstant,
+	}
+
+	if err := DB.Create(&managerMsg).Error; err != nil {
+		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// AddSystemMsg 添加系统通知
+func AddSystemMsg(content string, uid int) error {
+	systemMsg := gorm_model.MsgRecord{
+		Content: content,
+		UserID:  uint(uid),
+		Type:    constant.SystemMsgConstant,
+	}
+
+	if err := DB.Create(&systemMsg).Error; err != nil {
+		zap.L().Error("AddSystemMsg() dao.mysql.sql_msg err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// QueryAllUserId 查询所有用户的id
+func QueryAllUserId() ([]uint, error) {
+	var ids []uint
+	if err := DB.Model(&gorm_model.User{}).Pluck("id", &ids).Error; err != nil {
+		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(err))
+		return nil, err
+	}
+
+	if len(ids) == 0 {
+		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
+		return nil, myErr.NotFoundError()
+	}
+
+	return ids, nil
 }
