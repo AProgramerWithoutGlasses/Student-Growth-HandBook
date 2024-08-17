@@ -296,7 +296,7 @@ func PublishManagerMsgService(username, content string) error {
 // PublishSystemMsgService 发布系统通知
 func PublishSystemMsgService(content, role string) error {
 	// 权限验证
-	if role != "SuperMan" {
+	if role != "superman" {
 		return myErr.OverstepCompetence()
 	}
 	// 添加通知
