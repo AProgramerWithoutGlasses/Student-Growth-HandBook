@@ -65,3 +65,23 @@ func InsertArticleTags(tags []string, articleId int) error {
 	}
 	return nil
 }
+
+// QueryTopicByArticleId 通过文章id查询文章的话题
+func QueryTopicByArticleId(aid int) (string, error) {
+	var article gorm_model.Article
+	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
+		zap.L().Error("QueryTopicByArticleId() dao.mysql.sql_topic.First err=", zap.Error(err))
+		return "", err
+	}
+	return article.Topic, nil
+}
+
+// QueryTopicIdByTopicName 通过topicName查询topicId
+func QueryTopicIdByTopicName(topicName string) (int, error) {
+	var topic gorm_model.Topic
+	if err := DB.Where("topic_name = ?", topicName).First(&topic).Error; err != nil {
+		zap.L().Error("QueryTopicByArticleId() dao.mysql.sql_topic.First err=", zap.Error(err))
+		return -1, err
+	}
+	return int(topic.ID), nil
+}
