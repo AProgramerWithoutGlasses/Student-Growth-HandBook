@@ -35,7 +35,7 @@ func GetNameById(id int) (string, error) {
 // 获取不同的班级
 func GetDiffClass() ([]string, error) {
 	var diffClassSlice []string
-	err := DB.Table("users").Select("class").Distinct("class").Order("class ASC").Scan(&diffClassSlice).Error
+	err := DB.Table("users").Select("class").Distinct("class").Where("LENGTH(class) < 10").Order("class ASC").Scan(&diffClassSlice).Error
 	return diffClassSlice, err
 }
 
