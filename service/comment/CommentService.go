@@ -24,12 +24,13 @@ func PostComment(commentType, username, content string, id int) error {
 		return err
 	}
 
+	var cid int
 	//判断评论类型
 	switch commentType {
 	//给文章评论
 	case "0":
 		//向数据库插入评论数据
-		err = mysql.InsertIntoCommentsForArticle(content, id, uid)
+		cid, err = mysql.InsertIntoCommentsForArticle(content, id, uid)
 		if err != nil {
 			zap.L().Error("PostComment() service.article.InsertIntoCommentsForArticle err=", zap.Error(err))
 			return err
@@ -48,7 +49,7 @@ func PostComment(commentType, username, content string, id int) error {
 
 	case "1":
 		//向数据库插入评论数据
-		err = mysql.InsertIntoCommentsForComment(content, id, uid)
+		cid, err = mysql.InsertIntoCommentsForComment(content, id, uid)
 		if err != nil {
 			zap.L().Error("PostComment() service.article.InsertIntoCommentsForComment err=", zap.Error(err))
 			return err
@@ -56,6 +57,10 @@ func PostComment(commentType, username, content string, id int) error {
 	default:
 		return myErr.DataFormatError()
 	}
+
+	// 将评论数据加入redis
+	redis.RDB.HSet("comment", strconv.Itoa(cid), 0)
+
 	return nil
 }
 
