@@ -15,6 +15,7 @@ type ResponseStruct struct {
 }
 
 func QueryTeacherControl(c *gin.Context) {
+	// 接收
 	var queryParama jrx_model.QueryTeacherParamStruct
 	err := c.BindJSON(&queryParama)
 	if err != nil {
@@ -33,6 +34,7 @@ func QueryTeacherControl(c *gin.Context) {
 		return
 	}
 
+	// 响应
 	responseStruct := ResponseStruct{
 		TeacherInfo:     teacherList,
 		AllTeacherCount: allTeacherCount,

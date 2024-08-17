@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"regexp"
+	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
 	"studentGrow/utils/readMessage"
+	"time"
 )
 
 // AddSingleStuContro 添加单个学生
@@ -44,6 +47,19 @@ func AddSingleStuContro(c *gin.Context) {
 		fmt.Println("gender GetString() err : ", err)
 	}
 
+	// 根据班级获取入学时间
+	re := regexp.MustCompile(`^\D*(\d{2})`)
+	match := re.FindStringSubmatch(classValue)
+
+	yearEnd := match[1]                    // 获取 "22"
+	yearEndInt, _ := strconv.Atoi(yearEnd) // 将 "22" 转换为整数
+	yearInt := yearEndInt + 2000           // 将整数转换为 "2022"
+
+	now := time.Now()
+	plusTime := time.Date(yearInt, 9, 1, 0, 0, 0, 0, now.Location())
+
+	fmt.Println("plusTime:", plusTime)
+
 	// 将新增学生信息整合到结构体中
 	user := gorm_model.User{
 		Name:     nameValue,
@@ -52,6 +68,7 @@ func AddSingleStuContro(c *gin.Context) {
 		Class:    classValue,
 		Gender:   genderValue,
 		Identity: "学生",
+		PlusTime: plusTime,
 	}
 
 	// 在数据库中添加该学生信息
