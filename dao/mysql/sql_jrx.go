@@ -45,6 +45,12 @@ func AddSingleStudent(users *gorm_model.User) error {
 	return err
 }
 
+// 添加单个老师
+func AddSingleTeacher(users *gorm_model.User) error {
+	err := DB.Select("name", "username", "password", "gender", "identity").Create(users).Error
+	return err
+}
+
 // 删除单个学生
 func DeleteSingleStudent(id int) error {
 	err := DB.Table("users").Where("id = ?", id).Delete(nil).Error

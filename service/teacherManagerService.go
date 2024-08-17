@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"studentGrow/dao/mysql"
+	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 )
 
@@ -144,5 +145,14 @@ func SetStuManagerService(username string, ManagerType string, year string) erro
 		}
 	}
 
+	return err
+}
+
+func AddSingleTeacherService(addSingleTeacherReqStruct gorm_model.User) error {
+	addSingleTeacherReqStruct.Identity = "老师"
+	err := mysql.AddSingleTeacher(&addSingleTeacherReqStruct)
+	if err != nil {
+		return err
+	}
 	return err
 }
