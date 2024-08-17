@@ -35,7 +35,7 @@ type ResponseStruct struct {
 
 // queryParmaStruct 用于获取查询参数
 type QueryParmaStruct struct {
-	Year          int    `json:"year"`
+	Year          string `json:"year"`
 	Class         string `json:"class"`
 	Gender        string `json:"gender"`
 	IsDisable     bool   `json:"is_disable"`
