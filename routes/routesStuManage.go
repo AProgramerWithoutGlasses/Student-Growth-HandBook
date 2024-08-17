@@ -16,6 +16,6 @@ func routesStudentManage(r *gin.Engine) {
 	rs.POST("/deleteStudent", stuManage.DeleteStuControl)
 	rs.POST("/setStudentManager", stuManage.SetStuManagerControl)
 	rs.POST("/editStudent", stuManage.EditStuControl)
-	rs.POST("/banStudent", stuManage.BanStuControl)
+	rs.POST("/banStudent", stuManage.BanUserControl)
 	rs.POST("/outputMultipleStudent", stuManage.OutputMultipleStuControl)
 }

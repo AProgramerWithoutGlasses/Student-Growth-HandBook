@@ -3,42 +3,32 @@ package stuManage
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"studentGrow/dao/mysql"
+	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
-	"studentGrow/utils/readMessage"
+	"studentGrow/service"
 )
 
-func BanStuControl(c *gin.Context) {
-	// 接收请求信息
-	stuMessage, err := readMessage.GetJsonvalue(c)
+func BanUserControl(c *gin.Context) {
+	// 接收数据
+	var user gorm_model.User
+	err := c.Bind(&user)
 	if err != nil {
-		fmt.Println("stuManage.BanStuControl() readMessage.GetJsonvalue() err : ", err)
-		response.ResponseErrorWithMsg(c, 500, err.Error())
+		fmt.Println("stuManage.BanStuControl() c.Bind() err : ", err)
+		response.ResponseErrorWithMsg(c, 500, "stuManage.BanStuControl() c.Bind() failed : "+err.Error())
 		return
 	}
 
-	usernameValue, err := stuMessage.GetString("username")
+	name, temp, err := service.BanUserService(user)
 	if err != nil {
-		fmt.Println("stuManage.BanStuControl() username GetString() err : ", err)
-		response.ResponseErrorWithMsg(c, 500, err.Error())
+		response.ResponseErrorWithMsg(c, 500, "stuManage.BanStuControl() service.BanUserService() failed : "+err.Error())
 		return
 	}
 
-	// 根据学号获取id
-	id, err := mysql.GetIdByUsername(usernameValue)
-	if err != nil {
-		fmt.Println("stuManage.DeleteStuControl() mysql.GetIdByUsername() err : ", err)
-		response.ResponseErrorWithMsg(c, 500, err.Error())
-		return
+	// 响应
+	if temp == 0 {
+		response.ResponseSuccess(c, "已将用户"+name+"取消管理员身份")
+	} else if temp == 1 {
+		response.ResponseSuccess(c, "已将用户"+name+"设为管理员")
 	}
-
-	// mysql中封禁该学生
-	err = mysql.BanStudent(id)
-	if err != nil {
-		fmt.Println("stuManage.DeleteStuControl() mysql.BanStudent() err : ", err)
-		response.ResponseErrorWithMsg(c, 500, err.Error())
-		return
-	}
-	response.ResponseSuccess(c, 200)
 
 }

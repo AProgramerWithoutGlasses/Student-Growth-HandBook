@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strconv"
 	"studentGrow/dao/mysql"
+	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"time"
 )
@@ -73,8 +74,11 @@ func GetYearStructSlice() []jrx_model.YearStruct {
 }
 
 // 获取返回给前端的class结构体切片
-func GetClassStructSlice() []jrx_model.ClassStruct {
-	diffClassSlice := mysql.GetDiffClass() // 从mysql中获取不同的class
+func GetClassStructSlice() ([]jrx_model.ClassStruct, error) {
+	diffClassSlice, err := mysql.GetDiffClass() // 从mysql中获取不同的class
+	if err != nil {
+		return nil, err
+	}
 	classStructSlice := make([]jrx_model.ClassStruct, len(diffClassSlice))
 	for i, class := range diffClassSlice {
 		classStructSlice[i] = jrx_model.ClassStruct{
@@ -82,7 +86,7 @@ func GetClassStructSlice() []jrx_model.ClassStruct {
 			Class:    class,
 		}
 	}
-	return classStructSlice
+	return classStructSlice, err
 }
 
 // 根据搜索条件，创建sql语句
@@ -91,10 +95,9 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 	stuMesMap := stuMessage.ForRangeObj()
 
 	// 初始化查询学生信息的sql语句
-	querySql := `Select name, username, password, class, plus_time, gender, phone_number, ban, is_manager from users`
+	querySql := `Select name, username, password, class, plus_time, gender, phone_number, ban, is_manager from users where identity = '学生'`
 
 	// temp标签用于在下方stuMesMap遍历中判断该字段是否为第一个有值的字段
-	temp := 0
 
 	// 对请求数据的map进行遍历，判断每个字段是否为空
 	for k, v := range stuMesMap {
@@ -104,11 +107,6 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 				fmt.Println("year null")
 			} else { // 如果字段值有值
 				fmt.Println("year")
-				if temp == 0 { // 如果是第一个有值的字段
-					querySql = querySql + " where YEAR(plus_time) = " + v.String()
-					temp++
-					break
-				}
 				querySql = querySql + " and YEAR(plus_time) = " + v.String() // 对sql语句加上该字段对应的限定条件
 			}
 
@@ -117,11 +115,6 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 				fmt.Println("class null")
 			} else {
 				fmt.Println("class")
-				if temp == 0 {
-					querySql = querySql + " where class = '" + v.String() + "'"
-					temp++
-					break
-				}
 				querySql = querySql + " and class = '" + v.String() + "'"
 			}
 
@@ -130,11 +123,6 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 				fmt.Println("gender null")
 			} else {
 				fmt.Println("gender")
-				if temp == 0 {
-					querySql = querySql + " where gender = '" + v.String() + "'"
-					temp++
-					break
-				}
 				querySql = querySql + " and gender = '" + v.String() + "'"
 			}
 
@@ -143,11 +131,6 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 				fmt.Println("isDisable null")
 			} else {
 				fmt.Println("isDisable")
-				if temp == 0 {
-					querySql = querySql + " where ban = " + v.String()
-					temp++
-					break
-				}
 				querySql = querySql + " and ban = " + v.String()
 			}
 
@@ -156,11 +139,6 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 				fmt.Println("searchSelect null")
 			} else {
 				fmt.Println("searchSelect")
-				if temp == 0 {
-					querySql = querySql + " where " + queryParmaStruct.SearchSelect + " like '%" + queryParmaStruct.SearchMessage + "%'"
-					temp++
-					break
-				}
 				querySql = querySql + " and " + queryParmaStruct.SearchSelect + " like '%" + queryParmaStruct.SearchMessage + "%'"
 			}
 
@@ -257,4 +235,66 @@ func GetSelectedStuExcel(selectedStuMesStruct jrx_model.SelectedStuMesStruct) (*
 	}
 
 	return excelData, err
+}
+
+// banUserService
+func BanUserService(user gorm_model.User) (name string, temp int, err error) {
+	// 根据学号获取id
+	id, err := mysql.GetIdByUsername(user.Username)
+	if err != nil {
+		return name, temp, err
+	}
+
+	// 获取该学生姓名
+	name, err = mysql.GetNameById(id)
+	if err != nil {
+		return name, temp, err
+	}
+
+	// mysql中封禁该学生
+	temp, err = mysql.BanStudent(id)
+	if err != nil {
+		return name, temp, err
+	}
+
+	return name, temp, err
+}
+
+// GetStuMesList 根据搜索框内容查询学生信息列表
+func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
+	// 从mysql中获取数据到user表中
+	userSlice, err := mysql.GetUserListBySql(querySql)
+	if err != nil {
+		return nil, err
+	}
+
+	// 从user表中获取数据到stuMesSlice中
+	stuMesSlice := make([]jrx_model.StuMesStruct, len(userSlice))
+	for i := 0; i < len(userSlice); i++ {
+		stuMesSlice[i].Name = userSlice[i].Name
+		stuMesSlice[i].Username = userSlice[i].Username
+		stuMesSlice[i].Password = userSlice[i].Password
+		stuMesSlice[i].Class = userSlice[i].Class
+		stuMesSlice[i].Year = userSlice[i].PlusTime.Format("2006") // 日期只保留年份
+		stuMesSlice[i].Gender = userSlice[i].Gender
+		stuMesSlice[i].Telephone = userSlice[i].PhoneNumber
+		stuMesSlice[i].Ban = userSlice[i].Ban
+
+		if userSlice[i].IsManager {
+			managerType, err := GetManagerType(userSlice[i].Username)
+			if err != nil {
+				return nil, err
+			}
+			stuMesSlice[i].ManagerType = managerType
+		} else {
+			stuMesSlice[i].ManagerType = "无"
+		}
+
+	}
+
+	for k, user := range stuMesSlice {
+		fmt.Println("转化成功", k, user)
+	}
+
+	return stuMesSlice, err
 }
