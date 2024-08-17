@@ -88,13 +88,13 @@ func CollectOrNotService(aid, username string) error {
 		return err
 	}
 
+	// 若存在该文章,则取消收藏
 	selectArticles := make(map[string]struct{})
 	for _, s := range slice {
 		selectArticles[s] = struct{}{}
 	}
-
-	// 若存在该文章,则取消收藏
 	_, ok := selectArticles[aid]
+
 	if len(selectArticles) > 0 && ok {
 		err = CancelCollectService(aid, username)
 		if err != nil {

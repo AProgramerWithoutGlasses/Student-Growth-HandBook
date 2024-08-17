@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-var Selection = "select"
+var Selection = "collect"
 
 // AddArticleToCollectSet 添加文章到用户收藏集合中
 func AddArticleToCollectSet(uid string, aid string) error {
@@ -39,6 +39,7 @@ func SetArticleCollections(aid string, selectNum int) error {
 // GetArticleCollections 获取文章收藏数
 func GetArticleCollections(aid string) (int, error) {
 	selectNum, err := RDB.HGet(Selection, aid).Result()
+	fmt.Println(Selection, aid)
 	if err != nil {
 		fmt.Println("GetArticleSelections() service.article.HGet err=", err)
 		return -1, err

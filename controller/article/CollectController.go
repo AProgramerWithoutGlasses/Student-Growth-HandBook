@@ -36,7 +36,7 @@ func CollectArticleController(c *gin.Context) {
 	}
 
 	// 收藏
-	err = article.CollectOrNotService(username, strconv.Itoa(aid))
+	err = article.CollectOrNotService(strconv.Itoa(aid), username)
 	if err != nil {
 		fmt.Println("CollectArticleController() controller.article.CollectController.SelectService err=", err)
 		myErr.CheckErrors(err, c)
