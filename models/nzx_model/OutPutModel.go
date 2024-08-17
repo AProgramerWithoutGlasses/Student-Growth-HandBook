@@ -11,6 +11,7 @@ type Out struct {
 	IsRead       bool   `json:"is_read"`
 	Type         int    `json:"type"`
 	ArticleId    uint   `json:"article_id"`
+	MsgId        uint   `json:"msg_id"`
 	//CreatedAt    time.Time `json:"-"`
 }
 
@@ -29,6 +30,7 @@ type CommentMsg struct {
 	IsRead       bool      `json:"is_read"`
 	Type         int       `json:"type"`
 	ArticleId    uint      `json:"article_id"`
+	MsgId        uint      `json:"msg_id"`
 	CreatedAt    time.Time `json:"-"`
 }
 

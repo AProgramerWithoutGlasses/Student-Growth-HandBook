@@ -154,10 +154,10 @@ func AckUnreadReportsForSuperman(reportsId int) error {
 }
 
 // QuerySystemMsg 查询系统消息
-func QuerySystemMsg(page, limit int, username string) ([]gorm_model.MsgRecord, error) {
+func QuerySystemMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
 	var msg []gorm_model.MsgRecord
 
-	if err := DB.Preload("User", "username = ?", username).Where("type = ?", 1).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
+	if err := DB.Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 1, uid).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
 		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
 		return nil, err
 	}
@@ -171,9 +171,9 @@ func QuerySystemMsg(page, limit int, username string) ([]gorm_model.MsgRecord, e
 }
 
 // QueryUnreadSystemMsg 查询未读系统通知条数
-func QueryUnreadSystemMsg(username string) (int, error) {
+func QueryUnreadSystemMsg(uid int) (int, error) {
 	var count int64
-	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "username = ?", username).Where("type = ? and is_read = ?", 1, false).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and is_read = ? and user_id", 1, false, uid).Count(&count).Error; err != nil {
 		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
 		return -1, err
 	}
@@ -181,10 +181,10 @@ func QueryUnreadSystemMsg(username string) (int, error) {
 }
 
 // QueryManagerMsg 获取管理员消息通知
-func QueryManagerMsg(page, limit int, username string) ([]gorm_model.MsgRecord, error) {
+func QueryManagerMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
 	var msg []gorm_model.MsgRecord
 
-	if err := DB.Preload("User", "username = ?", username).Where("type = ?", 2).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
+	if err := DB.Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 2, uid).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
 		zap.L().Error("QueryManagerMsg() dao.mysql.sql_msg", zap.Error(err))
 		return nil, err
 	}
@@ -198,9 +198,9 @@ func QueryManagerMsg(page, limit int, username string) ([]gorm_model.MsgRecord, 
 }
 
 // QueryUnreadManagerMsg 获取未读管理员消息通知
-func QueryUnreadManagerMsg(username string) (int, error) {
+func QueryUnreadManagerMsg(uid int) (int, error) {
 	var count int64
-	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "username = ?", username).Where("type = ?", 2).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 2, uid).Count(&count).Error; err != nil {
 		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
 		return -1, err
 	}
@@ -317,4 +317,49 @@ func QueryCommentRecordByUserComments(cid int) (gorm_model.Comments, error) {
 		return nil, myErr.NotFoundError()
 	}
 	return comments, nil
+}
+
+// UpdateSystemRecordRead 确认系统消息
+func UpdateSystemRecordRead(uid int) error {
+	if err := DB.Model(&gorm_model.MsgRecord{}).Where("user_id = ? and type = ?", uid, 1).Update("is_read", true).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_comment err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// UpdateManagerRecordRead 确认管理员消息
+func UpdateManagerRecordRead(uid int) error {
+	if err := DB.Model(&gorm_model.MsgRecord{}).Where("user_id = ? and type = ?", uid, 2).Update("is_read", true).Error; err != nil {
+		zap.L().Error("UpdateManagerRecordRead() dao.mysql.sql_comment err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// UpdateLikeRecordRead 确认点赞
+func UpdateLikeRecordRead(msgId int) error {
+	if err := DB.Model(&gorm_model.UserLikeRecord{}).Where("id = ?", msgId).Update("is_read", true).Error; err != nil {
+		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_comment err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// UpdateCollectRecordRead 确认收藏
+func UpdateCollectRecordRead(msgId int) error {
+	if err := DB.Model(&gorm_model.UserCollectRecord{}).Where("id = ?", msgId).Update("is_read", true).Error; err != nil {
+		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_comment err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// UpdateCommentRecordRead 确认评论
+func UpdateCommentRecordRead(cid int) error {
+	if err := DB.Model(&gorm_model.Comment{}).Where("id = ?", cid).Update("is_read", true).Error; err != nil {
+		zap.L().Error("UpdateArticleLikeRecordRead() dao.mysql.sql_comment err=", zap.Error(err))
+		return err
+	}
+	return nil
 }

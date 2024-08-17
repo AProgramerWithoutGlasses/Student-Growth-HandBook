@@ -370,7 +370,6 @@ func PublishArticleController(c *gin.Context) {
 	}
 	tags := form.Value["article_tags"]
 	topic := form.Value["article_topic"][0]
-
 	status, err := strconv.ParseBool(form.Value["article_status"][0])
 	if err != nil {
 		zap.L().Error("PublishArticleController() controller.article.getArticle.ParseBool err=", zap.Error(err))

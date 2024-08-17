@@ -9,10 +9,11 @@ import (
 
 type MsgRecord struct {
 	gorm.Model
-	Content string `gorm:"not null" json:"msg_content"`
-	Type    int    `gorm:"not null" json:"msg_type"`
-	Time    string `gorm:"-" json:"msg_time"`
-	IsRead  bool   `gorm:"default:false" json:"is_read"`
-	UserID  uint
-	User    User
+	Username string //消息发布者的username
+	Content  string `gorm:"not null" json:"msg_content"`
+	Type     int    `gorm:"not null" json:"msg_type"`
+	Time     string `gorm:"-" json:"msg_time"`
+	IsRead   bool   `gorm:"default:false" json:"is_read"`
+	UserID   uint
+	User     User
 }
