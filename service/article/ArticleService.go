@@ -301,7 +301,7 @@ func SearchHotArticlesOfDayService(j *jsonvalue.V) (model.Articles, error) {
 	var list model.Articles
 
 	// 获取热度前count条数据
-	for i := 0; i < count; i++ {
+	for i := 0; i < count && i < len(articles); i++ {
 		list = append(list, articles[i])
 	}
 
@@ -407,6 +407,7 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	// 将文章更新到redis点赞、收藏
 	redis.RDB.HSet("article", strconv.Itoa(aid), 0)
 	redis.RDB.HSet("collect", strconv.Itoa(aid), 0)
+	fmt.Println("collect", strconv.Itoa(aid))
 	return nil
 }
 

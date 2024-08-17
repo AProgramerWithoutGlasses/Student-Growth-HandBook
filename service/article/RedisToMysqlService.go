@@ -15,6 +15,7 @@ var (
 func InitMyMQ() {
 	ArticleLikeChan = make(chan nzxMod.RedisLikeArticleData, 100)
 	CommentLikeChan = make(chan nzxMod.RedisLikeCommentData, 100)
+	ArticleCollectChan = make(chan nzxMod.RedisCollectData, 100)
 	go writeToMysql()
 }
 

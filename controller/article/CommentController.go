@@ -94,7 +94,7 @@ func GetLel1CommentsController(c *gin.Context) {
 
 	var list []map[string]any
 	for _, comt := range comments {
-		sonNum, err := mysql.QuerySonCommentNum(int(comt.ID))
+		num, err := mysql.QuerySonCommentNum(int(comt.ID))
 		if err != nil {
 			zap.L().Error("GetLel1CommentsController() controller.article.QuerySonCommentNum err=", zap.Error(err))
 			myErr.CheckErrors(err, c)
@@ -108,7 +108,7 @@ func GetLel1CommentsController(c *gin.Context) {
 			"comment_content":  comt.Content,
 			"id":               comt.ID,
 			"comment_like_num": comt.LikeAmount,
-			"comment_son_num":  sonNum,
+			"comment_son_num":  num,
 			"comment_if_like":  comt.IsLike,
 			"p_id":             comt.Pid,
 		})
