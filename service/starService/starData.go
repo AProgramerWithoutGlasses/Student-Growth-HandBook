@@ -132,7 +132,7 @@ func SearchGrade(name string, year int) ([]string, error) {
 	for _, username := range gUsername {
 		tusername, _ := mysql.SelName(username)
 		if tusername == name {
-			backString = append(backString, tusername)
+			backString = append(backString, username)
 		}
 	}
 	return backString, nil
