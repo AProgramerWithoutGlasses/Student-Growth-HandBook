@@ -8,6 +8,7 @@ import (
 	res "studentGrow/pkg/response"
 	"studentGrow/service/comment"
 	utils "studentGrow/utils/readMessage"
+	"studentGrow/utils/timeConverter"
 	"studentGrow/utils/token"
 )
 
@@ -91,8 +92,30 @@ func GetLel1CommentsController(c *gin.Context) {
 		return
 	}
 
+	var list []map[string]any
+	for _, comt := range comments {
+		sonNum, err := mysql.QuerySonCommentNum(int(comt.ID))
+		if err != nil {
+			zap.L().Error("GetLel1CommentsController() controller.article.QuerySonCommentNum err=", zap.Error(err))
+			myErr.CheckErrors(err, c)
+			return
+		}
+		list = append(list, map[string]any{
+			"user_headshot":    comt.User.HeadShot,
+			"username":         comt.User.Username,
+			"name":             comt.User.Name,
+			"comment_time":     timeConverter.IntervalConversion(comt.CreatedAt),
+			"comment_content":  comt.Content,
+			"id":               comt.ID,
+			"comment_like_num": comt.LikeAmount,
+			"comment_son_num":  sonNum,
+			"comment_if_like":  comt.IsLike,
+			"p_id":             comt.Pid,
+		})
+	}
+
 	res.ResponseSuccess(c, map[string]any{
-		"comment_list": comments,
+		"comment_list": list,
 		"comment_num":  commentNum,
 	})
 }
@@ -120,8 +143,24 @@ func GetSonCommentsController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
+
+	var list []map[string]any
+	for _, comt := range comments {
+		list = append(list, map[string]any{
+			"user_headshot":    comt.User.HeadShot,
+			"username":         comt.User.Username,
+			"name":             comt.User.Name,
+			"comment_time":     timeConverter.IntervalConversion(comt.CreatedAt),
+			"comment_content":  comt.Content,
+			"id":               comt.ID,
+			"comment_like_num": comt.LikeAmount,
+			"comment_if_like":  comt.IsLike,
+			"p_id":             comt.Pid,
+		})
+	}
+
 	res.ResponseSuccess(c, map[string]any{
-		"comment_se_list": comments,
+		"comment_se_list": list,
 	})
 }
 
