@@ -21,10 +21,9 @@ func QueryTeacherControl(c *gin.Context) {
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("teacherManage.QueryTeacher() c.Bind() err : ", zap.Error(err))
-		return
 	}
 
-	fmt.Println("queryParama", queryParama)
+	fmt.Printf("queryParama: %+v\n", queryParama)
 
 	// 业务
 	teacherList, allTeacherCount, err := service.QueryTeacher(queryParama)

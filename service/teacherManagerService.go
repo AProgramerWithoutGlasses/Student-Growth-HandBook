@@ -10,13 +10,13 @@ import (
 
 // 查询老师
 func QueryTeacher(queryTeacherParama jrx_model.QueryTeacherParamStruct) ([]jrx_model.QueryTeacherResStruct, int, error) {
-	// 获取老师总数量
+	// 获取老师总数量(长度)
 	allTeacherCount64, err := mysql.GetAllUserCount("老师")
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// 类型转换
+	// 总数量类型转换
 	allTeacherCount := int(allTeacherCount64)
 
 	// 获取老师列表
