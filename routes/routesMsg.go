@@ -40,4 +40,10 @@ func routesMsg(r *gin.Engine) {
 	// 确认管理员消息
 	msg.POST("/ack_managerMsg", message.AckManagerMsgController)
 
+	// 发布管理员通知
+	msg.POST("/publish_managerMsg", message.PublishManagerMsgController)
+
+	// 发布系统通知
+	msg.POST("/publish_systemMsg", message.PublishSystemMsgController)
+
 }

@@ -35,3 +35,11 @@ const LikeMsgConstant = 0
 const CommentMsgConstant = 1
 
 const CollectMsgConstant = 2
+
+/*
+广播消息通知类型
+*/
+
+const SystemMsgConstant = 1
+
+const ManagerMsgConstant = 2

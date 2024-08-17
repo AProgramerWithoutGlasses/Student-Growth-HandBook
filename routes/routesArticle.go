@@ -35,6 +35,8 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/publish", token.AuthMiddleware(), article.PublishArticleController)
 	// 班级分类文章列表
 	at.POST("/class_search", article.GetArticleByClassController)
+	// 修改文章私密状态
+	at.POST("/status", article.ReviseArticleStatusController)
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表

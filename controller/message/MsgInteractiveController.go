@@ -52,14 +52,6 @@ func GetManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	// 获取用户身份
-	role, err := token.GetRole(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetManagerMsgController() controller.message.GetRole err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
 	msg, UnreadCount, err := message.GetManagerMsgService(in.Limit, in.Page, in.Username)
 	if err != nil {
 		zap.L().Error("GetManagerMsgController() controller.message.GetManagerMsgService err=", zap.Error(err))
@@ -69,7 +61,6 @@ func GetManagerMsgController(c *gin.Context) {
 
 	res.ResponseSuccess(c, map[string]any{
 		"manager_info": msg,
-		"role":         role,
 		"unread_count": UnreadCount,
 	})
 }
@@ -217,5 +208,63 @@ func AckSystemMsgController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
+	res.ResponseSuccess(c, nil)
+}
+
+// PublishManagerMsgController 发布管理员通知
+func PublishManagerMsgController(c *gin.Context) {
+	in := struct {
+		Content string `json:"msg_content"`
+	}{}
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("PublishManagerMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("PublishManagerMsgController() controller.message.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = message.PublishManagerMsgService(username, in.Content)
+	if err != nil {
+		zap.L().Error("PublishManagerMsgController() controller.message.PublishManagerMsgService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, nil)
+}
+
+// PublishSystemMsgController 发布系统通知
+func PublishSystemMsgController(c *gin.Context) {
+	in := struct {
+		Content string `json:"msg_content"`
+	}{}
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("PublishSystemMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("PublishSystemMsgController() controller.message.GetRole err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = message.PublishSystemMsgService(in.Content, role)
+	if err != nil {
+		zap.L().Error("PublishSystemMsgController() controller.message.PublishSystemMsgService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
 	res.ResponseSuccess(c, nil)
 }

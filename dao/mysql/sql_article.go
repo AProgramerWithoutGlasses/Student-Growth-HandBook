@@ -444,3 +444,32 @@ func QueryArticleByClass(limit, page int, class, keyWord string) (model.Articles
 
 	return articles, nil
 }
+
+// QueryArticleStatusById 通过id查询文章的私密状态
+func QueryArticleStatusById(aid int) (bool, error) {
+	var article model.Article
+	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
+		zap.L().Error("QueryArticleStatusById() dao.mysql.sql_article", zap.Error(err))
+		return false, err
+	}
+	return article.Status, nil
+}
+
+// UpdateArticleStatusById 通过id修改文章的私密状态
+func UpdateArticleStatusById(aid int, status bool) error {
+	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("status", status).Error; err != nil {
+		zap.L().Error("UpdateArticleStatusById() dao.mysql.sql_article", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// QueryUserByArticleId 通过文章获取用户User
+func QueryUserByArticleId(aid int) (*model.User, error) {
+	var user model.User
+	if err := DB.Preload("User").Where("id = ?", aid).First(&user).Error; err != nil {
+		zap.L().Error("QueryUserByArticleId() dao.mysql.sql_article", zap.Error(err))
+		return nil, err
+	}
+	return &user, nil
+}
