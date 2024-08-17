@@ -189,7 +189,17 @@ func GetHotArticlesOfDayController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, articles)
+	var list []map[string]any
+	for _, a := range articles {
+		list = append(list, map[string]any{
+			"article_id":    a.ID,
+			"article_title": a.Content,
+		})
+	}
+
+	res.ResponseSuccess(c, map[string]any{
+		"article_list": list,
+	})
 }
 
 // SelectArticleAndUserListByPageFirstPageController 前台首页模糊搜索文章列表
@@ -217,7 +227,40 @@ func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, articles)
+	var list []map[string]any
+	for _, a := range articles {
+		var pics []string
+		var tags []string
+		for _, pic := range a.ArticlePics {
+			pics = append(pics, pic.Pic)
+		}
+		for _, tag := range a.ArticleTags {
+			tags = append(tags, tag.Tag.TagName)
+		}
+
+		list = append(list, map[string]any{
+			"user_headshot":   a.User.HeadShot,
+			"user_class":      a.User.Class,
+			"name":            a.User.Name,
+			"article_id":      a.ID,
+			"like_amount":     a.LikeAmount,
+			"collect_amount":  a.CollectAmount,
+			"comment_amount":  a.CommentAmount,
+			"article_content": a.Content,
+			"article_pics":    pics,
+			"article_video":   a.Video,
+			"article_tags":    tags,
+			"article_topic":   a.Topic,
+			"is_like":         a.IsLike,
+			"is_collect":      a.IsCollect,
+			"post_time":       a.PostTime,
+			"username":        a.User.Username,
+		})
+	}
+
+	res.ResponseSuccess(c, map[string]any{
+		"content": list,
+	})
 }
 
 // GetArticleByClassController 班级分类获取文章列表
