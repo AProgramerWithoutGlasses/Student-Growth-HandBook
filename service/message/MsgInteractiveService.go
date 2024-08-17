@@ -3,21 +3,30 @@ package message
 import (
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
+	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/nzx_model"
+	myErr "studentGrow/pkg/error"
 	"studentGrow/utils/timeConverter"
 )
 
 // GetSystemMsgService 获取系统消息通知
 func GetSystemMsgService(limit, page int, username string) ([]gorm_model.MsgRecord, int, error) {
-	msgs, err := mysql.QuerySystemMsg(page, limit, username)
+	// 获取uid
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		zap.L().Error("GetSystemMsgService() service.message.QuerySystemMsg", zap.Error(err))
+		return nil, 0, err
+	}
+
+	msgs, err := mysql.QuerySystemMsg(page, limit, uid)
 	if err != nil {
 		zap.L().Error("GetSystemMsgService() service.message.QuerySystemMsg", zap.Error(err))
 		return nil, -1, err
 	}
 
 	// 查询未读消息条数
-	count, err := mysql.QueryUnreadSystemMsg(username)
+	count, err := mysql.QueryUnreadSystemMsg(uid)
 	if err != nil {
 		zap.L().Error("GetSystemMsgService() service.message.QueryUnreadSystemMsg", zap.Error(err))
 		return nil, -1, err
@@ -32,14 +41,21 @@ func GetSystemMsgService(limit, page int, username string) ([]gorm_model.MsgReco
 
 // GetManagerMsgService 获取管理员消息
 func GetManagerMsgService(limit, page int, username string) ([]gorm_model.MsgRecord, int, error) {
-	msgs, err := mysql.QueryManagerMsg(page, limit, username)
+	// 获取uid
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		zap.L().Error("GetManagerMsgService() service.message.GetIdByUsername", zap.Error(err))
+		return nil, 0, err
+	}
+
+	msgs, err := mysql.QueryManagerMsg(page, limit, uid)
 	if err != nil {
 		zap.L().Error("GetManagerMsgService() service.message.QueryManagerMsg", zap.Error(err))
 		return nil, -1, err
 	}
 
 	// 查询未读消息条数
-	count, err := mysql.QueryUnreadManagerMsg(username)
+	count, err := mysql.QueryUnreadManagerMsg(uid)
 	if err != nil {
 		zap.L().Error("GetManagerMsgService() service.message.QueryUnreadManagerMsg", zap.Error(err))
 		return nil, -1, err
@@ -103,6 +119,7 @@ func GetArticleAndCommentLikedMsgService(username string, page, limit int) ([]nz
 			IsRead:       like.IsRead,
 			Type:         likeType,
 			ArticleId:    articleId,
+			MsgId:        like.ID,
 		})
 	}
 
@@ -142,6 +159,7 @@ func GetCollectMsgService(username string, page, limit int) ([]map[string]any, i
 			"user_headshot":   collect.User.HeadShot,
 			"post_time":       timeConverter.IntervalConversion(collect.CreatedAt),
 			"is_read":         collect.IsRead,
+			"msg_id":          collect.ID,
 		})
 	}
 
@@ -185,56 +203,72 @@ func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMs
 			IsRead:       comment.IsRead,
 			Type:         commentType,
 			ArticleId:    comment.ArticleID,
+			MsgId:        comment.ID,
 		})
 	}
 
 	return commentMsgs, nil
+}
 
-	//commentMsgs := make([]nzx_model.CommentMsgs, page+5) // 每个元素为一页，一页limit条记录
-	//itemCount := 0                                       // 记录项数
-	//isLimit := false                                     // 是否超出记录限制
+// AckInterMsgService 确认互动消息通知
+func AckInterMsgService(msgId, msgType int) error {
+	switch msgType {
+	case constant.LikeMsgConstant:
+		err := mysql.UpdateLikeRecordRead(msgId)
+		if err != nil {
+			zap.L().Error("AckInterMsgService() service.article.likeService.UpdateLikeRecordRead err=", zap.Error(err))
+			return err
+		}
+	case constant.CommentMsgConstant:
+		err := mysql.UpdateCommentRecordRead(msgId)
+		if err != nil {
+			zap.L().Error("AckInterMsgService() service.article.likeService.UpdateCommentRecordRead err=", zap.Error(err))
+			return err
+		}
+	case constant.CollectMsgConstant:
+		err := mysql.UpdateCollectRecordRead(msgId)
+		if err != nil {
+			zap.L().Error("AckInterMsgService() service.article.likeService.UpdateCollectRecordRead err=", zap.Error(err))
+			return err
+		}
+	default:
+		return myErr.DataFormatError()
+	}
+	return nil
+}
 
-	//// 根据用户的一级评论获取评论回复
-	//for _, lel1 := range lel1Comments {
-	//	// 满足客户端传来的记录总数据，则退出循环
-	//	if isLimit {
-	//		break
-	//	}
-	//	comments, err := mysql.QueryCommentRecordByUserComments(int(lel1.ID))
-	//	if err != nil {
-	//		zap.L().Error("GetCommentMsgService() service.article.likeService.QueryCommentRecordByUserComments err=", zap.Error(err))
-	//		return
-	//	}
-	//	// 遍历回复记录
-	//	for _, comment := range comments {
-	//		itemCount++
-	//		// 若回复项数超出客户端传来的页数，则退出循环
-	//		if itemCount/limit > page-1 {
-	//			isLimit = true
-	//			break
-	//		}
-	//		commentMsgs[itemCount/limit] = append(commentMsgs[itemCount/limit], nzx_model.CommentMsg{
-	//			Username:     comment.User.Username,
-	//			Name:         comment.User.Name,
-	//			Content:      lel1.Content,
-	//			UserHeadshot: comment.User.HeadShot,
-	//			PostTime:     timeConverter.IntervalConversion(comment.CreatedAt),
-	//			IsRead:       comment.IsRead,
-	//			Type:         1,
-	//			ArticleId:    lel1.ArticleID,
-	//			CreatedAt:    comment.CreatedAt,
-	//		})
-	//	}
-	//}
-	//// 如果查询到的记录总数不满足客户端要求
-	//if !isLimit {
-	//	// 若第page页没有记录
-	//	if len(commentMsgs[page-1]) == 0 {
-	//		return nil, myErr.NotFoundError()
-	//	} else {
-	//		// 若page页还有记录
-	//
-	//	}
-	//}
+// AckManagerMsgService 确认管理员消息
+func AckManagerMsgService(username string) error {
+	// 获取uid
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		zap.L().Error("AckManagerMsgService() service.article.likeService.GetIdByUsername err=", zap.Error(err))
+		return err
+	}
 
+	// 确认管理员消息
+	err = mysql.UpdateManagerRecordRead(uid)
+	if err != nil {
+		zap.L().Error("AckManagerMsgService() service.article.likeService.UpdateManagerRecordRead err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// AckSystemMsgService 确认系统消息
+func AckSystemMsgService(username string) error {
+	// 获取uid
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		zap.L().Error("AckSystemMsgService() service.article.likeService.GetIdByUsername err=", zap.Error(err))
+		return err
+	}
+
+	// 确认管理员消息
+	err = mysql.UpdateSystemRecordRead(uid)
+	if err != nil {
+		zap.L().Error("AckManagerMsgService() service.article.likeService.UpdateSystemRecordRead err=", zap.Error(err))
+		return err
+	}
+	return nil
 }

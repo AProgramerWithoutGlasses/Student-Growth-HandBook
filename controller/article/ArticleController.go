@@ -370,11 +370,17 @@ func PublishArticleController(c *gin.Context) {
 	}
 	tags := form.Value["article_tags"]
 	topic := form.Value["article_topic"][0]
+	status, err := strconv.ParseBool(form.Value["article_status"][0])
+	if err != nil {
+		zap.L().Error("PublishArticleController() controller.article.getArticle.ParseBool err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 	// 获取图片和视频文件
 	pics := form.File["pic"]
 	video := form.File["video"]
 
-	err = article.PublishArticleService(username, content, topic, wordCount, tags, pics, video)
+	err = article.PublishArticleService(username, content, topic, wordCount, tags, pics, video, status)
 	if err != nil {
 		zap.L().Error("PublishArticleController() controller.article.getArticle.PublishArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)

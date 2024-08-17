@@ -31,4 +31,13 @@ func routesMsg(r *gin.Engine) {
 	// 获取评论消息
 	msg.POST("/get_comList", message.GetCommentMsgController)
 
+	// 确认互动消息
+	msg.POST("/ack_interactMsg", message.AckInterMsgController)
+
+	// 确认系统消息
+	msg.POST("/ack_systemMsg", message.AckSystemMsgController)
+
+	// 确认管理员消息
+	msg.POST("/ack_managerMsg", message.AckManagerMsgController)
+
 }
