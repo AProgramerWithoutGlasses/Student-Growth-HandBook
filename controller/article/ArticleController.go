@@ -38,23 +38,34 @@ func GetArticleIdController(c *gin.Context) {
 
 // GetArticleListController 获取文章列表
 func GetArticleListController(c *gin.Context) {
-	//获取前端发送的数据
-	json, err := readUtil.GetJsonvalue(c)
+	in := struct {
+		Page     int    `json:"page"`
+		Limit    int    `json:"limit"`
+		SortType string `json:"sort"`
+		Order    string `json:"order"`
+		StartAt  string `json:"start_at"`
+		EndAt    string `json:"end_at"`
+		IsBan    bool   `json:"article_ban"`
+		Name     string `json:"name"`
+		Topic    string `json:"topic"`
+		KeyWords string `json:"key_words"`
+	}{}
 
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		fmt.Println("GetArticleListController() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		zap.L().Error("GetArticleListController() controller.article.ShouldBindJSON err=", zap.Error(myErr.DataFormatError()))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
 	//查询文章列表
-	result, err := article.GetArticleListService(json)
-
+	result, err := article.GetArticleListService(in.Page, in.Limit, in.StartAt, in.Order, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Name, in.IsBan)
 	if err != nil {
-		fmt.Println("GetArticleList() controller.article.getArticle.AnalyzeDataToMyData err=", err)
+		zap.L().Error("GetArticleListController() controller.article.GetArticleListService err=", zap.Error(myErr.DataFormatError()))
 		myErr.CheckErrors(err, c)
 		return
 	}
+
 	var list []map[string]any
 	for _, val := range result {
 		list = append(list, map[string]any{
@@ -288,7 +299,40 @@ func GetArticleByClassController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-	res.ResponseSuccess(c, articles)
+
+	var list []map[string]any
+	for _, a := range articles {
+		var pics []string
+		var tags []string
+		for _, pic := range a.ArticlePics {
+			pics = append(pics, pic.Pic)
+		}
+		for _, tag := range a.ArticleTags {
+			tags = append(tags, tag.Tag.TagName)
+		}
+
+		list = append(list, map[string]any{
+			"user_headshot":   a.User.HeadShot,
+			"user_class":      a.User.Class,
+			"name":            a.User.Name,
+			"article_id":      a.ID,
+			"like_amount":     a.LikeAmount,
+			"collect_amount":  a.CollectAmount,
+			"comment_amount":  a.CommentAmount,
+			"article_content": a.Content,
+			"article_pics":    pics,
+			"article_video":   a.Video,
+			"article_tags":    tags,
+			"article_topic":   a.Topic,
+			"is_like":         a.IsLike,
+			"is_collect":      a.IsCollect,
+			"post_time":       a.PostTime,
+			"username":        a.User.Username,
+		})
+	}
+	res.ResponseSuccess(c, map[string]any{
+		"content": list,
+	})
 }
 
 // PublishArticleController 发布文章

@@ -101,6 +101,32 @@ func CancelLike(objId, username string, likeType int) error {
 
 	id, err := strconv.Atoi(objId)
 
+	// 减少文章或评论的点赞数量
+	switch likeType {
+	case 0:
+		num, err := mysql.QueryArticleLikeNum(id)
+		if err != nil {
+			zap.L().Error("Like() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
+			return err
+		}
+		err = mysql.UpdateArticleLikeNum(id, num-1)
+		if err != nil {
+			zap.L().Error("Like() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
+			return err
+		}
+	case 1:
+		num, err := mysql.QueryCommentLikeNum(id)
+		if err != nil {
+			zap.L().Error("Like() service.article.likeService.v err=", zap.Error(err))
+			return err
+		}
+		err = mysql.UpdateCommentLikeNum(id, num-1)
+		if err != nil {
+			zap.L().Error("Like() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
+			return err
+		}
+	}
+
 	// 写入通道
 	switch likeType {
 	case 0:

@@ -37,7 +37,7 @@ func SelectUserByUsername(username string) (uid int, err error) {
 func SelectArticleById(aid int) (err error, article *model.Article) {
 	//查询用户 select * from articles where id = aid
 	if err := DB.Preload("ArticlePics").Preload("ArticleTags").Preload("User").
-		Where("id = ?", aid).First(&article).Error; err != nil {
+		Where("id = ? and ban = ? and status = ?", aid, false, true).First(&article).Error; err != nil {
 		return err, nil
 	} else {
 		return nil, article
@@ -74,7 +74,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	}
 
-	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).
+	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name), false, true).
 		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		fmt.Println()
 		return nil, err
@@ -92,7 +92,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page int) (result model.Articles, err error) {
 	var articles model.Articles
 	if err = DB.Preload("User").Preload("ArticleTags").Preload("ArticlePics").
-		Where("topic = ? and content like ?", topic, fmt.Sprintf("%%%s%%", keyWords)).
+		Where("topic = ? and content like ? and ban = ? and status = ?", topic, fmt.Sprintf("%%%s%%", keyWords), false, true).
 		Order("created_at desc").
 		Limit(limit).
 		Offset((page - 1) * limit).Find(&articles).Error; err != nil {
@@ -374,13 +374,14 @@ func QueryArticleCollectNum(aid int) (int, error) {
 }
 
 // InsertArticleContent 插入文章内容
-func InsertArticleContent(content, topic string, uid, wordCount int, tags []string, picPath []string, videoPath string) (int, error) {
+func InsertArticleContent(content, topic string, uid, wordCount int, tags []string, picPath []string, videoPath string, status bool) (int, error) {
 	article := model.Article{
 		UserID:    uint(uid),
 		Content:   content,
 		Topic:     topic,
 		Video:     videoPath,
 		WordCount: wordCount,
+		Status:    status,
 	}
 	if err := DB.Create(&article).Error; err != nil {
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
@@ -430,7 +431,7 @@ func QueryClassByClassId(classId int) (string, error) {
 func QueryArticleByClass(limit, page int, class, keyWord string) (model.Articles, error) {
 	var articles model.Articles
 	if err := DB.Preload("User", "class = ?", class).
-		Where("content like ?", keyWord).
+		Where("content like ? and ban = ? and status = ?", keyWord, false, true).
 		Order("created_at desc").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))

@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
+	"studentGrow/models/constant"
 	model "studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 	"studentGrow/utils/fileProcess"
@@ -37,6 +38,13 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 	err, article := mysql.SelectArticleById(aid)
 	if err != nil {
 		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.SelectArticleById err=", err)
+		return nil, err
+	}
+
+	// 该文章阅读量+1
+	err = UpdateArticleReadNumService(aid, 1)
+	if err != nil {
+		zap.L().Error("GetArticleService() dao.mysql.sql_article.UpdateArticleReadNumService", zap.Error(err))
 		return nil, err
 	}
 
@@ -73,25 +81,7 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 }
 
 // GetArticleListService 后台获取文章列表
-func GetArticleListService(j *jsonvalue.V) ([]model.Article, error) {
-	//获取参数：page, limit, sort, username
-	page, e1 := j.GetInt("page")
-	limit, e2 := j.GetInt("limit")
-	sortType, e3 := j.GetString("sort")
-	order, e4 := j.GetString("order")
-	//获取发布时间、封禁状态、发布人、话题分类、关键词
-	startAt, e5 := j.GetString("start_at")
-	endAt, e6 := j.GetString("end_at")
-	isBan, e7 := j.GetBool("article_ban")
-	name, e8 := j.GetString("name")
-	topic, e9 := j.GetString("topic")
-	keyWords, e10 := j.GetString("key_words")
-
-	if e1 != nil || e2 != nil || e3 != nil || e4 != nil || e5 != nil || e6 != nil || e7 != nil || e8 != nil || e9 != nil || e10 != nil {
-		fmt.Println("GetArticleListService() service.article.GetString err=")
-		return nil, myErr.DataFormatError()
-	}
-
+func GetArticleListService(page, limit int, sortType, order, startAt, endAt, topic, keyWords, name string, isBan bool) ([]model.Article, error) {
 	//执行查询文章列表语句
 	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sortType, order, startAt, endAt, topic, keyWords, name, isBan)
 	if err != nil {
@@ -208,7 +198,20 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 	}
 
 	if err != nil {
-		fmt.Println("BannedArticleService() service.article.BannedArticleById err=", err)
+		zap.L().Error("BannedArticleService() service.article.GetIdByUsername err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+
+	/*
+		回滚分数
+	*/
+	point := constant.PointConstant
+	if isBan {
+		point = -point
+	}
+	err = UpdatePointByUsernamePointAid(username, point, id)
+	if err != nil {
+		zap.L().Error("BannedArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
 		return err
 	}
 
@@ -221,6 +224,15 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 	id, err := j.GetInt("article_id")
 	if err != nil {
 		fmt.Println("DeleteArticleService() service.article.GetInt err=", err)
+		return err
+	}
+
+	/*
+		回滚分数
+	*/
+	err = UpdatePointByUsernamePointAid(username, -constant.PointConstant, id)
+	if err != nil {
+		zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
 		return err
 	}
 
@@ -244,7 +256,15 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 	}
 
 	if err != nil {
-		fmt.Println("DeleteArticleService() service.article.DeleteArticleById err=", err)
+		/*
+			删除失败回滚分数
+		*/
+		err = UpdatePointByUsernamePointAid(username, constant.PointConstant, id)
+		if err != nil {
+			zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
+			return err
+		}
+		zap.L().Error("DeleteArticleService() service.article.DeleteArticleByIdForClass err=", zap.Error(myErr.DataFormatError()))
 		return err
 	}
 	return nil
@@ -277,7 +297,6 @@ func ReportArticleService(j *jsonvalue.V, username string) error {
 }
 
 // SearchHotArticlesOfDayService 获取今日十条热帖
-// 简单加权:点赞0.5；评论0.3；收藏0.2
 func SearchHotArticlesOfDayService(j *jsonvalue.V) (model.Articles, error) {
 
 	// 获取热帖条数
@@ -341,7 +360,7 @@ func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, S
 }
 
 // PublishArticleService 发布文章
-func PublishArticleService(username, content, topic string, wordCount int, tags []string, pics []*multipart.FileHeader, video []*multipart.FileHeader) error {
+func PublishArticleService(username, content, topic string, wordCount int, tags []string, pics []*multipart.FileHeader, video []*multipart.FileHeader, status bool) error {
 	// 检查文本内容字数
 	if len(content) < 30 || len(content) > 300 {
 		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
@@ -391,7 +410,7 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	}
 
 	// 插入新文章
-	aid, err := mysql.InsertArticleContent(content, topic, uid, wordCount, tags, picPath, videoPath)
+	aid, err := mysql.InsertArticleContent(content, topic, uid, wordCount, tags, picPath, videoPath, status)
 	if err != nil {
 		zap.L().Error("PublishArticleService() service.article.InsertArticleContent err=", zap.Error(myErr.DataFormatError()))
 		return err
@@ -401,6 +420,18 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	err = mysql.InsertArticleTags(tags, aid)
 	if err != nil {
 		zap.L().Error("PublishArticleService() service.article.InsertArticleTags err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+	topicId, err := mysql.QueryTagIdByTagName(topic)
+	if err != nil {
+		zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+
+	// 增加分数
+	err = UpdatePointService(uid, constant.PointConstant, topicId)
+	if err != nil {
+		zap.L().Error("PublishArticleService() service.article.UpdatePointService err=", zap.Error(myErr.DataFormatError()))
 		return err
 	}
 

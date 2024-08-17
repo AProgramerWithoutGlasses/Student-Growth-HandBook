@@ -18,7 +18,6 @@ type User struct {
 	MailBox               string              `gorm:"size:100"json:"user_mail"`
 	PlusTime              time.Time           `gorm:"type:date"json:"plus_time"`
 	Identity              string              `gorm:"not null;size:100"json:"user_identity"`
-	Point                 int                 `gorm:"default:0"json:"user_point"`
 	SelfContent           string              `gorm:"size:1000"json:"self_content"`
 	Motto                 string              `gorm:"size:50"json:"user_motto"`
 	Exper                 int                 `gorm:"default:0"json:"user_exper"`
@@ -27,11 +26,12 @@ type User struct {
 	UserPublisherRecordID uint                // 用户属于用户添加者
 	UserPublisherRecord   UserPublisherRecord // 用户属于用户添加者
 	Followers             []User              `gorm:"many2many:user_followers"` //用户和用户之间的关注关系
-	Articles              []Article           //用户拥有的文章列表
-	ReadRecords           []UserReadRecord    //用户浏览记录
-	Collect               []UserCollectRecord //用户拥有收藏
+	Articles              []Article           // 用户拥有的文章列表
+	ReadRecords           []UserReadRecord    // 用户浏览记录
+	Collect               []UserCollectRecord // 用户拥有收藏
 	UserLoginRecords      []UserLoginRecord   // 用户拥有登录记录
-	Likes                 []UserLikeRecord    //用户拥有点赞记录
-	Comments              []Comment           //用户拥有评论
+	Likes                 []UserLikeRecord    // 用户拥有点赞记录
+	Comments              []Comment           // 用户拥有评论
 	MsgRecords            []MsgRecord         // 用户拥有通知消息
+	UserPoints            []UserPoint         // 用户拥有积分列表
 }

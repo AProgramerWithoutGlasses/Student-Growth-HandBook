@@ -67,6 +67,23 @@ func CancelCollectService(aid, username string) error {
 				return err
 			}
 		}
+
+		// 收藏数-1
+		// 获取文章收藏数
+		selections, err = redis.GetArticleCollections(aid)
+		if err != nil {
+			fmt.Println("Collect() service.article.GetArticleCollections err=", err)
+			return err
+		}
+		// 收藏数-1
+		if selections >= 0 {
+			err = redis.SetArticleCollections(aid, selections-1)
+			if err != nil {
+				fmt.Println("Collect() service.article.SetArticleCollections err=", err)
+				return err
+			}
+		}
+
 		// 写入通道
 		articleId, err := strconv.Atoi(aid)
 		if err != nil {
