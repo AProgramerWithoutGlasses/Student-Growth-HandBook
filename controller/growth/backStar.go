@@ -201,8 +201,11 @@ func ElectClass(c *gin.Context) {
 	//判断是否超出权限范围
 	length := len(Responsedata.ElectedArr)
 	if Star := length + Number; Star > 3 {
-		response.ResponseSuccess(c, "No seats left")
+		response.ResponseErrorWithMsg(c, 200, "超出名额限制请重新推选")
 		return
+	}
+	if Star := length + Number; Star == 3 {
+		response.ResponseSuccess(c, "No seats left")
 	}
 	for _, student := range Responsedata.ElectedArr {
 		username := student.Username
@@ -255,9 +258,12 @@ func ElectGrade(c *gin.Context) {
 
 	//查询这次需要推选的人
 	length := len(Responsedata.ElectedArr)
-	if star := number + length; star > 5 {
-		response.ResponseSuccess(c, "No seats left")
+	if Star := length + number; Star > 5 {
+		response.ResponseErrorWithMsg(c, 200, "超出名额限制请重新推选")
 		return
+	}
+	if Star := length + number; Star == 5 {
+		response.ResponseSuccess(c, "No seats left")
 	}
 
 	//开始添加
