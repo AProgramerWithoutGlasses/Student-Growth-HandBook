@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"strconv"
 	"studentGrow/dao/mysql"
-	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"time"
 )
@@ -238,9 +237,9 @@ func GetSelectedStuExcel(selectedStuMesStruct jrx_model.SelectedStuMesStruct) (*
 }
 
 // banUserService
-func BanUserService(user gorm_model.User) (name string, temp int, err error) {
+func BanUserService(username string) (name string, temp int, err error) {
 	// 根据学号获取id
-	id, err := mysql.GetIdByUsername(user.Username)
+	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		return name, temp, err
 	}

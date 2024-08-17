@@ -31,7 +31,7 @@ func DeleteStuControl(c *gin.Context) {
 			return
 		}
 
-		err = mysql.DeleteSingleStudent(id)
+		err = mysql.DeleteSingleUser(id)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, err.Error())
 			zap.L().Error("stuManager.DeleteStuControl() mysql.DeleteSingleStudent() err : ", zap.Error(err))

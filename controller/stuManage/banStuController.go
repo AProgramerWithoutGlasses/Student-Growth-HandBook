@@ -18,7 +18,7 @@ func BanUserControl(c *gin.Context) {
 		return
 	}
 
-	name, temp, err := service.BanUserService(user)
+	name, temp, err := service.BanUserService(user.Username)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 500, "stuManage.BanStuControl() service.BanUserService() failed : "+err.Error())
 		return
@@ -26,9 +26,9 @@ func BanUserControl(c *gin.Context) {
 
 	// 响应
 	if temp == 0 {
-		response.ResponseSuccess(c, "已将用户"+name+"取消管理员身份")
+		response.ResponseSuccess(c, "已将用户"+name+"封禁")
 	} else if temp == 1 {
-		response.ResponseSuccess(c, "已将用户"+name+"设为管理员")
+		response.ResponseSuccess(c, "已将用户"+name+"取消封禁")
 	}
 
 }

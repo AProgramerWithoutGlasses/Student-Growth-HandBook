@@ -1,8 +1,10 @@
 package service
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
@@ -148,6 +150,62 @@ func SetStuManagerService(username string, ManagerType string, year string) erro
 	return err
 }
 
+// 处理老师管理员
+func SetTeacherManagerService(username string, ManagerType string) error {
+	// 判断这个用户是不是管理员
+	isManager, err := mysql.GetIsManagerByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	var casbinCid string
+	switch ManagerType {
+	case "大一管理员":
+		casbinCid = "2"
+
+	case "大二管理员":
+		casbinCid = "3"
+
+	case "大三管理员":
+		casbinCid = "4"
+
+	case "大四管理员":
+		casbinCid = "5"
+
+	case "取消管理员":
+		if isManager {
+			err := mysql.CancelStuManager(username, casbinCid)
+			return err
+		} else {
+			return errors.New("该用户不为管理员")
+		}
+	}
+
+	if !isManager { // 不是管理员
+		err := mysql.SetStuManager(username, casbinCid)
+		if err != nil {
+			return err
+		}
+
+	} else { // 是管理员
+		existedCasbinCid, err := mysql.GetManagerCId(username)
+		if err != nil {
+			return err
+		}
+
+		if casbinCid == existedCasbinCid {
+			return errors.New("该用户已是" + ManagerType)
+		}
+
+		err = mysql.ChangeStuManager(username, casbinCid)
+		if err != nil {
+			return err
+		}
+	}
+
+	return err
+}
+
 func AddSingleTeacherService(addSingleTeacherReqStruct gorm_model.User) error {
 	addSingleTeacherReqStruct.Identity = "老师"
 	err := mysql.AddSingleTeacher(&addSingleTeacherReqStruct)
@@ -155,4 +213,74 @@ func AddSingleTeacherService(addSingleTeacherReqStruct gorm_model.User) error {
 		return err
 	}
 	return err
+}
+
+// 删除单个老师
+func DeleteSingleTeacherService(input gorm_model.User) error {
+	id, err := mysql.GetIdByUsername(input.Username)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.DeleteSingleUser(id)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+// 编辑老师信息
+func EditTeacherService(newTeacher jrx_model.ChangeTeacherMesStruct) error {
+	id, err := mysql.GetIdByUsername(newTeacher.OldUsername)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("newTeacher : ", newTeacher)
+	err = mysql.ChangeTeacherMessage(id, newTeacher)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+// 获取导出老师信息的 excel表格
+func GetSelectedTeacherExcel(selectedTeacher []jrx_model.QueryTeacherResStruct) (*bytes.Buffer, error) {
+	// 提取处学号数组
+	usernameSlice := make([]string, len(selectedTeacher))
+	for i, v := range selectedTeacher {
+		usernameSlice[i] = v.Username
+	}
+	fmt.Println(usernameSlice)
+
+	// 从所有用户中查出选中的用户
+	users, err := mysql.QuerySelectedUser(usernameSlice)
+	if err != nil {
+		return nil, err
+	}
+
+	// 创建 Excel 文件
+	f := excelize.NewFile()
+
+	// 设置表头
+	f.SetCellValue("Sheet1", "A1", "姓名")
+	f.SetCellValue("Sheet1", "B1", "账号")
+	f.SetCellValue("Sheet1", "C1", "性别")
+
+	// 填充数据
+	for i, user := range users {
+		row := i + 2 // 从第二行开始填充数据
+		f.SetCellValue("Sheet1", fmt.Sprintf("A%d", row), user.Name)
+		f.SetCellValue("Sheet1", fmt.Sprintf("B%d", row), user.Username)
+		f.SetCellValue("Sheet1", fmt.Sprintf("C%d", row), user.Gender)
+	}
+
+	// 将 Excel 文件写入内存
+	excelData, err := f.WriteToBuffer()
+	if err != nil {
+		return nil, err
+	}
+
+	return excelData, err
 }
