@@ -52,7 +52,7 @@ func AddSingleTeacher(users *gorm_model.User) error {
 }
 
 // 删除单个学生
-func DeleteSingleStudent(id int) error {
+func DeleteSingleUser(id int) error {
 	err := DB.Table("users").Where("id = ?", id).Delete(nil).Error
 	return err
 }
@@ -77,6 +77,12 @@ func BanStudent(id int) (int, error) {
 // 修改用户信息username
 func ChangeStudentMessage(id int, users jrx_model.ChangeStuMesStruct) error {
 	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Updates(users).Error
+	return err
+}
+
+// 修改老师信息username
+func ChangeTeacherMessage(id int, newTeacher jrx_model.ChangeTeacherMesStruct) error {
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Select("name", "username", "password", "gender").Updates(&newTeacher).Error
 	return err
 }
 
