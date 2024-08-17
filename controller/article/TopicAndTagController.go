@@ -43,7 +43,9 @@ func GetAllTopicsController(c *gin.Context) {
 		}
 	}
 
-	res.ResponseSuccess(c, result)
+	res.ResponseSuccess(c, map[string]any{
+		"topic_list": result,
+	})
 
 }
 

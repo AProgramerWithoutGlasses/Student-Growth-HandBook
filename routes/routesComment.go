@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/article"
+	"studentGrow/utils/middleWare"
 )
 
 func routesComment(r *gin.Engine) {
@@ -12,5 +13,5 @@ func routesComment(r *gin.Engine) {
 	// 获取子评论
 	ct.POST("/get_lel2comment", article.GetSonCommentsController)
 	// 删除评论
-	ct.POST("/delete", article.DeleteCommentController)
+	ct.POST("/delete", middleWare.CORSMiddleware(), article.DeleteCommentController)
 }
