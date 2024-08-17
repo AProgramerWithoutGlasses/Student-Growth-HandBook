@@ -11,7 +11,7 @@ import (
 )
 
 // InsertIntoCommentsForArticle 向数据库插入评论数据(回复文章)
-func InsertIntoCommentsForArticle(content string, aid int, uid int) (err error) {
+func InsertIntoCommentsForArticle(content string, aid int, uid int) (int, error) {
 	//content;id;username
 	comment := model.Comment{
 		Model:      gorm.Model{},
@@ -22,21 +22,21 @@ func InsertIntoCommentsForArticle(content string, aid int, uid int) (err error) 
 		Pid:        0,
 		ArticleID:  uint(aid),
 	}
-	if err = DB.Create(&comment).Error; err != nil {
+	if err := DB.Create(&comment).Error; err != nil {
 		fmt.Println("InsertIntoCommentsForArticle() dao.mysql.nzx_sql err=", err)
-		return err
+		return -1, err
 	}
 
-	return nil
+	return int(comment.ID), nil
 }
 
 // InsertIntoCommentsForComment 向数据库插入评论数据(回复评论)
-func InsertIntoCommentsForComment(content string, uid int, pid int) error {
+func InsertIntoCommentsForComment(content string, uid int, pid int) (int, error) {
 	// 找到父级评论的文章
 	article := model.Article{}
 	if err := DB.Preload("Article").Where("id = ?", pid).First(&article).Error; err != nil {
 		fmt.Println("InsertIntoCommentsForComment() dao.mysql.nzx_sql err=", err)
-		return err
+		return -1, err
 	}
 
 	//content;id;username
@@ -52,9 +52,9 @@ func InsertIntoCommentsForComment(content string, uid int, pid int) error {
 
 	if err := DB.Create(&comment).Error; err != nil {
 		fmt.Println("InsertIntoCommentsForComment() dao.mysql.nzx_sql err=", err)
-		return err
+		return -1, err
 	}
-	return nil
+	return int(comment.ID), nil
 }
 
 // QueryLevelOneComments 查询一级评论
