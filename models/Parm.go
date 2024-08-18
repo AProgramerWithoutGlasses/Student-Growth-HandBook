@@ -95,4 +95,5 @@ type Sidebar struct {
 type Message struct {
 	Name    string `json:"label"`
 	Visible int    `json:"isVisible"`
+	Icon    string `json:"icon"`
 }

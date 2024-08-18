@@ -50,3 +50,12 @@ func SelParamKeyVal(id int) (string, string, error) {
 	}
 	return key, value, nil
 }
+
+func SelIcon(id int) (string, error) {
+	var icon string
+	err := DB.Table("menus").Where("id = ?", id).Select("icon").Scan(&icon).Error
+	if err != nil {
+		return "", err
+	}
+	return icon, nil
+}
