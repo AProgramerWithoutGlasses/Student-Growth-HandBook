@@ -11,4 +11,5 @@ func routesHomepage(r *gin.Engine) {
 
 	rh.POST("/getSelfCotnent", homepage.GetSelfContentContro)
 	rh.POST("/updateSelfContent", homepage.UpdateSelfContentContro)
+	rh.GET("/profiles", homepage.GetHomepageMesContro)
 }
