@@ -101,9 +101,13 @@ func QLogin(c *gin.Context) {
 	//验证用户是否存在
 	ok := userService.BVerifyExit(user.Username)
 	if ok {
-		role = "1"
+		cId, err := mysql.SelCasId(user.Username)
+		role, err = mysql.SelRole(cId)
+		if err != nil {
+			pkg.ResponseError(c, 400)
+		}
 	} else {
-		role = "0"
+		role = "user"
 	}
 	//记录用户登录
 	redis.UpdateVictor(user.Username)
