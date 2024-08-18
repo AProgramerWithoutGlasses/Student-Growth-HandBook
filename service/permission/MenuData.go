@@ -49,6 +49,7 @@ func MenuIdClass() ([]models.Sidebar, error) {
 			Visible: visible,
 		}
 		sidebar := models.Sidebar{
+			Id:        id,
 			ParentId:  Fid,
 			Path:      path,
 			Component: component,
