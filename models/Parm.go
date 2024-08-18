@@ -82,6 +82,7 @@ type Params struct {
 
 // Sidebar 返回前端侧边栏结构体
 type Sidebar struct {
+	Id        int      `json:"id"`
 	ParentId  int      `json:"parentId"`
 	Path      string   `json:"routePath"`
 	Component string   `json:"componentPath"`
