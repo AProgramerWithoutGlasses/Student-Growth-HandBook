@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/growth"
 	"studentGrow/controller/login"
+	"studentGrow/controller/menuController"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/casbinModels"
 	"studentGrow/utils/middleWare"
@@ -64,4 +65,5 @@ func RoutesXue(router *gin.Engine) {
 		elected.GET("/college_star", growth.BackStarCollege)
 		elected.POST("/change_disabled", growth.ChangeStatus)
 	}
+	router.GET("/sidebar/message", menuController.MenuSide)
 }

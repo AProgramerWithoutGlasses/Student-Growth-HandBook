@@ -6,8 +6,8 @@ import (
 
 type Menus struct {
 	gorm.Model
-	ParentId      int    `json:"parent_id"`
-	TreePath      string `json:"tree_path"`
+	ParentId      int    `json:"parentId"`
+	TreePath      string `json:"treePath"`
 	Name          string `json:"name"`
 	Type          int    `json:"type"`
 	RouteName     string `json:"routeName"`
@@ -19,6 +19,6 @@ type Menus struct {
 	Icon          string `json:"icon"`
 	Redirect      string `json:"redirect"`
 	Roles         string `json:"roles"`
-	RequestUrl    string `json:"request_url "`
-	RequestMethod string `json:"request_method"`
+	RequestUrl    string `json:"requestUrl "`
+	RequestMethod string `json:"requestMethod"`
 }
