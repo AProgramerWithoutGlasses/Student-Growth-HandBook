@@ -266,7 +266,7 @@ func QueryCollectRecordNumByUserArticle(uid int) (int, error) {
 // QueryCommentRecordByUserArticles 通过用户的所有文章和评论查找其评论记录(该用户的文章或评论被谁评论了记录)
 func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments, error) {
 	var comments gorm_model.Comments
-	var commentIDs []uint
+	var commentIDs []int
 
 	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", uid).Pluck("pid", &commentIDs).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
@@ -278,10 +278,11 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 		return nil, myErr.NotFoundError()
 	}
 
-	if err := DB.Preload("Article.User").
-		Where("pid in ?", commentIDs).
-		Or("articles.user_id = ? and articles.ban = ?", uid, false).
-		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
+	if err := DB.Joins("JOIN articles ON articles.id = comments.article_id").
+		Preload("Article.User").
+		Where("comments.pid IN ?", commentIDs).
+		Or("articles.user_id = ? AND articles.ban = ?", uid, false).
+		Limit(limit).Offset((page - 1) * limit).Order("comments.created_at DESC").
 		Find(&comments).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(err))
 		return nil, err
