@@ -78,10 +78,12 @@ func GetUnreadReportsForGrade(grade int, limit, page int) ([]gorm_model.UserRepo
 func GetUnreadReportsForSuperman(limit, page int) ([]gorm_model.UserReportArticleRecord, error) {
 
 	var reports []gorm_model.UserReportArticleRecord
-	if err := DB.Preload("User").
-		Preload("Article", "ban = ?", false).
-		Where("is_read = ?", false).Order("created_at DESC, article_id ASC").
+	fmt.Println("limit", limit, "page", page)
+	if err := DB.Joins("JOIN articles ON user_report_article_records.article_id = articles.id AND articles.ban = ?", false).
+		Where("user_report_article_records.is_read = ?", false).
+		Order("user_report_article_records.created_at DESC, user_report_article_records.article_id ASC").
 		Limit(limit).Offset((page - 1) * limit).
+		Preload("User").Preload("Article").
 		Find(&reports).Error; err != nil {
 		fmt.Println("GetUnreadReportForCollege() dao.mysql.sql_msg")
 		return nil, err
@@ -201,7 +203,7 @@ func QueryManagerMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
 // QueryUnreadManagerMsg 获取未读管理员消息通知
 func QueryUnreadManagerMsg(uid int) (int, error) {
 	var count int64
-	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 2, uid).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and user_id = ? and is_read = ?", 2, uid, false).Count(&count).Error; err != nil {
 		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
 		return -1, err
 	}
@@ -223,6 +225,7 @@ func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, e
 	return likes, nil
 }
 
+// QueryLikeRecordNumByUser 查询未读点赞记录数量
 func QueryLikeRecordNumByUser(uid int) (int, error) {
 	var count int64
 
@@ -294,6 +297,33 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 	}
 
 	return comments, nil
+}
+
+// QueryCommentRecordNumByUserId 通过uid获取未读评论记录数量
+func QueryCommentRecordNumByUserId(uid int) (int, error) {
+	var count int64
+
+	var commentIDs []int
+
+	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", uid).Pluck("pid", &commentIDs).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return -1, err
+	}
+
+	if len(commentIDs) <= 0 {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
+		return -1, myErr.NotFoundError()
+	}
+	if err := DB.Model(&gorm_model.Comment{}).Joins("JOIN articles ON articles.id = comments.article_id").
+		Preload("Article.User").
+		Where("comments.pid IN ? AND is_read = ?", commentIDs, false).
+		Or("articles.user_id = ? AND articles.ban = ? AND is_read = ?", uid, false, false).
+		Count(&count).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+
 }
 
 // QueryCommentRecordNumByUserArticle 通过uid查找文章评论未读记录

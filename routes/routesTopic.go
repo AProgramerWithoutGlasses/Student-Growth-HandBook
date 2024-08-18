@@ -6,12 +6,13 @@ import (
 )
 
 func routesTopic(r *gin.Engine) {
+	topic := r.Group("/publish")
 	// 添加话题
-	r.POST("/article/add_topic", article.AddTopicsController)
+	topic.POST("/add_topic", article.AddTopicsController)
 	// 获取话题
-	r.POST("/article/get_topic", article.GetAllTopicsController)
+	topic.POST("/get_topic", article.GetAllTopicsController)
 	// 添加标签
-	r.POST("/article/add_tags", article.AddTagsByTopicController)
+	topic.POST("/add_tags", article.AddTagsByTopicController)
 	// 获取标签
-	r.POST("/article/get_tags", article.GetTagsByTopicController)
+	topic.POST("/get_tags", article.GetTagsByTopicController)
 }

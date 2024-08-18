@@ -169,19 +169,19 @@ func GetCollectMsgService(username string, page, limit int) ([]map[string]any, i
 }
 
 // GetCommentMsgService 获取评论消息
-func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMsgs, error) {
+func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMsgs, int, error) {
 	// 获取uid
 	uid, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		zap.L().Error("GetCommentMsgService() service.article.likeService.GetIdByUsername err=", zap.Error(err))
-		return nil, err
+		return nil, -1, err
 	}
 
 	// 获取所有评论及回复
 	comments, err := mysql.QueryCommentRecordByUserArticles(uid, page, limit)
 	if err != nil {
 		zap.L().Error("GetCommentMsgService() service.article.likeService.QueryCommentRecordByUserArticles err=", zap.Error(err))
-		return nil, err
+		return nil, -1, err
 	}
 
 	var commentMsgs nzx_model.CommentMsgs
@@ -208,7 +208,14 @@ func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMs
 		})
 	}
 
-	return commentMsgs, nil
+	// 获取未读评论数
+	num, err := mysql.QueryCommentRecordNumByUserId(uid)
+	if err != nil {
+		zap.L().Error("GetCommentMsgService() service.article.likeService.QueryCommentRecordNumByUserId err=", zap.Error(err))
+		return nil, -1, err
+	}
+
+	return commentMsgs, num, nil
 }
 
 // AckInterMsgService 确认互动消息通知

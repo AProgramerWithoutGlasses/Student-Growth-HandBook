@@ -8,5 +8,5 @@ type UserPoint struct {
 	User    User
 	TopicID uint
 	Topic   Topic
-	Point   int
+	Point   int `gorm:"default:0"`
 }

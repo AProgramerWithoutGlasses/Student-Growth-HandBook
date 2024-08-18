@@ -137,14 +137,17 @@ func GetCommentMsgController(c *gin.Context) {
 		return
 	}
 
-	comments, err := message.GetCommentMsgService(in.Username, in.Page, in.Limit)
+	comments, num, err := message.GetCommentMsgService(in.Username, in.Page, in.Limit)
 	if err != nil {
 		zap.L().Error("GetCollectMsgController() controller.message.GetCommentMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	res.ResponseSuccess(c, comments)
+	res.ResponseSuccess(c, map[string]any{
+		"comments":     comments,
+		"unread_count": num,
+	})
 }
 
 // AckInterMsgController 确认互动消息通知
