@@ -41,3 +41,12 @@ redis:
 # password: "seatMarch"
 # db: 0
 # pool_size: 100
+
+aliyun:
+ oss:
+  file:
+   endpoint: oss-cn-beijing.aliyuncs.com
+   keyid: LTAI5t9Q4pxdmDqYGQLMPqER
+   keysecret: CfYnchTBJEb5B3FHlCgXBfjzDRuLsZ
+   bucketname: student-grow
+

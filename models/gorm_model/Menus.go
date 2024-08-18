@@ -10,6 +10,7 @@ type Menus struct {
 	TreePath      string `json:"tree_path"`
 	Name          string `json:"name"`
 	Type          int    `json:"type"`
+	RouteName     string `json:"routeName"`
 	Path          string `json:"path"`
 	Component     string `json:"component"`
 	Perm          string `json:"perm"`

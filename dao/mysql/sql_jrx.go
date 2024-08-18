@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"fmt"
+	_ "gorm.io/gorm/clause"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 )
@@ -217,4 +218,44 @@ func GetIsManagerByUsername(username string) (bool, error) {
 	var users gorm_model.User
 	err := DB.Where("username = ?", username).First(&users).Error
 	return users.IsManager, err
+}
+
+func GetHomepageUserMesDao(id int) (*gorm_model.User, error) {
+	var userMes gorm_model.User
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).First(&userMes).Error
+	if err != nil {
+		return nil, err
+	}
+	return &userMes, err
+}
+
+// 获取个人主页粉丝个数
+func GetHomepageFansCountDao(id int) (int, error) {
+	var count int64
+	err := DB.Table("user_followers").Where("user_id = ?", id).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return int(count), err
+}
+
+// 获取个人主页关注个数
+func GetHomepageConcernCountDao(id int) (int, error) {
+	var count int64
+	err := DB.Table("user_followers").Where("follower_id = ?", id).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return int(count), err
+}
+
+// 获取个人主页获赞个数(文章获赞)
+func GetHomepageLikeCountDao(id int) (int, error) {
+	var count int
+	// Article表 满足 user_id = id 的所有行中 like_amount 列的值的总和
+	err := DB.Model(&gorm_model.Article{}).Where("user_id = ?", id).Select("SUM(like_amount)").Scan(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, err
 }
