@@ -28,7 +28,9 @@ func MenuIdClass() ([]models.Sidebar, error) {
 		name, err := mysql.SelValueString(id, "name")
 		//6.查询是否可见
 		visible, err := mysql.SelValueInt(id, "visible")
-		//7.查询菜单下所属参数的所有id
+		//7.查询图标
+		icon, err := mysql.SelIcon(id)
+		//8.查询菜单下所属参数的所有id
 		pids, err := mysql.SelParamId(id)
 		for _, pid := range pids {
 			key, value, err := mysql.SelParamKeyVal(pid)
@@ -47,6 +49,7 @@ func MenuIdClass() ([]models.Sidebar, error) {
 		mesa := models.Message{
 			Name:    name,
 			Visible: visible,
+			Icon:    icon,
 		}
 		sidebar := models.Sidebar{
 			Id:        id,
