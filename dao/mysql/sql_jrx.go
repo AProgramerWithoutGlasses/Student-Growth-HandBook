@@ -259,3 +259,14 @@ func GetHomepageLikeCountDao(id int) (int, error) {
 	}
 	return count, err
 }
+
+// 获取个人主页积分值
+func GetHomepagePointDao(id int) (int, error) {
+	var count int
+	// Article表 满足 user_id = id 的所有行中 like_amount 列的值的总和
+	err := DB.Model(&gorm_model.UserPoint{}).Where("user_id = ?", id).Select("SUM(point)").Scan(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, err
+}
