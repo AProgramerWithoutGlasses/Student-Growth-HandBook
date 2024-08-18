@@ -1,6 +1,7 @@
 package message
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/constant"
@@ -102,7 +103,7 @@ func GetArticleAndCommentLikedMsgService(username string, page, limit int) ([]nz
 		likeType := 0
 		articleId := like.ArticleID
 		if like.Type == 1 {
-			username = like.Comment.User.Username
+			usernameL = like.Comment.User.Username
 			name = like.Comment.User.Name
 			content = like.Comment.Content
 			userHeadshot = like.Comment.User.HeadShot
@@ -296,6 +297,7 @@ func PublishManagerMsgService(username, content string) error {
 // PublishSystemMsgService 发布系统通知
 func PublishSystemMsgService(content, role string) error {
 	// 权限验证
+	fmt.Println(role)
 	if role != "superman" {
 		return myErr.OverstepCompetence()
 	}
