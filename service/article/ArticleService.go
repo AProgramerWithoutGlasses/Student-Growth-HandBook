@@ -203,6 +203,20 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 	}
 
 	/*
+		若举报信箱存在该文章id，则标记该信息已读
+	*/
+
+	ok, err := mysql.QueryIsExistArticleIdByReportMsg(id)
+
+	if ok {
+		err = mysql.DeleteArticleReportMsg(id)
+		if err != nil {
+			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(myErr.DataFormatError()))
+			return err
+		}
+	}
+
+	/*
 		回滚分数
 	*/
 	point := constant.PointConstant
@@ -422,7 +436,7 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 		zap.L().Error("PublishArticleService() service.article.InsertArticleTags err=", zap.Error(myErr.DataFormatError()))
 		return err
 	}
-	topicId, err := mysql.QueryTagIdByTagName(topic)
+	topicId, err := mysql.QueryTopicIdByTopicName(topic)
 	if err != nil {
 		zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(myErr.DataFormatError()))
 		return err

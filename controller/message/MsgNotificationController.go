@@ -31,8 +31,8 @@ func GetUnreadReportsController(c *gin.Context) {
 	}
 
 	input := struct {
-		limit int
-		page  int
+		Limit int `json:"limit"`
+		Page  int `json:"page"`
 	}{}
 
 	err = c.ShouldBindJSON(&input)
@@ -43,7 +43,7 @@ func GetUnreadReportsController(c *gin.Context) {
 	}
 
 	// 获取未读举报列表
-	reports, err := message.GetUnreadReportsForService(username, role, input.limit, input.page)
+	reports, err := message.GetUnreadReportsForService(username, role, input.Limit, input.Page)
 	if err != nil {
 		zap.L().Error("GetUnreadReportsController() controller.message.GetUnreadReportsForService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -51,8 +51,8 @@ func GetUnreadReportsController(c *gin.Context) {
 	}
 
 	// 通过文章id映射report_content,article_content
-	var reportContent map[uint][]map[string]any
-	var articleContent map[uint]string
+	var reportContent = make(map[uint][]map[string]any)
+	var articleContent = make(map[uint]string)
 	for _, item := range reports {
 		reportContent[item.ArticleID] = append(reportContent[item.ArticleID], map[string]any{
 			"report_time": item.CreatedAt,

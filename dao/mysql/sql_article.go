@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"errors"
 	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -73,8 +74,9 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 		query = DB.Where("topic like ? and content like ? and articles.ban = ?",
 			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	}
+	fmt.Println("limit", limit, "sort", sort)
 
-	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name), false, true).
+	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).
 		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		fmt.Println()
 		return nil, err
@@ -166,6 +168,26 @@ func BannedArticleByIdForSuperman(articleId int) error {
 		return err
 	}
 	return nil
+}
+
+// DeleteArticleReportMsg 已读举报信息
+func DeleteArticleReportMsg(aid int) error {
+	if err := DB.Model(model.UserReportArticleRecord{}).Where("article_id = ?", aid).Update("is_read", true).Error; err != nil {
+		zap.L().Error("GetUnreadReportsController() dao.mysql.sql_article err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// QueryIsExistArticleIdByReportMsg 查询举报信箱中是否存在被举报的文章id
+func QueryIsExistArticleIdByReportMsg(aid int) (bool, error) {
+	if err := DB.Where("article_id = ?", aid).First(&model.UserReportArticleRecord{}).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 // DeleteArticleByIdForClass 通过文章id删除文章 - 班级
