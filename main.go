@@ -41,8 +41,7 @@ func main() {
 		fmt.Printf("mysql.Init() gorm.Open() err : %v\n", err)
 		return
 	}
-
-	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.Comment{}, &model.ArticleTag{}, &model.UserArticleLikeRecord{}, &model.UserCollectRecord{}, &model.UserCommentLikeRecord{}, &model.UserLoginRecord{}, &model.UserReadRecord{}, model.UserReportArticleRecord{})
+	//err := mysql.DB.AutoMigrate(&gorm_model.Menus{})
 	//if err != nil {
 	//	return
 	//}
@@ -89,5 +88,4 @@ func main() {
 	}
 
 	zap.L().Info("Server exiting")
-
 }
