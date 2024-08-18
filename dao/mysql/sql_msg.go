@@ -174,7 +174,7 @@ func QuerySystemMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
 // QueryUnreadSystemMsg 查询未读系统通知条数
 func QueryUnreadSystemMsg(uid int) (int, error) {
 	var count int64
-	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and is_read = ? and user_id", 1, false, uid).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and is_read = ? and user_id = ?", 1, false, uid).Count(&count).Error; err != nil {
 		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
 		return -1, err
 	}
