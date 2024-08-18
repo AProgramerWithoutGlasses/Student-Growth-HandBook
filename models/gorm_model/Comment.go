@@ -11,7 +11,7 @@ type Comment struct {
 	IsRead       bool   `gorm:"default:false"json:"is_read"`
 	UserID       uint   `gorm:"not null"`
 	User         User
-	Pid          uint             `json:"pid"`                      //回复评论的ID
+	Pid          uint             `json:"pid" gorm:"default:0"`     //回复评论的ID
 	ReplyCount   int              `json:"comment_son_num" gorm:"-"` // 评论的子评论数量
 	ArticleID    uint             `gorm:"not null"`                 //评论属于文章
 	Article      Article          //评论属于文章
