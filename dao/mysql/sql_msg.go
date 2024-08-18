@@ -237,7 +237,7 @@ func QueryLikeRecordNumByUser(uid int) (int, error) {
 func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCollectRecord, error) {
 	var articleCollects []gorm_model.UserCollectRecord
 
-	if err := DB.Preload("Article.User", "articles.user_id = ? and articles.ban = ?", uid, false).
+	if err := DB.Preload("Article.User").Preload("Article", "user_id = ? and ban = ?", uid, false).
 		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
 		Find(&articleCollects).Error; err != nil {
 		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.Find err=", zap.Error(err))

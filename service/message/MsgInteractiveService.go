@@ -154,10 +154,10 @@ func GetCollectMsgService(username string, page, limit int) ([]map[string]any, i
 
 	for _, collect := range articleCollects {
 		list = append(list, map[string]any{
-			"username":        collect.User.Username,
-			"name":            collect.User.Name,
+			"username":        collect.Article.User.Username,
+			"name":            collect.Article.User.Name,
 			"article_content": collect.Article.Content,
-			"user_headshot":   collect.User.HeadShot,
+			"user_headshot":   collect.Article.User.HeadShot,
 			"post_time":       timeConverter.IntervalConversion(collect.CreatedAt),
 			"is_read":         collect.IsRead,
 			"msg_id":          collect.ID,
