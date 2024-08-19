@@ -259,3 +259,37 @@ func GetHomepageLikeCountDao(id int) (int, error) {
 	}
 	return count, err
 }
+
+// 获取个人主页积分值
+func GetHomepagePointDao(id int) (int, error) {
+	var count int
+	err := DB.Model(&gorm_model.UserPoint{}).Where("user_id = ?", id).Select("SUM(point)").Scan(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, err
+}
+
+// 修改个人主页用户个签
+func UpdateHomepageMottoDao(id int, motto string) error {
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("motto", motto).Error
+	return err
+}
+
+// 修改个人主页电话号
+func UpdateHomepagePhoneNumberDao(id int, phoneNumber string) error {
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("phone_number", phoneNumber).Error
+	return err
+}
+
+// 修改个人主页邮箱
+func UpdateHomepageEmailDao(id int, eamil string) error {
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("email", eamil).Error
+	return err
+}
+
+// 修改个人主页头像
+func UpdateHeadshotDao(id int, url string) error {
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("user_headshot", url).Error
+	return err
+}

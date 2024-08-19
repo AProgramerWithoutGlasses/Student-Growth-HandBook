@@ -6,10 +6,9 @@ import (
 	"go.uber.org/zap"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	_ "studentGrow/utils/token"
 )
 
-func GetHomepageMesContro(c *gin.Context) {
+func GetMesControl(c *gin.Context) {
 	// 接收
 	input := struct {
 		Username string `json:"username"`
@@ -25,11 +24,6 @@ func GetHomepageMesContro(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "请求参数为空")
 		return
 	}
-
-	// 业务
-	// 获取角色
-	/*	token := c.GetHeader("token")
-		role,err := token2.GetRole(token)	// class, grade(1-4), collge, superman */
 
 	homepageMesStruct, err := service.GetHomepageMesService(input.Username)
 	if err != nil {

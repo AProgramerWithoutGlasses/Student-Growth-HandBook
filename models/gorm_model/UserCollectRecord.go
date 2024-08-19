@@ -9,4 +9,5 @@ type UserCollectRecord struct {
 	ArticleID uint    `gorm:"not null"` //收藏属于文章
 	Article   Article //收藏属于文章
 	IsRead    bool    `gorm:"default:false"`
+	PostTime  string  `gorm:"-" json:"post_time"`
 }

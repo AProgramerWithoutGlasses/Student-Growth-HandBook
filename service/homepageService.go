@@ -2,8 +2,10 @@ package service
 
 import (
 	"fmt"
+	"mime/multipart"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/jrx_model"
+	"studentGrow/utils/fileProcess"
 )
 
 func GetHomepageMesService(username string) (*jrx_model.HomepageMesStruct, error) {
@@ -36,6 +38,11 @@ func GetHomepageMesService(username string) (*jrx_model.HomepageMesStruct, error
 		return nil, err
 	}
 
+	point, err := mysql.GetHomepagePointDao(id)
+	if err != nil {
+		return nil, err
+	}
+
 	// 将获得的数据存储到 homepageMesStruct中
 	homepageMes.Username = userMes.Username
 	homepageMes.Ban = userMes.Ban
@@ -45,11 +52,83 @@ func GetHomepageMesService(username string) (*jrx_model.HomepageMesStruct, error
 	homepageMes.UserFans = userFans
 	homepageMes.UserConcern = userConcern
 	homepageMes.UserLike = userLike
-	homepageMes.Point = userMes.Point
+	homepageMes.Point = point
 	homepageMes.UserClass = userMes.Class
 	homepageMes.UserIdentity = userMes.Identity
 
 	fmt.Printf("homepageMes2: %+v\n", homepageMes)
 
 	return homepageMes, err
+}
+
+func UpdateHomepageMottoService(username string, motto string) error {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.UpdateHomepageMottoDao(id, motto)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateHomepagePhoneNumberService(username string, phone_number string) error {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.UpdateHomepagePhoneNumberDao(id, phone_number)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateHomepageEmailService(username string, email string) error {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.UpdateHomepageEmailDao(id, email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetHomepageUserDataService(username string) error {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+	fmt.Println(id)
+
+	return nil
+}
+
+// 更新个人主页头像
+func UpdateHeadshotService(file *multipart.FileHeader, username string) error {
+	url, err := fileProcess.UploadFile("image", file)
+	if err != nil {
+		return err
+	}
+
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.UpdateHeadshotDao(id, url)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
