@@ -67,8 +67,3 @@ func MenuIdClass(role string) ([]models.Sidebar, error) {
 	}
 	return Menu, nil
 }
-
-// Perms 班级管理员的权限标识
-func Perms() {
-
-}
