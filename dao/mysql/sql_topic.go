@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 )
@@ -47,7 +48,7 @@ func QueryTagIdByTagName(name string) (int, error) {
 }
 
 // InsertArticleTags 添加文章标签
-func InsertArticleTags(tags []string, articleId int) error {
+func InsertArticleTags(tags []string, articleId int, db *gorm.DB) error {
 	for _, tag := range tags {
 		tagId, err := QueryTagIdByTagName(tag)
 		if err != nil {
@@ -58,7 +59,7 @@ func InsertArticleTags(tags []string, articleId int) error {
 			ArticleID: uint(articleId),
 			TagID:     uint(tagId),
 		}
-		if err = DB.Create(&articleTag).Error; err != nil {
+		if err = db.Create(&articleTag).Error; err != nil {
 			zap.L().Error("InsertArticleTags() dao.mysql.sql_topic.Create err=", zap.Error(err))
 			return err
 		}

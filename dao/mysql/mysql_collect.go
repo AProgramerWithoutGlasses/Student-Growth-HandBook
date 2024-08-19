@@ -2,12 +2,13 @@ package mysql
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 )
 
 // UpdateCollectNum 修改收藏数量
-func UpdateCollectNum(aid, collectNum int) error {
-	if err := DB.Model(&gorm_model.Article{}).Where("id = ?", aid).Update("collect_amount", collectNum).Error; err != nil {
+func UpdateCollectNum(aid, collectNum int, db *gorm.DB) error {
+	if err := db.Model(&gorm_model.Article{}).Where("id = ?", aid).Update("collect_amount", collectNum).Error; err != nil {
 		fmt.Println("UpdateCollectNum() dao.mysql.mysql_collect")
 		return err
 	}
@@ -27,8 +28,8 @@ func QueryCollectNum(aid int) (int, error) {
 }
 
 // InsertCollectRecord 插入收藏记录
-func InsertCollectRecord(aid, uid int) error {
-	if err := DB.Model(&gorm_model.UserCollectRecord{}).Create(&gorm_model.UserCollectRecord{UserID: uint(uid), ArticleID: uint(aid)}).Error; err != nil {
+func InsertCollectRecord(aid, uid int, db *gorm.DB) error {
+	if err := db.Model(&gorm_model.UserCollectRecord{}).Create(&gorm_model.UserCollectRecord{UserID: uint(uid), ArticleID: uint(aid)}).Error; err != nil {
 		fmt.Println("QueryCollectNum() dao.mysql.mysql_collect")
 		return err
 	}
@@ -36,8 +37,8 @@ func InsertCollectRecord(aid, uid int) error {
 }
 
 // DeleteCollectRecord 删除收藏记录
-func DeleteCollectRecord(aid, uid int) error {
-	if err := DB.Where("article_id = ? and user_id = ?", aid, uid).Delete(&gorm_model.UserCollectRecord{}).Error; err != nil {
+func DeleteCollectRecord(aid, uid int, db *gorm.DB) error {
+	if err := db.Where("article_id = ? and user_id = ?", aid, uid).Delete(&gorm_model.UserCollectRecord{}).Error; err != nil {
 		fmt.Println("QueryCollectNum() dao.mysql.mysql_collect")
 		return err
 	}

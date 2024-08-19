@@ -2,6 +2,7 @@ package article
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
@@ -140,23 +141,29 @@ func CollectToMysql(aid int, username string) error {
 		fmt.Println("CollectToMysql() service.article.GetIdByUsername err=", err)
 		return err
 	}
-	// 添加收藏记录
-	err = mysql.InsertCollectRecord(aid, uid)
-	if err != nil {
-		fmt.Println("CollectToMysql() service.article.InsertCollectRecord err=", err)
-		return err
-	}
+	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+		// 添加收藏记录
+		err = mysql.InsertCollectRecord(aid, uid, tx)
+		if err != nil {
+			fmt.Println("CollectToMysql() service.article.InsertCollectRecord err=", err)
+			return err
+		}
 
-	// 获取收藏数
-	num, err := mysql.QueryCollectNum(aid)
+		// 获取收藏数
+		num, err := mysql.QueryCollectNum(aid)
+		if err != nil {
+			fmt.Println("CollectToMysql() service.article.QueryCollectNum err=", err)
+			return err
+		}
+		// 收藏数+1
+		err = mysql.UpdateCollectNum(aid, num+1, tx)
+		if err != nil {
+			fmt.Println("CollectToMysql() service.article.UpdateCollectNum err=", err)
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		fmt.Println("CollectToMysql() service.article.QueryCollectNum err=", err)
-		return err
-	}
-	// 收藏数+1
-	err = mysql.UpdateCollectNum(aid, num+1)
-	if err != nil {
-		fmt.Println("CollectToMysql() service.article.UpdateCollectNum err=", err)
 		return err
 	}
 	return nil
@@ -169,23 +176,29 @@ func CancelCollectToMysql(aid int, username string) error {
 		fmt.Println("CollectToMysql() service.article.GetIdByUsername err=", err)
 		return err
 	}
-	// 删除收藏记录
-	err = mysql.DeleteCollectRecord(aid, uid)
-	if err != nil {
-		fmt.Println("CollectToMysql() service.article.InsertCollectRecord err=", err)
-		return err
-	}
+	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+		// 删除收藏记录
+		err = mysql.DeleteCollectRecord(aid, uid, tx)
+		if err != nil {
+			fmt.Println("CollectToMysql() service.article.InsertCollectRecord err=", err)
+			return err
+		}
 
-	// 获取收藏数
-	num, err := mysql.QueryCollectNum(aid)
+		// 获取收藏数
+		num, err := mysql.QueryCollectNum(aid)
+		if err != nil {
+			fmt.Println("CollectToMysql() service.article.QueryCollectNum err=", err)
+			return err
+		}
+		// 收藏数-1
+		err = mysql.UpdateCollectNum(aid, num-1, tx)
+		if err != nil {
+			fmt.Println("CollectToMysql() service.article.UpdateCollectNum err=", err)
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		fmt.Println("CollectToMysql() service.article.QueryCollectNum err=", err)
-		return err
-	}
-	// 收藏数-1
-	err = mysql.UpdateCollectNum(aid, num-1)
-	if err != nil {
-		fmt.Println("CollectToMysql() service.article.UpdateCollectNum err=", err)
 		return err
 	}
 	return nil

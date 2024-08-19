@@ -110,23 +110,23 @@ func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page
 }
 
 // BannedArticleByIdForClass 通过文章id对文章进行封禁或解封 - 班级
-func BannedArticleByIdForClass(articleId int, isBan bool, username string) error {
+func BannedArticleByIdForClass(articleId int, isBan bool, username string, db *gorm.DB) error {
 	// 查询班级管理员信息
 	user := model.User{}
-	if err := DB.Where("username = ?", username).First(&user).Error; err != nil {
+	if err := db.Where("username = ?", username).First(&user).Error; err != nil {
 		fmt.Println("BannedArticleByIdForClass() dao.mysql.sql_nzx")
 		return err
 	}
 
 	// 查询待封禁的文章;若查询不到，则返回
 	article := model.Article{}
-	if err := DB.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
+	if err := db.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
 		fmt.Println("BannedArticleByIdForClass() dao.mysql.sql_nzx")
 		return myErr.OverstepCompetence()
 	}
 
 	// 修改文章状态
-	if err := DB.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
+	if err := db.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
 		fmt.Println("BannedArticleByIdForClass() dao.mysql.sql_nzx")
 		return err
 	}
@@ -135,7 +135,7 @@ func BannedArticleByIdForClass(articleId int, isBan bool, username string) error
 }
 
 // BannedArticleByIdForGrade 通过文章id对文章进行封禁或解封 - 年级
-func BannedArticleByIdForGrade(articleId int, grade int) error {
+func BannedArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 	// GetUnreadReportsForGrade
 	year, err := timeConverter.GetEnrollmentYear(grade)
 	if err != nil {
@@ -145,7 +145,7 @@ func BannedArticleByIdForGrade(articleId int, grade int) error {
 
 	// 获取需要被封禁的文章；若找不到则返回
 	article := model.Article{}
-	if err = DB.Preload("User", "plus_time between ? and ?",
+	if err = db.Preload("User", "plus_time between ? and ?",
 		fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).
 		Where("id = ?", articleId).First(&article).Error; err != nil {
 		fmt.Println("BannedArticleByIdForGrade() dao.mysql.sql_nzx")
@@ -153,7 +153,7 @@ func BannedArticleByIdForGrade(articleId int, grade int) error {
 	}
 
 	// 修改文章状态
-	if err := DB.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
+	if err := db.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
 		fmt.Println("BannedArticleByIdForGrade() dao.mysql.sql_nzx")
 		return err
 	}
@@ -161,9 +161,9 @@ func BannedArticleByIdForGrade(articleId int, grade int) error {
 }
 
 // BannedArticleByIdForSuperman 通过文章id对文章进行封禁或解封 - 院级(超级)
-func BannedArticleByIdForSuperman(articleId int) error {
+func BannedArticleByIdForSuperman(articleId int, db *gorm.DB) error {
 	// 修改文章状态
-	if err := DB.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
+	if err := db.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
 		fmt.Println("BannedArticleByIdForSuperman() dao.mysql.sql_nzx")
 		return err
 	}
@@ -171,8 +171,8 @@ func BannedArticleByIdForSuperman(articleId int) error {
 }
 
 // DeleteArticleReportMsg 已读举报信息
-func DeleteArticleReportMsg(aid int) error {
-	if err := DB.Model(model.UserReportArticleRecord{}).Where("article_id = ?", aid).Update("is_read", true).Error; err != nil {
+func DeleteArticleReportMsg(aid int, db *gorm.DB) error {
+	if err := db.Model(model.UserReportArticleRecord{}).Where("article_id = ?", aid).Update("is_read", true).Error; err != nil {
 		zap.L().Error("GetUnreadReportsController() dao.mysql.sql_article err=", zap.Error(err))
 		return err
 	}
@@ -191,22 +191,22 @@ func QueryIsExistArticleIdByReportMsg(aid int) (bool, error) {
 }
 
 // DeleteArticleByIdForClass 通过文章id删除文章 - 班级
-func DeleteArticleByIdForClass(articleId int, username string) error {
+func DeleteArticleByIdForClass(articleId int, username string, db *gorm.DB) error {
 	// 查询班级管理员信息
 	user := model.User{}
-	if err := DB.Where("username = ?", username).First(&user).Error; err != nil {
+	if err := db.Where("username = ?", username).First(&user).Error; err != nil {
 		fmt.Println("DeleteArticleByIdForClass() dao.mysql.sql_nzx")
 		return err
 	}
 
 	// 查询待删除的文章
 	article := model.Article{}
-	if err := DB.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
+	if err := db.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
 		fmt.Println("DeleteArticleByIdForClass() dao.mysql.sql_nzx")
 		return err
 	}
 
-	if err := DB.Delete(&model.Article{}, article.ID).Error; err != nil {
+	if err := db.Delete(&model.Article{}, article.ID).Error; err != nil {
 		fmt.Println("DeleteArticleByIdForClass() dao.mysql.sql_nzx")
 		return err
 	}
@@ -215,7 +215,7 @@ func DeleteArticleByIdForClass(articleId int, username string) error {
 }
 
 // DeleteArticleByIdForGrade 通过文章id删除文章 - 年级
-func DeleteArticleByIdForGrade(articleId int, grade int) error {
+func DeleteArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 	// 将年级转化为入学年份
 	year, err := timeConverter.GetEnrollmentYear(grade)
 	if err != nil {
@@ -233,7 +233,7 @@ func DeleteArticleByIdForGrade(articleId int, grade int) error {
 	}
 
 	// 删除文章
-	if err = DB.Delete(&model.Article{}, article.ID).Error; err != nil {
+	if err = db.Delete(&model.Article{}, article.ID).Error; err != nil {
 		fmt.Println("DeleteArticleByIdForGrade() dao.mysql.sql_nzx")
 		return err
 	}
@@ -241,13 +241,13 @@ func DeleteArticleByIdForGrade(articleId int, grade int) error {
 }
 
 // DeleteArticleByIdForSuperman 通过id删除文章 - 院级(超级)
-func DeleteArticleByIdForSuperman(articleId int) error {
+func DeleteArticleByIdForSuperman(articleId int, db *gorm.DB) error {
 	article := model.Article{}
 	if err := DB.Where("id = ?", articleId).First(&article).Error; err != nil {
 		fmt.Println("DeleteArticleByIdForSuperman() dao.mysql.sql_nzx")
 		return err
 	}
-	if err := DB.Delete(&model.Article{}, article.ID).Error; err != nil {
+	if err := db.Delete(&model.Article{}, article.ID).Error; err != nil {
 		fmt.Println("DeleteArticleByIdForSuperman() dao.mysql.sql_nzx")
 		return err
 	}
@@ -396,7 +396,7 @@ func QueryArticleCollectNum(aid int) (int, error) {
 }
 
 // InsertArticleContent 插入文章内容
-func InsertArticleContent(content, topic string, uid, wordCount int, tags []string, picPath []string, videoPath string, status bool) (int, error) {
+func InsertArticleContent(content, topic string, uid, wordCount int, tags []string, picPath []string, videoPath string, status bool, db *gorm.DB) (int, error) {
 	article := model.Article{
 		UserID:    uint(uid),
 		Content:   content,
@@ -405,18 +405,18 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 		WordCount: wordCount,
 		Status:    status,
 	}
-	if err := DB.Create(&article).Error; err != nil {
+	if err := db.Create(&article).Error; err != nil {
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 		return -1, err
 	}
 	// 同步标签中间表
 	for _, tagName := range tags {
 		tag := model.Tag{}
-		if err := DB.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
+		if err := db.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
 			zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 			return -1, err
 		}
-		if err := DB.Create(&model.ArticleTag{
+		if err := db.Create(&model.ArticleTag{
 			ArticleID: article.ID,
 			TagID:     tag.ID,
 		}).Error; err != nil {
@@ -427,7 +427,7 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 
 	if len(picPath) > 0 {
 		for _, pic := range picPath {
-			if err := DB.Create(&model.ArticlePic{
+			if err := db.Create(&model.ArticlePic{
 				ArticleID: article.ID,
 				Pic:       pic,
 			}).Error; err != nil {
@@ -478,8 +478,8 @@ func QueryArticleStatusById(aid int) (bool, error) {
 }
 
 // UpdateArticleStatusById 通过id修改文章的私密状态
-func UpdateArticleStatusById(aid int, status bool) error {
-	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("status", status).Error; err != nil {
+func UpdateArticleStatusById(aid int, status bool, db *gorm.DB) error {
+	if err := db.Model(&model.Article{}).Where("id = ?", aid).Update("status", status).Error; err != nil {
 		zap.L().Error("UpdateArticleStatusById() dao.mysql.sql_article", zap.Error(err))
 		return err
 	}
