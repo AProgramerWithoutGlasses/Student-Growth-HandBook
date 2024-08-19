@@ -48,9 +48,53 @@ type StarGrade struct {
 	GradeClass string `json:"gradeClass"`
 }
 
-// 前台成长之星数据的结构体
+// StarStu 前台成长之星数据的结构体
 type StarStu struct {
 	Username     string `json:"username"`
 	Name         string `json:"name"`
 	UserHeadshot string `json:"user_headshot"`
+}
+
+// Menu 返回前端侧边栏结构
+type Menu struct {
+	ID          int      `json:"id"`
+	ParentId    int      `json:"parentId"`
+	Name        string   `json:"menuName"`
+	Type        int      `json:"type"`
+	RouteName   string   `json:"routeName"`
+	Path        string   `json:"routePath"`
+	Perm        string   `json:"permissions"`
+	Redirect    string   `json:"redirect"`
+	Visible     int      `json:"isVisible"`
+	Sort        int      `json:"sort"`
+	FatherMenu  string   `json:"fatherMenu"`
+	RequestUrl  string   `json:"requestUrl"`
+	RequestMenu string   `json:"requestMenu"`
+	Params      []Params `json:"params"`
+	//Children    []Menu   `json:"children"`
+}
+
+// Params 前端路由参数结构体
+type Params struct {
+	ParamsKey   string `json:"paramsKey"`
+	ParamsValue string `json:"paramsValue"`
+}
+
+// Sidebar 返回前端侧边栏结构体
+type Sidebar struct {
+	Id        int      `json:"id"`
+	ParentId  int      `json:"parentId"`
+	Path      string   `json:"path"`
+	Component string   `json:"component"`
+	Redirect  string   `json:"redirect"`
+	RouteName string   `json:"name"`
+	Meta      Message  `json:"meta"`
+	Params    []Params `json:"params"`
+}
+
+// Message 目录菜单信息
+type Message struct {
+	Name    string `json:"title"`
+	Visible int    `json:"isVisible"`
+	Icon    string `json:"icon"`
 }

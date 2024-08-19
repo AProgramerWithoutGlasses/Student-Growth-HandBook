@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/growth"
 	"studentGrow/controller/login"
+	"studentGrow/controller/menuController"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/casbinModels"
 	"studentGrow/utils/middleWare"
@@ -41,6 +42,8 @@ func RoutesXue(router *gin.Engine) {
 		userLoginAfter.POST("/fpage/superman", login.FPageCollege)
 		//首页柱状图
 		userLoginAfter.GET("/fpage/pillar", login.Pillar)
+		//获取登陆者的全部信息
+		userLoginAfter.GET("/message", menuController.HeadRoute)
 	}
 
 	//暂时不添加casbin中间件
@@ -64,4 +67,5 @@ func RoutesXue(router *gin.Engine) {
 		elected.GET("/college_star", growth.BackStarCollege)
 		elected.POST("/change_disabled", growth.ChangeStatus)
 	}
+	router.GET("/sidebar/message", menuController.MenuSide)
 }
