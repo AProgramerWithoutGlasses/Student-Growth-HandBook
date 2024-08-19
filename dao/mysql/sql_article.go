@@ -339,8 +339,8 @@ func SearchHotArticlesOfDay(startOfDay time.Time, endOfDay time.Time) (model.Art
 }
 
 // UpdateArticleCommentNum 设置文章评论数
-func UpdateArticleCommentNum(aid, num int) error {
-	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("comment_amount", num).Error; err != nil {
+func UpdateArticleCommentNum(aid, num int, db *gorm.DB) error {
+	if err := db.Model(&model.Article{}).Where("id = ?", aid).Update("comment_amount", num).Error; err != nil {
 		fmt.Println("UpdateArticleCommentNum() dao.mysql.sql_nzx")
 		return err
 	}
@@ -358,8 +358,8 @@ func QueryArticleCommentNum(aid int) (int, error) {
 }
 
 // UpdateArticleLikeNum 设置文章点赞数
-func UpdateArticleLikeNum(aid, num int) error {
-	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("like_amount", num).Error; err != nil {
+func UpdateArticleLikeNum(aid, num int, db *gorm.DB) error {
+	if err := db.Model(&model.Article{}).Where("id = ?", aid).Update("like_amount", num).Error; err != nil {
 		fmt.Println("UpdateArticleLikeNum() dao.mysql.sql_nzx")
 		return err
 	}

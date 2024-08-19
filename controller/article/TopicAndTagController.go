@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
@@ -51,15 +52,18 @@ func GetAllTopicsController(c *gin.Context) {
 
 // AddTagsByTopicController 添加标签
 func AddTagsByTopicController(c *gin.Context) {
-	//获取前端发送的数据
-	json, err := readUtil.GetJsonvalue(c)
+	in := struct {
+		Topic string   `json:"topic"`
+		Tags  []string `json:"tags"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		fmt.Println("AddArticleTagsController() controller.article.getArticle.GetJsonvalue err=", err)
-		myErr.CheckErrors(err, c)
+		zap.L().Error("AddArticleTagsController() controller.article.getArticle.ShouldBindJSON err=", zap.Error(err))
 		return
 	}
 
-	err = article.AddTagsByTopicService(json)
+	err = article.AddTagsByTopicService(in.Topic, in.Tags)
 	if err != nil {
 		fmt.Println("AddArticleTagsController() controller.article.getArticle.AddTagsByTopicService err=", err)
 		if err != nil {
