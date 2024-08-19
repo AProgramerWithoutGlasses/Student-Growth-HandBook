@@ -43,3 +43,9 @@ type HomepageArticleHistoryStruct struct {
 	CommentAmount int    `json:"comment_amount"`
 	LikeAmount    int    `json:"like_amount"`
 }
+
+type HomepageClassmateStruct struct {
+	Username string `json:"username"`
+	HeadShot string `json:"user_headshot"`
+	Name     string `json:"name"`
+}

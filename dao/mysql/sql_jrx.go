@@ -378,3 +378,15 @@ func GetStarDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistory
 
 	return homepageArticleHistoryList, err
 }
+
+func GetClassById(id int) (string, error) {
+	var users gorm_model.User
+	err := DB.Where("id = ?", id).First(&users).Error
+	return users.Class, err
+}
+
+func GetClassmateList(class string) ([]jrx_model.HomepageClassmateStruct, error) {
+	var classmateList []jrx_model.HomepageClassmateStruct
+	err := DB.Table("users").Where("class = ?", class).Find(&classmateList).Error
+	return classmateList, err
+}
