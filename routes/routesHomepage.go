@@ -3,13 +3,20 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/homepage"
+	"studentGrow/utils/token"
 )
 
 // 前台个人主页
 func routesHomepage(r *gin.Engine) {
 	rh := r.Group("/user")
 
-	rh.POST("/getSelfCotnent", homepage.GetSelfContentContro)
-	rh.POST("/updateSelfContent", homepage.UpdateSelfContentContro)
-	rh.GET("/profiles", homepage.GetHomepageMesContro)
+	rh.GET("/profiles_get", homepage.GetMesControl)
+	rh.POST("/userHeadshot_update", token.AuthMiddleware(), homepage.UpdateHeadshotControl)
+	rh.POST("/selfCotnent_get", homepage.GetSelfContentContro)
+	rh.POST("/selfContent_update", homepage.UpdateSelfContentContro)
+	rh.POST("/userMotto_update", homepage.UpdateHomepageMottoControl)
+	rh.POST("/userPhone_update", homepage.UpdatePhoneNumberControl)
+	rh.POST("/userEmail_update", homepage.UpdateEmailControl)
+	rh.GET("/userData_get", homepage.GetUserDataControl)
+	rh.GET("/fans_get", homepage.GetUserDataControl)
 }
