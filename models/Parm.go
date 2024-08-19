@@ -100,3 +100,10 @@ type Message struct {
 	Visible int    `json:"isVisible"`
 	Icon    string `json:"icon"`
 }
+
+// RoleList 返回前端角色列表
+type RoleList struct {
+	Id       int    `json:"id"`
+	RoleName string `json:"role_name"`
+	RoleCode string `json:"role_Engname"`
+}
