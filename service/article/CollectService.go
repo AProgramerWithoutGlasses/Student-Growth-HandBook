@@ -2,6 +2,7 @@ package article
 
 import (
 	"fmt"
+	redis2 "github.com/go-redis/redis"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
@@ -12,31 +13,38 @@ import (
 
 // CollectService Collect 收藏
 func CollectService(username, aid string) error {
-	// 收藏文章
-	err := redis.AddArticleToCollectSet(username, aid)
-	if err != nil {
-		fmt.Println("Collect() service.article.AddArticleToCollectSet err=", err)
-		return err
-	}
-	// 获取文章收藏数
-	selections, err := redis.GetArticleCollections(aid)
-	if err != nil {
-		fmt.Println("Collect() service.article.GetArticleCollections err=", err)
-		return err
-	}
-	// 收藏数+1
-	if selections >= 0 {
-		err = redis.SetArticleCollections(aid, selections+1)
+	_, err := redis.RDB.TxPipelined(func(pipe redis2.Pipeliner) error {
+		// 收藏文章
+		err := redis.AddArticleToCollectSet(username, aid, pipe)
 		if err != nil {
-			fmt.Println("Collect() service.article.SetArticleCollections err=", err)
+			zap.L().Error("CollectService() service.article.AddArticleToCollectSet err=", zap.Error(err))
 			return err
 		}
+		// 获取文章收藏数
+		selections, err := redis.GetArticleCollections(aid)
+		if err != nil {
+			zap.L().Error("CollectService() service.article.SetArticleCollections err=", zap.Error(err))
+			return err
+		}
+		// 收藏数+1
+		if selections >= 0 {
+			err = redis.SetArticleCollections(aid, selections+1, pipe)
+			if err != nil {
+				zap.L().Error("CollectService() service.article.SetArticleCollections err=", zap.Error(err))
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		zap.L().Error("CollectService() service.article.TxPipelined err=", zap.Error(err))
+		return err
 	}
 
 	// 写入通道
 	articleId, err := strconv.Atoi(aid)
 	if err != nil {
-		fmt.Println("Collect() service.article.Atoi err=", err)
+		zap.L().Error("CollectService() service.article.Atoi err=", zap.Error(err))
 		return err
 	}
 	ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "collect"}
@@ -47,49 +55,40 @@ func CollectService(username, aid string) error {
 func CancelCollectService(aid, username string) error {
 	isExist, err := redis.IsUserCollected(username, aid)
 	if err != nil {
-		fmt.Println("CancelCollect() service.article.IsUserCollected err=", err)
+		zap.L().Error("CancelCollectService() service.article.IsUserCollected err=", zap.Error(err))
 		return err
 	}
 
 	if isExist {
-		err = redis.RemoveUserCollectionSet(aid, username)
-		if err != nil {
-			fmt.Println("CancelCollect() service.article.RemoveUserCollectionSet err=", err)
-			return err
-		}
-		selections, err := redis.GetArticleCollections(aid)
-		if err != nil {
-			fmt.Println("CancelCollect() service.article.RemoveUserCollectionSet err=", err)
-			return err
-		}
-		if selections > 0 {
-			err := redis.SetArticleCollections(aid, selections-1)
+		_, err = redis.RDB.TxPipelined(func(pipe redis2.Pipeliner) error {
+			err = redis.RemoveUserCollectionSet(aid, username, pipe)
 			if err != nil {
-				fmt.Println("CancelCollect() service.article.SetArticleCollections err=", err)
+				zap.L().Error("CancelCollectService() service.article.RemoveUserCollectionSet err=", zap.Error(err))
 				return err
 			}
-		}
-
-		// 收藏数-1
-		// 获取文章收藏数
-		selections, err = redis.GetArticleCollections(aid)
-		if err != nil {
-			fmt.Println("Collect() service.article.GetArticleCollections err=", err)
-			return err
-		}
-		// 收藏数-1
-		if selections >= 0 {
-			err = redis.SetArticleCollections(aid, selections-1)
+			selections, err := redis.GetArticleCollections(aid)
 			if err != nil {
-				fmt.Println("Collect() service.article.SetArticleCollections err=", err)
+				zap.L().Error("CancelCollectService() service.article.GetArticleCollections err=", zap.Error(err))
 				return err
 			}
+			if selections > 0 {
+				err := redis.SetArticleCollections(aid, selections-1, pipe)
+				if err != nil {
+					zap.L().Error("CancelCollectService() service.SetArticleCollections.Atoi err=", zap.Error(err))
+					return err
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			zap.L().Error("CancelCollectService() service.TxPipelined.Atoi err=", zap.Error(err))
+			return err
 		}
 
 		// 写入通道
 		articleId, err := strconv.Atoi(aid)
 		if err != nil {
-			fmt.Println("Collect() service.article.Atoi err=", err)
+			zap.L().Error("CancelCollectService() service.SetArticleCollections.Atoi err=", zap.Error(err))
 			return err
 		}
 		ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "cancel_collect"}
