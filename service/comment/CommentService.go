@@ -3,6 +3,7 @@ package comment
 import (
 	"fmt"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"sort"
 	"strconv"
 	"studentGrow/dao/mysql"
@@ -29,21 +30,28 @@ func PostComment(commentType, username, content string, id int) error {
 	switch commentType {
 	//给文章评论
 	case "0":
-		//向数据库插入评论数据
-		cid, err = mysql.InsertIntoCommentsForArticle(content, id, uid)
+		err := mysql.DB.Transaction(func(tx *gorm.DB) error {
+			//向数据库插入评论数据
+			cid, err = mysql.InsertIntoCommentsForArticle(content, id, uid, tx)
+			if err != nil {
+				zap.L().Error("PostComment() service.article.InsertIntoCommentsForArticle err=", zap.Error(err))
+				return err
+			}
+			// 增加文章评论数
+			num, err := mysql.QueryArticleCommentNum(id)
+			if err != nil {
+				zap.L().Error("PostComment() service.article.QueryArticleCommentNum err=", zap.Error(err))
+				return err
+			}
+			err = mysql.UpdateArticleCommentNum(id, num+1, tx)
+			if err != nil {
+				zap.L().Error("PostComment() service.article.UpdateArticleCommentNum err=", zap.Error(err))
+				return err
+			}
+			return nil
+		})
 		if err != nil {
-			zap.L().Error("PostComment() service.article.InsertIntoCommentsForArticle err=", zap.Error(err))
-			return err
-		}
-		// 增加文章评论数
-		num, err := mysql.QueryArticleCommentNum(id)
-		if err != nil {
-			zap.L().Error("PostComment() service.article.QueryArticleCommentNum err=", zap.Error(err))
-			return err
-		}
-		err = mysql.UpdateArticleCommentNum(id, num+1)
-		if err != nil {
-			zap.L().Error("PostComment() service.article.UpdateArticleCommentNum err=", zap.Error(err))
+			zap.L().Error("PostComment() service.article.Transaction err=", zap.Error(err))
 			return err
 		}
 

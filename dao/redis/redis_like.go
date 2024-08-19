@@ -2,15 +2,16 @@ package redis
 
 import (
 	"fmt"
+	redis2 "github.com/go-redis/redis"
 	"strconv"
 )
 
 var List = []string{"article", "comment"}
 
 // AddUserToLikeSet 添加用户到文章或评论点赞集合中
-func AddUserToLikeSet(objId, userId string, likeType int) error {
+func AddUserToLikeSet(objId, userId string, likeType int, pipe redis2.Pipeliner) error {
 
-	err := RDB.SAdd(List[likeType]+objId, userId).Err()
+	err := pipe.SAdd(List[likeType]+objId, userId).Err()
 
 	if err != nil {
 		fmt.Println("AddUserToLikeSet() service.article.ArticleLikeService err=", err)
@@ -31,8 +32,8 @@ func IsUserLiked(objId, userId string, likeType int) (bool, error) {
 }
 
 // SetObjLikes 设置文章或评论的点赞数
-func SetObjLikes(objId string, likeNum int, likeType int) error {
-	err := RDB.HIncrBy(List[likeType], objId, int64(likeNum)).Err()
+func SetObjLikes(objId string, likeNum int, likeType int, pipe redis2.Pipeliner) error {
+	err := pipe.HIncrBy(List[likeType], objId, int64(likeNum)).Err()
 	if err != nil {
 		fmt.Println("SetArticleLikes() service.article.ArticleLikeService err=", err)
 		return err
@@ -41,8 +42,8 @@ func SetObjLikes(objId string, likeNum int, likeType int) error {
 }
 
 // GetObjLikes 获取文章或评论点赞数
-func GetObjLikes(objId string, likeType int) (int, error) {
-	likesNumResult, err := RDB.HGet(List[likeType], objId).Result()
+func GetObjLikes(objId string, likeType int, pipe redis2.Pipeliner) (int, error) {
+	likesNumResult, err := pipe.HGet(List[likeType], objId).Result()
 	if err != nil {
 		fmt.Println("GetArticleLikes() service.article.ArticleLikeService err=", err)
 		return -1, err
@@ -76,3 +77,23 @@ func RemoveUserFromLikeSet(objId, userId string, likeType int) error {
 
 	return nil
 }
+
+//// QueryCommentLikeNum 查询评论点赞数
+//func QueryCommentLikeNum(cid int) (int, error) {
+//	num, err := GetObjLikes(strconv.Itoa(cid), 1)
+//	if err != nil {
+//		fmt.Println("QueryCommentLikeNum() dao.mysql.nzx_sql.GetObjLikes err=", err)
+//		return 0, err
+//	}
+//	return num, nil
+//}
+//
+//// UpdateCommentLikeNum 设置评论点赞数
+//func UpdateCommentLikeNum(cid, num int) error {
+//	err := SetObjLikes(strconv.Itoa(cid), num, 1)
+//	if err != nil {
+//		fmt.Println("UpdateCommentLikeNum() dao.mysql.nzx_sql.SetObjLikes err=", err)
+//		return err
+//	}
+//	return nil
+//}

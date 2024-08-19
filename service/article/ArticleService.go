@@ -305,7 +305,7 @@ func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, S
 // PublishArticleService 发布文章
 func PublishArticleService(username, content, topic string, wordCount int, tags []string, pics []*multipart.FileHeader, video []*multipart.FileHeader, status bool) error {
 	// 检查文本内容字数
-	if len(content) < 30 || len(content) > 300 {
+	if len(content) < constant.WordLimitMin || len(content) > constant.WordLimitMax {
 		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
 		return myErr.DataFormatError()
 	}
@@ -482,18 +482,21 @@ func ReviseArticleStatusService(aid int, status bool) error {
 // AddTopicsService 添加话题
 func AddTopicsService(j *jsonvalue.V) error {
 	// 获取话题
-	v, err := j.GetArray("topics")
+	name, err := j.GetString("topic_name")
+	if err != nil {
+		fmt.Println("AddTopicsService() service.article.GetArray err=", err)
+		return err
+	}
+	content, err := j.GetString("topic_name")
 	if err != nil {
 		fmt.Println("AddTopicsService() service.article.GetArray err=", err)
 		return err
 	}
 	//添加话题
-	for _, v := range v.ForRangeArr() {
-		if ok := redis.RDB.SIsMember("topics", v.String()).Val(); ok {
-			return myErr.HasExistError()
-		}
-		redis.RDB.SAdd("topics", v.String())
-		fmt.Println(v.String())
+	err = mysql.CreateTopic(name, content)
+	if err != nil {
+		zap.L().Error("AddTopicsService() service.article.CreateTopic err=", zap.Error(err))
+		return err
 	}
 	return nil
 }
@@ -510,28 +513,14 @@ func GetAllTopicsService() ([]model.Topic, error) {
 }
 
 // AddTagsByTopicService 添加话题标签
-func AddTagsByTopicService(j *jsonvalue.V) error {
-	//获取想要添加标签的对应话题
-	topic, err := j.GetString("topic")
-
-	if err != nil {
-		fmt.Println("AddTagsByTopicService() service.article.GetString err=", err)
-		return err
-	}
-
-	//获取想要添加的标签
-	v, err := j.GetArray("tags")
-	if err != nil {
-		fmt.Println("AddTagsByTopicService() service.article.GetArray err=", err)
-		return err
-	}
-
+func AddTagsByTopicService(topic string, tags []string) error {
 	//添加标签
-	for _, v := range v.ForRangeArr() {
-		if ok := redis.RDB.SIsMember(topic, v.String()).Val(); ok {
-			return myErr.HasExistError()
+	for _, v := range tags {
+		err := mysql.CreateTagByTopic(topic, v)
+		if err != nil {
+			zap.L().Error("AddTagsByTopicService() service.article.CreateTagByTopic err=", zap.Error(err))
+			return err
 		}
-		redis.RDB.SAdd(topic, v.String())
 	}
 	return nil
 }

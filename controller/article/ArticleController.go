@@ -362,20 +362,32 @@ func PublishArticleController(c *gin.Context) {
 
 	// 获取基本数据
 	content := form.Value["article_content"][0]
-	wordCount, err := strconv.Atoi(form.Value["word_count"][0])
-	if err != nil {
-		zap.L().Error("PublishArticleController() controller.article.getArticle.Atoi err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
+	countString := form.Value["word_count"][0]
+	var wordCount int
+	if countString != "" {
+		wordCount, err = strconv.Atoi(countString)
+		if err != nil {
+			zap.L().Error("PublishArticleController() controller.article.getArticle.Atoi err=", zap.Error(err))
+			myErr.CheckErrors(err, c)
+			return
+		}
 	}
+
 	tags := form.Value["article_tags"]
 	topic := form.Value["article_topic"][0]
-	status, err := strconv.ParseBool(form.Value["article_status"][0])
-	if err != nil {
-		zap.L().Error("PublishArticleController() controller.article.getArticle.ParseBool err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
+
+	statusString := form.Value["article_status"][0]
+	var status bool
+
+	if statusString != "" {
+		status, err = strconv.ParseBool(statusString)
+		if err != nil {
+			zap.L().Error("PublishArticleController() controller.article.getArticle.ParseBool err=", zap.Error(err))
+			myErr.CheckErrors(err, c)
+			return
+		}
 	}
+
 	// 获取图片和视频文件
 	pics := form.File["pic"]
 	video := form.File["video"]

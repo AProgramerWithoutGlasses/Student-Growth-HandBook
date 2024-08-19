@@ -1,11 +1,74 @@
 package mysql
 
 import (
+	"errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 )
+
+// QueryIsExistByTopicName 查询话题是否存在通过话题名字
+func QueryIsExistByTopicName(topicName string) (bool, error) {
+	if err := DB.Where("topic_name = ?", topicName).First(&gorm_model.Topic{}).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		zap.L().Error("QueryIsExistByTopicName() dao.mysql.sql_topic err=", zap.Error(err))
+		return false, err
+	}
+	return true, nil
+}
+
+// CreateTopic 添加话题
+func CreateTopic(topicName string, topicContent string) error {
+	topic := gorm_model.Topic{
+		TopicName:    topicName,
+		TopicContent: topicContent,
+	}
+	// 检查是否存在该话题
+	ok, err := QueryIsExistByTopicName(topicName)
+	if err != nil {
+		zap.L().Error("CreateTopic() dao.mysql.sql_topic.QueryIsExistByTopicName err=", zap.Error(err))
+		return err
+	}
+	// 若存在
+	if ok {
+		return myErr.HasExistError()
+	} else {
+		if err = DB.Create(&topic).Error; err != nil {
+			zap.L().Error("CreateTopic() dao.mysql.sql_topic.Create err=", zap.Error(myErr.HasExistError()))
+			return err
+		}
+	}
+	return nil
+}
+
+// CreateTagByTopic 添加话题所对应的标签
+func CreateTagByTopic(topicName string, tagName string) error {
+	topicId, err := QueryTopicIdByTopicName(topicName)
+	if err != nil {
+		zap.L().Error("CreateTopic() dao.mysql.sql_topic.QueryTopicIdByTopicName err=", zap.Error(err))
+		return err
+	}
+	tag := gorm_model.Tag{
+		TopicID: uint(topicId),
+		TagName: tagName,
+	}
+	// 检查是否存在该话题
+	ok, err := QueryIsExistByTopicName(topicName)
+	if err != nil {
+		zap.L().Error("CreateTopic() dao.mysql.sql_topic.QueryIsExistByTopicName err=", zap.Error(err))
+		return err
+	}
+	if ok {
+		if err = DB.Create(&tag).Error; err != nil {
+			zap.L().Error("CreateTopic() dao.mysql.sql_topic.Create err=", zap.Error(err))
+			return err
+		}
+	}
+	return nil
+}
 
 // QueryAllTopics 获取所有话题
 func QueryAllTopics() ([]gorm_model.Topic, error) {
