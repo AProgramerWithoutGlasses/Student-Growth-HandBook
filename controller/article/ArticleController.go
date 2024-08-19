@@ -32,7 +32,21 @@ func GetArticleIdController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, art)
+	res.ResponseSuccess(c, map[string]any{
+		"ban":             art.Ban,
+		"user_headshot":   art.User.HeadShot,
+		"name":            art.User.Name,
+		"username":        art.User.Username,
+		"user_class":      art.User.Class,
+		"article_tags":    art.ArticleTags,
+		"post_time":       art.PostTime,
+		"article_content": art.Content,
+		"like_amount":     art.LikeAmount,
+		"collect_amount":  art.CollectAmount,
+		"comment_amount":  art.CommentAmount,
+		"is_like":         art.IsLike,
+		"is_collect":      art.IsCollect,
+	})
 }
 
 // GetArticleListController 获取文章列表
