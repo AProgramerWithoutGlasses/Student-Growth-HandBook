@@ -42,6 +42,8 @@ func RoutesXue(router *gin.Engine) {
 		userLoginAfter.POST("/fpage/superman", login.FPageCollege)
 		//首页柱状图
 		userLoginAfter.GET("/fpage/pillar", login.Pillar)
+		//获取登陆者的全部信息
+		userLoginAfter.GET("/message", menuController.HeadRoute)
 	}
 
 	//暂时不添加casbin中间件
