@@ -40,6 +40,7 @@ func UpdatePointByUsernamePointAid(username string, point, aid int, db *gorm.DB)
 		zap.L().Error("UpdatePointByUsernamePointAid() service.article.QueryTopicIdByTopicName err=", zap.Error(err))
 		return err
 	}
+
 	err = UpdatePointService(uid, point, topicId, db)
 	if err != nil {
 		zap.L().Error("UpdatePointByUsernamePointAid() service.article.UpdatePointService err=", zap.Error(err))

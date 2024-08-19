@@ -2,6 +2,7 @@ package article
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
 	"studentGrow/dao/mysql"
@@ -143,7 +144,7 @@ func CollectToMysql(aid int, username string) error {
 	}
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		// 添加收藏记录
-		err = mysql.InsertCollectRecord(aid, uid, tx)
+		err = mysql.InsertCollectRecord(aid, uid)
 		if err != nil {
 			fmt.Println("CollectToMysql() service.article.InsertCollectRecord err=", err)
 			return err
@@ -164,6 +165,7 @@ func CollectToMysql(aid int, username string) error {
 		return nil
 	})
 	if err != nil {
+		zap.L().Error("CollectToMysql() service.article.Transaction err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -199,6 +201,7 @@ func CancelCollectToMysql(aid int, username string) error {
 		return nil
 	})
 	if err != nil {
+		zap.L().Error("CancelCollectToMysql() service.article.Transaction err=", zap.Error(err))
 		return err
 	}
 	return nil

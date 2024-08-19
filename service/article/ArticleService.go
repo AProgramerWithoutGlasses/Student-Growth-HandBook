@@ -3,7 +3,6 @@ package article
 import (
 	"fmt"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"mime/multipart"
@@ -91,82 +90,6 @@ func GetArticleListService(page, limit int, sortType, order, startAt, endAt, top
 	}
 
 	return result, nil
-}
-
-// AddTopicsService 添加话题
-func AddTopicsService(j *jsonvalue.V) error {
-	// 获取话题
-	v, err := j.GetArray("topics")
-	if err != nil {
-		fmt.Println("AddTopicsService() service.article.GetArray err=", err)
-		return err
-	}
-	//添加话题
-	for _, v := range v.ForRangeArr() {
-		if ok := redis.RDB.SIsMember("topics", v.String()).Val(); ok {
-			return errors.New("has existed")
-		}
-		redis.RDB.SAdd("topics", v.String())
-		fmt.Println(v.String())
-	}
-	return nil
-}
-
-// GetAllTopicsService 获取所有话题
-func GetAllTopicsService() ([]model.Topic, error) {
-	// 获取所有话题
-	topics, err := mysql.QueryAllTopics()
-	if err != nil {
-		zap.L().Error("GetAllTopicsService() service.article.QueryAllTopics err=", zap.Error(err))
-		return nil, err
-	}
-	return topics, nil
-}
-
-// AddTagsByTopicService 添加话题标签
-func AddTagsByTopicService(j *jsonvalue.V) error {
-	//获取想要添加标签的对应话题
-	topic, err := j.GetString("topic")
-
-	if err != nil {
-		fmt.Println("AddTagsByTopicService() service.article.GetString err=", err)
-		return err
-	}
-
-	//获取想要添加的标签
-	v, err := j.GetArray("tags")
-	if err != nil {
-		fmt.Println("AddTagsByTopicService() service.article.GetArray err=", err)
-		return err
-	}
-
-	//添加标签
-	for _, v := range v.ForRangeArr() {
-		if ok := redis.RDB.SIsMember(topic, v.String()).Val(); ok {
-			return errors.New("has existed")
-		}
-		redis.RDB.SAdd(topic, v.String())
-	}
-	return nil
-}
-
-// GetTagsByTopicService 获取话题对应的标签
-func GetTagsByTopicService(topicId int) ([]map[string]any, error) {
-	//获取想要添加标签的对应话题
-	tags, err := mysql.QueryTagsByTopic(topicId)
-	if err != nil {
-		zap.L().Error("GetTagsByTopicService() service.article.QueryTagsByTopic err=", zap.Error(err))
-		return nil, err
-	}
-
-	var list []map[string]any
-	for i, v := range tags {
-		list = append(list, map[string]any{
-			"id":   i,
-			"name": v.TagName,
-		})
-	}
-	return list, nil
 }
 
 // BannedArticleService 解封或封禁文章
@@ -455,6 +378,11 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 			zap.L().Error("PublishArticleService() service.article.UpdatePointService err=", zap.Error(myErr.DataFormatError()))
 			return err
 		}
+
+		// 将文章更新到redis点赞、收藏
+		redis.RDB.HSet("article", strconv.Itoa(aid), 0)
+		redis.RDB.HSet("collect", strconv.Itoa(aid), 0)
+		fmt.Println("collect", strconv.Itoa(aid))
 		return nil
 	})
 	if err != nil {
@@ -549,4 +477,80 @@ func ReviseArticleStatusService(aid int, status bool) error {
 	}
 
 	return nil
+}
+
+// AddTopicsService 添加话题
+func AddTopicsService(j *jsonvalue.V) error {
+	// 获取话题
+	v, err := j.GetArray("topics")
+	if err != nil {
+		fmt.Println("AddTopicsService() service.article.GetArray err=", err)
+		return err
+	}
+	//添加话题
+	for _, v := range v.ForRangeArr() {
+		if ok := redis.RDB.SIsMember("topics", v.String()).Val(); ok {
+			return myErr.HasExistError()
+		}
+		redis.RDB.SAdd("topics", v.String())
+		fmt.Println(v.String())
+	}
+	return nil
+}
+
+// GetAllTopicsService 获取所有话题
+func GetAllTopicsService() ([]model.Topic, error) {
+	// 获取所有话题
+	topics, err := mysql.QueryAllTopics()
+	if err != nil {
+		zap.L().Error("GetAllTopicsService() service.article.QueryAllTopics err=", zap.Error(err))
+		return nil, err
+	}
+	return topics, nil
+}
+
+// AddTagsByTopicService 添加话题标签
+func AddTagsByTopicService(j *jsonvalue.V) error {
+	//获取想要添加标签的对应话题
+	topic, err := j.GetString("topic")
+
+	if err != nil {
+		fmt.Println("AddTagsByTopicService() service.article.GetString err=", err)
+		return err
+	}
+
+	//获取想要添加的标签
+	v, err := j.GetArray("tags")
+	if err != nil {
+		fmt.Println("AddTagsByTopicService() service.article.GetArray err=", err)
+		return err
+	}
+
+	//添加标签
+	for _, v := range v.ForRangeArr() {
+		if ok := redis.RDB.SIsMember(topic, v.String()).Val(); ok {
+			return myErr.HasExistError()
+		}
+		redis.RDB.SAdd(topic, v.String())
+	}
+	return nil
+}
+
+// GetTagsByTopicService 获取话题对应的标签
+func GetTagsByTopicService(topicId int) ([]map[string]any, error) {
+	//获取想要添加标签的对应话题
+	tags, err := mysql.QueryTagsByTopic(topicId)
+	if err != nil {
+		zap.L().Error("GetTagsByTopicService() service.article.QueryTagsByTopic err=", zap.Error(err))
+		return nil, err
+	}
+
+	var list []map[string]any
+	for i, v := range tags {
+		list = append(list, map[string]any{
+			"id":   i,
+			"name": v.TagName,
+		})
+	}
+	return list, nil
 }
