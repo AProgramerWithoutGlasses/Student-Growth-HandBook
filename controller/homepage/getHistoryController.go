@@ -3,18 +3,22 @@ package homepage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
 )
 
-func GetUserDataControl(c *gin.Context) {
+func GetHistoryControl(c *gin.Context) {
 	// 接收
 	input := struct {
+		Page     int    `json:"page"`
+		Limit    int    `json:"limit"`
 		Username string `json:"username"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
 		return
 	}
 
@@ -27,7 +31,7 @@ func GetUserDataControl(c *gin.Context) {
 	//}
 
 	// 业务
-	userData, err := service.GetHomepageUserDataService(input.Username)
+	homepageArticleHistoryList, err := service.GetHistoryService(input.Page, input.Limit, input.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -35,6 +39,11 @@ func GetUserDataControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, *userData)
+	output := struct {
+		History []jrx_model.HomepageArticleHistoryStruct `json:"history"`
+	}{
+		History: homepageArticleHistoryList,
+	}
 
+	response.ResponseSuccess(c, output)
 }

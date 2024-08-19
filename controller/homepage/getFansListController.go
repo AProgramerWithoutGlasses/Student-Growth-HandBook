@@ -3,11 +3,12 @@ package homepage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
 )
 
-func GetUserDataControl(c *gin.Context) {
+func GetFansListControl(c *gin.Context) {
 	// 接收
 	input := struct {
 		Username string `json:"username"`
@@ -15,6 +16,7 @@ func GetUserDataControl(c *gin.Context) {
 	err := c.BindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
 		return
 	}
 
@@ -27,7 +29,7 @@ func GetUserDataControl(c *gin.Context) {
 	//}
 
 	// 业务
-	userData, err := service.GetHomepageUserDataService(input.Username)
+	userfans, err := service.GetFansListService(input.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -35,6 +37,12 @@ func GetUserDataControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, *userData)
+	output := struct {
+		Userfans []jrx_model.HomepageFanStruct `json:"user_fans"`
+	}{
+		Userfans: userfans,
+	}
+
+	response.ResponseSuccess(c, output)
 
 }

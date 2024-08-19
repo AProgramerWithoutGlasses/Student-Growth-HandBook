@@ -293,3 +293,61 @@ func UpdateHeadshotDao(id int, url string) error {
 	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("user_headshot", url).Error
 	return err
 }
+
+func GetFansIdListDao(id int) ([]int, error) {
+	var fansId []int
+	err := DB.Table("user_followers").Where("user_id", id).Pluck("follower_id", &fansId).Error
+	return fansId, err
+}
+
+func GetFansListDao(fansId []int) ([]jrx_model.HomepageFanStruct, error) {
+	var fansList []jrx_model.HomepageFanStruct
+	err := DB.Table("users").Where("id IN (?)", fansId).Find(&fansList).Error
+	fmt.Println("fanslist : ", fansList)
+	return fansList, err
+}
+
+func GetConcernIdListDao(id int) ([]int, error) {
+	var concernId []int
+	err := DB.Table("user_followers").Where("follower_id", id).Pluck("user_id", &concernId).Error
+	return concernId, err
+}
+
+func GetConcernListDao(concernId []int) ([]jrx_model.HomepageFanStruct, error) {
+	var concernList []jrx_model.HomepageFanStruct
+	err := DB.Table("users").Where("id IN (?)", concernId).Find(&concernList).Error
+	fmt.Println("concernList : ", concernList)
+	return concernList, err
+}
+
+func ChangeConcernDao(id int, otherId int) error {
+	err := DB.Table("user_followers").Where("follower_id = ? and user_id = ?", id, otherId).Delete(nil).Error
+	return err
+}
+
+func GetHistoryByArticle(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
+	// 获取该用户阅读过的文章的id
+	var articleIds []int
+	err := DB.Table("user_read_records").
+		Where("user_id = ?", id).
+		Pluck("article_id", &articleIds).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取这些文章id的文章信息以及文章发布者的信息  	// 多表查询
+	var homepageArticleHistoryList []jrx_model.HomepageArticleHistoryStruct
+	err = DB.Table("articles").
+		Select("articles.id, articles.content, articles.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
+		Joins("JOIN users ON articles.user_id = users.id").
+		Where("articles.id IN (?)", articleIds).
+		Offset((page - 1) * limit).
+		Limit(limit).
+		Scan(&homepageArticleHistoryList).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return homepageArticleHistoryList, err
+}

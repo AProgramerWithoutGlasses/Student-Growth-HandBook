@@ -7,14 +7,16 @@ import (
 	"studentGrow/service"
 )
 
-func GetUserDataControl(c *gin.Context) {
+func ChangeConcernControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Username string `json:"username"`
+		Username  string `json:"username"`
+		Othername string `json:"othername"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
 		return
 	}
 
@@ -27,7 +29,7 @@ func GetUserDataControl(c *gin.Context) {
 	//}
 
 	// 业务
-	userData, err := service.GetHomepageUserDataService(input.Username)
+	err = service.ChangeConcernService(input.Username, input.Othername)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -35,6 +37,5 @@ func GetUserDataControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, *userData)
-
+	response.ResponseSuccess(c, nil)
 }

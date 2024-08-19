@@ -6,21 +6,21 @@ import (
 	"go.uber.org/zap"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func GetMesControl(c *gin.Context) {
 	// 接收
-	input := struct {
-		Username string `json:"username"`
-	}{}
-	err := c.BindJSON(&input)
+	token := c.GetHeader("token")
+	username, err := token2.GetUsername(token)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
 		return
 	}
 
 	// 校验
-	if input.Username == "" {
+	if username == "" {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "请求参数为空")
 		return
 	}

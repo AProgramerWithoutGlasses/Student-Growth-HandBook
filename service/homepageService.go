@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mime/multipart"
 	"studentGrow/dao/mysql"
+	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"studentGrow/utils/fileProcess"
 )
@@ -54,7 +55,6 @@ func GetHomepageMesService(username string) (*jrx_model.HomepageMesStruct, error
 	homepageMes.UserLike = userLike
 	homepageMes.Point = point
 	homepageMes.UserClass = userMes.Class
-	homepageMes.UserIdentity = userMes.Identity
 
 	fmt.Printf("homepageMes2: %+v\n", homepageMes)
 
@@ -103,14 +103,32 @@ func UpdateHomepageEmailService(username string, email string) error {
 	return nil
 }
 
-func GetHomepageUserDataService(username string) error {
+func GetHomepageUserDataService(username string) (*jrx_model.HomepageDataStruct, error) {
+	userData := &jrx_model.HomepageDataStruct{}
+	userDataTemp := &gorm_model.User{}
+
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Println(id)
 
-	return nil
+	userDataTemp, err = mysql.GetHomepageUserMesDao(id)
+	if err != nil {
+		return nil, err
+	}
+
+	userData.Name = userDataTemp.Name
+	userData.UserHeadShot = userDataTemp.HeadShot
+	userData.UserGender = userDataTemp.Gender
+	userData.UserClass = userDataTemp.Class
+	userData.UserMotto = userDataTemp.Motto
+	userData.Phone_number = userDataTemp.PhoneNumber
+	userData.UserEmail = userDataTemp.MailBox
+	userData.UserYear = userDataTemp.PlusTime.Format("2006")
+
+	fmt.Printf("userData : %+v\n", userData)
+
+	return userData, err
 }
 
 // 更新个人主页头像
@@ -131,4 +149,75 @@ func UpdateHeadshotService(file *multipart.FileHeader, username string) error {
 	}
 
 	return err
+}
+
+func GetFansListService(username string) ([]jrx_model.HomepageFanStruct, error) {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	fansIdList, err := mysql.GetFansIdListDao(id)
+	if err != nil {
+		return nil, err
+	}
+
+	fansList, err := mysql.GetFansListDao(fansIdList)
+	if err != nil {
+		return nil, err
+	}
+
+	return fansList, err
+}
+
+func GetConcernListService(username string) ([]jrx_model.HomepageFanStruct, error) {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	concernIdList, err := mysql.GetConcernIdListDao(id)
+	if err != nil {
+		return nil, err
+	}
+
+	concernList, err := mysql.GetConcernListDao(concernIdList)
+	if err != nil {
+		return nil, err
+	}
+
+	return concernList, err
+}
+
+func ChangeConcernService(username string, othername string) error {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	otherId, err := mysql.GetIdByUsername(othername)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.ChangeConcernDao(id, otherId)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func GetHistoryService(page int, limit int, username string) ([]jrx_model.HomepageArticleHistoryStruct, error) {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	homepageArticleHistoryList, err := mysql.GetHistoryByArticle(id, page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return homepageArticleHistoryList, err
 }
