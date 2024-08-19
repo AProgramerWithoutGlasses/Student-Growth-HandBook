@@ -57,21 +57,23 @@ type StarStu struct {
 
 // Menu 返回前端侧边栏结构
 type Menu struct {
-	ID          int      `json:"id"`
-	ParentId    int      `json:"parentId"`
-	Name        string   `json:"menuName"`
-	Type        int      `json:"type"`
-	RouteName   string   `json:"routeName"`
-	Path        string   `json:"routePath"`
-	Perm        string   `json:"permissions"`
-	Redirect    string   `json:"redirect"`
-	Visible     int      `json:"isVisible"`
-	Sort        int      `json:"sort"`
-	FatherMenu  string   `json:"fatherMenu"`
-	RequestUrl  string   `json:"requestUrl"`
-	RequestMenu string   `json:"requestMenu"`
-	Params      []Params `json:"params"`
-	//Children    []Menu   `json:"children"`
+	ID            int      `json:"id"`
+	ParentId      int      `json:"parentId"`
+	Name          string   `json:"menuName"`
+	Type          int      `json:"type"`
+	RouteName     string   `json:"routeName"`
+	Path          string   `json:"routePath"`
+	Perm          string   `json:"permissions"`
+	Redirect      string   `json:"redirect"`
+	Visible       int      `json:"isVisible"`
+	Sort          int      `json:"sort"`
+	FatherMenu    string   `json:"fatherMenu"`
+	Component     string   `json:"componentPath"`
+	RequestUrl    string   `json:"requestUrl"`
+	RequestMethod string   `json:"requestMethod"`
+	Params        []Params `json:"params"`
+	Icon          string   `json:"icon"`
+	Children      []Menu   `json:"children"`
 }
 
 // Params 前端路由参数结构体

@@ -17,9 +17,8 @@ func RoutesXue(router *gin.Engine) {
 	if err != nil {
 		fmt.Println("Setup models.NewCasbinService()  err")
 	}
-
+	router.Use(middleWare.CORSMiddleware(), token.AuthMiddleware())
 	user := router.Group("user")
-	user.Use(middleWare.CORSMiddleware())
 	{
 		//1.像前端返回验证码
 		user.POST("/code", login.RidCode)
@@ -29,8 +28,9 @@ func RoutesXue(router *gin.Engine) {
 		user.POST("/qlogin", login.QLogin)
 	}
 
+	//casbin鉴权
 	userLoginAfter := router.Group("user")
-	userLoginAfter.Use(middleWare.CORSMiddleware(), token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
+	userLoginAfter.Use(middleWare.NewCasbinAuth(casbinService))
 	{
 		//班级管理员首页
 		userLoginAfter.POST("/fpage/class", login.FPageClass)
@@ -48,7 +48,7 @@ func RoutesXue(router *gin.Engine) {
 
 	//暂时不添加casbin中间件
 	elected := router.Group("star")
-	elected.Use(middleWare.CORSMiddleware(), token.AuthMiddleware())
+	elected.Use(token.AuthMiddleware())
 	{
 		//成长之星退选时展示的表格
 		elected.GET("/select", growth.Search)
@@ -67,5 +67,21 @@ func RoutesXue(router *gin.Engine) {
 		elected.GET("/college_star", growth.BackStarCollege)
 		elected.POST("/change_disabled", growth.ChangeStatus)
 	}
+	//前端侧边栏
 	router.GET("/sidebar/message", menuController.MenuSide)
+	//菜单管理 casbin鉴权
+	menu := router.Group("menuManage")
+	//menu.Use(middleWare.NewCasbinAuth(casbinService))
+	{
+		//菜单初始化
+		menu.GET("/init", menuController.MenuMangerInit)
+		//添加菜单
+		menu.POST("/newelyBuilt", menuController.AddMenu)
+		//删除菜单
+		menu.POST("/delete", menuController.DeleteMenu)
+		//搜索菜单
+		menu.GET("/selectInfo", menuController.SearchMenu)
+		//编辑菜单
+		menu.POST("/edit", menuController.UpdateMenu)
+	}
 }
