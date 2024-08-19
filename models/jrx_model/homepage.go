@@ -43,15 +43,3 @@ type HomepageArticleHistoryStruct struct {
 	CommentAmount int    `json:"comment_amount"`
 	LikeAmount    int    `json:"like_amount"`
 }
-
-// 个人资料信息
-type HomepageDataStruct struct {
-	Name         string `json:"name"`
-	UserHeadShot string `json:"user_headshot"`
-	UserMotto    string `json:"user_motto"`
-	UserClass    string `json:"user_class"`
-	UserGender   string `json:"user_gender"`
-	Phone_number string `json:"phone_number"`
-	UserEmail    string `json:"user_email"`
-	UserYear     string `json:"user_year"`
-}
