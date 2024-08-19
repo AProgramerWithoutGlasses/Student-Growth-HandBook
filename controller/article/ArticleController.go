@@ -32,13 +32,18 @@ func GetArticleIdController(c *gin.Context) {
 		return
 	}
 
+	var tags []string
+	for _, tag := range art.ArticleTags {
+		tags = append(tags, tag.Tag.TagName)
+	}
+
 	res.ResponseSuccess(c, map[string]any{
 		"ban":             art.Ban,
 		"user_headshot":   art.User.HeadShot,
 		"name":            art.User.Name,
 		"username":        art.User.Username,
 		"user_class":      art.User.Class,
-		"article_tags":    art.ArticleTags,
+		"article_tags":    tags,
 		"post_time":       art.PostTime,
 		"article_content": art.Content,
 		"like_amount":     art.LikeAmount,
