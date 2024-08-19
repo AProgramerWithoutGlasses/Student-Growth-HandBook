@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"fmt"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
@@ -14,12 +14,12 @@ func UpdateLikeNum(objId, likeType, likeNum int, db *gorm.DB) error {
 	switch likeType {
 	case constant.ArticleInteractionConstant:
 		if err := db.Model(gorm_model.Article{}).Where("id = ?", objId).Update("like_amount", likeNum).Error; err != nil {
-			fmt.Println("UpdateLikeNum() dao.mysql.mysql_like")
+			zap.L().Error("UpdateLikeNum() dao.mysql.mysql_like.Update err=", zap.Error(err))
 			return err
 		}
 	case constant.CommentMsgConstant:
 		if err := db.Model(gorm_model.Comment{}).Where("id = ?", objId).Update("like_amount", likeNum).Error; err != nil {
-			fmt.Println("UpdateLikeNum() dao.mysql.mysql_like")
+			zap.L().Error("UpdateLikeNum() dao.mysql.mysql_like.Update err=", zap.Error(err))
 			return err
 		}
 	}
@@ -33,13 +33,13 @@ func QueryLikeNum(objId, likeType int) (int, error) {
 	switch likeType {
 	case constant.ArticleInteractionConstant:
 		if err := DB.Model(gorm_model.Article{}).Where("id = ?", objId).First(&article).Error; err != nil {
-			fmt.Println("QueryLikeNum() dao.mysql.mysql_like")
+			zap.L().Error("QueryLikeNum() dao.mysql.mysql_like.First err=", zap.Error(err))
 			return -1, err
 		}
 		return article.LikeAmount, nil
 	case constant.CommentMsgConstant:
 		if err := DB.Model(gorm_model.Comment{}).Where("id = ?", objId).First(&comment).Error; err != nil {
-			fmt.Println("QueryLikeNum() dao.mysql.mysql_like")
+			zap.L().Error("QueryLikeNum() dao.mysql.mysql_like.First err=", zap.Error(err))
 			return -1, err
 		}
 		return comment.LikeAmount, nil
@@ -55,13 +55,13 @@ func InsertLikeRecord(objId, likeType int, uid int, db *gorm.DB) error {
 	case constant.ArticleInteractionConstant:
 		articleLike := gorm_model.UserLikeRecord{ArticleID: uint(objId), UserID: uint(uid), Type: likeType}
 		if err := db.Model(gorm_model.UserLikeRecord{}).Create(&articleLike).Error; err != nil {
-			fmt.Println("InsertLikeRecord() dao.mysql.mysql_like")
+			zap.L().Error("InsertLikeRecord() dao.mysql.mysql_like.Create err=", zap.Error(err))
 			return err
 		}
 	case constant.CommentMsgConstant:
 		commentLike := gorm_model.UserLikeRecord{CommentID: uint(objId), UserID: uint(uid), Type: likeType}
 		if err := db.Model(gorm_model.UserLikeRecord{}).Create(&commentLike).Error; err != nil {
-			fmt.Println("InsertLikeRecord() dao.mysql.mysql_like")
+			zap.L().Error("InsertLikeRecord() dao.mysql.mysql_like.Create err=", zap.Error(err))
 			return err
 		}
 	default:
@@ -75,12 +75,12 @@ func DeleteLikeRecord(objId, likeType, uid int) error {
 	switch likeType {
 	case constant.ArticleInteractionConstant:
 		if err := DB.Where("article_id = ? and user_id = ?", objId, uid).Delete(&gorm_model.UserLikeRecord{}).Error; err != nil {
-			fmt.Println("DeleteLikeRecord() dao.mysql.mysql_like")
+			zap.L().Error("DeleteLikeRecord() dao.mysql.mysql_like.Delete err=", zap.Error(err))
 			return err
 		}
 	case constant.CommentMsgConstant:
 		if err := DB.Where("comment_id = ? and user_id = ?", objId, uid).Delete(&gorm_model.UserLikeRecord{}).Error; err != nil {
-			fmt.Println("DeleteLikeRecord() dao.mysql.mysql_like")
+			zap.L().Error("DeleteLikeRecord() dao.mysql.mysql_like.Delete err=", zap.Error(err))
 			return err
 		}
 	default:

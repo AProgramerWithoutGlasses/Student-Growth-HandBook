@@ -2,6 +2,7 @@ package redis
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"strconv"
 )
 
@@ -10,7 +11,7 @@ var Selection = "collect"
 // AddArticleToCollectSet 添加文章到用户收藏集合中
 func AddArticleToCollectSet(uid string, aid string) error {
 	if err := RDB.SAdd(Selection+uid, aid).Err(); err != nil {
-		fmt.Println("AddArticleToSelectSet() service.article.SAdd err=", err)
+		zap.L().Error("AddArticleToCollectSet() dao.redis.redis_collect.SAdd err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -20,7 +21,7 @@ func AddArticleToCollectSet(uid string, aid string) error {
 func IsUserCollected(uid string, aid string) (bool, error) {
 	result, err := RDB.SIsMember(Selection+uid, aid).Result()
 	if err != nil {
-		fmt.Println("IsUserSelected() service.article.SIsMember err=", err)
+		zap.L().Error("IsUserCollected() dao.redis.redis_collect.SIsMember err=", zap.Error(err))
 		return false, nil
 	}
 
@@ -30,7 +31,7 @@ func IsUserCollected(uid string, aid string) (bool, error) {
 // SetArticleCollections 设置文章收藏数
 func SetArticleCollections(aid string, selectNum int) error {
 	if err := RDB.HIncrBy(Selection, aid, int64(selectNum)).Err(); err != nil {
-		fmt.Println("IsUserSelected() service.article.SIsMember err=", err)
+		zap.L().Error("SetArticleCollections() dao.redis.redis_collect.HIncrBy err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -41,12 +42,12 @@ func GetArticleCollections(aid string) (int, error) {
 	selectNum, err := RDB.HGet(Selection, aid).Result()
 	fmt.Println(Selection, aid)
 	if err != nil {
-		fmt.Println("GetArticleSelections() service.article.HGet err=", err)
+		zap.L().Error("GetArticleCollections() dao.redis.redis_collect.HGet err=", zap.Error(err))
 		return -1, err
 	}
 	res, err := strconv.Atoi(selectNum)
 	if err != nil {
-		fmt.Println("GetArticleSelections() service.article.Atoi err=", err)
+		zap.L().Error("GetArticleCollections() dao.redis.redis_collect.Atoi err=", zap.Error(err))
 		return -1, err
 	}
 	return res, nil
@@ -56,7 +57,7 @@ func GetArticleCollections(aid string) (int, error) {
 func GetUserCollectionSet(uid string) ([]string, error) {
 	slice, err := RDB.SMembers(Selection + uid).Result()
 	if err != nil {
-		fmt.Println("GetUserSelectionSet() service.article.SMembers err=", err)
+		zap.L().Error("GetUserCollectionSet() dao.redis.redis_collect.SMembers err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -67,7 +68,7 @@ func GetUserCollectionSet(uid string) ([]string, error) {
 func RemoveUserCollectionSet(aid, uid string) error {
 	err := RDB.SRem(Selection+uid, aid).Err()
 	if err != nil {
-		fmt.Println("RemoveUserFromLikeSet() service.article.ArticleLikeService err=", err)
+		zap.L().Error("RemoveUserCollectionSet() dao.redis.redis_collect.SRem err=", zap.Error(err))
 		return err
 	}
 	return nil

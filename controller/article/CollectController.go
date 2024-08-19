@@ -1,8 +1,8 @@
 package article
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"strconv"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
@@ -16,13 +16,13 @@ func CollectArticleController(c *gin.Context) {
 	// 获取文章id
 	json, err := readMessage.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("CollectArticleController() controller.article.CollectController.GetJsonvalue err=", err)
+		zap.L().Error("CollectArticleController() controller.article.CollectController.GetJsonvalue err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 	aid, err := json.GetInt("article_id")
 	if err != nil {
-		fmt.Println("CollectArticleController() controller.article.CollectController.GetInt err=", err)
+		zap.L().Error("CollectArticleController() controller.article.CollectController.GetInt err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -30,7 +30,7 @@ func CollectArticleController(c *gin.Context) {
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("CollectArticleController() controller.article.CollectController.GetUsername err=", err)
+		zap.L().Error("CollectArticleController() controller.article.CollectController.GetUsername err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -38,7 +38,7 @@ func CollectArticleController(c *gin.Context) {
 	// 收藏
 	err = article.CollectOrNotService(strconv.Itoa(aid), username)
 	if err != nil {
-		fmt.Println("CollectArticleController() controller.article.CollectController.SelectService err=", err)
+		zap.L().Error("CollectArticleController() controller.article.CollectController.CollectOrNotService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}

@@ -13,7 +13,7 @@ import (
 func GetUserByUsername(username string) (*gorm_model.User, error) {
 	var user gorm_model.User
 	if err := DB.Where("username = ?", username).First(&user).Error; err != nil {
-		fmt.Println("GetClassByUsername() dao.mysql.sql_msg")
+		zap.L().Error("GetClassByUsername() dao.mysql.sql_msg.First err=", zap.Error(err))
 		return nil, err
 	}
 	return &user, nil
@@ -34,11 +34,12 @@ func GetUnreadReportsForClass(username string, limit, page int) ([]gorm_model.Us
 		Where("is_read = ?", false).Order("created_at DESC, article_id ASC").
 		Limit(limit).Offset((page - 1) * limit).
 		Find(&reports).Error; err != nil {
-		fmt.Println("GetUnreadReportsForClass() dao.mysql.sql_msg")
+		zap.L().Error("GetClassByUsername() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(reports) == 0 {
+		zap.L().Error("GetClassByUsername() dao.mysql.sql_msg.myErr.NotFoundError() err=", zap.Error(err))
 		return nil, myErr.NotFoundError()
 	}
 
@@ -50,7 +51,7 @@ func GetUnreadReportsForGrade(grade int, limit, page int) ([]gorm_model.UserRepo
 	// 通过年级获取入学年份
 	year, err := time.GetEnrollmentYear(grade)
 	if err != nil {
-		fmt.Println("GetUnreadReportsForGrade() dao.mysql.sql_msg.GetEnrollmentYear")
+		zap.L().Error("GetUnreadReportsForGrade() dao.mysql.sql_msg.myErr.GetEnrollmentYear() err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -63,11 +64,12 @@ func GetUnreadReportsForGrade(grade int, limit, page int) ([]gorm_model.UserRepo
 		Where("is_read = ?", false).Order("created_at DESC, article_id ASC").
 		Limit(limit).Offset((page - 1) * limit).
 		Find(&reports).Error; err != nil {
-		fmt.Println("GetUnreadReportForGrade() dao.mysql.sql_msg")
+		zap.L().Error("GetUnreadReportsForGrade() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(reports) == 0 {
+		zap.L().Error("GetUnreadReportsForGrade() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 
@@ -85,11 +87,12 @@ func GetUnreadReportsForSuperman(limit, page int) ([]gorm_model.UserReportArticl
 		Limit(limit).Offset((page - 1) * limit).
 		Preload("User").Preload("Article").
 		Find(&reports).Error; err != nil {
-		fmt.Println("GetUnreadReportForCollege() dao.mysql.sql_msg")
+		zap.L().Error("GetUnreadReportsForSuperman() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(reports) == 0 {
+		zap.L().Error("GetUnreadReportsForSuperman() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 
@@ -111,7 +114,7 @@ func AckUnreadReportsForClass(reportsId int, username string) error {
 		Updates(gorm_model.UserReportArticleRecord{IsRead: true})
 
 	if result.Error != nil {
-		fmt.Println("AckUnreadReportsById() dao.mysql.sql_msg")
+		zap.L().Error("AckUnreadReportsForClass() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(result.Error))
 		return result.Error
 	}
 
@@ -123,7 +126,7 @@ func AckUnreadReportsForGrade(reportsId int, grade int) error {
 	// 通过年级获取入学年份
 	year, err := time.GetEnrollmentYear(grade)
 	if err != nil {
-		fmt.Println("GetUnreadReportsForGrade() dao.mysql.sql_msg.GetEnrollmentYear")
+		zap.L().Error("AckUnreadReportsForGrade() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(err))
 		return err
 	}
 
@@ -134,7 +137,7 @@ func AckUnreadReportsForGrade(reportsId int, grade int) error {
 		Updates(gorm_model.UserReportArticleRecord{IsRead: true})
 
 	if result.Error != nil {
-		fmt.Println("AckUnreadReportsById() dao.mysql.sql_msg")
+		zap.L().Error("AckUnreadReportsForGrade() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(result.Error))
 		return result.Error
 	}
 
@@ -149,7 +152,7 @@ func AckUnreadReportsForSuperman(reportsId int) error {
 		Updates(gorm_model.UserReportArticleRecord{IsRead: true})
 
 	if result.Error != nil {
-		fmt.Println("AckUnreadReportsById() dao.mysql.sql_msg")
+		zap.L().Error("AckUnreadReportsForSuperman() dao.mysql.sql_msg.myErr.Updates() err=", zap.Error(result.Error))
 		return result.Error
 	}
 

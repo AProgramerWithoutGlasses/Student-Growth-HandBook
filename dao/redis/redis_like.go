@@ -1,8 +1,8 @@
 package redis
 
 import (
-	"fmt"
 	redis2 "github.com/go-redis/redis"
+	"go.uber.org/zap"
 	"strconv"
 )
 
@@ -14,7 +14,7 @@ func AddUserToLikeSet(objId, userId string, likeType int, pipe redis2.Pipeliner)
 	err := pipe.SAdd(List[likeType]+objId, userId).Err()
 
 	if err != nil {
-		fmt.Println("AddUserToLikeSet() service.article.ArticleLikeService err=", err)
+		zap.L().Error("AddUserToLikeSet() dao.redis.redis_like.SAdd err=", zap.Error(err))
 		return err
 	}
 
@@ -25,7 +25,7 @@ func AddUserToLikeSet(objId, userId string, likeType int, pipe redis2.Pipeliner)
 func IsUserLiked(objId, userId string, likeType int) (bool, error) {
 	res, err := RDB.SIsMember(List[likeType]+objId, userId).Result()
 	if err != nil {
-		fmt.Println("IsUserLiked() service.article.ArticleLikeService err=", err)
+		zap.L().Error("IsUserLiked() dao.redis.redis_like.Result err=", zap.Error(err))
 		return false, err
 	}
 	return res, err
@@ -35,7 +35,7 @@ func IsUserLiked(objId, userId string, likeType int) (bool, error) {
 func SetObjLikes(objId string, likeNum int, likeType int, pipe redis2.Pipeliner) error {
 	err := pipe.HIncrBy(List[likeType], objId, int64(likeNum)).Err()
 	if err != nil {
-		fmt.Println("SetArticleLikes() service.article.ArticleLikeService err=", err)
+		zap.L().Error("SetObjLikes() dao.redis.redis_like.HIncrBy err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -45,12 +45,12 @@ func SetObjLikes(objId string, likeNum int, likeType int, pipe redis2.Pipeliner)
 func GetObjLikes(objId string, likeType int, pipe redis2.Pipeliner) (int, error) {
 	likesNumResult, err := pipe.HGet(List[likeType], objId).Result()
 	if err != nil {
-		fmt.Println("GetArticleLikes() service.article.ArticleLikeService err=", err)
+		zap.L().Error("GetObjLikes() dao.redis.redis_like.Result err=", zap.Error(err))
 		return -1, err
 	}
 	res, err := strconv.Atoi(likesNumResult)
 	if err != nil {
-		fmt.Println("GetArticleLikes() service.article.ArticleLikeService err=", err)
+		zap.L().Error("GetObjLikes() dao.redis.redis_like.Atoi err=", zap.Error(err))
 		return -1, err
 	}
 	return res, nil
@@ -61,7 +61,7 @@ func GetObjLikedUsers(objId string, likeType int) (result []string, err error) {
 	slice, err := RDB.SMembers(List[likeType] + objId).Result()
 
 	if err != nil {
-		fmt.Println("GetArticleLikedUsers() service.article.ArticleLikeService err=", err)
+		zap.L().Error("GetObjLikedUsers() dao.redis.redis_like.SMembers err=", zap.Error(err))
 		return nil, err
 	}
 	return slice, nil
@@ -71,7 +71,7 @@ func GetObjLikedUsers(objId string, likeType int) (result []string, err error) {
 func RemoveUserFromLikeSet(objId, userId string, likeType int) error {
 	err := RDB.SRem(List[likeType]+objId, userId).Err()
 	if err != nil {
-		fmt.Println("RemoveUserFromLikeSet() service.article.ArticleLikeService err=", err)
+		zap.L().Error("RemoveUserFromLikeSet() dao.redis.redis_like.v err=", zap.Error(err))
 		return err
 	}
 

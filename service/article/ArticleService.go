@@ -23,41 +23,41 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 	//获取文章id
 	aid, err := j.GetInt("article_id")
 	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetInt err=", err)
+		zap.L().Error("GetArticleService() service.article.GetInt err=", zap.Error(err))
 		return nil, err
 	}
 
 	// 获取用户名
 	username, err := j.GetString("username")
 	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetInt err=", err)
+		zap.L().Error("GetArticleService() service.article.GetString err=", zap.Error(err))
 		return nil, err
 	}
 
 	//查找文章信息
 	err, article := mysql.SelectArticleById(aid)
 	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.SelectArticleById err=", err)
+		zap.L().Error("GetArticleService() service.article.SelectArticleById err=", zap.Error(err))
 		return nil, err
 	}
 
 	// 该文章阅读量+1
 	err = UpdateArticleReadNumService(aid, 1)
 	if err != nil {
-		zap.L().Error("GetArticleService() dao.mysql.sql_article.UpdateArticleReadNumService", zap.Error(err))
+		zap.L().Error("GetArticleService() service.article.UpdateArticleReadNumService err=", zap.Error(err))
 		return nil, err
 	}
 
 	// 查询是否点赞或收藏
 	liked, err := redis.IsUserLiked(strconv.Itoa(aid), username, 0)
 	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.IsUserLiked err=", err)
+		zap.L().Error("GetArticleService() service.article.IsUserLiked err=", zap.Error(err))
 		return nil, err
 	}
 	article.IsLike = liked
 	selected, err := redis.IsUserCollected(username, strconv.Itoa(aid))
 	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.IsUserSelected err=", err)
+		zap.L().Error("GetArticleService() service.article.IsUserCollected err=", zap.Error(err))
 		return nil, err
 	}
 	article.IsCollect = selected
@@ -68,12 +68,12 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 	// 存储到浏览记录
 	uid, err := mysql.GetIdByUsername(username)
 	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.GetIdByUsername err=", err)
+		zap.L().Error("GetArticleService() service.article.GetIdByUsername err=", zap.Error(err))
 		return nil, err
 	}
 	err = mysql.InsertReadRecord(uid, aid)
 	if err != nil {
-		fmt.Println("GetArticleService() dao.mysql.sqp_nzx.InsertReadRecord err=", err)
+		zap.L().Error("GetArticleService() service.article.InsertReadRecord err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -85,7 +85,7 @@ func GetArticleListService(page, limit int, sortType, order, startAt, endAt, top
 	//执行查询文章列表语句
 	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sortType, order, startAt, endAt, topic, keyWords, name, isBan)
 	if err != nil {
-		fmt.Println("GetArticleListService() service.article.GetString err=", err)
+		zap.L().Error("GetArticleListService() service.article.SelectArticleAndUserListByPage err=", zap.Error(err))
 		return nil, myErr.NotFoundError()
 	}
 
@@ -97,7 +97,7 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 	// 获取文章id和封禁状态
 	id, err := j.GetInt("article_id")
 	if err != nil {
-		fmt.Println("BannedArticleService() service.article.GetString err=", err)
+		zap.L().Error("AddTopicsService() service.article.GetInt err=", zap.Error(err))
 		return err
 	}
 	isBan, err := j.GetBool("article_ban")
@@ -167,7 +167,7 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 	// 获取文章id
 	id, err := j.GetInt("article_id")
 	if err != nil {
-		fmt.Println("DeleteArticleService() service.article.GetInt err=", err)
+		zap.L().Error("DeleteArticleService() service.article.GetInt err=", zap.Error(myErr.DataFormatError()))
 		return err
 	}
 
@@ -218,7 +218,7 @@ func ReportArticleService(j *jsonvalue.V, username string) error {
 	// 获取文章id和举报者用户id,举报信息
 	aid, err := j.GetInt("article_id")
 	if err != nil {
-		fmt.Println("ReportArticleService() service.article.GetInt err=", err)
+		zap.L().Error("AddTopicsService() service.article.SearchHotArticlesOfDay.GetInt err=", zap.Error(err))
 		return err
 	}
 
@@ -227,13 +227,13 @@ func ReportArticleService(j *jsonvalue.V, username string) error {
 	// 通过username查询id
 	uid, err := mysql.SelectUserByUsername(username)
 	if err != nil {
-		fmt.Println("ReportArticleService() service.article.SelectUserByUsername err=", err)
+		zap.L().Error("AddTopicsService() service.article.SearchHotArticlesOfDay.SelectUserByUsername err=", zap.Error(err))
 		return err
 	}
 
 	err = mysql.ReportArticleById(aid, uid, reportMsg)
 	if err != nil {
-		fmt.Println("ReportArticleService() service.article.ReportArticleById err=", err)
+		zap.L().Error("AddTopicsService() service.article.SearchHotArticlesOfDay.ReportArticleById err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -245,7 +245,7 @@ func SearchHotArticlesOfDayService(j *jsonvalue.V) (model.Articles, error) {
 	// 获取热帖条数
 	count, err := j.GetInt("article_count")
 	if err != nil {
-		fmt.Println("SearchHotArticlesOfDayService() service.article.GetInt err=", err)
+		zap.L().Error("AddTopicsService() service.article.ArticleService.GetInt err=", zap.Error(err))
 		return nil, err
 	}
 	// 计算今日的始末时间
@@ -254,7 +254,7 @@ func SearchHotArticlesOfDayService(j *jsonvalue.V) (model.Articles, error) {
 
 	articles, err := mysql.SearchHotArticlesOfDay(startOfDay, endOfDay)
 	if err != nil {
-		fmt.Println("SearchHotArticlesOfDayService() service.article.SearchHotArticlesOfDay err=", err)
+		zap.L().Error("AddTopicsService() service.article.SearchHotArticlesOfDay.GetInt err=", zap.Error(err))
 		return nil, err
 	}
 	// 排序
@@ -484,12 +484,12 @@ func AddTopicsService(j *jsonvalue.V) error {
 	// 获取话题
 	name, err := j.GetString("topic_name")
 	if err != nil {
-		fmt.Println("AddTopicsService() service.article.GetArray err=", err)
+		zap.L().Error("AddTopicsService() service.article.ArticleService.GetString err=", zap.Error(err))
 		return err
 	}
 	content, err := j.GetString("topic_name")
 	if err != nil {
-		fmt.Println("AddTopicsService() service.article.GetArray err=", err)
+		zap.L().Error("AddTopicsService() service.article.ArticleService.GetString err=", zap.Error(err))
 		return err
 	}
 	//添加话题

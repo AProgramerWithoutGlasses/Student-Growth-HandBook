@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	model "studentGrow/models/gorm_model"
@@ -21,7 +20,7 @@ func InsertIntoCommentsForArticle(content string, aid int, uid int, db *gorm.DB)
 		ArticleID:  uint(aid),
 	}
 	if err := db.Create(&comment).Error; err != nil {
-		fmt.Println("InsertIntoCommentsForArticle() dao.mysql.nzx_sql err=", err)
+		zap.L().Error("InsertIntoCommentsForArticle() dao.mysql.nzx_sql.Create err=", zap.Error(err))
 		return -1, err
 	}
 
@@ -33,7 +32,7 @@ func InsertIntoCommentsForComment(content string, uid int, pid int) (int, error)
 	// 找到父级评论的文章
 	article := model.Article{}
 	if err := DB.Preload("Article").Where("id = ?", pid).First(&article).Error; err != nil {
-		fmt.Println("InsertIntoCommentsForComment() dao.mysql.nzx_sql err=", err)
+		zap.L().Error("InsertIntoCommentsForComment() dao.mysql.nzx_sql.First err=", zap.Error(err))
 		return -1, err
 	}
 
@@ -49,7 +48,7 @@ func InsertIntoCommentsForComment(content string, uid int, pid int) (int, error)
 	}
 
 	if err := DB.Create(&comment).Error; err != nil {
-		fmt.Println("InsertIntoCommentsForComment() dao.mysql.nzx_sql err=", err)
+		zap.L().Error("InsertIntoCommentsForComment() dao.mysql.nzx_sql.Create err=", zap.Error(err))
 		return -1, err
 	}
 	return int(comment.ID), nil
@@ -63,11 +62,12 @@ func QueryLevelOneComments(aid, limit, page int) ([]model.Comment, error) {
 		Limit(limit).Offset((page - 1) * limit).
 		Find(&comments).
 		Error; err != nil {
-		fmt.Println("QueryLevelOneComments() dao.mysql.nzx_sql err=", err)
+		zap.L().Error("QueryLevelOneComments() dao.mysql.nzx_sql.Find err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(comments) == 0 {
+		zap.L().Error("QueryLevelOneComments() dao.mysql.nzx_sql.Find err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 	return comments, nil
@@ -81,11 +81,12 @@ func QueryLevelSonComments(pid, limit, page int) ([]model.Comment, error) {
 		Limit(limit).Offset((page - 1) * limit).
 		Find(&comments).
 		Error; err != nil {
-		fmt.Println("QueryLevelTwoComments() dao.mysql.nzx_sql err=", err)
+		zap.L().Error("QueryLevelSonComments() dao.mysql.nzx_sql.Find err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(comments) == 0 {
+		zap.L().Error("QueryLevelSonComments() dao.mysql.nzx_sql.Find err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 	return comments, nil
@@ -95,7 +96,7 @@ func QueryLevelSonComments(pid, limit, page int) ([]model.Comment, error) {
 func QuerySonCommentNum(cid int) (int, error) {
 	var count int64
 	if err := DB.Model(&model.Comment{}).Where("pid = ?", cid).Count(&count).Error; err != nil {
-		fmt.Println("QuerySonCommentNum() dao.mysql.nzx_sql err=", err)
+		zap.L().Error("QuerySonCommentNum() dao.mysql.nzx_sql.Count err=", zap.Error(err))
 		return -1, err
 	}
 	return int(count), nil
@@ -106,7 +107,7 @@ func QuerySonCommentNum(cid int) (int, error) {
 func DeleteComment(cid int, username string) error {
 	comment := model.Comment{}
 	if err := DB.Preload("User").Where("id = ?", cid).First(&comment).Error; err != nil {
-		fmt.Println("DeleteComment() dao.mysql.nzx_sql err=", err)
+		zap.L().Error("DeleteComment() dao.mysql.nzx_sql.First err=", zap.Error(err))
 		return err
 	}
 
@@ -120,43 +121,43 @@ func DeleteComment(cid int, username string) error {
 			// 删除子评论
 			result := db.Where("pid = ?", comment.ID).Delete(&model.Comment{})
 			if result.Error != nil {
-				fmt.Println("DeleteComment() dao.mysql.nzx_sql err=", result.Error)
+				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Delete err=", zap.Error(result.Error))
 				return result.Error
 			}
 			// 删除父级评论
 			if err := db.Delete(&comment).Error; err != nil {
-				fmt.Println("DeleteComment() dao.mysql.nzx_sql err=", err)
+				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Delete err=", zap.Error(err))
 				return err
 			}
 
 			//	减少文章评论数
 			num, err := QueryArticleCommentNum(int(comment.ArticleID))
 			if err != nil {
-				fmt.Println("DeleteComment() dao.mysql.nzx_sql.QueryArticleCommentNum err=", err)
+				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.QueryArticleCommentNum err=", zap.Error(err))
 				return err
 			}
 			err = UpdateArticleCommentNum(int(comment.ArticleID), num-int(result.RowsAffected)-1, db)
 			if err != nil {
-				fmt.Println("DeleteComment() dao.mysql.nzx_sql.UpdateArticleCommentNum err=", err)
+				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.UpdateArticleCommentNum err=", zap.Error(err))
 				return err
 			}
 
 		} else {
 			// 若为二级评论
 			if err := DB.Where("id = ?", comment.ID).Delete(&model.Comment{}).Error; err != nil {
-				fmt.Println("DeleteComment() dao.mysql.nzx_sql err=", err)
+				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Delete err=", zap.Error(err))
 				return err
 			}
 
 			//	减少文章评论数
 			num, err := QueryArticleCommentNum(int(comment.ArticleID))
 			if err != nil {
-				fmt.Println("DeleteComment() dao.mysql.nzx_sql.QueryArticleCommentNum err=", err)
+				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.QueryArticleCommentNum err=", zap.Error(err))
 				return err
 			}
 			err = UpdateArticleCommentNum(int(comment.ArticleID), num-1, db)
 			if err != nil {
-				fmt.Println("DeleteComment() dao.mysql.nzx_sql.UpdateArticleCommentNum err=", err)
+				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.UpdateArticleCommentNum err=", zap.Error(err))
 				return err
 			}
 		}
@@ -173,7 +174,7 @@ func DeleteComment(cid int, username string) error {
 func QueryCommentNumForLel1(cid int) (int, error) {
 	var count int64
 	if err := DB.Model(&model.Comment{}).Where("pid = ?", cid).Count(&count).Error; err != nil {
-		fmt.Println("QueryCommentNumForLel1() dao.mysql.nzx_sql err=", err)
+		zap.L().Error("QueryCommentNumForLel1() dao.mysql.nzx_sql.Count err=", zap.Error(err))
 		return -1, err
 	}
 	return int(count), nil
