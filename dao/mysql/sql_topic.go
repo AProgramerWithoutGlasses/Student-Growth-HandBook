@@ -70,6 +70,15 @@ func CreateTagByTopic(topicName string, tagName string) error {
 	return nil
 }
 
+// DeleteTagById 删除标签
+func DeleteTagById(id int) error {
+	if err := DB.Where("id = ?", id).Delete(&gorm_model.Tag{}).Error; err != nil {
+		zap.L().Error("DeleteTagById() dao.mysql.sql_topic.Delete err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
 // QueryAllTopics 获取所有话题
 func QueryAllTopics() ([]gorm_model.Topic, error) {
 	var topics []gorm_model.Topic
