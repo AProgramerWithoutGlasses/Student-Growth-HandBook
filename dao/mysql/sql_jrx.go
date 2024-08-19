@@ -325,10 +325,37 @@ func ChangeConcernDao(id int, otherId int) error {
 	return err
 }
 
-func GetHistoryByArticle(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
+func GetHistoryByArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
 	// 获取该用户阅读过的文章的id
 	var articleIds []int
 	err := DB.Table("user_read_records").
+		Where("user_id = ?", id).
+		Pluck("article_id", &articleIds).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取这些文章id的文章信息以及文章发布者的信息  	// 多表查询
+	var homepageArticleHistoryList []jrx_model.HomepageArticleHistoryStruct
+	err = DB.Table("articles").
+		Select("articles.id, articles.content, articles.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
+		Joins("JOIN users ON articles.user_id = users.id").
+		Where("articles.id IN (?)", articleIds).
+		Offset((page - 1) * limit).
+		Limit(limit).
+		Scan(&homepageArticleHistoryList).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return homepageArticleHistoryList, err
+}
+
+func GetStarDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
+	// 获取该用户收藏的文章的id
+	var articleIds []int
+	err := DB.Table("user_collect_records").
 		Where("user_id = ?", id).
 		Pluck("article_id", &articleIds).Error
 	if err != nil {
