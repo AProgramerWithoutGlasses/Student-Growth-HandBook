@@ -77,6 +77,16 @@ func SelStarUser() ([]string, error) {
 	return alluser, nil
 }
 
+// SelStarUser 查询未公布的学号合集
+func SelSearchGrade(name string) ([]string, error) {
+	var alluser []string
+	err := DB.Table("stars").Where("name LIKE ?", name).Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	if err != nil {
+		return nil, err
+	}
+	return alluser, nil
+}
+
 // SelPlus 查询入学时间
 func SelPlus(username string) (time.Time, error) {
 	var plus time.Time
@@ -100,7 +110,7 @@ func SelStarColl() ([]string, error) {
 // SelSearchUser 根据名字班级查找学号--班级管理员搜索
 func SelSearchUser(name string, class string) ([]string, error) {
 	var username []string
-	err := DB.Table("users").Where("class = ?", class).Where("name = ?", name).Select("username").Scan(&username).Error
+	err := DB.Table("users").Where("class = ?", class).Where("name LIKE ?", "%"+name+"%").Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +120,7 @@ func SelSearchUser(name string, class string) ([]string, error) {
 // SelSearchColl 院级管理员搜索
 func SelSearchColl(name string) ([]string, error) {
 	var usernamesli []string
-	err := DB.Table("stars").Where("name = ?", name).Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&usernamesli).Error
+	err := DB.Table("stars").Where("name LIKE ?", "%"+name+"%").Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&usernamesli).Error
 	if err != nil {
 		return nil, err
 	}
