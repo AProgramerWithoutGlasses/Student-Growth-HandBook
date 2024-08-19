@@ -1,7 +1,6 @@
 package message
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	myErr "studentGrow/pkg/error"
@@ -17,7 +16,7 @@ func GetUnreadReportsController(c *gin.Context) {
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("GetUnreadReportsController() controller.message.GetUsername err=", err)
+		zap.L().Error("GetUnreadReportsController() controller.article.getArticle.GetUsername err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -25,7 +24,7 @@ func GetUnreadReportsController(c *gin.Context) {
 	// 通过token获取管理员角色
 	role, err := token.GetRole(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("GetUnreadReportsController() controller.message.GetRole err=", err)
+		zap.L().Error("GetUnreadReportsController() controller.article.getArticle.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -83,7 +82,7 @@ func AckUnreadReportsController(c *gin.Context) {
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("GetUnreadReportsController() controller.message.GetUsername err=", err)
+		zap.L().Error("AckUnreadReportsController() controller.message.GetUsername err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -91,7 +90,7 @@ func AckUnreadReportsController(c *gin.Context) {
 	// 通过token获取管理员角色
 	role, err := token.GetRole(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("GetUnreadReportsController() controller.message.GetRole err=", err)
+		zap.L().Error("AckUnreadReportsController() controller.message.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -100,7 +99,7 @@ func AckUnreadReportsController(c *gin.Context) {
 	json, err := readUtil.GetJsonvalue(c)
 	reportId, err := json.GetInt("article_id")
 	if err != nil {
-		fmt.Println("AckUnreadReportsForClassController() controller.message.GetInt err=", err)
+		zap.L().Error("AckUnreadReportsController() controller.message.GetInt err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -108,7 +107,7 @@ func AckUnreadReportsController(c *gin.Context) {
 	// 确认未读举报消息
 	err = message.AckUnreadReportsService(reportId, username, role)
 	if err != nil {
-		fmt.Println("AckUnreadReportsForClassController() controller.message.AckUnreadReportsForClassService err=", err)
+		zap.L().Error("AckUnreadReportsController() controller.message.AckUnreadReportsService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}

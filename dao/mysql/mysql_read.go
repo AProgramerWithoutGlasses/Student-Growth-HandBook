@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
@@ -15,7 +14,7 @@ func InsertReadRecord(uid, aid int) error {
 	}
 
 	if err := DB.Create(&readRecord).Error; err != nil {
-		fmt.Println("InsertReadRecord() dao.mysql.mysql_read")
+		zap.L().Error("InsertReadRecord() dao.mysql.mysql_read.Create err=", zap.Error(err))
 		return err
 	}
 	return nil

@@ -1,7 +1,7 @@
 package message
 
 import (
-	"fmt"
+	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
@@ -31,7 +31,7 @@ func GetUnreadReportsForService(username, role string, limit, page int) (reports
 	}
 
 	if err != nil {
-		fmt.Println("GetUnreadReportsForClassService() service.article.GetUnreadReports err=", err)
+		zap.L().Error("GetUnreadReportsForClassService() service.article.GetUnreadReports err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -61,7 +61,7 @@ func AckUnreadReportsService(reportId int, username string, role string) (err er
 	}
 
 	if err != nil {
-		fmt.Println("GetUnreadReportsForClassService() service.article.GetUnreadReports err=", err)
+		zap.L().Error("AckUnreadReportsService() service.article.GetUnreadReports err=", zap.Error(err))
 		return err
 	}
 

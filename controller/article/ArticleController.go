@@ -1,7 +1,6 @@
 package article
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"strconv"
@@ -17,7 +16,7 @@ func GetArticleIdController(c *gin.Context) {
 	//将数据解析到map中
 	json, err := readUtil.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println(" GetArticleIdController() controller.article.GetJsonvalue err=", err)
+		zap.L().Error("GetArticleIdController() controller.article.GetJsonvalue err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -28,7 +27,7 @@ func GetArticleIdController(c *gin.Context) {
 	}
 	//错误检查
 	if err != nil {
-		fmt.Println(" GetArticleIdController() controller.article.GetArticleService err=", err)
+		zap.L().Error("GetArticleIdController() controller.article.GetArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -90,7 +89,7 @@ func BannedArticleController(c *gin.Context) {
 	json, err := readUtil.GetJsonvalue(c)
 
 	if err != nil {
-		fmt.Println("BannedArticleController() controller.article.getArticle.GetJsonvalue err=", err)
+		zap.L().Error("BannedArticleController() controller.article.GetJsonvalue err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -98,7 +97,7 @@ func BannedArticleController(c *gin.Context) {
 	// 获取管理员username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("BannedArticleController() controller.article.getArticle.GetUsername err=", err)
+		zap.L().Error("BannedArticleController() controller.article.GetUsername err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -106,7 +105,7 @@ func BannedArticleController(c *gin.Context) {
 	// 获取管理员角色
 	role, err := token.GetRole(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("BannedArticleController() controller.article.getArticle.GetRole err=", err)
+		zap.L().Error("BannedArticleController() controller.article.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -115,7 +114,7 @@ func BannedArticleController(c *gin.Context) {
 	err = article.BannedArticleService(json, role, username)
 	// 检查错误
 	if err != nil {
-		fmt.Println("BannedArticle() controller.article.getArticle.BannedArticleService err=", err)
+		zap.L().Error("BannedArticleController() controller.article.BannedArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -137,7 +136,7 @@ func DeleteArticleController(c *gin.Context) {
 	json, err := readUtil.GetJsonvalue(c)
 
 	if err != nil {
-		fmt.Println("DeleteArticleController() controller.article.getArticle.GetJsonvalue err=", err)
+		zap.L().Error("DeleteArticleController() controller.article.GetJsonvalue err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -145,7 +144,7 @@ func DeleteArticleController(c *gin.Context) {
 	// 对文章进行删除操作
 	err = article.DeleteArticleService(json, role, username)
 	if err != nil {
-		fmt.Println("DeleteArticleController() controller.article.getArticle.GetJsonvalue err=", err)
+		zap.L().Error("DeleteArticleController() controller.article.DeleteArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -159,14 +158,14 @@ func ReportArticle(c *gin.Context) {
 	//获取前端发送的数据
 	json, err := readUtil.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("ReportArticle() controller.article.getArticle.GetJsonvalue err=", err)
+		zap.L().Error("ReportArticle() controller.article.GetJsonvalue err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
-		fmt.Println("ReportArticle() controller.article.getArticle.GetUsername err=", err)
+		zap.L().Error("ReportArticle() controller.article.GetUsername err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -175,7 +174,7 @@ func ReportArticle(c *gin.Context) {
 	err = article.ReportArticleService(json, username)
 
 	if err != nil {
-		fmt.Println("ReportArticle() controller.article.getArticle.ReportArticleService err=", err)
+		zap.L().Error("ReportArticle() controller.article.ReportArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -188,14 +187,14 @@ func GetHotArticlesOfDayController(c *gin.Context) {
 	//获取前端发送的数据
 	json, err := readUtil.GetJsonvalue(c)
 	if err != nil {
-		fmt.Println("ReportArticle() controller.article.getArticle.GetJsonvalue err=", err)
+		zap.L().Error("GetHotArticlesOfDayController() controller.article.GetJsonvalue err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
 	articles, err := article.SearchHotArticlesOfDayService(json)
 	if err != nil {
-		fmt.Println("GetHotArticlesOfDayController() controller.article.getArticle.SearchHotArticlesOfDayService err=", err)
+		zap.L().Error("GetHotArticlesOfDayController() controller.article.SearchHotArticlesOfDayService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -426,5 +425,3 @@ func ReviseArticleStatusController(c *gin.Context) {
 
 	res.ResponseSuccess(c, nil)
 }
-
-//

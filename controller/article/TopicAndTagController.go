@@ -1,7 +1,6 @@
 package article
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -17,13 +16,13 @@ func AddTopicsController(c *gin.Context) {
 	json, err := readUtil.GetJsonvalue(c)
 
 	if err != nil {
-		fmt.Println("AddTopicsController() controller.article.getArticle.GetJsonvalue err=", err)
+		zap.L().Error("AddTopicsController() controller.article.getArticle.GetJsonvalue err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 	err = article.AddTopicsService(json)
 	if err != nil {
-		fmt.Println("AddTopicsController() controller.article.getArticle.AddTopicsService err=", err)
+		zap.L().Error("AddTopicsController() controller.article.getArticle.AddTopicsService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -37,7 +36,7 @@ func GetAllTopicsController(c *gin.Context) {
 
 	result, err := article.GetAllTopicsService()
 	if err != nil {
-		fmt.Println("GetAllTopicsController() controller.article.getArticle.GetAllTopicsService err=", err)
+		zap.L().Error("AddTopicsController() controller.article.getArticle.GetAllTopicsService err=", zap.Error(err))
 		if err != nil {
 			myErr.CheckErrors(err, c)
 			return
@@ -65,7 +64,7 @@ func AddTagsByTopicController(c *gin.Context) {
 
 	err = article.AddTagsByTopicService(in.Topic, in.Tags)
 	if err != nil {
-		fmt.Println("AddArticleTagsController() controller.article.getArticle.AddTagsByTopicService err=", err)
+		zap.L().Error("AddArticleTagsController() controller.article.getArticle.AddTagsByTopicService err=", zap.Error(err))
 		if err != nil {
 			myErr.CheckErrors(err, c)
 			return
@@ -84,14 +83,14 @@ func GetTagsByTopicController(c *gin.Context) {
 	}{}
 	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		fmt.Println("SendTopicTagsController() controller.article.getArticle.ShouldBindJSON err=")
+		zap.L().Error("GetTagsByTopicController() controller.article.getArticle.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
 	result, err := article.GetTagsByTopicService(in.TopicID)
 	if err != nil {
-		fmt.Println("AddArticleTagsController() controller.article.getArticle.GetTagsByTopicService err=", err)
+		zap.L().Error("GetTagsByTopicController() controller.article.getArticle.GetTagsByTopicService err=", zap.Error(err))
 		if errors.Is(err, myErr.NotFoundError()) {
 			myErr.CheckErrors(err, c)
 			return
@@ -109,7 +108,7 @@ func SendTopicTagsController(c *gin.Context) {
 	}{}
 	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		fmt.Println("SendTopicTagsController() controller.article.getArticle.ShouldBindJSON err=")
+		zap.L().Error("SendTopicTagsController() controller.article.getArticle.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -117,7 +116,7 @@ func SendTopicTagsController(c *gin.Context) {
 	//获取到查询的标签
 	result, err := article.GetTagsByTopicService(in.TopicID)
 	if err != nil {
-		fmt.Println("SendTopicTagsController() controller.article.getArticle.GetTagsByTopicService err=")
+		zap.L().Error("SendTopicTagsController() controller.article.getArticle.GetTagsByTopicService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}

@@ -17,10 +17,12 @@ func SelectUserById(uid int) (err error, user *model.User) {
 	//select * from users where id = uid
 	// 查询用户
 	if err := DB.Where("id = ?", uid).First(&user).Error; err != nil {
+		zap.L().Error("SelectUserById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
-	} else {
-		return nil, user
 	}
+
+	return nil, user
+
 }
 
 // SelectUserByUsername 通过username查找uid
@@ -28,6 +30,7 @@ func SelectUserByUsername(username string) (uid int, err error) {
 	//select id from users where username = username
 	var user model.User
 	if err := DB.Model(model.User{}).Select("id").Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("SelectUserByUsername() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return int(user.ID), err
 	} else {
 		return int(user.ID), nil
@@ -39,6 +42,7 @@ func SelectArticleById(aid int) (err error, article *model.Article) {
 	//查询用户 select * from articles where id = aid
 	if err := DB.Preload("ArticlePics").Preload("ArticleTags").Preload("User").
 		Where("id = ? and ban = ? and status = ?", aid, false, true).First(&article).Error; err != nil {
+		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
 	} else {
 		return nil, article
@@ -78,7 +82,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 
 	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).
 		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
-		fmt.Println()
+		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -113,21 +117,21 @@ func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page
 func BannedArticleByIdForClass(articleId int, isBan bool, username string, db *gorm.DB) error {
 	// 查询班级管理员信息
 	user := model.User{}
-	if err := db.Where("username = ?", username).First(&user).Error; err != nil {
-		fmt.Println("BannedArticleByIdForClass() dao.mysql.sql_nzx")
+	if err := DB.Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err
 	}
 
 	// 查询待封禁的文章;若查询不到，则返回
 	article := model.Article{}
-	if err := db.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
-		fmt.Println("BannedArticleByIdForClass() dao.mysql.sql_nzx")
+	if err := DB.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
+		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return myErr.OverstepCompetence()
 	}
 
 	// 修改文章状态
 	if err := db.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
-		fmt.Println("BannedArticleByIdForClass() dao.mysql.sql_nzx")
+		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.Updates err=", zap.Error(err))
 		return err
 	}
 
@@ -139,22 +143,22 @@ func BannedArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 	// GetUnreadReportsForGrade
 	year, err := timeConverter.GetEnrollmentYear(grade)
 	if err != nil {
-		fmt.Println("BannedArticleByIdForGrade() dao.mysql.sql_nzx")
+		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.GetEnrollmentYear err=", zap.Error(err))
 		return err
 	}
 
 	// 获取需要被封禁的文章；若找不到则返回
 	article := model.Article{}
-	if err = db.Preload("User", "plus_time between ? and ?",
+	if err = DB.Preload("User", "plus_time between ? and ?",
 		fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).
 		Where("id = ?", articleId).First(&article).Error; err != nil {
-		fmt.Println("BannedArticleByIdForGrade() dao.mysql.sql_nzx")
+		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return myErr.OverstepCompetence()
 	}
 
 	// 修改文章状态
 	if err := db.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
-		fmt.Println("BannedArticleByIdForGrade() dao.mysql.sql_nzx")
+		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.Updates err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -164,7 +168,7 @@ func BannedArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 func BannedArticleByIdForSuperman(articleId int, db *gorm.DB) error {
 	// 修改文章状态
 	if err := db.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
-		fmt.Println("BannedArticleByIdForSuperman() dao.mysql.sql_nzx")
+		zap.L().Error("BannedArticleByIdForSuperman() dao.mysql.sql_nzx.Updates err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -185,6 +189,7 @@ func QueryIsExistArticleIdByReportMsg(aid int) (bool, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
 		}
+		zap.L().Error("QueryIsExistArticleIdByReportMsg() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return false, err
 	}
 	return true, nil
@@ -194,20 +199,20 @@ func QueryIsExistArticleIdByReportMsg(aid int) (bool, error) {
 func DeleteArticleByIdForClass(articleId int, username string, db *gorm.DB) error {
 	// 查询班级管理员信息
 	user := model.User{}
-	if err := db.Where("username = ?", username).First(&user).Error; err != nil {
-		fmt.Println("DeleteArticleByIdForClass() dao.mysql.sql_nzx")
+	if err := DB.Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("DeleteArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err
 	}
 
 	// 查询待删除的文章
 	article := model.Article{}
-	if err := db.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
-		fmt.Println("DeleteArticleByIdForClass() dao.mysql.sql_nzx")
+	if err := DB.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
+		zap.L().Error("DeleteArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err
 	}
 
 	if err := db.Delete(&model.Article{}, article.ID).Error; err != nil {
-		fmt.Println("DeleteArticleByIdForClass() dao.mysql.sql_nzx")
+		zap.L().Error("DeleteArticleByIdForClass() dao.mysql.sql_nzx.Delete err=", zap.Error(err))
 		return err
 	}
 
@@ -219,7 +224,7 @@ func DeleteArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 	// 将年级转化为入学年份
 	year, err := timeConverter.GetEnrollmentYear(grade)
 	if err != nil {
-		fmt.Println("DeleteArticleByIdForGrade() dao.mysql.sql_nzx")
+		zap.L().Error("DeleteArticleByIdForGrade() dao.mysql.sql_nzx.GetEnrollmentYear err=", zap.Error(err))
 		return err
 	}
 
@@ -228,13 +233,13 @@ func DeleteArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 	if err = DB.Preload("User", "plus_time between ? and ?",
 		fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).
 		Where("id = ?", articleId).First(&article).Error; err != nil {
-		fmt.Println("DeleteArticleByIdForGrade() dao.mysql.sql_nzx")
+		zap.L().Error("DeleteArticleByIdForGrade() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err
 	}
 
 	// 删除文章
 	if err = db.Delete(&model.Article{}, article.ID).Error; err != nil {
-		fmt.Println("DeleteArticleByIdForGrade() dao.mysql.sql_nzx")
+		zap.L().Error("DeleteArticleByIdForGrade() dao.mysql.sql_nzx.Delete err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -244,11 +249,11 @@ func DeleteArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 func DeleteArticleByIdForSuperman(articleId int, db *gorm.DB) error {
 	article := model.Article{}
 	if err := DB.Where("id = ?", articleId).First(&article).Error; err != nil {
-		fmt.Println("DeleteArticleByIdForSuperman() dao.mysql.sql_nzx")
+		zap.L().Error("DeleteArticleByIdForSuperman() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err
 	}
 	if err := db.Delete(&model.Article{}, article.ID).Error; err != nil {
-		fmt.Println("DeleteArticleByIdForSuperman() dao.mysql.sql_nzx")
+		zap.L().Error("DeleteArticleByIdForSuperman() dao.mysql.sql_nzx.Delete err=", zap.Error(err))
 		return err
 	}
 
@@ -262,7 +267,6 @@ func ReportArticleById(aid int, uid int, msg string) error {
 	bg := DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("ReportArticleById() panic rollback()", r)
 			bg.Rollback()
 		}
 	}()
@@ -270,7 +274,7 @@ func ReportArticleById(aid int, uid int, msg string) error {
 	// 获取被举报文章举报量，并对举报量+1操作
 	article := model.Article{}
 	if err := DB.Where("id = ?", uint(aid)).First(&article).Error; err != nil {
-		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err
 	}
 	article.ReportAmount += 1
@@ -278,24 +282,26 @@ func ReportArticleById(aid int, uid int, msg string) error {
 
 	if result.Error != nil {
 		bg.Rollback()
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Save err=", zap.Error(result.Error))
 		return result.Error
 	}
 	// 查询更新结果
 	if result.RowsAffected <= 0 {
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Save err=", zap.Error(myErr.NotFoundError()))
 		return myErr.NotFoundError()
 	}
 
 	// 检查举报记录：不允许重复举报
 	var report []model.UserReportArticleRecord
 	if err := DB.Where("user_id = ? and article_id = ?", uid, aid).Find(&report).Error; err != nil {
-		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Find err=", zap.Error(myErr.NotFoundError()))
 		bg.Rollback()
 		return err
 	}
 
 	//如果数据库有重复记录，则拒绝重复提交
 	if len(report) > 0 {
-		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Find err=", zap.Error(myErr.RejectRepeatSubmission()))
 		bg.Rollback()
 		return myErr.RejectRepeatSubmission()
 	}
@@ -308,14 +314,14 @@ func ReportArticleById(aid int, uid int, msg string) error {
 	}
 
 	if err := DB.Create(&reportRecord).Error; err != nil {
-		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Create err=", zap.Error(err))
 		bg.Rollback()
 		return err
 	}
 
 	// 提交
 	if err := bg.Commit().Error; err != nil {
-		fmt.Println("ReportArticleById() dao.mysql.sql_nzx")
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Commit err=", zap.Error(err))
 		bg.Rollback()
 		return err
 	}
@@ -327,12 +333,12 @@ func SearchHotArticlesOfDay(startOfDay time.Time, endOfDay time.Time) (model.Art
 	var articles model.Articles
 	if err := DB.Where("created_at >= ? and created_at < ?", startOfDay, endOfDay).
 		Find(&articles).Error; err != nil {
-		fmt.Println("SearchHotArticlesOfDay() dao.mysql.sql_nzx")
+		zap.L().Error("SearchHotArticlesOfDay() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
 	}
 
 	if len(articles) <= 0 {
-		fmt.Println("SearchHotArticlesOfDay() dao.mysql.sql_nzx")
+		zap.L().Error("SearchHotArticlesOfDay() dao.mysql.sql_nzx.Find err=", zap.Error(myErr.NotFoundError()))
 		return nil, myErr.NotFoundError()
 	}
 	return articles, nil
@@ -341,7 +347,7 @@ func SearchHotArticlesOfDay(startOfDay time.Time, endOfDay time.Time) (model.Art
 // UpdateArticleCommentNum 设置文章评论数
 func UpdateArticleCommentNum(aid, num int, db *gorm.DB) error {
 	if err := db.Model(&model.Article{}).Where("id = ?", aid).Update("comment_amount", num).Error; err != nil {
-		fmt.Println("UpdateArticleCommentNum() dao.mysql.sql_nzx")
+		zap.L().Error("UpdateArticleCommentNum() dao.mysql.sql_nzx.Update err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -351,7 +357,7 @@ func UpdateArticleCommentNum(aid, num int, db *gorm.DB) error {
 func QueryArticleCommentNum(aid int) (int, error) {
 	article := model.Article{}
 	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
-		fmt.Println("QueryArticleCommentNum() dao.mysql.sql_nzx")
+		zap.L().Error("QueryArticleCommentNum() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return -1, err
 	}
 	return article.CommentAmount, nil
@@ -360,7 +366,7 @@ func QueryArticleCommentNum(aid int) (int, error) {
 // UpdateArticleLikeNum 设置文章点赞数
 func UpdateArticleLikeNum(aid, num int, db *gorm.DB) error {
 	if err := db.Model(&model.Article{}).Where("id = ?", aid).Update("like_amount", num).Error; err != nil {
-		fmt.Println("UpdateArticleLikeNum() dao.mysql.sql_nzx")
+		zap.L().Error("UpdateArticleLikeNum() dao.mysql.sql_nzx.Update err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -370,7 +376,7 @@ func UpdateArticleLikeNum(aid, num int, db *gorm.DB) error {
 func QueryArticleLikeNum(aid int) (int, error) {
 	article := model.Article{}
 	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
-		fmt.Println("QueryArticleLikeNum() dao.mysql.sql_nzx")
+		zap.L().Error("QueryArticleLikeNum() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return -1, err
 	}
 	return article.LikeAmount, nil
@@ -379,7 +385,7 @@ func QueryArticleLikeNum(aid int) (int, error) {
 // UpdateArticleCollectNum 设置文章收藏数
 func UpdateArticleCollectNum(aid, num int) error {
 	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("collect_amount", num).Error; err != nil {
-		fmt.Println("UpdateArticleLikeNum() dao.mysql.sql_nzx")
+		zap.L().Error("UpdateArticleCollectNum() dao.mysql.sql_nzx.Update err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -389,7 +395,7 @@ func UpdateArticleCollectNum(aid, num int) error {
 func QueryArticleCollectNum(aid int) (int, error) {
 	article := model.Article{}
 	if err := DB.Where("id = ?", aid).First(&article).Error; err != nil {
-		fmt.Println("QueryArticleLikeNum() dao.mysql.sql_nzx")
+		zap.L().Error("QueryArticleCollectNum() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return -1, err
 	}
 	return article.CollectAmount, nil
@@ -412,7 +418,7 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 	// 同步标签中间表
 	for _, tagName := range tags {
 		tag := model.Tag{}
-		if err := db.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
+		if err := DB.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
 			zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 			return -1, err
 		}
