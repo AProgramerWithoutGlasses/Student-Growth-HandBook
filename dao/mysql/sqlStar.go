@@ -77,7 +77,7 @@ func SelStarUser() ([]string, error) {
 	return alluser, nil
 }
 
-// SelStarUser 查询未公布的学号合集
+// SelSearchGrade 查询未公布的学号合集
 func SelSearchGrade(name string) ([]string, error) {
 	var alluser []string
 	err := DB.Table("stars").Where("name LIKE ?", name).Where("session = ?", 0).Select("username").Scan(&alluser).Error

@@ -26,8 +26,7 @@ func NewCasbinAuth(srv *casbinModels.CasbinService) gin.HandlerFunc {
 			fmt.Println("NewCasbinAuth myToken.GetRole(token) err:")
 			return
 		}
-		fmt.Println(c.Request.URL.Path, c.Request.Method)
-		menuId, err := mysql.SelMenuId(c.Request.URL.Path, c.Request.Method)
+		menuId, err := mysql.SelMenuId(role, c.Request.URL.Path, c.Request.Method)
 		if err != nil || menuId == "" {
 			fmt.Println("NewCasbinAuth() mysql.SelMenuId err", err)
 			pkg.ResponseErrorWithMsg(c, 500, "没有找到菜单ID")
@@ -35,7 +34,6 @@ func NewCasbinAuth(srv *casbinModels.CasbinService) gin.HandlerFunc {
 		}
 		ok, err := srv.Enforcer.Enforce(role, menuId)
 		if err != nil {
-			fmt.Println(err)
 			c.JSON(400, gin.H{"code": 400, "msg": "出错"})
 			c.Abort()
 			return

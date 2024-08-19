@@ -1,5 +1,10 @@
 package mysql
 
+import (
+	"studentGrow/models"
+	"studentGrow/models/gorm_model"
+)
+
 // SelFMenu 查询权限下父ID是0的目录及菜单ID
 func SelFMenu(role string) ([]int, error) {
 	var DId []int
@@ -40,15 +45,13 @@ func SelParamId(id int) ([]int, error) {
 	return pid, nil
 }
 
-func SelParamKeyVal(id int) (string, string, error) {
-	var key string
-	var value string
-	err := DB.Table("params").Where("id = ?", id).Select("params_key").Scan(&key).Error
-	err = DB.Table("params").Where("id = ?", id).Select("params_value").Scan(&value).Error
+func SelParamKeyVal(id int) ([]models.Params, error) {
+	var param []models.Params
+	err := DB.Table("params").Where("id = ?", id).Scan(&param).Error
 	if err != nil {
-		return "", "", err
+		return []models.Params{}, err
 	}
-	return key, value, nil
+	return param, nil
 }
 
 func SelIcon(id int) (string, error) {
@@ -68,4 +71,88 @@ func SelPerms(role string) ([]string, error) {
 		return nil, err
 	}
 	return perms, nil
+}
+
+// SelOneDad 查询父Id为同一个值的所有数据
+func SelOneDad(fid int) ([]gorm_model.Menus, error) {
+	var menu []gorm_model.Menus
+	err := DB.Table("menus").Where("parent_id = ?", fid).Scan(&menu).Error
+	if err != nil {
+		return nil, err
+	}
+	return menu, nil
+}
+
+// SelMenuFId 根据名字查找id
+func SelMenuFId(name string) (int, error) {
+	var fId int
+	err := DB.Table("menus").Where("name = ?", name).Select("id").Scan(&fId).Error
+	if err != nil {
+		return 0, err
+	}
+	return fId, nil
+}
+
+// AddMenu 新增菜单
+func AddMenu(menu gorm_model.Menus) error {
+	err := DB.Create(&menu).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// DeleteMenu 删除菜单
+func DeleteMenu(id int) error {
+	err := DB.Where("id = ?", id).Delete(&gorm_model.Menus{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// DeleteParam 删除路由参数
+func DeleteParam(id int) error {
+	err := DB.Where("menu_id = ?", id).Delete(&gorm_model.Param{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SelMenuIds 模糊查询菜单id
+func SelMenuIds(name string) ([]gorm_model.Menus, error) {
+	var menus []gorm_model.Menus
+	err := DB.Table("menus").Where("name LIKE ?", "%"+name+"%").Scan(&menus).Error
+	if err != nil {
+		return nil, err
+	}
+	return menus, nil
+}
+
+// UpdateMenus 更新菜单
+func UpdateMenus(newMenu models.Menu, parentId int) error {
+	var menu gorm_model.Menus
+	err := DB.Table("menus").Where("id = ?", newMenu.ID).Scan(&menu).Error
+	if err != nil {
+		return err
+	}
+	menu.ParentId = parentId
+	menu.Name = newMenu.Name
+	menu.Type = newMenu.Type
+	menu.RouteName = newMenu.RouteName
+	menu.Path = newMenu.Path
+	menu.Component = newMenu.Component
+	menu.Perm = newMenu.Perm
+	menu.Visible = newMenu.Visible
+	menu.Sort = newMenu.Sort
+	menu.Icon = newMenu.Icon
+	menu.Redirect = newMenu.Redirect
+	menu.RequestUrl = newMenu.RequestUrl
+	menu.RequestMethod = newMenu.RequestMethod
+	err = DB.Save(&menu).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
