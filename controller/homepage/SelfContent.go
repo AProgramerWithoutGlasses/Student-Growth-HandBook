@@ -37,8 +37,13 @@ func GetSelfContentContro(c *gin.Context) {
 		return
 	}
 
+	output := struct {
+		SelfContent string `json:"selfContent"`
+	}{
+		SelfContent: selfContent,
+	}
 	// 将selfContent发送给前端
-	response2.ResponseSuccess(c, "该用户自述为: "+selfContent)
+	response2.ResponseSuccess(c, output)
 }
 
 // UpdateSelfContentContro 获取前端发送的学号和newSelfContent, 并将其在数据库中的旧selfContent更新
@@ -66,5 +71,5 @@ func UpdateSelfContentContro(c *gin.Context) {
 	}
 
 	// 响应成功信息
-	response2.ResponseSuccess(c, "")
+	response2.ResponseSuccess(c, nil)
 }

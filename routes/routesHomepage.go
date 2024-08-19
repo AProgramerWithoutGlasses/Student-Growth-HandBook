@@ -24,5 +24,6 @@ func routesHomepage(r *gin.Engine) {
 	rh.GET("/history_get", homepage.GetHistoryControl)
 	// 我的足迹
 	rh.GET("/star_get", homepage.GetStarControl)
+	rh.GET("/class_get", homepage.GetClassControl)
 
 }
