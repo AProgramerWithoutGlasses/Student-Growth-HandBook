@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"studentGrow/controller/RoleController"
 	"studentGrow/controller/growth"
 	"studentGrow/controller/login"
 	"studentGrow/controller/menuController"
@@ -85,5 +86,10 @@ func RoutesXue(router *gin.Engine) {
 		menu.GET("/selectInfo", menuController.SearchMenu)
 		//编辑菜单
 		menu.POST("/edit", menuController.UpdateMenu)
+	}
+	//角色管理
+	role := router.Group("role")
+	{
+		role.GET("/list", RoleController.RoleList)
 	}
 }
