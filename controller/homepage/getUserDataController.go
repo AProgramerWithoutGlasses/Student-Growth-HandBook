@@ -18,7 +18,7 @@ func GetUserDataControl(c *gin.Context) {
 	}
 
 	// 业务
-	err = service.GetHomepageUserDataService(username)
+	userData, err := service.GetHomepageUserDataService(username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -26,6 +26,6 @@ func GetUserDataControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, nil)
+	response.ResponseSuccess(c, *userData)
 
 }

@@ -290,6 +290,6 @@ func UpdateHomepageEmailDao(id int, eamil string) error {
 
 // 修改个人主页头像
 func UpdateHeadshotDao(id int, url string) error {
-	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("user_headshot", url).Error
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("head_shot", url).Error
 	return err
 }
