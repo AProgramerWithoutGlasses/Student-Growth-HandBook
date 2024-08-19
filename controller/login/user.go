@@ -129,3 +129,15 @@ func QLogin(c *gin.Context) {
 	//发送给前端
 	pkg.ResponseSuccess(c, slice)
 }
+
+// RegisterDay 前台获取注册天数
+func RegisterDay(c *gin.Context) {
+	tokens := c.GetHeader("token")
+	username, err := token.GetUsername(tokens)
+	if err != nil {
+		pkg.ResponseError(c, 400)
+	}
+	plusTime, err := mysql.SelPlus(username)
+	plus_time := userService.IntervalInDays(plusTime)
+	pkg.ResponseSuccess(c, plus_time)
+}
