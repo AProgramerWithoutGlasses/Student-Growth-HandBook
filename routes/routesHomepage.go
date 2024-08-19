@@ -18,5 +18,9 @@ func routesHomepage(r *gin.Engine) {
 	rh.POST("/userPhone_update", homepage.UpdatePhoneNumberControl)
 	rh.POST("/userEmail_update", homepage.UpdateEmailControl)
 	rh.GET("/userData_get", homepage.GetUserDataControl)
-	rh.GET("/fans_get", homepage.GetUserDataControl)
+	rh.GET("/fans_get", homepage.GetFansListControl)
+	rh.GET("/concern_get", homepage.GetConcernListControl)
+	rh.POST("/concern_change", homepage.ChangeConcernControl)
+	rh.GET("/history_get", homepage.GetHistoryControl)
+
 }
