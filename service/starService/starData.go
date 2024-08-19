@@ -120,22 +120,14 @@ func StarGuidGrade(usernamesli []string, year int) ([]string, error) {
 
 // SearchGrade 年级管理员搜索
 func SearchGrade(name string, year int) ([]string, error) {
-	var backString []string
-	//查询表格未公布的所有数据
-	usernamesli, err := mysql.SelStarUser()
+	//查询表格未公布与名字相匹配的所有数据
+	usernamesli, err := mysql.SelSearchGrade(name)
 	if err != nil {
 		return nil, err
 	}
 	//根据管理员权限查找数据
 	gUsername, err := StarGuidGrade(usernamesli, year)
-	//找到这些数据中与name相同的值
-	for _, username := range gUsername {
-		tusername, _ := mysql.SelName(username)
-		if tusername == name {
-			backString = append(backString, username)
-		}
-	}
-	return backString, nil
+	return gUsername, nil
 }
 
 // StarClass 返回成长之星的班级之星
