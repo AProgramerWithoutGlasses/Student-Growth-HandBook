@@ -9,7 +9,7 @@ import (
 	token2 "studentGrow/utils/token"
 )
 
-func GetHistoryControl(c *gin.Context) {
+func GetStarControl(c *gin.Context) {
 	// 接收
 	input := struct {
 		Page  int `json:"page"`
@@ -31,7 +31,7 @@ func GetHistoryControl(c *gin.Context) {
 	}
 
 	// 业务
-	homepageArticleHistoryList, err := service.GetHistoryService(input.Page, input.Limit, username)
+	homepageStarList, err := service.GetStarService(input.Page, input.Limit, username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -40,9 +40,9 @@ func GetHistoryControl(c *gin.Context) {
 
 	// 响应
 	output := struct {
-		History []jrx_model.HomepageArticleHistoryStruct `json:"history"`
+		History []jrx_model.HomepageArticleHistoryStruct `json:"star"`
 	}{
-		History: homepageArticleHistoryList,
+		History: homepageStarList,
 	}
 
 	response.ResponseSuccess(c, output)

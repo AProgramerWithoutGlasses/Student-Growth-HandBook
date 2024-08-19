@@ -214,10 +214,24 @@ func GetHistoryService(page int, limit int, username string) ([]jrx_model.Homepa
 		return nil, err
 	}
 
-	homepageArticleHistoryList, err := mysql.GetHistoryByArticle(id, page, limit)
+	homepageArticleHistoryList, err := mysql.GetHistoryByArticleDao(id, page, limit)
 	if err != nil {
 		return nil, err
 	}
 
 	return homepageArticleHistoryList, err
+}
+
+func GetStarService(page int, limit int, username string) ([]jrx_model.HomepageArticleHistoryStruct, error) {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	homepageStarList, err := mysql.GetStarDao(id, page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return homepageStarList, err
 }
