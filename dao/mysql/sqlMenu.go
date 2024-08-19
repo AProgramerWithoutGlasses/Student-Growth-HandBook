@@ -3,7 +3,7 @@ package mysql
 // SelFMenu 查询权限下父ID是0的目录及菜单ID
 func SelFMenu(role string) ([]int, error) {
 	var DId []int
-	err := DB.Table("menus").Where("type <> ?", 2).Where("roles LIKE ?", "%"+role+"%").Select("id").Scan(&DId).Error
+	err := DB.Table("menus").Where("type <> ?", 4).Where("type <> ?", 2).Where("roles LIKE ?", "%"+role+"%").Select("id").Scan(&DId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -58,4 +58,14 @@ func SelIcon(id int) (string, error) {
 		return "", err
 	}
 	return icon, nil
+}
+
+// SelPerms 查询权限标识符
+func SelPerms(role string) ([]string, error) {
+	var perms []string
+	err := DB.Table("menus").Where("roles LIKE ?", "%"+role+"%").Where("type = ?", 2).Select("perm").Scan(&perms).Error
+	if err != nil {
+		return nil, err
+	}
+	return perms, nil
 }
