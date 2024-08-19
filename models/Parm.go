@@ -84,16 +84,17 @@ type Params struct {
 type Sidebar struct {
 	Id        int      `json:"id"`
 	ParentId  int      `json:"parentId"`
-	Path      string   `json:"routePath"`
-	Component string   `json:"componentPath"`
+	Path      string   `json:"path"`
+	Component string   `json:"component"`
 	Redirect  string   `json:"redirect"`
+	RouteName string   `json:"name"`
 	Meta      Message  `json:"meta"`
 	Params    []Params `json:"params"`
 }
 
 // Message 目录菜单信息
 type Message struct {
-	Name    string `json:"label"`
+	Name    string `json:"title"`
 	Visible int    `json:"isVisible"`
 	Icon    string `json:"icon"`
 }
