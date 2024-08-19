@@ -139,5 +139,8 @@ func RegisterDay(c *gin.Context) {
 	}
 	plusTime, err := mysql.SelPlus(username)
 	plus_time := userService.IntervalInDays(plusTime)
-	pkg.ResponseSuccess(c, plus_time)
+	data := map[string]any{
+		"plus_time": plus_time,
+	}
+	pkg.ResponseSuccess(c, data)
 }
