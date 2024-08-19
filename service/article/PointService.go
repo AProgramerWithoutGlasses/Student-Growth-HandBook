@@ -2,10 +2,11 @@ package article
 
 import (
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/dao/mysql"
 )
 
-func UpdatePointService(uid, point, topicId int) error {
+func UpdatePointService(uid, point, topicId int, db *gorm.DB) error {
 	// 获取当前分数
 	curPoint, err := mysql.QueryUserPointByTopic(topicId, uid)
 	if err != nil {
@@ -13,7 +14,7 @@ func UpdatePointService(uid, point, topicId int) error {
 		return err
 	}
 	// 修改分数
-	err = mysql.UpdateUserPointByTopic(curPoint+point, uid, topicId)
+	err = mysql.UpdateUserPointByTopic(curPoint+point, uid, topicId, db)
 	if err != nil {
 		zap.L().Error("PublishArticleService() service.article.UpdateUserPointByTopic err=", zap.Error(err))
 		return err
@@ -22,7 +23,7 @@ func UpdatePointService(uid, point, topicId int) error {
 }
 
 // UpdatePointByUsernamePointAid 已知username,point,aid修改分数
-func UpdatePointByUsernamePointAid(username string, point, aid int) error {
+func UpdatePointByUsernamePointAid(username string, point, aid int, db *gorm.DB) error {
 	uid, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		zap.L().Error("UpdatePointByUsernamePointAid() service.article.GetIdByUsername err=", zap.Error(err))
@@ -40,7 +41,7 @@ func UpdatePointByUsernamePointAid(username string, point, aid int) error {
 		return err
 	}
 
-	err = UpdatePointService(uid, point, topicId)
+	err = UpdatePointService(uid, point, topicId, db)
 	if err != nil {
 		zap.L().Error("UpdatePointByUsernamePointAid() service.article.UpdatePointService err=", zap.Error(err))
 		return err

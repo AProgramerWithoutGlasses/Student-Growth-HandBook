@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 )
@@ -17,8 +18,8 @@ func QueryUserPointByTopic(topicId, uid int) (int, error) {
 }
 
 // UpdateUserPointByTopic 修改用户话题积分
-func UpdateUserPointByTopic(point, uid, topicId int) error {
-	if err := DB.Model(&gorm_model.UserPoint{}).Where("topic_id = ? and user_id = ?", topicId, uid).Update("point", point).Error; err != nil {
+func UpdateUserPointByTopic(point, uid, topicId int, db *gorm.DB) error {
+	if err := db.Model(&gorm_model.UserPoint{}).Where("topic_id = ? and user_id = ?", topicId, uid).Update("point", point).Error; err != nil {
 		zap.L().Error("UpdateUserPointByTopic() dao.mysql.sql_point.Update err=", zap.Error(err))
 		return err
 	}
