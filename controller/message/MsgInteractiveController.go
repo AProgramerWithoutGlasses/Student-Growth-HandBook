@@ -12,19 +12,24 @@ import (
 // GetSystemMsgController 获取系统消息
 func GetSystemMsgController(c *gin.Context) {
 	in := struct {
-		Limit    int    `json:"limit"`
-		Page     int    `json:"page"`
-		Username string `json:"username"`
+		Limit int `json:"limit"`
+		Page  int `json:"page"`
 	}{}
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 
-	err := c.ShouldBindJSON(&in)
+	err = c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetSystemMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	msg, UnreadCount, err := message.GetSystemMsgService(in.Limit, in.Page, in.Username)
+	msg, UnreadCount, err := message.GetSystemMsgService(in.Limit, in.Page, username)
 	if err != nil {
 		zap.L().Error("GetSystemMsgController() controller.message.GetSystemMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -40,19 +45,25 @@ func GetSystemMsgController(c *gin.Context) {
 // GetManagerMsgController 获取管理员消息
 func GetManagerMsgController(c *gin.Context) {
 	in := struct {
-		Limit    int    `json:"limit"`
-		Page     int    `json:"page"`
-		Username string `json:"username"`
+		Limit int `json:"limit"`
+		Page  int `json:"page"`
 	}{}
 
-	err := c.ShouldBindJSON(&in)
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetManagerMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	msg, UnreadCount, err := message.GetManagerMsgService(in.Limit, in.Page, in.Username)
+	msg, UnreadCount, err := message.GetManagerMsgService(in.Limit, in.Page, username)
 	if err != nil {
 		zap.L().Error("GetManagerMsgController() controller.message.GetManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -68,19 +79,25 @@ func GetManagerMsgController(c *gin.Context) {
 // GetLikeMsgController 获取点赞消息
 func GetLikeMsgController(c *gin.Context) {
 	in := struct {
-		Username string `json:"username"`
-		Page     int    `json:"page"`
-		Limit    int    `json:"limit"`
+		Page  int `json:"page"`
+		Limit int `json:"limit"`
 	}{}
 
-	err := c.ShouldBindJSON(&in)
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetLikeMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	list, num, err := message.GetArticleAndCommentLikedMsgService(in.Username, in.Page, in.Limit)
+	list, num, err := message.GetArticleAndCommentLikedMsgService(username, in.Page, in.Limit)
 	if err != nil {
 		zap.L().Error("GetLikeMsgController() controller.message.GetArticleAndCommentLikedMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -96,19 +113,25 @@ func GetLikeMsgController(c *gin.Context) {
 // GetCollectMsgController 获取收藏消息
 func GetCollectMsgController(c *gin.Context) {
 	in := struct {
-		Username string `json:"username"`
-		Page     int    `json:"page"`
-		Limit    int    `json:"limit"`
+		Page  int `json:"page"`
+		Limit int `json:"limit"`
 	}{}
 
-	err := c.ShouldBindJSON(&in)
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetCollectMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	list, num, err := message.GetCollectMsgService(in.Username, in.Page, in.Limit)
+	list, num, err := message.GetCollectMsgService(username, in.Page, in.Limit)
 	if err != nil {
 		zap.L().Error("GetCollectMsgController() controller.message.GetCollectMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -125,19 +148,25 @@ func GetCollectMsgController(c *gin.Context) {
 // GetCommentMsgController 获取评论消息
 func GetCommentMsgController(c *gin.Context) {
 	in := struct {
-		Username string `json:"username"`
-		Page     int    `json:"page"`
-		Limit    int    `json:"limit"`
+		Page  int `json:"page"`
+		Limit int `json:"limit"`
 	}{}
 
-	err := c.ShouldBindJSON(&in)
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetCollectMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	comments, num, err := message.GetCommentMsgService(in.Username, in.Page, in.Limit)
+	comments, num, err := message.GetCommentMsgService(username, in.Page, in.Limit)
 	if err != nil {
 		zap.L().Error("GetCollectMsgController() controller.message.GetCommentMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
