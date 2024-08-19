@@ -25,7 +25,7 @@ func GetMesControl(c *gin.Context) {
 		return
 	}
 
-	homepageMesStruct, err := service.GetHomepageMesService(input.Username)
+	homepageMesStruct, err := service.GetHomepageMesService(username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error("homepage.GetHomepageMesContro() service.GetHomepageMesService() failed : ", zap.Error(err))
