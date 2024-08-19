@@ -144,7 +144,7 @@ func CollectToMysql(aid int, username string) error {
 	}
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		// 添加收藏记录
-		err = mysql.InsertCollectRecord(aid, uid)
+		err = mysql.InsertCollectRecord(aid, uid, tx)
 		if err != nil {
 			fmt.Println("CollectToMysql() service.article.InsertCollectRecord err=", err)
 			return err
