@@ -254,7 +254,7 @@ func GetHomepageConcernCountDao(id int) (int, error) {
 func GetHomepageLikeCountDao(id int) (int, error) {
 	var count int
 	// Article表 满足 user_id = id 的所有行中 like_amount 列的值的总和
-	err := DB.Model(&gorm_model.Article{}).Where("user_id = ?", id).Select("SUM(like_amount)").Scan(&count).Error
+	err := DB.Model(&gorm_model.Article{}).Where("user_id = ?", id).Select("COALESCE(SUM(like_amount), 0)").Scan(&count).Error
 	if err != nil {
 		return 0, err
 	}
@@ -264,7 +264,7 @@ func GetHomepageLikeCountDao(id int) (int, error) {
 // 获取个人主页积分值
 func GetHomepagePointDao(id int) (int, error) {
 	var count int
-	err := DB.Model(&gorm_model.UserPoint{}).Where("user_id = ?", id).Select("SUM(point)").Scan(&count).Error
+	err := DB.Model(&gorm_model.UserPoint{}).Where("user_id = ?", id).Select("COALESCE(SUM(point), 0)").Scan(&count).Error
 	if err != nil {
 		return 0, err
 	}
