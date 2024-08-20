@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"studentGrow/dao/mysql"
-	"studentGrow/dao/redis"
 	"studentGrow/models"
 	pkg "studentGrow/pkg/response"
 	"studentGrow/service/userService"
@@ -53,8 +52,6 @@ func HLogin(c *gin.Context) {
 		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
 		return
 	}
-	//记录用户登录
-	redis.UpdateVictor(user.Username)
 	//查询用户角色
 	casbinId, _ := mysql.SelCasId(user.Username)
 	role, err := mysql.SelRole(casbinId)
@@ -98,7 +95,17 @@ func QLogin(c *gin.Context) {
 		pkg.ResponseErrorWithMsg(c, 400, "验证码错误")
 		return
 	}
-	//验证用户是否存在
+	//验证用户是否被封禁
+	ban, err := userService.BVerifyBan(user.Username)
+	if err != nil {
+		pkg.ResponseError(c, 400)
+		return
+	}
+	if ban {
+		pkg.ResponseSuccess(c, "用户被封禁")
+		return
+	}
+	//验证用户是否是管理员
 	ok := userService.BVerifyExit(user.Username)
 	if ok {
 		cId, err := mysql.SelCasId(user.Username)
@@ -110,7 +117,8 @@ func QLogin(c *gin.Context) {
 		role = "user"
 	}
 	//记录用户登录
-	redis.UpdateVictor(user.Username)
+	id, err := mysql.SelId(user.Username)
+	err = mysql.CreateUser(user.Username, id)
 	//获取生成的token
 	tokenString, err := token.ReleaseToken(user.Username, user.Password, role)
 	if err != nil {

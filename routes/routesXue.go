@@ -18,7 +18,7 @@ func RoutesXue(router *gin.Engine) {
 	if err != nil {
 		fmt.Println("Setup models.NewCasbinService()  err")
 	}
-	router.Use(middleWare.CORSMiddleware(), token.AuthMiddleware())
+	router.Use(middleWare.CORSMiddleware())
 	user := router.Group("user")
 	{
 		//1.像前端返回验证码
@@ -27,8 +27,11 @@ func RoutesXue(router *gin.Engine) {
 		user.POST("/hlogin", login.HLogin)
 		//前台登录
 		user.POST("/qlogin", login.QLogin)
+	}
+	userMessage := router.Group("user")
+	{
 		//获取注册天数
-		user.POST("/register/day", login.RegisterDay)
+		userMessage.POST("/register/day", login.RegisterDay)
 	}
 
 	//casbin鉴权

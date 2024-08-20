@@ -1,5 +1,9 @@
 package mysql
 
+import (
+	"studentGrow/models/gorm_model"
+)
+
 // SelPassword 根据用户名和密码查询用户是否存在
 func SelPassword(username, password string) (int64, error) {
 	var number int64
@@ -49,4 +53,25 @@ func SelHead(username string) (string, error) {
 		return "", err
 	}
 	return headshot, nil
+}
+
+func SelBan(username string) (bool, error) {
+	var ban bool
+	err := DB.Table("users").Where("username = ?", username).Select("ban").Scan(&ban).Error
+	if err != nil {
+		return false, err
+	}
+	return ban, err
+}
+
+// CreateUser 记录用户登录
+func CreateUser(username string, id int) error {
+	var userLogin gorm_model.UserLoginRecord
+	userLogin.Username = username
+	userLogin.UserID = uint(id)
+	err := DB.Create(&userLogin).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

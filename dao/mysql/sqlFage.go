@@ -157,7 +157,7 @@ func SelTagArticleTime(date string) ([]models.TagAmount, error) {
 	return tagcount, nil
 }
 
-// 查询标签名
+// TagName 查询标签名
 func TagName(id int) (string, error) {
 	var tagname string
 	err := DB.Table("tags").Where("id = ?", id).Select("tag_name").Scan(&tagname).Error
@@ -165,4 +165,24 @@ func TagName(id int) (string, error) {
 		return "", err
 	}
 	return tagname, nil
+}
+
+// SelLoginNum 查询指定日期登录的人数
+func SelLoginNum(date time.Time) (int64, error) {
+	var number int64
+	// 获取当天的开始时间（00:00:00）
+	from := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+	nowdate := from.Add(-8 * time.Hour)
+	// 获取第二天的开始时间（00:00:00），用于查询截止到当天结束的时间范围
+	to := nowdate.Add(24 * time.Hour)
+	// 使用 BETWEEN 查询当天的记录数
+	err := DB.Table("user_login_records").
+		Where("created_at BETWEEN ? AND ?", nowdate, to).
+		Count(&number).Error
+	// 检查并返回错误
+	if err != nil {
+		return 0, err
+	}
+	return number, nil
+
 }

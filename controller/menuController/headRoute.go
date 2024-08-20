@@ -9,7 +9,7 @@ import (
 
 func HeadRoute(c *gin.Context) {
 	token := c.GetHeader("token")
-	role, err := token2.GetUsername(token)
+	role, err := token2.GetRole(token)
 	username, err := token2.GetUsername(token)
 	if err != nil {
 		response.ResponseError(c, 400)
