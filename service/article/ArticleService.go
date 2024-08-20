@@ -305,7 +305,7 @@ func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, S
 // PublishArticleService 发布文章
 func PublishArticleService(username, content, topic string, wordCount int, tags []string, pics []*multipart.FileHeader, video []*multipart.FileHeader, status bool) error {
 	// 检查文本内容字数
-	if len(content) < constant.WordLimitMin || len(content) > constant.WordLimitMax {
+	if wordCount < constant.WordLimitMin || wordCount > constant.WordLimitMax {
 		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
 		return myErr.DataFormatError()
 	}

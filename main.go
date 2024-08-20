@@ -43,7 +43,7 @@ func main() {
 		return
 	}
 
-	if err := mysql.DB.AutoMigrate(&gorm_model.UserPoint{}); err != nil {
+	if err := mysql.DB.AutoMigrate(&gorm_model.Article{}); err != nil {
 		return
 	}
 
