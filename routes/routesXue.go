@@ -71,6 +71,8 @@ func RoutesXue(router *gin.Engine) {
 		elected.POST("/public/college", growth.PublicStar)
 		//搜索第几届成长之星的接口
 		elected.GET("/termStar", growth.StarPub)
+		//修改角色状态判断是否可以继续推选
+		elected.POST("/change_disabled", growth.ChangeStatus)
 	}
 	//前端侧边栏(鉴权)
 	sidebar := router.Group("sidebar")
@@ -102,6 +104,4 @@ func RoutesXue(router *gin.Engine) {
 	{
 		role.GET("/list", RoleController.RoleList)
 	}
-	//不需要鉴权的接口
-	router.POST("/star/change_disabled", growth.ChangeStatus)
 }
