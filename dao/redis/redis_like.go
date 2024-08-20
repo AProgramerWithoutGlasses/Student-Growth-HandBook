@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"fmt"
 	redis2 "github.com/go-redis/redis"
 	"go.uber.org/zap"
 	"strconv"
@@ -42,8 +43,10 @@ func SetObjLikes(objId string, likeNum int, likeType int, pipe redis2.Pipeliner)
 }
 
 // GetObjLikes 获取文章或评论点赞数
-func GetObjLikes(objId string, likeType int, pipe redis2.Pipeliner) (int, error) {
-	likesNumResult, err := pipe.HGet(List[likeType], objId).Result()
+func GetObjLikes(objId string, likeType int) (int, error) {
+	likesNumResult, err := RDB.HGet(List[likeType], objId).Result()
+	fmt.Println(List[likeType], objId)
+	fmt.Println(likesNumResult)
 	if err != nil {
 		zap.L().Error("GetObjLikes() dao.redis.redis_like.Result err=", zap.Error(err))
 		return -1, err

@@ -502,3 +502,8 @@ func QueryUserByArticleId(aid int) (*model.User, error) {
 	}
 	return &user, nil
 }
+
+// QueryUserPointRecordIsExist 查询数据库是否存在当前用户话题的分数记录
+func QueryUserPointRecordIsExist() {
+
+}

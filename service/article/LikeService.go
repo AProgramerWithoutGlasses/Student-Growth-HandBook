@@ -24,7 +24,7 @@ func Like(objId, username string, likeType int) error {
 			return err
 		}
 		// 获取对象点赞数
-		likes, err := redis.GetObjLikes(objId, likeType, pipe)
+		likes, err := redis.GetObjLikes(objId, likeType)
 		if err != nil {
 			zap.L().Error("Like() service.article.likeService.GetObjLikes err=", zap.Error(err))
 			return err
@@ -104,7 +104,7 @@ func CancelLike(objId, username string, likeType int) error {
 				return err
 			}
 			// 获取对象点赞数
-			likes, err := redis.GetObjLikes(objId, likeType, pipe)
+			likes, err := redis.GetObjLikes(objId, likeType)
 			if err != nil {
 				zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
 				return err
