@@ -21,3 +21,12 @@ func BVerifyExit(username string) bool {
 	}
 	return true
 }
+
+// BVerifyBan 验证用户是否被封
+func BVerifyBan(username string) (bool, error) {
+	ban, err := mysql.SelBan(username)
+	if err != nil {
+		return false, err
+	}
+	return ban, nil
+}

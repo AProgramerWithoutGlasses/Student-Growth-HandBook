@@ -31,8 +31,6 @@ func FPageClass(c *gin.Context) {
 
 	//把一个班的用户id查出来
 	uidslice, err := mysql.SelUid(class)
-	//把一个班的用户账号查出来
-	usernameslice, err := mysql.SelUsername(class)
 
 	//班级总帖数
 	article_total, err := service.ArticleData(uidslice)
@@ -59,9 +57,9 @@ func FPageClass(c *gin.Context) {
 	}
 
 	//今日访客人数
-	today_visitor_total := service.TodayVictor(usernameslice)
+	today_visitor_total, err := service.TodayVictor()
 	//今日跟昨日的对比
-	visitor_ratio, err := service.VictorRate(usernameslice, today_visitor_total)
+	visitor_ratio, err := service.VictorRate(today_visitor_total)
 	if err != nil {
 		fmt.Println("FPage VictorRate err", err)
 		response.ResponseError(c, 400)
@@ -131,7 +129,6 @@ func FPageClass(c *gin.Context) {
 // FPageGrade 返回前端后台首页数据--年级管理员
 func FPageGrade(c *gin.Context) {
 	var uidSlice []int
-	var usernameslice []string
 	token := c.GetHeader("token")
 	role, err := tokens.GetRole(token)
 	if err != nil {
@@ -142,25 +139,25 @@ func FPageGrade(c *gin.Context) {
 	nowdata := time.Now()
 	switch role {
 	case "grade1":
-		uidSlice, usernameslice, err = mysql.SelGradeId(nowdata, -1)
+		uidSlice, _, err = mysql.SelGradeId(nowdata, -1)
 		if err != nil {
 			fmt.Println("FPageGrade grade1 SelGradeId err", err)
 			return
 		}
 	case "grade2":
-		uidSlice, usernameslice, err = mysql.SelGradeId(nowdata, -2)
+		uidSlice, _, err = mysql.SelGradeId(nowdata, -2)
 		if err != nil {
 			fmt.Println("FPageGrade grade2 SelGradeId err", err)
 			return
 		}
 	case "grade3":
-		uidSlice, usernameslice, err = mysql.SelGradeId(nowdata, -3)
+		uidSlice, _, err = mysql.SelGradeId(nowdata, -3)
 		if err != nil {
 			fmt.Println("FPageGrade grade3 SelGradeId err", err)
 			return
 		}
 	case "grade4":
-		uidSlice, usernameslice, err = mysql.SelGradeId(nowdata, -4)
+		uidSlice, _, err = mysql.SelGradeId(nowdata, -4)
 		if err != nil {
 			fmt.Println("FPageGrade grade4 SelGradeId err", err)
 			return
@@ -191,10 +188,10 @@ func FPageGrade(c *gin.Context) {
 	}
 
 	//今日访客数
-	today_visitor_total := service.TodayVictor(usernameslice)
+	today_visitor_totale, err := service.TodayVictor()
 
 	//访客比率
-	visitor_ratio, err := service.VictorRate(usernameslice, today_visitor_total)
+	visitor_ratio, err := service.VictorRate(today_visitor_totale)
 	if err != nil {
 		fmt.Println("FPageGrade VictorRate err", err)
 		response.ResponseError(c, 400)
@@ -249,7 +246,7 @@ func FPageGrade(c *gin.Context) {
 		"article_total":       article_total,
 		"today_article_total": today_article_total,
 		"article_ratio":       article_ratio,
-		"today_visitor_total": today_visitor_total,
+		"today_visitor_total": today_visitor_totale,
 		"visitor_ratio":       visitor_ratio,
 		"user_total":          user_total,
 		"student_total":       student_total,
@@ -265,7 +262,7 @@ func FPageGrade(c *gin.Context) {
 // FPageCollege 学院管理员和超级管理员
 func FPageCollege(c *gin.Context) {
 	//查询所有用户的id及username
-	uidslice, usernameslice, err := mysql.SelCollegeId()
+	uidslice, _, err := mysql.SelCollegeId()
 	if err != nil {
 		fmt.Println("FPageCollege  SelCollegeId err", err)
 		return
@@ -292,14 +289,14 @@ func FPageCollege(c *gin.Context) {
 	}
 
 	//查询今日访客数
-	today_visitor_total := service.TodayVictor(usernameslice)
+	today_visitor_total, err := service.TodayVictor()
 	if err != nil {
 		fmt.Println("FPageCollege  TodayVictor err", err)
 		return
 	}
 
 	//今天和昨天访客比率
-	visitor_ratio, err := service.VictorRate(usernameslice, today_visitor_total)
+	visitor_ratio, err := service.VictorRate(today_visitor_total)
 	if err != nil {
 		fmt.Println("FPageCollege  VictorRate err", err)
 		return

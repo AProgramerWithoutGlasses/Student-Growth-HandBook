@@ -45,11 +45,11 @@ func SelParamId(id int) ([]int, error) {
 	return pid, nil
 }
 
-func SelParamKeyVal(id int) ([]models.Params, error) {
-	var param []models.Params
-	err := DB.Table("params").Where("id = ?", id).Scan(&param).Error
+func SelParamKeyVal(id int) ([]gorm_model.Param, error) {
+	var param []gorm_model.Param
+	err := DB.Table("params").Where("menu_id = ?", id).Scan(&param).Error
 	if err != nil {
-		return []models.Params{}, err
+		return []gorm_model.Param{}, err
 	}
 	return param, nil
 }

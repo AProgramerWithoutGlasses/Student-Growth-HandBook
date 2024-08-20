@@ -5,7 +5,6 @@ import (
 	"sort"
 	"strconv"
 	"studentGrow/dao/mysql"
-	"studentGrow/dao/redis"
 	"time"
 )
 
@@ -82,26 +81,19 @@ func ArticleDataClassRate(uidslice []int, nownumber int64) (float64, error) {
 }
 
 // TodayVictor 查询今日访客数
-func TodayVictor(usernameslice []string) int {
-	var allNumber int
-	data := time.Now().Format("20060102")
-	for _, username := range usernameslice {
-		if redis.IfVictor(username, data) {
-			allNumber += 1
-		}
+func TodayVictor() (int64, error) {
+	date := time.Now()
+	allNumber, err := mysql.SelLoginNum(date)
+	if err != nil {
+		return 0, err
 	}
-	return allNumber
+	return allNumber, nil
 }
 
 // VictorRate 今天和昨天的比率
-func VictorRate(usernameslice []string, todayVictor int) (float64, error) {
-	var yesdayVictor int
-	ydata := getYesterdayDate(time.Now()).Format("20060102")
-	for _, username := range usernameslice {
-		if redis.IfVictor(username, ydata) {
-			yesdayVictor += 1
-		}
-	}
+func VictorRate(todayVictor int64) (float64, error) {
+	ydata := getYesterdayDate(time.Now())
+	yesdayVictor, err := mysql.SelLoginNum(ydata)
 	if todayVictor == 0 || yesdayVictor == 0 {
 		return 0, nil
 	}

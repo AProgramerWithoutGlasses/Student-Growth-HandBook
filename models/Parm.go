@@ -1,6 +1,9 @@
 package models
 
-import "github.com/dgrijalva/jwt-go"
+import (
+	"github.com/dgrijalva/jwt-go"
+	"studentGrow/models/gorm_model"
+)
 
 // Login 后台登录的结构体
 type Login struct {
@@ -57,41 +60,35 @@ type StarStu struct {
 
 // Menu 返回前端侧边栏结构
 type Menu struct {
-	ID            int      `json:"id"`
-	ParentId      int      `json:"parentId"`
-	Name          string   `json:"menuName"`
-	Type          int      `json:"type"`
-	RouteName     string   `json:"routeName"`
-	Path          string   `json:"routePath"`
-	Perm          string   `json:"permissions"`
-	Redirect      string   `json:"redirect"`
-	Visible       int      `json:"isVisible"`
-	Sort          int      `json:"sort"`
-	FatherMenu    string   `json:"fatherMenu"`
-	Component     string   `json:"componentPath"`
-	RequestUrl    string   `json:"requestUrl"`
-	RequestMethod string   `json:"requestMethod"`
-	Params        []Params `json:"params"`
-	Icon          string   `json:"icon"`
-	Children      []Menu   `json:"children"`
-}
-
-// Params 前端路由参数结构体
-type Params struct {
-	ParamsKey   string `json:"paramsKey"`
-	ParamsValue string `json:"paramsValue"`
+	ID            int                `json:"id"`
+	ParentId      int                `json:"parentId"`
+	Name          string             `json:"menuName"`
+	Type          int                `json:"type"`
+	RouteName     string             `json:"routeName"`
+	Path          string             `json:"routePath"`
+	Perm          string             `json:"permissions"`
+	Redirect      string             `json:"redirect"`
+	Visible       int                `json:"isVisible"`
+	Sort          int                `json:"sort"`
+	FatherMenu    string             `json:"fatherMenu"`
+	Component     string             `json:"componentPath"`
+	RequestUrl    string             `json:"requestUrl"`
+	RequestMethod string             `json:"requestMethod"`
+	Params        []gorm_model.Param `json:"params"`
+	Icon          string             `json:"icon"`
+	Children      []Menu             `json:"children"`
 }
 
 // Sidebar 返回前端侧边栏结构体
 type Sidebar struct {
-	Id        int      `json:"id"`
-	ParentId  int      `json:"parentId"`
-	Path      string   `json:"path"`
-	Component string   `json:"component"`
-	Redirect  string   `json:"redirect"`
-	RouteName string   `json:"name"`
-	Meta      Message  `json:"meta"`
-	Params    []Params `json:"params"`
+	Id        int                `json:"id"`
+	ParentId  int                `json:"parentId"`
+	Path      string             `json:"path"`
+	Component string             `json:"component"`
+	Redirect  string             `json:"redirect"`
+	RouteName string             `json:"name"`
+	Meta      Message            `json:"meta"`
+	Params    []gorm_model.Param `json:"params"`
 }
 
 // Message 目录菜单信息

@@ -145,7 +145,9 @@ func UpdateMenuData(menu models.Menu) error {
 	if err != nil {
 		return err
 	}
+	//更新菜单
 	err = mysql.UpdateMenus(menu, fId)
+	//更新路由参数
 	if err != nil {
 		return err
 	}
