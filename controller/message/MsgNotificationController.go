@@ -72,6 +72,7 @@ func GetUnreadReportsController(c *gin.Context) {
 	// 返回响应
 	res.ResponseSuccess(c, map[string]any{
 		"article_ban":  list,
+		"username":     username,
 		"unread_count": len(list),
 	})
 }
