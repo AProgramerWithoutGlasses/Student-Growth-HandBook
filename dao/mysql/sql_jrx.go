@@ -332,7 +332,14 @@ func ChangeConcernDao(id int, otherId int) error {
 		err = DB.Table("user_followers").Where("user_id = ? AND follower_id = ?", otherId, id).Delete(nil).Error // 我取消关注他
 	} else {
 		// 我未关注他
-		err = DB.Table("user_followers").Raw("INSERT INTO user_followers (user_id, follower_id) VALUES (?, ?)", otherId, id).Error // 我关注他
+		userFollower := struct {
+			UserID     int
+			FollowerID int
+		}{
+			UserID:     otherId,
+			FollowerID: id,
+		}
+		err = DB.Table("user_followers").Create(&userFollower).Error
 	}
 	return err
 }
