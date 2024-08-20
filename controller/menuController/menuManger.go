@@ -52,6 +52,12 @@ func AddMenu(c *gin.Context) {
 		RequestUrl:    backMenu.RequestUrl,
 		RequestMethod: backMenu.RequestMethod,
 	}
+	//查询是否存在
+	ok, err := mysql.SelMenuExit(menu.Name)
+	if !ok {
+		response.ResponseSuccess(c, "菜单已存在")
+		return
+	}
 	//3.新增菜单
 	err = mysql.AddMenu(menu)
 	if err != nil {
@@ -59,8 +65,10 @@ func AddMenu(c *gin.Context) {
 		return
 	}
 	//4.新增路由参数
+	//查询此菜单的id
+	newid, err := mysql.SelMenuFId(backMenu.Name)
 	for _, parm := range backMenu.Params {
-		parm.MenuId = backMenu.ID
+		parm.MenuId = newid
 		err := mysql.AddParam(parm)
 		if err != nil {
 			return
@@ -74,24 +82,21 @@ func AddMenu(c *gin.Context) {
 func DeleteMenu(c *gin.Context) {
 	//接收前端数据
 	var fromdata struct {
-		MenuName string `json:"menuName"`
+		MenuID int `json:"MenuId"`
 	}
 	err := c.Bind(&fromdata)
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
 	}
-	//删除menus表中的数据
-	//1.查询id
-	id, err := mysql.SelMenuFId(fromdata.MenuName)
 	//删除menu中的数据
-	err = mysql.DeleteMenu(id)
+	err = mysql.DeleteMenu(fromdata.MenuID)
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
 	}
 	//删除路由参数
-	err = mysql.DeleteParam(id)
+	err = mysql.DeleteParam(fromdata.MenuID)
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
