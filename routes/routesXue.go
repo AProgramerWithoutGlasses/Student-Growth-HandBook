@@ -57,7 +57,7 @@ func RoutesXue(router *gin.Engine) {
 	}
 	//后台成长之星
 	elected := router.Group("star")
-	elected.Use(token.AuthMiddleware())
+	elected.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
 	{
 		//成长之星退选时展示的表格
 		elected.GET("/select", growth.Search)
@@ -74,13 +74,14 @@ func RoutesXue(router *gin.Engine) {
 	}
 	//前端侧边栏(鉴权)
 	sidebar := router.Group("sidebar")
+	sidebar.Use(middleWare.NewCasbinAuth(casbinService))
 	{
 		sidebar.GET("/message", menuController.MenuSide)
 	}
 
 	//菜单管理 casbin鉴权
 	menu := router.Group("menuManage")
-	//menu.Use(middleWare.NewCasbinAuth(casbinService))
+	menu.Use(middleWare.NewCasbinAuth(casbinService))
 	{
 		//菜单初始化
 		menu.GET("/init", menuController.MenuMangerInit)
@@ -95,6 +96,7 @@ func RoutesXue(router *gin.Engine) {
 	}
 	//角色管理
 	role := router.Group("role")
+	role.Use(middleWare.NewCasbinAuth(casbinService))
 	{
 		role.GET("/list", RoleController.RoleList)
 	}
