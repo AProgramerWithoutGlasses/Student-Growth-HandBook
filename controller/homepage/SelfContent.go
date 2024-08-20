@@ -37,7 +37,7 @@ func GetSelfContentContro(c *gin.Context) {
 	// 根据id，查找数据库中对应的selfContent
 	selfContent, err := mysql.GetSelfContent(id)
 	if err != nil {
-		response.ResponseError(c, 401)
+		response.ResponseError(c, response.ServerErrorCode)
 		fmt.Println("controller.GetSelfContentContro() mysql.GetSelfContent() err : ", err.Error())
 		return
 	}

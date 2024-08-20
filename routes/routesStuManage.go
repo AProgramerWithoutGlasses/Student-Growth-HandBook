@@ -24,10 +24,7 @@ func routesStudentManage(r *gin.Engine) {
 		rs.POST("/addSingleStudent", stuManage.AddSingleStuContro)
 		rs.POST("/addMultipleStudent", stuManage.AddMultipleStuControl)
 
-		rs.POST("/queryStudent/class", stuManage.QueryStuContro)
-		rs.POST("/queryStudent/grade", stuManage.QueryStuContro)
-		rs.POST("/queryStudent/college", stuManage.QueryStuContro)
-		rs.POST("/queryStudent/superman", stuManage.QueryStuContro)
+		rs.POST("/queryStudent", stuManage.QueryStuContro) // 学号、角色（7种）
 
 		rs.POST("/deleteStudent", stuManage.DeleteStuControl)
 		rs.POST("/setStudentManager", stuManage.SetStuManagerControl)
