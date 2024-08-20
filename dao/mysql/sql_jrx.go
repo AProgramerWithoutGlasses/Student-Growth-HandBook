@@ -446,6 +446,6 @@ func UnbanUserDao(banId any) error {
 	var user gorm_model.User
 	user.Ban = false
 	user.UserBanEndTime = time.Now()
-	err := DB.Model(&gorm_model.User{}).Where("id = ?", banId).Updates(user).Error
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", banId).Update("ban", false).Update("user_ban_end_time", time.Now()).Error
 	return err
 }
