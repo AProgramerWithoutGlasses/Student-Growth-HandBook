@@ -19,10 +19,10 @@ func routesMsg(r *gin.Engine) {
 	}
 	gp := r.Group("/report_box")
 	// 查看举报信息
-	gp.POST("/getlist", middleWare.NewCasbinAuth(casbinService), token.AuthMiddleware(), message.GetUnreadReportsController)
+	gp.POST("/getlist", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.GetUnreadReportsController)
 
 	// 确认举报信息
-	gp.POST("/ack", middleWare.NewCasbinAuth(casbinService), token.AuthMiddleware(), message.AckUnreadReportsController)
+	gp.POST("/ack", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.AckUnreadReportsController)
 
 	msg := r.Group("/message")
 
