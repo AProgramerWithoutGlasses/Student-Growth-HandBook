@@ -360,12 +360,6 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 			return err
 		}
 
-		//// 上传标签
-		//err = mysql.InsertArticleTags(tags, aid, tx)
-		//if err != nil {
-		//	zap.L().Error("PublishArticleService() service.article.InsertArticleTags err=", zap.Error(myErr.DataFormatError()))
-		//	return err
-		//}
 		topicId, err := mysql.QueryTopicIdByTopicName(topic)
 		if err != nil {
 			zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(myErr.DataFormatError()))

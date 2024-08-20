@@ -458,7 +458,7 @@ func QueryClassByClassId(classId int) (string, error) {
 // QueryArticleByClass 根据班级分页查询文章
 func QueryArticleByClass(limit, page int, class, keyWord string) (model.Articles, error) {
 	var articles model.Articles
-	if err := DB.Preload("User", "class = ?", class).
+	if err := DB.Preload("User", "class = ?", class).Preload("ArticleTags.Tag").
 		Where("content like ? and ban = ? and status = ?", keyWord, false, true).
 		Order("created_at desc").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {

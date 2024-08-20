@@ -7,17 +7,35 @@ import (
 )
 
 func UpdatePointService(uid, point, topicId int, db *gorm.DB) error {
+	// 查询point表中是否存在该用户对应的话题分数
+	ok, err := mysql.QueryUserPointOfTopicIsExist(uid, topicId)
+	if err != nil {
+		zap.L().Error("UpdatePointService() service.article.QueryUserPointOfTopicIsExist err=", zap.Error(err))
+		return err
+	}
+	// 若不存在，则创建该用户的话题分数
+	if !ok {
+		err = mysql.CreateUserPointOfTopic(uid, topicId, db)
+		if err != nil {
+			zap.L().Error("UpdatePointService() service.article.CreateUserPointOfTopic err=", zap.Error(err))
+			return err
+		}
+	}
+
 	// 获取当前分数
 	curPoint, err := mysql.QueryUserPointByTopic(topicId, uid)
 	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.QueryUserPointByTopic err=", zap.Error(err))
+		zap.L().Error("UpdatePointService() service.article.QueryUserPointByTopic err=", zap.Error(err))
 		return err
 	}
-	// 修改分数
-	err = mysql.UpdateUserPointByTopic(curPoint+point, uid, topicId, db)
-	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.UpdateUserPointByTopic err=", zap.Error(err))
-		return err
+
+	if curPoint >= 0 {
+		// 修改分数
+		err = mysql.UpdateUserPointByTopic(curPoint+point, uid, topicId, db)
+		if err != nil {
+			zap.L().Error("UpdatePointService() service.article.UpdateUserPointByTopic err=", zap.Error(err))
+			return err
+		}
 	}
 	return nil
 }
