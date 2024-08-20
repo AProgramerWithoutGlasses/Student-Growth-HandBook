@@ -80,7 +80,6 @@ func FPageClass(c *gin.Context) {
 	//教师总数
 	teacher_total, err := mysql.SelTeacher()
 	if err != nil {
-		fmt.Println("FPage SelTeacher err", err)
 		response.ResponseError(c, 400)
 		return
 	}
@@ -94,7 +93,7 @@ func FPageClass(c *gin.Context) {
 	//柱状图的数据
 	tagname, count, err := service.PillarData()
 	if err != nil {
-		fmt.Println("FPageClass PillarData err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 	chartOption := map[string]any{
@@ -132,7 +131,6 @@ func FPageGrade(c *gin.Context) {
 	token := c.GetHeader("token")
 	role, err := tokens.GetRole(token)
 	if err != nil {
-		fmt.Println("FPageGrade GetRole err", err)
 		response.ResponseError(c, 400)
 		return
 	}
@@ -141,32 +139,31 @@ func FPageGrade(c *gin.Context) {
 	case "grade1":
 		uidSlice, _, err = mysql.SelGradeId(nowdata, -1)
 		if err != nil {
-			fmt.Println("FPageGrade grade1 SelGradeId err", err)
+			response.ResponseError(c, 400)
 			return
 		}
 	case "grade2":
 		uidSlice, _, err = mysql.SelGradeId(nowdata, -2)
 		if err != nil {
-			fmt.Println("FPageGrade grade2 SelGradeId err", err)
+			response.ResponseError(c, 400)
 			return
 		}
 	case "grade3":
 		uidSlice, _, err = mysql.SelGradeId(nowdata, -3)
 		if err != nil {
-			fmt.Println("FPageGrade grade3 SelGradeId err", err)
+			response.ResponseError(c, 400)
 			return
 		}
 	case "grade4":
 		uidSlice, _, err = mysql.SelGradeId(nowdata, -4)
 		if err != nil {
-			fmt.Println("FPageGrade grade4 SelGradeId err", err)
+			response.ResponseError(c, 400)
 			return
 		}
 	}
 	//帖子总数
 	article_total, err := service.ArticleData(uidSlice)
 	if err != nil {
-		fmt.Println("FPageGrade ArticleDataClass err", err)
 		response.ResponseError(c, 400)
 		return
 	}
@@ -174,7 +171,6 @@ func FPageGrade(c *gin.Context) {
 	//今日帖子总数
 	today_article_total, err := service.NarticleDataClass(uidSlice)
 	if err != nil {
-		fmt.Println("FPageGrade NarticleDataClass err", err)
 		response.ResponseError(c, 400)
 		return
 	}
@@ -182,7 +178,6 @@ func FPageGrade(c *gin.Context) {
 	//昨日新帖跟今天的比率
 	article_ratio, err := service.ArticleDataClassRate(uidSlice, today_article_total)
 	if err != nil {
-		fmt.Println("FPageGrade ArticleDataClassRate err", err)
 		response.ResponseError(c, 400)
 		return
 	}
@@ -193,7 +188,6 @@ func FPageGrade(c *gin.Context) {
 	//访客比率
 	visitor_ratio, err := service.VictorRate(today_visitor_totale)
 	if err != nil {
-		fmt.Println("FPageGrade VictorRate err", err)
 		response.ResponseError(c, 400)
 		return
 	}
@@ -204,7 +198,6 @@ func FPageGrade(c *gin.Context) {
 	//学生总数
 	student_total, err := mysql.SelStudent()
 	if err != nil {
-		fmt.Println("FPage SelStudent err", err)
 		response.ResponseError(c, 400)
 		return
 	}
@@ -212,7 +205,6 @@ func FPageGrade(c *gin.Context) {
 	//教师总数
 	teacher_total, err := mysql.SelTeacher()
 	if err != nil {
-		fmt.Println("FPage SelTeacher err", err)
 		response.ResponseError(c, 400)
 		return
 	}
@@ -226,8 +218,7 @@ func FPageGrade(c *gin.Context) {
 	//柱状图的数据
 	tagname, count, err := service.PillarData()
 	if err != nil {
-		fmt.Println("FPageClass PillarData err", err)
-		return
+		response.ResponseError(c, 400)
 	}
 	chartOption := map[string]any{
 		"xAxis": map[string]any{
@@ -264,41 +255,41 @@ func FPageCollege(c *gin.Context) {
 	//查询所有用户的id及username
 	uidslice, _, err := mysql.SelCollegeId()
 	if err != nil {
-		fmt.Println("FPageCollege  SelCollegeId err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 	//总帖数
 	article_total, err := service.ArticleData(uidslice)
 	if err != nil {
-		fmt.Println("FPageCollege  ArticleData err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 
 	//今日总帖数
 	today_article_total, err := service.NarticleDataClass(uidslice)
 	if err != nil {
-		fmt.Println("FPageCollege  ArticleData err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 
 	//昨日帖子跟今天的比率
 	article_ratio, err := service.ArticleDataClassRate(uidslice, today_article_total)
 	if err != nil {
-		fmt.Println("FPageCollege  ArticleDataClassRate err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 
 	//查询今日访客数
 	today_visitor_total, err := service.TodayVictor()
 	if err != nil {
-		fmt.Println("FPageCollege  TodayVictor err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 
 	//今天和昨天访客比率
 	visitor_ratio, err := service.VictorRate(today_visitor_total)
 	if err != nil {
-		fmt.Println("FPageCollege  VictorRate err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 
@@ -308,21 +299,21 @@ func FPageCollege(c *gin.Context) {
 	//学生总数
 	student_total, err := mysql.SelStudent()
 	if err != nil {
-		fmt.Println("FPageCollege  SelStudent err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 
 	//教师总数
 	teacher_total, err := mysql.SelTeacher()
 	if err != nil {
-		fmt.Println("FPageCollege  SelStudent err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 
 	//总赞数
 	upvote_amount := service.LikeAmount(uidslice)
 	if err != nil {
-		fmt.Println("FPageCollege  LikeAmount err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 
@@ -332,7 +323,7 @@ func FPageCollege(c *gin.Context) {
 	//柱状图的数据
 	tagname, count, err := service.PillarData()
 	if err != nil {
-		fmt.Println("FPageClass PillarData err", err)
+		response.ResponseError(c, 400)
 		return
 	}
 	chartOption := map[string]any{
@@ -375,6 +366,7 @@ func Pillar(c *gin.Context) {
 	}
 	err := c.Bind(&Num)
 	if err != nil {
+		response.ResponseError(c, 400)
 		return
 	}
 	if Num.Date == "" {
