@@ -322,9 +322,18 @@ func GetConcernListDao(concernId []int) ([]jrx_model.HomepageFanStruct, error) {
 }
 
 func ChangeConcernDao(id int, otherId int) error {
-	err := DB.Find(&user_followers, "user_id = ? AND follower_id = ?", userId, followerId).Error
-
-	err := DB.Table("user_followers").Where("follower_id = ? and user_id = ?", id, otherId).Delete(nil).Error
+	var count int64
+	err := DB.Table("user_followers").Where("user_id = ? AND follower_id = ?", id, otherId).Count(&count).Error
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		// 存在符合条件的记录
+		err = DB.Table("user_followers").Where("user_id = ? AND follower_id = ?", id, otherId).Delete(nil).Error
+	} else {
+		// 不存在符合条件的记录
+		err = DB.Table("user_followers").Raw("INSERT INTO user_followers (user_id, follower_id) VALUES (?, ?)", otherId, id).Error
+	}
 	return err
 }
 
