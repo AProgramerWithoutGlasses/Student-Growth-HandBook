@@ -43,7 +43,7 @@ func CollectArticleController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 
 }
 

@@ -39,3 +39,12 @@ func ResponseErrorWithMsg(c *gin.Context, code Code, msg string) {
 		Data: nil,
 	})
 }
+
+// ResponseSuccessWithMsg 响应成功并返回msg
+func ResponseSuccessWithMsg(c *gin.Context, msg string, data any) {
+	c.JSON(http.StatusOK, &Response{
+		Code: SuccessCode,
+		Msg:  msg, // code对应的提示信息
+		Data: data,
+	})
+}

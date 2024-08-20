@@ -25,8 +25,3 @@ func Init() (err error) {
 func Close() {
 	_ = RDB.Close()
 }
-
-// 创建基础字段
-func initBasicField() {
-	RDB.SAdd("topics", "文体活动")
-}

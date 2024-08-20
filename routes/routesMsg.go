@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/message"
-	"studentGrow/utils/middleWare"
 	"studentGrow/utils/token"
 )
 
@@ -33,18 +32,18 @@ func routesMsg(r *gin.Engine) {
 	msg.POST("/get_comList", message.GetCommentMsgController)
 
 	// 确认互动消息
-	msg.POST("/ack_interactMsg", middleWare.CORSMiddleware(), message.AckInterMsgController)
+	msg.POST("/ack_interactMsg", token.AuthMiddleware(), message.AckInterMsgController)
 
 	// 确认系统消息
-	msg.POST("/ack_systemMsg", middleWare.CORSMiddleware(), message.AckSystemMsgController)
+	msg.POST("/ack_systemMsg", token.AuthMiddleware(), message.AckSystemMsgController)
 
 	// 确认管理员消息
-	msg.POST("/ack_managerMsg", middleWare.CORSMiddleware(), message.AckManagerMsgController)
+	msg.POST("/ack_managerMsg", token.AuthMiddleware(), message.AckManagerMsgController)
 
 	// 发布管理员通知
-	msg.POST("/publish_managerMsg", middleWare.CORSMiddleware(), message.PublishManagerMsgController)
+	msg.POST("/publish_managerMsg", token.AuthMiddleware(), message.PublishManagerMsgController)
 
 	// 发布系统通知
-	msg.POST("/publish_systemMsg", middleWare.CORSMiddleware(), message.PublishSystemMsgController)
+	msg.POST("/publish_systemMsg", token.AuthMiddleware(), message.PublishSystemMsgController)
 
 }
