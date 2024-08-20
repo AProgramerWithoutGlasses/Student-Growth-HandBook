@@ -103,6 +103,19 @@ func SelMenuFId(name string) (int, error) {
 	return fId, nil
 }
 
+// SelMenuExit 查询菜单是否存在
+func SelMenuExit(name string) (bool, error) {
+	var count int64
+	err := DB.Table("menus").Where("name = ?", name).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	if count != 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
 // AddMenu 新增菜单
 func AddMenu(menu gorm_model.Menus) error {
 	err := DB.Create(&menu).Error
