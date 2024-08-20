@@ -27,11 +27,8 @@ func RoutesXue(router *gin.Engine) {
 		user.POST("/hlogin", login.HLogin)
 		//前台登录
 		user.POST("/qlogin", login.QLogin)
-	}
-	userMessage := router.Group("user")
-	{
 		//获取注册天数
-		userMessage.POST("/register/day", login.RegisterDay)
+		user.POST("/register/day", login.RegisterDay)
 	}
 
 	//casbin鉴权
