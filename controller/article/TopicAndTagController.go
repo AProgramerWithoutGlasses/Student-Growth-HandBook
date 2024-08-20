@@ -27,7 +27,7 @@ func AddTopicsController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 
 }
 
@@ -73,7 +73,7 @@ func AddTagsByTopicController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
 
 // GetTagsByTopicController 获取标签

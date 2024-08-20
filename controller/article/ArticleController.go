@@ -1,7 +1,6 @@
 package article
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"strconv"
@@ -35,7 +34,6 @@ func GetArticleIdController(c *gin.Context) {
 
 	var tags []string
 	for _, tag := range art.ArticleTags {
-		fmt.Println(tag.Tag.TagName)
 		tags = append(tags, tag.Tag.TagName)
 	}
 
@@ -419,7 +417,7 @@ func PublishArticleController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 
 }
 
@@ -444,5 +442,5 @@ func ReviseArticleStatusController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
