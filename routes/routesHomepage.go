@@ -16,16 +16,16 @@ func routesHomepage(r *gin.Engine) {
 	rh.POST("/userMotto_update", homepage.UpdateHomepageMottoControl)
 	rh.POST("/userPhone_update", homepage.UpdatePhoneNumberControl)
 	rh.POST("/userEmail_update", homepage.UpdateEmailControl)
-	rh.GET("/userData_get", homepage.GetUserDataControl)
-	rh.GET("/fans_get", homepage.GetFansListControl)
-	rh.GET("/concern_get", homepage.GetConcernListControl)
+	rh.POST("/userData_get", homepage.GetUserDataControl)
+	rh.POST("/fans_get", homepage.GetFansListControl)
+	rh.POST("/concern_get", homepage.GetConcernListControl)
 	rh.POST("/concern_change", homepage.ChangeConcernControl)
-	rh.GET("/history_get", homepage.GetHistoryControl)
+	rh.POST("/history_get", homepage.GetHistoryControl)
 	// 我的足迹
-	rh.GET("/star_get", homepage.GetStarControl)
-	rh.GET("/class_get", homepage.GetClassControl)
+	rh.POST("/star_get", homepage.GetStarControl)
+	rh.POST("/class_get", homepage.GetClassControl)
 	// 获取积分统计
-	rh.GET("/article_get", homepage.GetArticleControl)
+	rh.POST("/article_get", homepage.GetArticleControl)
 	rh.POST("/ban", homepage.BanUserControl)
 	rh.POST("/unban", homepage.UnbanUserControl)
 

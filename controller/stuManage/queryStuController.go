@@ -6,28 +6,72 @@ import (
 	"go.uber.org/zap"
 	"strconv"
 	"strings"
+	"studentGrow/dao/mysql"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
 	"studentGrow/utils/readMessage"
+	token2 "studentGrow/utils/token"
 )
 
 // 用于存储查询参数
 var queryParmaStruct jrx_model.QueryParmaStruct
 var querySql string
 var queryAllStuNumber int
-
-//token := c.GetHeader("token")
-//username, err := token2.GetUsername(token)
-//
-//role, err := token2.GetRole(token)
-//switch role {
-//case "grade1":
-//
-//}
+var ranges string
 
 // QueryStuContro 查询学生信息
 func QueryStuContro(c *gin.Context) {
+	token := c.GetHeader("token")
+	role, err := token2.GetRole(token)
+	if err != nil {
+		zap.L().Error(err.Error())
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
+
+	username, err := token2.GetUsername(token)
+	if err != nil {
+		zap.L().Error(err.Error())
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
+
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		zap.L().Error(err.Error())
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
+
+	class, err := mysql.GetClassById(id)
+	if err != nil {
+		zap.L().Error(err.Error())
+		response.ResponseError(c, response.ServerErrorCode)
+		return
+	}
+
+	switch role {
+	case "class":
+		ranges = " and class = " + class
+
+	case "grade1":
+		ranges = " and YEAR(plus_time) = 2024"
+
+	case "grade2":
+		ranges = " and YEAR(plus_time) = 2023"
+
+	case "grade3":
+		ranges = " and YEAR(plus_time) = 2022"
+
+	case "grade4":
+		ranges = " and YEAR(plus_time) = 2021"
+
+	case "college":
+
+	case "superman":
+
+	}
 
 	// 接收请求数据
 	stuMessage, err := readMessage.GetJsonvalue(c)
@@ -49,7 +93,9 @@ func QueryStuContro(c *gin.Context) {
 	queryParmaStruct = service.GetReqMes(stuMessage)
 	// 获取sql语句
 	querySql = service.CreateQuerySql(stuMessage, queryParmaStruct)
-	querySql = querySql + " ORDER BY class ASC"
+	querySql = querySql + ranges
+
+	querySql = querySql + " ORDER BY class ASC" // 后续将class改为username!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// 获取符合条件的所有学生，用于计算长度
 	stuInfo, err := service.GetStuMesList(querySql) // 所有学生数据
