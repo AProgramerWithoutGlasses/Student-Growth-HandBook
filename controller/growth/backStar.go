@@ -1,7 +1,6 @@
 package growth
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
@@ -53,8 +52,8 @@ func Search(c *gin.Context) {
 	//查找权限下的数据
 	alluser, err := mysql.SelStarUser()
 	if err != nil {
-		fmt.Println("StarGrade err", err)
 		response.ResponseErrorWithMsg(c, 400, "获取表格数据失败")
+		return
 	}
 
 	//根据角色分类
@@ -155,7 +154,8 @@ func Search(c *gin.Context) {
 	//表格所需所有数据
 	starback, err := starService.StarGrid(usernamesli)
 	if err != nil {
-		fmt.Println("StarGrade starback err", err)
+		zap.L().Error("Search SelSearchColl err", zap.Error(err))
+		response.ResponseError(c, response.ServerErrorCode)
 		return
 	}
 	total := len(starback)
@@ -245,6 +245,7 @@ func ElectGrade(c *gin.Context) {
 	}
 	if err != nil {
 		response.ResponseError(c, 400)
+		return
 	}
 	var Responsedata struct {
 		ElectedArr []Student `json:"electedArr"`
