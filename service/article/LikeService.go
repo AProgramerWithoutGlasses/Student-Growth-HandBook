@@ -1,7 +1,7 @@
 package article
 
 import (
-	redis2 "github.com/go-redis/redis"
+	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
@@ -16,29 +16,26 @@ redis
 
 // Like 点赞
 func Like(objId, username string, likeType int) error {
-	_, err := redis.RDB.TxPipelined(func(pipe redis2.Pipeliner) error {
-		// 将用户添加到点赞列表
-		err := redis.AddUserToLikeSet(redis.List[likeType]+objId, username, likeType, pipe)
+	// 将用户添加到点赞列表
+	err := redis.AddUserToLikeSet(objId, username, likeType)
+	if err != nil {
+		zap.L().Error("Like() service.article.likeService.AddUserToLikeSet err=", zap.Error(err))
+		return err
+	}
+	// 获取对象点赞数
+	likes, err := redis.GetObjLikes(objId, likeType)
+	if err != nil {
+		zap.L().Error("Like() service.article.likeService.GetObjLikes err=", zap.Error(err))
+		return err
+	}
+	// 设置对象点赞数
+	if likes >= 0 {
+		err = redis.SetObjLikes(objId, 1, likeType)
 		if err != nil {
-			zap.L().Error("Like() service.article.likeService.AddUserToLikeSet err=", zap.Error(err))
+			zap.L().Error("Like() service.article.likeService.SetObjLikes err=", zap.Error(err))
 			return err
 		}
-		// 获取对象点赞数
-		likes, err := redis.GetObjLikes(objId, likeType)
-		if err != nil {
-			zap.L().Error("Like() service.article.likeService.GetObjLikes err=", zap.Error(err))
-			return err
-		}
-		// 设置对象点赞数
-		if likes >= 0 {
-			err = redis.SetObjLikes(objId, likes+1, likeType, pipe)
-			if err != nil {
-				zap.L().Error("Like() service.article.likeService.SetObjLikes err=", zap.Error(err))
-				return err
-			}
-		}
-		return nil
-	})
+	}
 	if err != nil {
 		zap.L().Error("Like() service.article.TxPipelined.GetObjLikes err=", zap.Error(err))
 		return err
@@ -96,29 +93,26 @@ func CancelLike(objId, username string, likeType int) error {
 		return err
 	}
 	if ok {
-		_, err := redis.RDB.TxPipelined(func(pipe redis2.Pipeliner) error {
-			// 移除点赞列表
-			err = redis.RemoveUserFromLikeSet(objId, username, likeType)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.RemoveUserFromLikeSet err=", zap.Error(err))
-				return err
-			}
-			// 获取对象点赞数
-			likes, err := redis.GetObjLikes(objId, likeType)
+		// 移除点赞列表
+		err = redis.RemoveUserFromLikeSet(objId, username, likeType)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.RemoveUserFromLikeSet err=", zap.Error(err))
+			return err
+		}
+		// 获取对象点赞数
+		likes, err := redis.GetObjLikes(objId, likeType)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
+			return err
+		}
+		if likes > 0 {
+			// 设置对象点赞数
+			err = redis.SetObjLikes(objId, -1, likeType)
 			if err != nil {
 				zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
 				return err
 			}
-			if likes > 0 {
-				// 设置对象点赞数
-				err = redis.SetObjLikes(objId, likes-1, likeType, pipe)
-				if err != nil {
-					zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
-					return err
-				}
-			}
-			return nil
-		})
+		}
 		if err != nil {
 			zap.L().Error("CancelLike() service.article.likeService.TxPipelined err=", zap.Error(err))
 			return err
@@ -126,32 +120,6 @@ func CancelLike(objId, username string, likeType int) error {
 	}
 
 	id, err := strconv.Atoi(objId)
-
-	// 减少文章或评论的点赞数量
-	//switch likeType {
-	//case 0:
-	//	num, err := redis.GetObjLikes(strconv.Itoa(id), constant.ArticleInteractionConstant)
-	//	if err != nil {
-	//		zap.L().Error("CancelLike() service.article.likeService.GetObjLikes err=", zap.Error(err))
-	//		return err
-	//	}
-	//	err = redis.SetObjLikes(strconv.Itoa(id), num-1, constant.ArticleInteractionConstant)
-	//	if err != nil {
-	//		zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
-	//		return err
-	//	}
-	//case 1:
-	//	num, err := redis.GetObjLikes(strconv.Itoa(id), constant.CommentInteractionConstant)
-	//	if err != nil {
-	//		zap.L().Error("CancelLike() service.article.likeService.GetObjLikes err=", zap.Error(err))
-	//		return err
-	//	}
-	//	err = redis.SetObjLikes(strconv.Itoa(id), num-1, constant.CommentInteractionConstant)
-	//	if err != nil {
-	//		zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
-	//		return err
-	//	}
-	//}
 
 	// 写入通道
 	switch likeType {
@@ -179,6 +147,7 @@ func LikeObjOrNot(objId, username string, likeType int) error {
 	//若存在该用户，则取消点赞
 	_, ok := likeUsers[username]
 	if len(likeUsers) > 0 && ok {
+		fmt.Println("cancel")
 		err = CancelLike(objId, username, likeType)
 		if err != nil {
 			zap.L().Error("LikeObjOrNot() service.article.likeService.CancelLike err=", zap.Error(err))
@@ -187,6 +156,7 @@ func LikeObjOrNot(objId, username string, likeType int) error {
 	} else {
 		//反之，点赞
 		err = Like(objId, username, likeType)
+		fmt.Println("like")
 		if err != nil {
 			zap.L().Error("LikeObjOrNot() service.article.likeService.Like err=", zap.Error(err))
 			return err
@@ -226,32 +196,6 @@ func LikeToMysql(objId, likeType int, username string) error {
 			zap.L().Error("CancelLikeToMysql() service.article.likeService.UpdateLikeNum err=", zap.Error(err))
 			return err
 		}
-
-		// 增加文章或评论的点赞数量
-		//switch likeType {
-		//case 0:
-		//	num, err := mysql.QueryArticleLikeNum(objId)
-		//	if err != nil {
-		//		zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
-		//		return err
-		//	}
-		//	err = mysql.UpdateArticleLikeNum(objId, num+1, tx)
-		//	if err != nil {
-		//		zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
-		//		return err
-		//	}
-		//case 1:
-		//	num, err := mysql.QueryCommentLikeNum(objId)
-		//	if err != nil {
-		//		zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
-		//		return err
-		//	}
-		//	err = mysql.UpdateCommentLikeNum(objId, num-1, tx)
-		//	if err != nil {
-		//		zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
-		//		return err
-		//	}
-		//}
 		return nil
 	})
 	if err != nil {
@@ -289,33 +233,6 @@ func CancelLikeToMysql(objId, likeType int, username string) error {
 			zap.L().Error("CancelLikeToMysql() service.article.likeService.UpdateLikeNum err=", zap.Error(err))
 			return err
 		}
-
-		// 减少文章或评论的点赞数量
-
-		//switch likeType {
-		//case 0:
-		//	num, err := mysql.QueryArticleLikeNum(objId)
-		//	if err != nil {
-		//		zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
-		//		return err
-		//	}
-		//	err = mysql.UpdateArticleLikeNum(objId, num-1, db)
-		//	if err != nil {
-		//		zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
-		//		return err
-		//	}
-		//case 1:
-		//	num, err := mysql.QueryCommentLikeNum(objId)
-		//	if err != nil {
-		//		zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
-		//		return err
-		//	}
-		//	err = mysql.UpdateCommentLikeNum(objId, num-1, db)
-		//	if err != nil {
-		//		zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
-		//		return err
-		//	}
-		//}
 		return nil
 	})
 	if err != nil {
