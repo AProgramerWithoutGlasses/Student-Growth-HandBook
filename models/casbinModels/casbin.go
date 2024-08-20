@@ -104,7 +104,7 @@ type User struct {
 	RoleNames []string
 }
 
-// 获取所有用户以及关联的角色
+// GetUsers 获取所有用户以及关联的角色
 func (c *CasbinService) GetUsers() (users []User) {
 	p, err := c.Enforcer.GetGroupingPolicy()
 	if err != nil {
@@ -126,7 +126,7 @@ func (c *CasbinService) GetUsers() (users []User) {
 	return
 }
 
-// 角色组中添加用户, 没有组默认创建
+// UpdateUserRole 角色组中添加用户, 没有组默认创建
 func (c *CasbinService) UpdateUserRole(username, rolename string) error {
 	_, err := c.Enforcer.AddGroupingPolicy(username, rolename)
 	if err != nil {
@@ -135,7 +135,7 @@ func (c *CasbinService) UpdateUserRole(username, rolename string) error {
 	return c.Enforcer.SavePolicy()
 }
 
-// 角色组中删除用户
+// DeleteUserRole 角色组中删除用户
 func (c *CasbinService) DeleteUserRole(username, rolename string) error {
 	_, err := c.Enforcer.RemoveGroupingPolicy(username, rolename)
 	if err != nil {
