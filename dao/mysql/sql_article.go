@@ -96,7 +96,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 // SelectArticleAndUserListByPageFirstPage 前台模糊查询文章列表
 func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page int) (result model.Articles, err error) {
 	var articles model.Articles
-	if err = DB.Preload("User").Preload("ArticleTags").Preload("ArticlePics").
+	if err = DB.Preload("User").Preload("ArticleTags.Tag").Preload("ArticlePics").
 		Where("topic = ? and content like ? and ban = ? and status = ?", topic, fmt.Sprintf("%%%s%%", keyWords), false, true).
 		Order("created_at desc").
 		Limit(limit).
@@ -330,7 +330,7 @@ func ReportArticleById(aid int, uid int, msg string) error {
 // SearchHotArticlesOfDay 查找今日热门文章
 func SearchHotArticlesOfDay(startOfDay time.Time, endOfDay time.Time) (model.Articles, error) {
 	var articles model.Articles
-	if err := DB.Where("created_at >= ? and created_at < ?", startOfDay, endOfDay).
+	if err := DB.Where("created_at >= ? and created_at < ?", startOfDay, endOfDay).Preload("ArticleTags.Tag").
 		Find(&articles).Error; err != nil {
 		zap.L().Error("SearchHotArticlesOfDay() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
