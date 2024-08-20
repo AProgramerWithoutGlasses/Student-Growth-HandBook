@@ -102,6 +102,15 @@ func AddMenu(menu gorm_model.Menus) error {
 	return nil
 }
 
+// AddParam 新增路由参数
+func AddParam(param gorm_model.Param) error {
+	err := DB.Create(&param).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // DeleteMenu 删除菜单
 func DeleteMenu(id int) error {
 	err := DB.Where("id = ?", id).Delete(&gorm_model.Menus{}).Error
@@ -151,6 +160,15 @@ func UpdateMenus(newMenu models.Menu, parentId int) error {
 	menu.RequestUrl = newMenu.RequestUrl
 	menu.RequestMethod = newMenu.RequestMethod
 	err = DB.Save(&menu).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateParam 更新路由
+func UpdateParam(newParam gorm_model.Param) error {
+	err := DB.Table("params").Create(&newParam).Error
 	if err != nil {
 		return err
 	}

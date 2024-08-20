@@ -57,6 +57,15 @@ func AddMenu(c *gin.Context) {
 		response.ResponseError(c, 400)
 		return
 	}
+	//4.新增路由参数
+	for _, parm := range backMenu.Params {
+		parm.MenuId = backMenu.ID
+		err := mysql.AddParam(parm)
+		if err != nil {
+			return
+		}
+	}
+
 	response.ResponseSuccess(c, "")
 }
 
@@ -119,6 +128,17 @@ func UpdateMenu(c *gin.Context) {
 		return
 	}
 	err = service.UpdateMenuData(menu)
+	//删除之前的所有路由参数
+	err = mysql.DeleteParam(menu.ID)
+	//创建新的路由参数
+	for _, param := range menu.Params {
+		param.MenuId = menu.ID
+		err := mysql.UpdateParam(param)
+		if err != nil {
+			response.ResponseError(c, 400)
+			return
+		}
+	}
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
