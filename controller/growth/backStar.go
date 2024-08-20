@@ -434,7 +434,8 @@ func BackStarClass(c *gin.Context) {
 func BackStarGrade(c *gin.Context) {
 	starlist, err := starService.QStarClass(2)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+		response.ResponseErrorWithMsg(c, 400, "未找到年级之星")
+		return
 	}
 	data := map[string]any{
 		"starlist": starlist,
@@ -446,7 +447,8 @@ func BackStarGrade(c *gin.Context) {
 func BackStarCollege(c *gin.Context) {
 	starlist, err := starService.QStarClass(3)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+		response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
+		return
 	}
 	data := map[string]any{
 		"starlist": starlist,
@@ -461,5 +463,6 @@ func ChangeStatus(c *gin.Context) {
 	err = mysql.UpdateOne(username)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "修改状态失败")
+		return
 	}
 }
