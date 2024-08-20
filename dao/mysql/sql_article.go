@@ -339,7 +339,7 @@ func ReportArticleById(aid int, uid int, msg string) error {
 // SearchHotArticlesOfDay 查找今日热门文章
 func SearchHotArticlesOfDay(startOfDay time.Time, endOfDay time.Time) (model.Articles, error) {
 	var articles model.Articles
-	if err := DB.Where("created_at >= ? and created_at < ?", startOfDay, endOfDay).Preload("ArticleTags.Tag").
+	if err := DB.Where("created_at >= ? and created_at < ? and ban = ? and status = ?", startOfDay, endOfDay, false, true).Preload("ArticleTags.Tag").
 		Find(&articles).Error; err != nil {
 		zap.L().Error("SearchHotArticlesOfDay() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
