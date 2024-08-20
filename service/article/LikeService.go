@@ -228,30 +228,30 @@ func LikeToMysql(objId, likeType int, username string) error {
 		}
 
 		// 增加文章或评论的点赞数量
-		switch likeType {
-		case 0:
-			num, err := mysql.QueryArticleLikeNum(objId)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
-				return err
-			}
-			err = mysql.UpdateArticleLikeNum(objId, num-1, tx)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
-				return err
-			}
-		case 1:
-			num, err := mysql.QueryCommentLikeNum(objId)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
-				return err
-			}
-			err = mysql.UpdateCommentLikeNum(objId, num-1, tx)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
-				return err
-			}
-		}
+		//switch likeType {
+		//case 0:
+		//	num, err := mysql.QueryArticleLikeNum(objId)
+		//	if err != nil {
+		//		zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
+		//		return err
+		//	}
+		//	err = mysql.UpdateArticleLikeNum(objId, num+1, tx)
+		//	if err != nil {
+		//		zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
+		//		return err
+		//	}
+		//case 1:
+		//	num, err := mysql.QueryCommentLikeNum(objId)
+		//	if err != nil {
+		//		zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
+		//		return err
+		//	}
+		//	err = mysql.UpdateCommentLikeNum(objId, num-1, tx)
+		//	if err != nil {
+		//		zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
+		//		return err
+		//	}
+		//}
 		return nil
 	})
 	if err != nil {
@@ -292,30 +292,30 @@ func CancelLikeToMysql(objId, likeType int, username string) error {
 
 		// 减少文章或评论的点赞数量
 
-		switch likeType {
-		case 0:
-			num, err := mysql.QueryArticleLikeNum(objId)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
-				return err
-			}
-			err = mysql.UpdateArticleLikeNum(objId, num-1, db)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
-				return err
-			}
-		case 1:
-			num, err := mysql.QueryCommentLikeNum(objId)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
-				return err
-			}
-			err = mysql.UpdateCommentLikeNum(objId, num-1, db)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
-				return err
-			}
-		}
+		//switch likeType {
+		//case 0:
+		//	num, err := mysql.QueryArticleLikeNum(objId)
+		//	if err != nil {
+		//		zap.L().Error("CancelLike() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
+		//		return err
+		//	}
+		//	err = mysql.UpdateArticleLikeNum(objId, num-1, db)
+		//	if err != nil {
+		//		zap.L().Error("CancelLike() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
+		//		return err
+		//	}
+		//case 1:
+		//	num, err := mysql.QueryCommentLikeNum(objId)
+		//	if err != nil {
+		//		zap.L().Error("CancelLike() service.article.likeService.QueryCommentLikeNum err=", zap.Error(err))
+		//		return err
+		//	}
+		//	err = mysql.UpdateCommentLikeNum(objId, num-1, db)
+		//	if err != nil {
+		//		zap.L().Error("CancelLike() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
+		//		return err
+		//	}
+		//}
 		return nil
 	})
 	if err != nil {
