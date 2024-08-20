@@ -80,5 +80,5 @@ func UpdateSelfContentContro(c *gin.Context) {
 	}
 
 	// 响应成功信息
-	response.ResponseSuccess(c, "")
+	response.ResponseSuccess(c, struct{}{})
 }

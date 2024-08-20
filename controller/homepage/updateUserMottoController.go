@@ -29,6 +29,6 @@ func UpdateHomepageMottoControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, nil)
+	response.ResponseSuccess(c, struct{}{})
 
 }
