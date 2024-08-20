@@ -3,6 +3,7 @@ package class
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
 )
@@ -25,5 +26,10 @@ func GetClassListControl(c *gin.Context) {
 		return
 	}
 
-	response.ResponseSuccess(c, classList)
+	output := struct {
+		ClassList []jrx_model.Class `json:"class_list"`
+	}{
+		ClassList: classList,
+	}
+	response.ResponseSuccess(c, output)
 }
