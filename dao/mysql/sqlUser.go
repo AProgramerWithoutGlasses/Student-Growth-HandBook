@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"studentGrow/models/gorm_model"
+	"time"
 )
 
 // SelPassword 根据用户名和密码查询用户是否存在
@@ -55,6 +56,7 @@ func SelHead(username string) (string, error) {
 	return headshot, nil
 }
 
+// SelBan 查询是否被ban
 func SelBan(username string) (bool, error) {
 	var ban bool
 	err := DB.Table("users").Where("username = ?", username).Select("ban").Scan(&ban).Error
@@ -74,4 +76,20 @@ func CreateUser(username string, id int) error {
 		return err
 	}
 	return nil
+}
+
+// SelEndTime 查询解禁时间
+func SelEndTime(username string) (time.Time, error) {
+	var data time.Time
+	err := DB.Table("users").Where("username = ?", username).Select("user_ban_end_time").Scan(&data).Error
+	return data, err
+}
+
+// UpdateBan 解禁
+func UpdateBan(username string) error {
+	var user gorm_model.User
+	err := DB.Table("users").Where("username = ?", username).Scan(&user).Error
+	user.Ban = false
+	err = DB.Save(&user).Error
+	return err
 }

@@ -8,6 +8,7 @@ import (
 	pkg "studentGrow/pkg/response"
 	"studentGrow/service/userService"
 	"studentGrow/utils/token"
+	"time"
 )
 
 // RidCode 图形验证码返回前端
@@ -102,8 +103,23 @@ func QLogin(c *gin.Context) {
 		return
 	}
 	if ban {
-		pkg.ResponseSuccess(c, "用户被封禁")
-		return
+		data := time.Now().Format("2006-01-02")
+		ok, err := userService.UpdateStatus(data, user.Username)
+		if err != nil {
+			pkg.ResponseError(c, 400)
+			return
+		}
+		if !ok {
+			pkg.ResponseErrorWithMsg(c, 400, "账号被封禁")
+			return
+		} else {
+			//解禁
+			err := mysql.UpdateBan(user.Username)
+			if err != nil {
+				pkg.ResponseError(c, 400)
+				return
+			}
+		}
 	}
 	//验证用户是否是管理员
 	ok := userService.BVerifyExit(user.Username)
