@@ -382,7 +382,7 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 		// 将文章更新到redis点赞、收藏
 		redis.RDB.HSet("article", strconv.Itoa(aid), 0)
 		redis.RDB.HSet("collect", strconv.Itoa(aid), 0)
-		fmt.Println("collect", strconv.Itoa(aid))
+		fmt.Println("article", strconv.Itoa(aid))
 		return nil
 	})
 	if err != nil {
