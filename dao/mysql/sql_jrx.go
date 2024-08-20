@@ -393,30 +393,41 @@ func GetClassmateList(class string) ([]jrx_model.HomepageClassmateStruct, error)
 }
 
 func GetArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
-	// 获取该用户收藏的文章的id
-	var articleIds []int
-	err := DB.Table("user_collect_records").
-		Where("user_id = ?", id).
-		Pluck("article_id", &articleIds).Error
-	if err != nil {
-		return nil, err
-	}
-
-	// 获取这些文章id的文章信息以及文章发布者的信息  	// 多表查询
-	var homepageArticleHistoryList []jrx_model.HomepageArticleHistoryStruct
-	err = DB.Table("articles").
-		Select("articles.id, articles.content, articles.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
-		Joins("JOIN users ON articles.user_id = users.id").
-		Where("articles.id IN (?)", articleIds).
+	// 获取该用户发布的文章的id
+	var articles []jrx_model.HomepageArticleHistoryStruct
+	err := DB.Table("articles").
+		Select("articles.id, articles.content, articles.comment_amount, articles.like_amount, articles.collect_amount, articles.status, articles.topic, articles.created_at").
+		Where("articles.user_id = ?", id).
 		Offset((page - 1) * limit).
 		Limit(limit).
-		Scan(&homepageArticleHistoryList).Error
-
+		Scan(&articles).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return homepageArticleHistoryList, err
+	for i := range articles {
+		articles[i].PostTime = articles[i].CreateAt.Format("2006-01-02")
+
+		var tagIds []int
+		err := DB.Table("article_tags").
+			Where("article_id = ?", articles[i].ID). // 根据文章名获取tag_id
+			Pluck("tag_id", &tagIds).Error
+		if err != nil {
+			return nil, err
+		}
+
+		var tagNames []string
+		err = DB.Table("tags").
+			Where("id in (?)", tagIds). // 根据文章名获取tag_id
+			Pluck("tag_name", &tagNames).Error
+		if err != nil {
+			return nil, err
+		}
+
+		articles[i].ArticleTags = tagNames
+	}
+
+	return articles, err
 }
 
 func ChangeArticleStatusDao(articleId int, ArticleStatus bool) error {

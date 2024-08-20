@@ -36,5 +36,5 @@ func BanUserControl(c *gin.Context) {
 		return
 	}
 
-	response.ResponseSuccess(c, nil)
+	response.ResponseSuccess(c, struct{}{})
 }

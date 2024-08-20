@@ -1,5 +1,7 @@
 package jrx_model
 
+import "time"
+
 // 个人主页信息
 type HomepageMesStruct struct {
 	Username     string `json:"username"`
@@ -35,13 +37,25 @@ type HomepageFanStruct struct {
 }
 
 type HomepageArticleHistoryStruct struct {
-	ID            string `json:"article_id"`
-	HeadShot      string `json:"user_headshot"`
-	Name          string `json:"name"`
-	Content       string `json:"article_content"`
-	Pic           string `json:"article_pic"`
-	CommentAmount int    `json:"comment_amount"`
-	LikeAmount    int    `json:"like_amount"`
+	ID            string    `json:"article_id,omitempty,omitempty"`
+	HeadShot      string    `json:"user_headshot,omitempty"`
+	Name          string    `json:"name,omitempty"`
+	Content       string    `json:"article_content,omitempty"`
+	Pic           string    `json:"article_pic,omitempty"`
+	CommentAmount int       `json:"comment_amount"`
+	LikeAmount    int       `json:"like_amount"`
+	CollectAmount int       `json:"collect_amount"`
+	Topic         string    `json:"article_topic,omitempty"`
+	Status        bool      `json:"article_status,omitempty"`
+	ReadAmount    int       `json:"read_amount,omitempty"`
+	ReportAmount  int       `json:"report_amount,omitempty"`
+	Ban           bool      `json:"ban,omitempty"`
+	UserID        uint      `json:"user_id,omitempty"`
+	IsLike        bool      `json:"is_like,omitempty"`
+	IsCollect     bool      `json:"is_collect,omitempty"`
+	CreateAt      time.Time `json:"-"`
+	PostTime      string    `json:"post_time,omitempty"`
+	ArticleTags   []string  `json:"article_tags,omitempty"`
 }
 
 type HomepageClassmateStruct struct {

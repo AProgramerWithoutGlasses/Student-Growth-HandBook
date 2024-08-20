@@ -256,13 +256,13 @@ func GetClassmateListService(username string) ([]jrx_model.HomepageClassmateStru
 	return classmateList, err
 }
 
-func GetArticleService(page int, limit int, username string) (interface{}, interface{}) {
+func GetArticleService(page int, limit int, username string) ([]jrx_model.HomepageArticleHistoryStruct, error) {
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		return nil, err
 	}
 
-	homepageStarList, err := mysql.GetStarDao(id, page, limit)
+	homepageStarList, err := mysql.GetArticleDao(id, page, limit)
 	if err != nil {
 		return nil, err
 	}
