@@ -446,6 +446,12 @@ func UnbanUserDao(banId any) error {
 	var user gorm_model.User
 	user.Ban = false
 	user.UserBanEndTime = time.Now()
-	err := DB.Model(&gorm_model.User{}).Where("id = ?", banId).Updates(user).Error
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", banId).Update("ban", false).Update("user_ban_end_time", time.Now()).Error
 	return err
+}
+
+func GetClassList() ([]string, error) {
+	var classes []string
+	err := DB.Model(&gorm_model.User{}).Where("LENGTH(class) = 9").Distinct("class").Order("class ASC").Pluck("class", &classes).Error
+	return classes, err
 }

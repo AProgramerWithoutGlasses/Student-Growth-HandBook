@@ -29,7 +29,7 @@ func GetClassControl(c *gin.Context) {
 	}
 
 	// 业务
-	classmateList, err := service.GetClassListService(input.Username)
+	classmateList, err := service.GetClassmateListService(input.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())

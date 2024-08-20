@@ -43,3 +43,11 @@ const CollectMsgConstant = 2
 const SystemMsgConstant = 1
 
 const ManagerMsgConstant = 2
+
+/*
+文章字数限制
+*/
+
+const WordLimitMin = 30
+
+const WordLimitMax = 300
