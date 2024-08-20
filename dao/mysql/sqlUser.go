@@ -88,8 +88,7 @@ func SelEndTime(username string) (time.Time, error) {
 // UpdateBan 解禁
 func UpdateBan(username string) error {
 	var user gorm_model.User
-	err := DB.Table("users").Where("username = ?", username).Scan(&user).Error
 	user.Ban = false
-	err = DB.Save(&user).Error
+	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Updates(map[string]interface{}{"ban": false}).Error
 	return err
 }

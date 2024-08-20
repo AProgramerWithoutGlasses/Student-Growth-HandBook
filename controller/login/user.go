@@ -128,6 +128,7 @@ func QLogin(c *gin.Context) {
 		role, err = mysql.SelRole(cId)
 		if err != nil {
 			pkg.ResponseError(c, 400)
+			return
 		}
 	} else {
 		role = "user"
