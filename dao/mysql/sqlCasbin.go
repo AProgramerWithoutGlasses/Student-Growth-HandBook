@@ -1,12 +1,24 @@
 package mysql
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
 
 func SelMenuId(role, requestUrl, requestMethod string) (string, error) {
 	var menuId string
-	requestUrl = requestUrl[0:7]
+	//获取最后一个/后的信息
+	re := regexp.MustCompile("/([^/]+)$")
+	matches := re.FindStringSubmatch(requestUrl)
+	fmt.Println(matches[1])
+	//判断是不是角色
+	ok, err := SelMRole(matches[1])
+	if ok {
+		requestUrl = strings.Replace(requestUrl, matches[0], "", 1)
+	}
 	// 使用模糊查询，例如：查找所有以requestUrl开头的记录
-	err := DB.Table("menus").Select("id").Where("roles LIKE ?", "%"+role+"%").Where("request_url LIKE ?", "%"+requestUrl+"%").Where("request_method LIKE ?", "%"+requestMethod+"%").Scan(&menuId).Error
+	err = DB.Table("menus").Select("id").Where("request_url = ?", requestUrl).Where("request_method = ? ", requestMethod).Scan(&menuId).Error
 	fmt.Println(menuId)
 	return menuId, err
 }
