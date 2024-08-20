@@ -201,7 +201,7 @@ func AckInterMsgController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
 
 // AckManagerMsgController 确认管理员消息
@@ -221,7 +221,7 @@ func AckManagerMsgController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
 
 // AckSystemMsgController 确认系统消息
@@ -240,7 +240,7 @@ func AckSystemMsgController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
 
 // PublishManagerMsgController 发布管理员通知
@@ -269,7 +269,7 @@ func PublishManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
 
 // PublishSystemMsgController 发布系统通知
@@ -298,5 +298,5 @@ func PublishSystemMsgController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }

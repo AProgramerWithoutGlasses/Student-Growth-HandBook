@@ -113,6 +113,6 @@ func AckUnreadReportsController(c *gin.Context) {
 	}
 
 	// 返回响应
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 
 }
