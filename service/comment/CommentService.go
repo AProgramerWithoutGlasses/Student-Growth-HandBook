@@ -57,7 +57,7 @@ func PostComment(commentType, username, content string, id int) error {
 
 	case "1":
 		//向数据库插入评论数据
-		cid, err = mysql.InsertIntoCommentsForComment(content, id, uid)
+		cid, err = mysql.InsertIntoCommentsForComment(content, uid, id)
 		if err != nil {
 			zap.L().Error("PostComment() service.article.InsertIntoCommentsForComment err=", zap.Error(err))
 			return err
