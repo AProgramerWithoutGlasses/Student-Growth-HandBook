@@ -2,16 +2,25 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"studentGrow/controller/article"
+	"studentGrow/dao/mysql"
+	"studentGrow/models/casbinModels"
+	"studentGrow/utils/middleWare"
 	"studentGrow/utils/token"
 )
 
 func routesArticle(r *gin.Engine) {
+	casbinService, err := casbinModels.NewCasbinService(mysql.DB)
+	if err != nil {
+		zap.L().Error("routesArticle() routes.routesArticle.NewCasbinService err=", zap.Error(err))
+		return
+	}
 	at := r.Group("/article")
 	// 获取文章内容
 	at.POST("/content", article.GetArticleIdController)
 	// 获取文章列表
-	at.POST("/list", article.GetArticleListController)
+	at.POST("/list", middleWare.NewCasbinAuth(casbinService), article.GetArticleListController)
 	// 对文章进行评论
 	at.POST("/comment", token.AuthMiddleware(), article.PostCom)
 	// 获取文章标签
@@ -19,9 +28,9 @@ func routesArticle(r *gin.Engine) {
 	//文章或评论点赞
 	at.POST("/like", token.AuthMiddleware(), article.LikeController)
 	//封禁文章
-	at.POST("/ban", token.AuthMiddleware(), article.BannedArticleController)
+	at.POST("/ban", middleWare.NewCasbinAuth(casbinService), token.AuthMiddleware(), article.BannedArticleController)
 	//删除文章
-	at.POST("/delete", token.AuthMiddleware(), article.DeleteArticleController)
+	at.POST("/delete", middleWare.NewCasbinAuth(casbinService), token.AuthMiddleware(), article.DeleteArticleController)
 	//举报文章
 	at.POST("/report", token.AuthMiddleware(), article.ReportArticle)
 	// 获取今日热帖
