@@ -23,6 +23,8 @@ func GetArticleIdController(c *gin.Context) {
 	// 获取文章详情
 	art, err := article.GetArticleService(json)
 	if err != nil {
+		zap.L().Error("GetArticleIdController() controller.article.GetArticleService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
 		return
 	}
 

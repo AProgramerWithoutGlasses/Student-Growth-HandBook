@@ -36,6 +36,15 @@ func SelectUserByUsername(username string) (uid int, err error) {
 	}
 }
 
+// QueryArticleIsExist 查询文章是否存在
+func QueryArticleIsExist(aid int) (bool, error) {
+	var count int64
+	if DB.Where("id = ? and ban = ? and status = ?", aid, false, true).Count(&count).RowsAffected > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 // SelectArticleById 通过id查找文章
 func SelectArticleById(aid int) (err error, article *model.Article) {
 	//查询用户 select * from articles where id = aid
