@@ -26,6 +26,7 @@ func AddMenu(c *gin.Context) {
 	err := c.Bind(&backMenu)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "获取数据失败")
+		return
 	}
 	//1.查找父id
 	if backMenu.FatherMenu == "" {
