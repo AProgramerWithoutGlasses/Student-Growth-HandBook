@@ -38,6 +38,7 @@ func GetSelfContentContro(c *gin.Context) {
 	selfContent, err := mysql.GetSelfContent(id)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
+		zap.L().Error(err.Error())
 		fmt.Println("controller.GetSelfContentContro() mysql.GetSelfContent() err : ", err.Error())
 		return
 	}
@@ -65,6 +66,8 @@ func UpdateSelfContentContro(c *gin.Context) {
 	var selfContentStruct SelfContentStruct
 	if err = c.ShouldBindJSON(&selfContentStruct); err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "获取用户自述失败")
+		zap.L().Error(err.Error())
+
 		fmt.Println("selfContent.UpdateSelfContentContro() c.ShouldBindJSON() err : ", err)
 		return
 	}
@@ -79,6 +82,7 @@ func UpdateSelfContentContro(c *gin.Context) {
 	err = mysql.UpdateSelfContent(id, selfContentStruct.NewSelfContent)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
+		zap.L().Error(err.Error())
 		fmt.Println("UpdateSelfContentContro() mysql.UpdateSelfContent() err : ", err)
 		return
 	}
