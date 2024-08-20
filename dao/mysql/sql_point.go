@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
@@ -44,23 +43,26 @@ func QueryUserAllPoint(uid int) ([]gorm_model.UserPoint, error) {
 
 // QueryUserPointOfTopicIsExist 查询用户是否存在该话题的积分
 func QueryUserPointOfTopicIsExist(uid, topicId int) (bool, error) {
-	if err := DB.Where("topic_id = ? and user_id = ?", topicId, uid).First(&gorm_model.UserPoint{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
-		}
+	var count int64
+	if err := DB.Model(&gorm_model.UserPoint{}).Where("topic_id = ? and user_id = ?", topicId, uid).Count(&count).Error; err != nil {
+		zap.L().Error("QueryUserAllPoint() dao.mysql.sql_point.First err=", zap.Error(err))
 		return false, err
 	}
-	return true, nil
+	if count > 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
 
 // CreateUserPointOfTopic 创建用户话题分数
-func CreateUserPointOfTopic(uid, topicId int, db *gorm.DB) error {
+func CreateUserPointOfTopic(uid, topicId int) error {
 	point := gorm_model.UserPoint{
 		UserID:  uint(uid),
 		TopicID: uint(topicId),
 		Point:   0,
 	}
-	if err := db.Create(&point).Error; err != nil {
+	if err := DB.Create(&point).Error; err != nil {
 		zap.L().Error("QueryUserAllPoint() dao.mysql.sql_point.First err=", zap.Error(err))
 		return err
 	}

@@ -1,6 +1,7 @@
 package article
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"studentGrow/dao/mysql"
@@ -13,9 +14,10 @@ func UpdatePointService(uid, point, topicId int, db *gorm.DB) error {
 		zap.L().Error("UpdatePointService() service.article.QueryUserPointOfTopicIsExist err=", zap.Error(err))
 		return err
 	}
+	fmt.Println(ok)
 	// 若不存在，则创建该用户的话题分数
 	if !ok {
-		err = mysql.CreateUserPointOfTopic(uid, topicId, db)
+		err = mysql.CreateUserPointOfTopic(uid, topicId)
 		if err != nil {
 			zap.L().Error("UpdatePointService() service.article.CreateUserPointOfTopic err=", zap.Error(err))
 			return err
