@@ -18,7 +18,7 @@ func GetConcernListControl(c *gin.Context) {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
 		return
-	}
+	} //HH
 
 	//token := c.GetHeader("token")
 	//username, err := token2.GetUsername(token)
