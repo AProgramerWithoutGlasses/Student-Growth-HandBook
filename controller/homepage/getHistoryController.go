@@ -6,14 +6,14 @@ import (
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func GetHistoryControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Page     int    `json:"page"`
-		Limit    int    `json:"limit"`
-		Username string `json:"username"`
+		Page  int `json:"page"`
+		Limit int `json:"limit"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {
@@ -21,17 +21,17 @@ func GetHistoryControl(c *gin.Context) {
 		zap.L().Error(err.Error())
 		return
 	}
-	//
-	//token := c.GetHeader("token")
-	//username, err := token2.GetUsername(token)
-	//if err != nil {
-	//	response.ResponseError(c, response.ParamFail)
-	//	zap.L().Error(err.Error())
-	//	return
-	//}
+
+	token := c.GetHeader("token")
+	username, err := token2.GetUsername(token)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
 
 	// 业务
-	homepageArticleHistoryList, err := service.GetHistoryService(input.Page, input.Limit, input.Username)
+	homepageArticleHistoryList, err := service.GetHistoryService(input.Page, input.Limit, username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
