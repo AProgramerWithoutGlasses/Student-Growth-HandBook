@@ -8,7 +8,7 @@ import (
 // SelFMenu 查询权限下父ID是0的目录及菜单ID
 func SelFMenu(role string) ([]int, error) {
 	var DId []int
-	err := DB.Table("menus").Where("type <> ?", 4).Where("type <> ?", 2).Where("roles LIKE ?", "%"+role+"%").Select("id").Scan(&DId).Error
+	err := DB.Table("menus").Where("type <> ?", 4).Where("type <> ?", 2).Where("deleted_at IS NULL").Where("roles LIKE ?", "%"+role+"%").Select("id").Scan(&DId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func SelValueString(id int, column string) (string, error) {
 
 func SelParamKeyVal(id int) ([]gorm_model.Param, error) {
 	var param []gorm_model.Param
-	err := DB.Table("params").Where("menu_id = ?", id).Scan(&param).Error
+	err := DB.Table("params").Where("menu_id = ?", id).Where("deleted_at IS NULL").Scan(&param).Error
 	if err != nil {
 		return []gorm_model.Param{}, err
 	}
@@ -66,7 +66,7 @@ func SelIcon(id int) (string, error) {
 // SelPerms 查询权限标识符
 func SelPerms(role string) ([]string, error) {
 	var perms []string
-	err := DB.Table("menus").Where("roles LIKE ?", "%"+role+"%").Where("type = ?", 2).Select("perm").Scan(&perms).Error
+	err := DB.Table("menus").Where("roles LIKE ?", "%"+role+"%").Where("deleted_at IS NULL").Where("type = ?", 2).Select("perm").Scan(&perms).Error
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func SelPerms(role string) ([]string, error) {
 // SelOneDad 查询父Id为同一个值的所有数据
 func SelOneDad(fid int) ([]gorm_model.Menus, error) {
 	var menu []gorm_model.Menus
-	err := DB.Table("menus").Where("parent_id = ?", fid).Scan(&menu).Error
+	err := DB.Table("menus").Where("parent_id = ?", fid).Where("deleted_at IS NULL").Scan(&menu).Error
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func SelOneDad(fid int) ([]gorm_model.Menus, error) {
 // SelOneDadMenu 查询同一个父亲的目录和菜单
 func SelOneDadMenu(fid int) ([]gorm_model.Menus, error) {
 	var menu []gorm_model.Menus
-	err := DB.Table("menus").Where("type <> ?", 4).Where("type <> ?", 2).Where("parent_id = ?", fid).Scan(&menu).Error
+	err := DB.Table("menus").Where("type <> ?", 4).Where("type <> ?", 2).Where("parent_id = ?", fid).Where("deleted_at IS NULL").Scan(&menu).Error
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func SelOneDadMenu(fid int) ([]gorm_model.Menus, error) {
 // SelMenuFId 根据名字查找id
 func SelMenuFId(name string) (int, error) {
 	var fId int
-	err := DB.Table("menus").Where("name = ?", name).Select("id").Scan(&fId).Error
+	err := DB.Table("menus").Where("name = ?", name).Where("deleted_at IS NULL").Select("id").Scan(&fId).Error
 	if err != nil {
 		return 0, err
 	}
@@ -106,7 +106,7 @@ func SelMenuFId(name string) (int, error) {
 // SelMenuExit 查询菜单是否存在
 func SelMenuExit(name string) (bool, error) {
 	var count int64
-	err := DB.Table("menus").Where("name = ?", name).Count(&count).Error
+	err := DB.Table("menus").Where("name = ?", name).Where("deleted_at IS NULL").Count(&count).Error
 	if err != nil {
 		return false, err
 	}
@@ -155,7 +155,7 @@ func DeleteParam(id int) error {
 // SelMenuIds 模糊查询菜单id
 func SelMenuIds(name string) ([]gorm_model.Menus, error) {
 	var menus []gorm_model.Menus
-	err := DB.Table("menus").Where("name LIKE ?", "%"+name+"%").Scan(&menus).Error
+	err := DB.Table("menus").Where("name LIKE ?", "%"+name+"%").Where("deleted_at IS NULL").Scan(&menus).Error
 	if err != nil {
 		return nil, err
 	}

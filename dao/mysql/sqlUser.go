@@ -8,7 +8,7 @@ import (
 // SelPassword 根据用户名和密码查询用户是否存在
 func SelPassword(username, password string) (int64, error) {
 	var number int64
-	err := DB.Table("users").Select("password").Where("username = ?", username).Where("password = ?", password).Count(&number).Error
+	err := DB.Table("users").Select("password").Where("deleted_at IS NULL").Where("username = ?", username).Where("password = ?", password).Count(&number).Error
 	return number, err
 }
 
@@ -19,6 +19,16 @@ func SelCasId(username string) (string, error) {
 	return code, err
 }
 
+// SelExit 查询用户是否存在
+func SelExit(username string) (bool, error) {
+	var num64 int64
+	err := DB.Table("users").Where("username = ?", username).Where("deleted_at IS NULL").Count(&num64).Error
+	if err != nil || num64 == 0 {
+		return false, err
+	}
+	return true, nil
+}
+
 // SelRole 根据角色id查询角色
 func SelRole(id string) (string, error) {
 	var role string
@@ -26,7 +36,7 @@ func SelRole(id string) (string, error) {
 	return role, err
 }
 
-// SelClass 根据角色获取班级
+// SelClass 根据学号获取班级
 func SelClass(username string) (string, error) {
 	var class string
 	err := DB.Table("users").Select("class").Where("username = ?", username).Scan(&class).Error
@@ -36,10 +46,10 @@ func SelClass(username string) (string, error) {
 	return class, nil
 }
 
-// SelIfexit 查找用户是否存在
+// SelIfexit 查找用户是否是管理员
 func SelIfexit(username string) (int64, error) {
 	var number int64
-	err := DB.Table("user_casbin_rules").Where("c_username = ?", username).Count(&number).Error
+	err := DB.Table("user_casbin_rules").Where("deleted_at IS NULL").Where("c_username = ?", username).Count(&number).Error
 	if err != nil {
 		return 0, err
 	}

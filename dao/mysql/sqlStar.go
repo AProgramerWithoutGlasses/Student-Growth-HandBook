@@ -8,7 +8,7 @@ import (
 // SelName 根据学号查名字，等一系列数据
 func SelName(username string) (string, error) {
 	var name string
-	err := DB.Table("users").Select("name").Where("username = ?", username).Scan(&name).Error
+	err := DB.Table("users").Select("name").Where("deleted_at IS NULL").Where("username = ?", username).Scan(&name).Error
 	if err != nil {
 		return "", err
 	}

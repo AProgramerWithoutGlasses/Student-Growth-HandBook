@@ -34,8 +34,14 @@ func HLogin(c *gin.Context) {
 	var user = new(models.Login)
 	//获取前端返回的数据
 	if err := c.BindJSON(&user); err != nil {
-		pkg.ResponseErrorWithMsg(c, 400, "账号不存在")
+		pkg.ResponseErrorWithMsg(c, 400, "未获取到数据")
 		fmt.Println("Hlogin BindJSON(&userService) err")
+		return
+	}
+	//查询用户是否存在
+	ok, err := mysql.SelExit(user.Username)
+	if !ok || err != nil {
+		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
 		return
 	}
 	//验证密码
@@ -55,6 +61,10 @@ func HLogin(c *gin.Context) {
 	}
 	//查询用户角色
 	casbinId, _ := mysql.SelCasId(user.Username)
+	if casbinId == "" {
+		pkg.ResponseError(c, 400)
+		return
+	}
 	role, err := mysql.SelRole(casbinId)
 	//获取生成的token
 	tokenString, err := token.ReleaseToken(user.Username, user.Password, role)
@@ -84,6 +94,12 @@ func QLogin(c *gin.Context) {
 	if err := c.BindJSON(&user); err != nil {
 		pkg.ResponseErrorWithMsg(c, 400, "Hlogin 获取数据失败")
 		fmt.Println("Hlogin BindJSON(&userService) err")
+		return
+	}
+	//查询用户是否存在
+	ok, err := mysql.SelExit(user.Username)
+	if !ok || err != nil {
+		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
 		return
 	}
 	//验证密码
@@ -122,8 +138,8 @@ func QLogin(c *gin.Context) {
 		}
 	}
 	//验证用户是否是管理员
-	ok := userService.BVerifyExit(user.Username)
-	if ok {
+	newOk := userService.BVerifyExit(user.Username)
+	if newOk {
 		cId, err := mysql.SelCasId(user.Username)
 		role, err = mysql.SelRole(cId)
 		if err != nil {
