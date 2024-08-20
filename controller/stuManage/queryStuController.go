@@ -53,7 +53,7 @@ func QueryStuContro(c *gin.Context) {
 
 	switch role {
 	case "class":
-		ranges = " and class = " + class
+		ranges = " and class = '" + class + "'"
 
 	case "grade1":
 		ranges = " and YEAR(plus_time) = 2024"
