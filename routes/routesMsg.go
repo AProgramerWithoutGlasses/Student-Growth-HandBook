@@ -2,17 +2,27 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"studentGrow/controller/message"
+	"studentGrow/dao/mysql"
+	"studentGrow/models/casbinModels"
+	"studentGrow/utils/middleWare"
 	"studentGrow/utils/token"
 )
 
 func routesMsg(r *gin.Engine) {
+
+	casbinService, err := casbinModels.NewCasbinService(mysql.DB)
+	if err != nil {
+		zap.L().Error("routesMsg() routes.routesArticle.NewCasbinService err=", zap.Error(err))
+		return
+	}
 	gp := r.Group("/report_box")
 	// 查看举报信息
-	gp.POST("/getlist", token.AuthMiddleware(), message.GetUnreadReportsController)
+	gp.POST("/getlist", middleWare.NewCasbinAuth(casbinService), token.AuthMiddleware(), message.GetUnreadReportsController)
 
 	// 确认举报信息
-	gp.POST("/ack", token.AuthMiddleware(), message.AckUnreadReportsController)
+	gp.POST("/ack", middleWare.NewCasbinAuth(casbinService), token.AuthMiddleware(), message.AckUnreadReportsController)
 
 	msg := r.Group("/message")
 
