@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
@@ -10,14 +9,15 @@ import (
 
 // QueryIsExistByTopicName 查询话题是否存在通过话题名字
 func QueryIsExistByTopicName(topicName string) (bool, error) {
-	if err := DB.Where("topic_name = ?", topicName).First(&gorm_model.Topic{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
-		}
+	var count int64
+	if err := DB.Model(&gorm_model.Topic{}).Where("topic_name = ?", topicName).Count(&count).Error; err != nil {
 		zap.L().Error("QueryIsExistByTopicName() dao.mysql.sql_topic err=", zap.Error(err))
 		return false, err
 	}
-	return true, nil
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 // CreateTopic 添加话题

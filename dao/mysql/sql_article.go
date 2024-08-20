@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"errors"
 	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -184,14 +183,15 @@ func DeleteArticleReportMsg(aid int, db *gorm.DB) error {
 
 // QueryIsExistArticleIdByReportMsg 查询举报信箱中是否存在被举报的文章id
 func QueryIsExistArticleIdByReportMsg(aid int) (bool, error) {
-	if err := DB.Where("article_id = ?", aid).First(&model.UserReportArticleRecord{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
-		}
+	var count int64
+	if err := DB.Model(&model.UserReportArticleRecord{}).Where("article_id = ?", aid).Count(&count).Error; err != nil {
 		zap.L().Error("QueryIsExistArticleIdByReportMsg() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return false, err
 	}
-	return true, nil
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 // DeleteArticleByIdForClass 通过文章id删除文章 - 班级
@@ -500,9 +500,4 @@ func QueryUserByArticleId(aid int) (*model.User, error) {
 		return nil, err
 	}
 	return &user, nil
-}
-
-// QueryUserPointRecordIsExist 查询数据库是否存在当前用户话题的分数记录
-func QueryUserPointRecordIsExist() {
-
 }
