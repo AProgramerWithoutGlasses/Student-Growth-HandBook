@@ -78,9 +78,8 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 		query = DB.Where("topic like ? and content like ? and articles.ban = ?",
 			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	}
-	fmt.Println("limit", limit, "sort", sort)
 
-	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).
+	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
 		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
