@@ -7,6 +7,7 @@ import (
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"studentGrow/utils/fileProcess"
+	"time"
 )
 
 func GetHomepageMesService(username string) (*jrx_model.HomepageMesStruct, error) {
@@ -253,4 +254,80 @@ func GetClassListService(username string) ([]jrx_model.HomepageClassmateStruct, 
 	}
 
 	return classmateList, err
+}
+
+func GetArticleService(page int, limit int, username string) (interface{}, interface{}) {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	homepageStarList, err := mysql.GetStarDao(id, page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return homepageStarList, err
+}
+
+func ChangeArticleStatusService(articleId int, articleStatus bool) error {
+	err := mysql.ChangeArticleStatusDao(articleId, articleStatus)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func BanHomepageUserService(banUsername string, banTime int, username string) error {
+	banId, err := mysql.GetIdByUsername(banUsername)
+	if err != nil {
+		return err
+	}
+
+	userId, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	banEndtime := time.Now().Add(time.Duration(banTime) * 24 * time.Hour)
+
+	// 封禁用户
+	err = mysql.BanUserDao(banId, banEndtime)
+	if err != nil {
+		return err
+	}
+
+	// 增加封禁记录
+	err = mysql.BanUserRecordDao(banId, userId, banTime)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func UnbanHomepageUserService(banUsername string, username string) error {
+	banId, err := mysql.GetIdByUsername(banUsername)
+	if err != nil {
+		return err
+	}
+
+	userId, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	// 解封用户
+	err = mysql.UnbanUserDao(banId)
+	if err != nil {
+		return err
+	}
+
+	// 解封记录
+	err = mysql.BanUserRecordDao(banId, userId, 0)
+	if err != nil {
+		return err
+	}
+
+	return err
 }

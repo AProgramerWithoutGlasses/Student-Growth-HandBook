@@ -25,5 +25,9 @@ func routesHomepage(r *gin.Engine) {
 	// 我的足迹
 	rh.GET("/star_get", homepage.GetStarControl)
 	rh.GET("/class_get", homepage.GetClassControl)
+	// 获取积分统计
+
+	rh.POST("/ban", homepage.BanUserControl)
+	rh.POST("/unban", homepage.UnbanUserControl)
 
 }
