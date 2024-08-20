@@ -21,21 +21,25 @@ func MenuSide(c *gin.Context) {
 		menusidar, err = service.MenuIdClass("class")
 		if err != nil {
 			response.ResponseError(c, 400)
+			return
 		}
 	case "grade1", "grade2", "grade3", "grade4":
 		menusidar, err = service.MenuIdClass("grade")
 		if err != nil {
 			response.ResponseError(c, 400)
+			return
 		}
 	case "college":
 		menusidar, err = service.MenuIdClass("college")
 		if err != nil {
 			response.ResponseError(c, 400)
+			return
 		}
 	case "superman":
 		menusidar, err = service.MenuIdClass("superman")
 		if err != nil {
 			response.ResponseError(c, 400)
+			return
 		}
 	}
 	response.ResponseSuccess(c, menusidar)
