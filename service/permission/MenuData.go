@@ -159,7 +159,7 @@ func MenuList(parentID int) ([]models.MenuList, error) {
 	//定义返回的menu切片
 	var backMenu []models.MenuList
 	//查询父id是参数的菜单
-	menus, err := mysql.SelOneDad(parentID)
+	menus, err := mysql.SelOneDadMenu(parentID)
 	if err != nil {
 		return nil, err
 	}

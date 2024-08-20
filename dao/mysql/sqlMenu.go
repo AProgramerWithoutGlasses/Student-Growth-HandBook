@@ -36,14 +36,14 @@ func SelValueString(id int, column string) (string, error) {
 }
 
 // SelParamId 查询params表中菜单所有的参数的id
-func SelParamId(id int) ([]int, error) {
-	var pid []int
-	err := DB.Table("params").Where("menu_id =?", id).Select("id").Scan(&pid).Error
-	if err != nil {
-		return nil, err
-	}
-	return pid, nil
-}
+//func SelParamId(id int) ([]int, error) {
+//	var pid []int
+//	err := DB.Table("params").Where("menu_id =?", id).Select("id").Scan(&pid).Error
+//	if err != nil {
+//		return nil, err
+//	}
+//	return pid, nil
+//}
 
 func SelParamKeyVal(id int) ([]gorm_model.Param, error) {
 	var param []gorm_model.Param
@@ -77,6 +77,16 @@ func SelPerms(role string) ([]string, error) {
 func SelOneDad(fid int) ([]gorm_model.Menus, error) {
 	var menu []gorm_model.Menus
 	err := DB.Table("menus").Where("parent_id = ?", fid).Scan(&menu).Error
+	if err != nil {
+		return nil, err
+	}
+	return menu, nil
+}
+
+// SelOneDadMenu 查询同一个父亲的目录和菜单
+func SelOneDadMenu(fid int) ([]gorm_model.Menus, error) {
+	var menu []gorm_model.Menus
+	err := DB.Table("menus").Where("type <> ?", 4).Where("type <> ?", 2).Where("parent_id = ?", fid).Scan(&menu).Error
 	if err != nil {
 		return nil, err
 	}
