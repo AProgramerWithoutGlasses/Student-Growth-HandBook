@@ -22,6 +22,7 @@ type User struct {
 	Motto                 string              `gorm:"size:50"json:"user_motto"`
 	Exper                 int                 `gorm:"default:0"json:"user_exper"`
 	Ban                   bool                `gorm:"type:boolean;default:false"json:"user_ban"`
+	UserBanEndTime        time.Time           `gorm:"type:date"json:"user_ban_end_time"`
 	IsManager             bool                `gorm:"default:false"json:"user_is_manager"`
 	UserPublisherRecordID uint                // 用户属于用户添加者
 	UserPublisherRecord   UserPublisherRecord // 用户属于用户添加者

@@ -5,6 +5,7 @@ import (
 	_ "gorm.io/gorm/clause"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
+	"time"
 )
 
 // 将新的用户自述在mysql中进行更行
@@ -389,4 +390,62 @@ func GetClassmateList(class string) ([]jrx_model.HomepageClassmateStruct, error)
 	var classmateList []jrx_model.HomepageClassmateStruct
 	err := DB.Table("users").Where("class = ?", class).Find(&classmateList).Error
 	return classmateList, err
+}
+
+func GetArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
+	// 获取该用户收藏的文章的id
+	var articleIds []int
+	err := DB.Table("user_collect_records").
+		Where("user_id = ?", id).
+		Pluck("article_id", &articleIds).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取这些文章id的文章信息以及文章发布者的信息  	// 多表查询
+	var homepageArticleHistoryList []jrx_model.HomepageArticleHistoryStruct
+	err = DB.Table("articles").
+		Select("articles.id, articles.content, articles.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
+		Joins("JOIN users ON articles.user_id = users.id").
+		Where("articles.id IN (?)", articleIds).
+		Offset((page - 1) * limit).
+		Limit(limit).
+		Scan(&homepageArticleHistoryList).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return homepageArticleHistoryList, err
+}
+
+func ChangeArticleStatusDao(articleId int, ArticleStatus bool) error {
+	err := DB.Table("articles").Where("id = ?", articleId).Update("status", ArticleStatus).Error
+	return err
+}
+
+func BanUserDao(banId int, banEndTime time.Time) error {
+	var user gorm_model.User
+	user.Ban = true
+	user.UserBanEndTime = banEndTime
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", banId).Updates(user).Error
+	return err
+}
+
+// 封禁操作记录
+func BanUserRecordDao(banId int, userId int, banTime int) error {
+	var userBanRecord gorm_model.UserBanRecord
+	userBanRecord.UserID = userId
+	userBanRecord.BanId = banId
+	userBanRecord.BanTime = banTime
+	err := DB.Model(&gorm_model.UserBanRecord{}).Create(&userBanRecord).Error
+	return err
+}
+
+func UnbanUserDao(banId any) error {
+	var user gorm_model.User
+	user.Ban = false
+	user.UserBanEndTime = time.Now()
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", banId).Updates(user).Error
+	return err
 }
