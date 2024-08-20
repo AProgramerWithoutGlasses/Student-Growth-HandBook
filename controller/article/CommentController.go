@@ -57,7 +57,7 @@ func PostCom(c *gin.Context) {
 		zap.L().Error("PostCom() controller.article.PostComment err=", zap.Error(err))
 		return
 	}
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
 
 // GetLel1CommentsController 获取一级评论
@@ -196,5 +196,5 @@ func DeleteCommentController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }

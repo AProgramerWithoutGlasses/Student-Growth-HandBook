@@ -52,7 +52,7 @@ func LikeController(c *gin.Context) {
 	}
 
 	//返回数据
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
 
 // CancelLikeController 取消点赞

@@ -1,6 +1,7 @@
 package article
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"strconv"
@@ -25,7 +26,7 @@ func GetArticleIdController(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	//错误检查
+
 	if err != nil {
 		zap.L().Error("GetArticleIdController() controller.article.GetArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -34,6 +35,7 @@ func GetArticleIdController(c *gin.Context) {
 
 	var tags []string
 	for _, tag := range art.ArticleTags {
+		fmt.Println(tag.Tag.TagName)
 		tags = append(tags, tag.Tag.TagName)
 	}
 
@@ -138,7 +140,7 @@ func BannedArticleController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 
 }
 
@@ -168,7 +170,7 @@ func DeleteArticleController(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 
 }
 
@@ -198,7 +200,7 @@ func ReportArticle(c *gin.Context) {
 		return
 	}
 
-	res.ResponseSuccess(c, nil)
+	res.ResponseSuccess(c, struct{}{})
 }
 
 // GetHotArticlesOfDayController 获取今日十条热帖

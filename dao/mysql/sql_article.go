@@ -40,7 +40,7 @@ func SelectUserByUsername(username string) (uid int, err error) {
 // SelectArticleById 通过id查找文章
 func SelectArticleById(aid int) (err error, article *model.Article) {
 	//查询用户 select * from articles where id = aid
-	if err := DB.Preload("ArticlePics").Preload("ArticleTags").Preload("User").
+	if err := DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
 		Where("id = ? and ban = ? and status = ?", aid, false, true).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
@@ -415,10 +415,10 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 		return -1, err
 	}
-	// 同步标签中间表
+	// 同步标签表
 	for _, tagName := range tags {
 		tag := model.Tag{}
-		if err := DB.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
+		if err := db.Where("topic = ? and tag_name = ?", topic, tagName).First(&tag).Error; err != nil {
 			zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 			return -1, err
 		}
@@ -431,6 +431,7 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 		}
 	}
 
+	// 同步图片
 	if len(picPath) > 0 {
 		for _, pic := range picPath {
 			if err := db.Create(&model.ArticlePic{

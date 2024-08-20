@@ -41,13 +41,6 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 		return nil, err
 	}
 
-	// 该文章阅读量+1
-	err = UpdateArticleReadNumService(aid, 1)
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.UpdateArticleReadNumService err=", zap.Error(err))
-		return nil, err
-	}
-
 	// 查询是否点赞或收藏
 	liked, err := redis.IsUserLiked(strconv.Itoa(aid), username, 0)
 	if err != nil {
@@ -64,6 +57,13 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 
 	// 计算发布时间
 	article.PostTime = timeConverter.IntervalConversion(article.CreatedAt)
+
+	// 该文章阅读量+1
+	err = UpdateArticleReadNumService(aid, 1)
+	if err != nil {
+		zap.L().Error("GetArticleService() service.article.UpdateArticleReadNumService err=", zap.Error(err))
+		return nil, err
+	}
 
 	// 存储到浏览记录
 	uid, err := mysql.GetIdByUsername(username)
@@ -360,12 +360,12 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 			return err
 		}
 
-		// 上传标签
-		err = mysql.InsertArticleTags(tags, aid, tx)
-		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.InsertArticleTags err=", zap.Error(myErr.DataFormatError()))
-			return err
-		}
+		//// 上传标签
+		//err = mysql.InsertArticleTags(tags, aid, tx)
+		//if err != nil {
+		//	zap.L().Error("PublishArticleService() service.article.InsertArticleTags err=", zap.Error(myErr.DataFormatError()))
+		//	return err
+		//}
 		topicId, err := mysql.QueryTopicIdByTopicName(topic)
 		if err != nil {
 			zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(myErr.DataFormatError()))
