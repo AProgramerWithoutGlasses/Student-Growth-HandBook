@@ -109,5 +109,5 @@ type RoleList struct {
 type MenuList struct {
 	Name     string     `json:"label"`
 	Value    string     `json:"value"`
-	Children []MenuList `json:"chiledren"`
+	Children []MenuList `json:"children"`
 }
