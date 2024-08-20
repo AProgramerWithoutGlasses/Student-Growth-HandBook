@@ -2,7 +2,6 @@ package redis
 
 import (
 	"fmt"
-	redis2 "github.com/go-redis/redis"
 	"go.uber.org/zap"
 	"strconv"
 )
@@ -10,8 +9,8 @@ import (
 var Selection = "collect"
 
 // AddArticleToCollectSet 添加文章到用户收藏集合中
-func AddArticleToCollectSet(uid string, aid string, pipe redis2.Pipeliner) error {
-	if err := pipe.SAdd(Selection+uid, aid).Err(); err != nil {
+func AddArticleToCollectSet(uid string, aid string) error {
+	if err := RDB.SAdd(Selection+uid, aid).Err(); err != nil {
 		zap.L().Error("AddArticleToCollectSet() dao.redis.redis_collect.SAdd err=", zap.Error(err))
 		return err
 	}
@@ -30,8 +29,8 @@ func IsUserCollected(uid string, aid string) (bool, error) {
 }
 
 // SetArticleCollections 设置文章收藏数
-func SetArticleCollections(aid string, selectNum int, pipe redis2.Pipeliner) error {
-	if err := pipe.HIncrBy(Selection, aid, int64(selectNum)).Err(); err != nil {
+func SetArticleCollections(aid string, selectNum int) error {
+	if err := RDB.HIncrBy(Selection, aid, int64(selectNum)).Err(); err != nil {
 		zap.L().Error("SetArticleCollections() dao.redis.redis_collect.HIncrBy err=", zap.Error(err))
 		return err
 	}
@@ -66,8 +65,8 @@ func GetUserCollectionSet(uid string) ([]string, error) {
 }
 
 // RemoveUserCollectionSet 将文章从用户收藏集合中移除
-func RemoveUserCollectionSet(aid, uid string, pipe redis2.Pipeliner) error {
-	err := pipe.SRem(Selection+uid, aid).Err()
+func RemoveUserCollectionSet(aid, uid string) error {
+	err := RDB.SRem(Selection+uid, aid).Err()
 	if err != nil {
 		zap.L().Error("RemoveUserCollectionSet() dao.redis.redis_collect.SRem err=", zap.Error(err))
 		return err

@@ -1,12 +1,13 @@
 package article
 
 import (
-	redis2 "github.com/go-redis/redis"
+	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
+	"studentGrow/models/constant"
 	"studentGrow/models/nzx_model"
 )
 
@@ -16,29 +17,26 @@ redis
 
 // Like 点赞
 func Like(objId, username string, likeType int) error {
-	_, err := redis.RDB.TxPipelined(func(pipe redis2.Pipeliner) error {
-		// 将用户添加到点赞列表
-		err := redis.AddUserToLikeSet(redis.List[likeType]+objId, username, likeType, pipe)
+	// 将用户添加到点赞列表
+	err := redis.AddUserToLikeSet(objId, username, likeType)
+	if err != nil {
+		zap.L().Error("Like() service.article.likeService.AddUserToLikeSet err=", zap.Error(err))
+		return err
+	}
+	// 获取对象点赞数
+	likes, err := redis.GetObjLikes(objId, likeType)
+	if err != nil {
+		zap.L().Error("Like() service.article.likeService.GetObjLikes err=", zap.Error(err))
+		return err
+	}
+	// 设置对象点赞数
+	if likes >= 0 {
+		err = redis.SetObjLikes(objId, likes+1, likeType)
 		if err != nil {
-			zap.L().Error("Like() service.article.likeService.AddUserToLikeSet err=", zap.Error(err))
+			zap.L().Error("Like() service.article.likeService.SetObjLikes err=", zap.Error(err))
 			return err
 		}
-		// 获取对象点赞数
-		likes, err := redis.GetObjLikes(objId, likeType)
-		if err != nil {
-			zap.L().Error("Like() service.article.likeService.GetObjLikes err=", zap.Error(err))
-			return err
-		}
-		// 设置对象点赞数
-		if likes >= 0 {
-			err = redis.SetObjLikes(objId, likes+1, likeType, pipe)
-			if err != nil {
-				zap.L().Error("Like() service.article.likeService.SetObjLikes err=", zap.Error(err))
-				return err
-			}
-		}
-		return nil
-	})
+	}
 	if err != nil {
 		zap.L().Error("Like() service.article.TxPipelined.GetObjLikes err=", zap.Error(err))
 		return err
@@ -96,29 +94,26 @@ func CancelLike(objId, username string, likeType int) error {
 		return err
 	}
 	if ok {
-		_, err := redis.RDB.TxPipelined(func(pipe redis2.Pipeliner) error {
-			// 移除点赞列表
-			err = redis.RemoveUserFromLikeSet(objId, username, likeType)
-			if err != nil {
-				zap.L().Error("CancelLike() service.article.likeService.RemoveUserFromLikeSet err=", zap.Error(err))
-				return err
-			}
-			// 获取对象点赞数
-			likes, err := redis.GetObjLikes(objId, likeType)
+		// 移除点赞列表
+		err = redis.RemoveUserFromLikeSet(objId, username, likeType)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.RemoveUserFromLikeSet err=", zap.Error(err))
+			return err
+		}
+		// 获取对象点赞数
+		likes, err := redis.GetObjLikes(objId, likeType)
+		if err != nil {
+			zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
+			return err
+		}
+		if likes > 0 {
+			// 设置对象点赞数
+			err = redis.SetObjLikes(objId, likes-1, likeType)
 			if err != nil {
 				zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
 				return err
 			}
-			if likes > 0 {
-				// 设置对象点赞数
-				err = redis.SetObjLikes(objId, likes-1, likeType, pipe)
-				if err != nil {
-					zap.L().Error("CancelLike() service.article.likeService.SetObjLikes err=", zap.Error(err))
-					return err
-				}
-			}
-			return nil
-		})
+		}
 		if err != nil {
 			zap.L().Error("CancelLike() service.article.likeService.TxPipelined err=", zap.Error(err))
 			return err
@@ -167,19 +162,31 @@ func CancelLike(objId, username string, likeType int) error {
 // LikeObjOrNot 检查是否点赞并点赞
 func LikeObjOrNot(objId, username string, likeType int) error {
 	//获取当前点赞文章列表
-	slice, err := redis.GetObjLikedUsers(objId, likeType)
+	//slice, err := redis.GetObjLikedUsers(objId, likeType)
+	//if err != nil {
+	//	zap.L().Error("LikeObjOrNot() service.article.likeService.GetObjLikedUsers err=", zap.Error(err))
+	//	return err
+	//}
+	//likeUsers := make(map[string]struct{})
+	//for _, s := range slice {
+	//	likeUsers[s] = struct{}{}
+	//}
+	//likes, err := redis.GetObjLikes(objId, 0)
+	//if err != nil {
+	//	return err
+	//}
+	//fmt.Println("likenum:", likes)
+	//_, ok := likeUsers[username]
+	//若存在该用户，则取消点赞
+
+	ok, err := redis.IsUserLiked(objId, username, constant.ArticleInteractionConstant)
 	if err != nil {
-		zap.L().Error("LikeObjOrNot() service.article.likeService.GetObjLikedUsers err=", zap.Error(err))
 		return err
 	}
-	likeUsers := make(map[string]struct{})
-	for _, s := range slice {
-		likeUsers[s] = struct{}{}
-	}
-	//若存在该用户，则取消点赞
-	_, ok := likeUsers[username]
-	if len(likeUsers) > 0 && ok {
+	fmt.Println(ok)
+	if ok {
 		err = CancelLike(objId, username, likeType)
+		fmt.Println("cancel")
 		if err != nil {
 			zap.L().Error("LikeObjOrNot() service.article.likeService.CancelLike err=", zap.Error(err))
 			return err
@@ -188,6 +195,7 @@ func LikeObjOrNot(objId, username string, likeType int) error {
 		//反之，点赞
 		err = Like(objId, username, likeType)
 		if err != nil {
+			fmt.Println("like")
 			zap.L().Error("LikeObjOrNot() service.article.likeService.Like err=", zap.Error(err))
 			return err
 		}

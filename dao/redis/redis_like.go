@@ -2,7 +2,6 @@ package redis
 
 import (
 	"fmt"
-	redis2 "github.com/go-redis/redis"
 	"go.uber.org/zap"
 	"strconv"
 )
@@ -10,9 +9,9 @@ import (
 var List = []string{"article", "comment"}
 
 // AddUserToLikeSet 添加用户到文章或评论点赞集合中
-func AddUserToLikeSet(objId, userId string, likeType int, pipe redis2.Pipeliner) error {
+func AddUserToLikeSet(objId, userId string, likeType int) error {
 
-	err := pipe.SAdd(List[likeType]+objId, userId).Err()
+	err := RDB.SAdd(List[likeType]+objId, userId).Err()
 
 	if err != nil {
 		zap.L().Error("AddUserToLikeSet() dao.redis.redis_like.SAdd err=", zap.Error(err))
@@ -33,8 +32,8 @@ func IsUserLiked(objId, userId string, likeType int) (bool, error) {
 }
 
 // SetObjLikes 设置文章或评论的点赞数
-func SetObjLikes(objId string, likeNum int, likeType int, pipe redis2.Pipeliner) error {
-	err := pipe.HIncrBy(List[likeType], objId, int64(likeNum)).Err()
+func SetObjLikes(objId string, likeNum int, likeType int) error {
+	err := RDB.HIncrBy(List[likeType], objId, int64(likeNum)).Err()
 	if err != nil {
 		zap.L().Error("SetObjLikes() dao.redis.redis_like.HIncrBy err=", zap.Error(err))
 		return err
