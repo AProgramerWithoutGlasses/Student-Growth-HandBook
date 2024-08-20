@@ -39,11 +39,11 @@ func HLogin(c *gin.Context) {
 		return
 	}
 	//查询用户是否存在
-	ok, err := mysql.SelExit(user.Username)
-	if !ok || err != nil {
-		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
-		return
-	}
+	//ok, err := mysql.SelExit(user.Username)
+	//if !ok || err != nil {
+	//	pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+	//	return
+	//}
 	//验证密码
 	if ok := userService.BVerify(user.Username, user.Password); !ok {
 		pkg.ResponseErrorWithMsg(c, 400, "密码错误")
@@ -97,11 +97,11 @@ func QLogin(c *gin.Context) {
 		return
 	}
 	//查询用户是否存在
-	ok, err := mysql.SelExit(user.Username)
-	if !ok || err != nil {
-		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
-		return
-	}
+	//ok, err := mysql.SelExit(user.Username)
+	//if !ok || err != nil {
+	//	pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+	//	return
+	//}
 	//验证密码
 	if ok := userService.BVerify(user.Username, user.Password); !ok {
 		pkg.ResponseErrorWithMsg(c, 400, "密码错误")

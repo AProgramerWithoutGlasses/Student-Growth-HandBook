@@ -8,7 +8,7 @@ import (
 // SelName 根据学号查名字，等一系列数据
 func SelName(username string) (string, error) {
 	var name string
-	err := DB.Table("users").Select("name").Where("deleted_at IS NULL").Where("username = ?", username).Scan(&name).Error
+	err := DB.Model(&gorm_model.User{}).Select("name").Where("username = ?", username).Scan(&name).Error
 	if err != nil {
 		return "", err
 	}
@@ -18,7 +18,7 @@ func SelName(username string) (string, error) {
 // SelId 根据账号查找id
 func SelId(username string) (int, error) {
 	var id int
-	err := DB.Table("users").Select("id").Where("username = ?", username).Scan(&id).Error
+	err := DB.Model(&gorm_model.User{}).Select("id").Where("username = ?", username).Scan(&id).Error
 	if err != nil {
 		return 0, err
 	}
@@ -38,7 +38,7 @@ func Selfans(id int) (int64, error) {
 // Score 查询积分
 func Score(username string) (int, error) {
 	var score int
-	err := DB.Table("users").Select("point").Where("username = ?", username).Error
+	err := DB.Model(&gorm_model.User{}).Select("point").Where("username = ?", username).Error
 	if err != nil {
 		return 0, err
 	}
@@ -48,7 +48,7 @@ func Score(username string) (int, error) {
 // Frequency 被推举次数
 func Frequency(username string) (int64, error) {
 	var number int64
-	err := DB.Table("stars").Where("username = ?", username).Count(&number).Error
+	err := DB.Model(&gorm_model.Star{}).Where("username = ?", username).Count(&number).Error
 	if err != nil {
 		return 0, err
 	}
@@ -59,8 +59,8 @@ func Frequency(username string) (int64, error) {
 func SelHot(id int) (int, error) {
 	var like int
 	var collect int
-	err := DB.Table("articles").Select("like_amount").Where("user_id =?", id).Scan(&like).Error
-	err = DB.Table("articles").Select("collect_amount").Where("user_id = ?", id).Scan(&collect).Error
+	err := DB.Model(&gorm_model.Article{}).Select("like_amount").Where("user_id =?", id).Scan(&like).Error
+	err = DB.Model(&gorm_model.Article{}).Select("collect_amount").Where("user_id = ?", id).Scan(&collect).Error
 	if err != nil {
 		return 0, err
 	}
@@ -80,7 +80,7 @@ func SelStarUser() ([]string, error) {
 // SelSearchGrade 查询未公布的学号合集
 func SelSearchGrade(name string) ([]string, error) {
 	var alluser []string
-	err := DB.Table("stars").Where("name LIKE ?", name).Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	err := DB.Model(&gorm_model.Star{}).Where("name LIKE ?", name).Where("session = ?", 0).Select("username").Scan(&alluser).Error
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func SelSearchGrade(name string) ([]string, error) {
 // SelPlus 查询入学时间
 func SelPlus(username string) (time.Time, error) {
 	var plus time.Time
-	err := DB.Table("users").Select("plus_time").Where("username = ?", username).Scan(&plus).Error
+	err := DB.Model(&gorm_model.User{}).Select("plus_time").Where("username = ?", username).Scan(&plus).Error
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -100,7 +100,7 @@ func SelPlus(username string) (time.Time, error) {
 // SelStarColl 院级查询表里学号合集
 func SelStarColl() ([]string, error) {
 	var alluser []string
-	err := DB.Table("stars").Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	err := DB.Model(&gorm_model.Star{}).Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&alluser).Error
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func SelStarColl() ([]string, error) {
 // SelSearchUser 根据名字班级查找学号--班级管理员搜索
 func SelSearchUser(name string, class string) ([]string, error) {
 	var username []string
-	err := DB.Table("users").Where("class = ?", class).Where("name LIKE ?", "%"+name+"%").Select("username").Scan(&username).Error
+	err := DB.Model(&gorm_model.User{}).Where("class = ?", class).Where("name LIKE ?", "%"+name+"%").Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func SelSearchUser(name string, class string) ([]string, error) {
 // SelSearchColl 院级管理员搜索
 func SelSearchColl(name string) ([]string, error) {
 	var usernamesli []string
-	err := DB.Table("stars").Where("name LIKE ?", "%"+name+"%").Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&usernamesli).Error
+	err := DB.Model(&gorm_model.Star{}).Where("name LIKE ?", "%"+name+"%").Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&usernamesli).Error
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func UpdateCollege(username string) error {
 // SelMax 查询session字段最大值
 func SelMax() (int, error) {
 	var maxnum int
-	err := DB.Table("stars").Select("MAX(session)").Scan(&maxnum).Error
+	err := DB.Model(&gorm_model.Star{}).Select("MAX(session)").Scan(&maxnum).Error
 	if err != nil {
 		return 0, err
 	}
@@ -184,7 +184,7 @@ func SelMax() (int, error) {
 
 // UpdateSession 更新字段
 func UpdateSession(session int) error {
-	err := DB.Table("stars").Where("session = ? ", 0).Updates(map[string]interface{}{"session": session}).Error
+	err := DB.Model(&gorm_model.Star{}).Where("session = ? ", 0).Updates(map[string]interface{}{"session": session}).Error
 	if err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func UpdateSession(session int) error {
 // SelStar 查找指定届数的班级之星
 func SelStar(session int, starType int) ([]string, error) {
 	var username []string
-	err := DB.Table("stars").Where("session = ?", session).Where("type = ?", starType).Select("username").Scan(&username).Error
+	err := DB.Model(&gorm_model.Star{}).Where("session = ?", session).Where("type = ?", starType).Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +204,7 @@ func SelStar(session int, starType int) ([]string, error) {
 // Selstarexit 查找这条数据是否存在数据库中
 func Selstarexit(username string) (int64, error) {
 	var number int64
-	err := DB.Table("stars").Where("username = ?", username).Where("session = ?", 0).Count(&number).Error
+	err := DB.Model(&gorm_model.Star{}).Where("username = ?", username).Where("session = ?", 0).Count(&number).Error
 	if err != nil {
 		return 0, err
 	}
@@ -214,7 +214,7 @@ func Selstarexit(username string) (int64, error) {
 // SelStatus 查询管理员是否可以添加数据
 func SelStatus(username string) (bool, error) {
 	var status bool
-	err := DB.Table("user_casbin_rules").Where("c_username = ?", username).Select("status").Scan(&status).Error
+	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).Select("status").Scan(&status).Error
 	if err != nil {
 		return false, err
 	}
@@ -224,7 +224,7 @@ func SelStatus(username string) (bool, error) {
 // UpdateStatus 批量更新管理员的状态字段
 func UpdateStatus() error {
 	ok := true
-	err := DB.Table("user_casbin_rules").Where("status = ? ", ok).Updates(map[string]interface{}{"status": !ok}).Error
+	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("status = ? ", ok).Updates(map[string]interface{}{"status": !ok}).Error
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func UpdateOne(username string) error {
 // SelNotClass 查询被推选为年级院级成长之星的学号合集
 func SelNotClass() ([]string, error) {
 	var username []string
-	err := DB.Table("stars").Where("type <> ? ", 1).Select("username").Scan(&username).Error
+	err := DB.Model(&gorm_model.Star{}).Where("type <> ? ", 1).Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}

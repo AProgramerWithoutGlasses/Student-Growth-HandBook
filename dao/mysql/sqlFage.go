@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"studentGrow/models"
+	"studentGrow/models/gorm_model"
 	"time"
 )
 
@@ -13,8 +14,8 @@ func SelGradeId(data time.Time, year int) ([]int, []string, error) {
 	// 计算时间间隔的左端
 	CurrentYear := data.AddDate(year+1, 9, 1)
 	YearAgo := data.AddDate(year, 9, 1)
-	err := DB.Table("users").Select("id").Where("deleted_at IS NULL").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&uidslice).Error
-	err = DB.Table("users").Select("username").Where("deleted_at IS NULL").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&usernameslice).Error
+	err := DB.Model(&gorm_model.User{}).Select("id").Where("deleted_at IS NULL").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&uidslice).Error
+	err = DB.Model(&gorm_model.User{}).Select("username").Where("deleted_at IS NULL").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&usernameslice).Error
 	if err != nil {
 		return nil, nil, err
 	}
@@ -25,7 +26,7 @@ func SelGradeId(data time.Time, year int) ([]int, []string, error) {
 func SelUid(class string) ([]int, error) {
 	//班级成员的id切片
 	var uidSlice []int
-	err := DB.Table("users").Select("id").Where("deleted_at IS NULL").Where("class = ?", class).Scan(&uidSlice).Error
+	err := DB.Model(&gorm_model.User{}).Select("id").Where("deleted_at IS NULL").Where("class = ?", class).Scan(&uidSlice).Error
 	// 检查并返回错误
 	if err != nil {
 		return nil, err
@@ -37,8 +38,8 @@ func SelUid(class string) ([]int, error) {
 func SelCollegeId() ([]int, []string, error) {
 	var uidslice []int
 	var usernameslice []string
-	err := DB.Table("users").Select("id").Where("deleted_at IS NULL").Scan(&uidslice).Error
-	err = DB.Table("users").Select("username").Where("deleted_at IS NULL").Scan(&usernameslice).Error
+	err := DB.Model(&gorm_model.User{}).Select("id").Where("deleted_at IS NULL").Scan(&uidslice).Error
+	err = DB.Model(&gorm_model.User{}).Select("username").Where("deleted_at IS NULL").Scan(&usernameslice).Error
 	if err != nil {
 		return nil, nil, err
 	}
@@ -48,7 +49,7 @@ func SelCollegeId() ([]int, []string, error) {
 // SelArticleNum 根据id查询每个用户的帖子数
 func SelArticleNum(id int) (int64, error) {
 	var number int64
-	err := DB.Table("articles").Where("deleted_at IS NULL").Where("user_id = ?", id).Count(&number).Error
+	err := DB.Model(&gorm_model.Articles{}).Where("deleted_at IS NULL").Where("user_id = ?", id).Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err
@@ -67,7 +68,7 @@ func SelArticle(id int, date time.Time) (int64, error) {
 	to := nowdate.Add(24 * time.Hour)
 
 	// 使用 BETWEEN 查询当天的记录数
-	err := DB.Table("articles").Where("user_id = ? ", id).
+	err := DB.Model(&gorm_model.Articles{}).Where("user_id = ? ", id).
 		Where("deleted_at IS NULL").
 		Where("created_at BETWEEN ? AND ?", nowdate, to).
 		Count(&number).Error
@@ -82,7 +83,7 @@ func SelArticle(id int, date time.Time) (int64, error) {
 func SelUsername(class string) ([]string, error) {
 	//班级成员的id切片
 	var usernameSlice []string
-	err := DB.Table("users").Select("username").Where("deleted_at IS NULL").Where("class = ?", class).Scan(&usernameSlice).Error
+	err := DB.Model(&gorm_model.User{}).Select("username").Where("class = ?", class).Scan(&usernameSlice).Error
 	// 检查并返回错误
 	if err != nil {
 		return nil, err
@@ -93,7 +94,7 @@ func SelUsername(class string) ([]string, error) {
 // SelStudent 查询所有学生人数
 func SelStudent() (int64, error) {
 	var number int64
-	err := DB.Table("users").Where("deleted_at IS NULL").Where("identity = ?", "student").Count(&number).Error
+	err := DB.Model(&gorm_model.User{}).Where("identity = ?", "student").Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err
@@ -104,7 +105,7 @@ func SelStudent() (int64, error) {
 // SelTeacher 查询所有教师人数
 func SelTeacher() (int64, error) {
 	var number int64
-	err := DB.Table("users").Where("deleted_at IS NULL").Where("identity = ?", "teacher").Count(&number).Error
+	err := DB.Model(&gorm_model.User{}).Where("identity = ?", "teacher").Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err
@@ -115,7 +116,7 @@ func SelTeacher() (int64, error) {
 // SelArticleLike 查询帖子总赞数
 func SelArticleLike(id int) (int64, error) {
 	var number int64
-	err := DB.Table("articles").Select("like_amount").Where("deleted_at IS NULL").Where("user_id = ?", id).Scan(&number).Error
+	err := DB.Model(&gorm_model.Articles{}).Select("like_amount").Where("user_id = ?", id).Scan(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err
@@ -126,7 +127,7 @@ func SelArticleLike(id int) (int64, error) {
 // SelArticleRead 查询帖子总阅读数
 func SelArticleRead(id int) (int64, error) {
 	var number int64
-	err := DB.Table("articles").Select("read_amount").Where("deleted_at IS NULL").Where("user_id = ?", id).Scan(&number).Error
+	err := DB.Model(&gorm_model.Articles{}).Select("read_amount").Where("user_id = ?", id).Scan(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err
@@ -137,7 +138,7 @@ func SelArticleRead(id int) (int64, error) {
 // SelTagArticle 查询不同tag下的文章的大小
 func SelTagArticle() ([]models.TagAmount, error) {
 	var tagcount []models.TagAmount
-	err := DB.Table("article_tags").Select("tag_id,COUNT(*)as count").Where("deleted_at IS NULL").Group("tag_id").Scan(&tagcount).Error
+	err := DB.Model(&gorm_model.ArticleTag{}).Select("tag_id,COUNT(*)as count").Where("deleted_at IS NULL").Group("tag_id").Scan(&tagcount).Error
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +152,7 @@ func SelTagArticleTime(date string) ([]models.TagAmount, error) {
 	//获取第二天的开始时间（00:00:00），用于查询截止到当天结束的时间范围
 	to := nowDate.Add(24 * time.Hour)
 	var tagcount []models.TagAmount
-	err = DB.Table("article_tags").Where("deleted_at IS NULL").Where("created_at BETWEEN ? AND ?", nowDate, to).Select("tag_id,COUNT(*)as count").Group("tag_id").Scan(&tagcount).Error
+	err = DB.Model(&gorm_model.ArticleTag{}).Where("deleted_at IS NULL").Where("created_at BETWEEN ? AND ?", nowDate, to).Select("tag_id,COUNT(*)as count").Group("tag_id").Scan(&tagcount).Error
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +162,7 @@ func SelTagArticleTime(date string) ([]models.TagAmount, error) {
 // TagName 查询标签名
 func TagName(id int) (string, error) {
 	var tagname string
-	err := DB.Table("tags").Where("deleted_at IS NULL").Where("id = ?", id).Select("tag_name").Scan(&tagname).Error
+	err := DB.Model(&gorm_model.Tag{}).Where("id = ?", id).Select("tag_name").Scan(&tagname).Error
 	if err != nil {
 		return "", err
 	}
