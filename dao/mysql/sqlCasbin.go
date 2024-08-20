@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"studentGrow/models/gorm_model"
 )
 
 func SelMenuId(requestUrl, requestMethod string) (string, error) {
@@ -17,7 +18,7 @@ func SelMenuId(requestUrl, requestMethod string) (string, error) {
 		requestUrl = strings.Replace(requestUrl, matches[0], "", 1)
 	}
 	// 使用模糊查询，例如：查找所有以requestUrl开头的记录
-	err = DB.Table("menus").Select("id").Where("deleted_at IS NULL").Where("request_url = ?", requestUrl).Where("request_method = ? ", requestMethod).Scan(&menuId).Error
+	err = DB.Model(&gorm_model.Menus{}).Select("id").Where("request_url = ?", requestUrl).Where("request_method = ? ", requestMethod).Scan(&menuId).Error
 	fmt.Println(menuId)
 	return menuId, err
 }

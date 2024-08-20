@@ -8,25 +8,15 @@ import (
 // SelPassword 根据用户名和密码查询用户是否存在
 func SelPassword(username, password string) (int64, error) {
 	var number int64
-	err := DB.Table("users").Select("password").Where("deleted_at IS NULL").Where("username = ?", username).Where("password = ?", password).Count(&number).Error
+	err := DB.Model(&gorm_model.User{}).Select("password").Where("deleted_at IS NULL").Where("username = ?", username).Where("password = ?", password).Count(&number).Error
 	return number, err
 }
 
 // SelCasId 根据用户id查询对应角色id
 func SelCasId(username string) (string, error) {
 	var code string
-	err := DB.Table("user_casbin_rules").Select("casbin_cid").Where("c_username = ?", username).Scan(&code).Error
+	err := DB.Model(&gorm_model.UserCasbinRules{}).Select("casbin_cid").Where("c_username = ?", username).Scan(&code).Error
 	return code, err
-}
-
-// SelExit 查询用户是否存在
-func SelExit(username string) (bool, error) {
-	var num64 int64
-	err := DB.Table("users").Where("username = ?", username).Where("deleted_at IS NULL").Count(&num64).Error
-	if err != nil || num64 == 0 {
-		return false, err
-	}
-	return true, nil
 }
 
 // SelRole 根据角色id查询角色
@@ -39,7 +29,7 @@ func SelRole(id string) (string, error) {
 // SelClass 根据学号获取班级
 func SelClass(username string) (string, error) {
 	var class string
-	err := DB.Table("users").Select("class").Where("username = ?", username).Scan(&class).Error
+	err := DB.Model(&gorm_model.User{}).Select("class").Where("username = ?", username).Scan(&class).Error
 	if err != nil {
 		return "", err
 	}
@@ -49,7 +39,7 @@ func SelClass(username string) (string, error) {
 // SelIfexit 查找用户是否是管理员
 func SelIfexit(username string) (int64, error) {
 	var number int64
-	err := DB.Table("user_casbin_rules").Where("deleted_at IS NULL").Where("c_username = ?", username).Count(&number).Error
+	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("deleted_at IS NULL").Where("c_username = ?", username).Count(&number).Error
 	if err != nil {
 		return 0, err
 	}
@@ -59,7 +49,7 @@ func SelIfexit(username string) (int64, error) {
 // SelHead 查找用户头像
 func SelHead(username string) (string, error) {
 	var headshot string
-	err := DB.Table("users").Where("username = ?", username).Select("head_shot").Scan(&headshot).Error
+	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Select("head_shot").Scan(&headshot).Error
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +59,7 @@ func SelHead(username string) (string, error) {
 // SelBan 查询是否被ban
 func SelBan(username string) (bool, error) {
 	var ban bool
-	err := DB.Table("users").Where("username = ?", username).Select("ban").Scan(&ban).Error
+	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Select("ban").Scan(&ban).Error
 	if err != nil {
 		return false, err
 	}
@@ -91,7 +81,7 @@ func CreateUser(username string, id int) error {
 // SelEndTime 查询解禁时间
 func SelEndTime(username string) (time.Time, error) {
 	var data time.Time
-	err := DB.Table("users").Where("username = ?", username).Select("user_ban_end_time").Scan(&data).Error
+	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Select("user_ban_end_time").Scan(&data).Error
 	return data, err
 }
 
