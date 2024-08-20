@@ -16,16 +16,20 @@ type SelfContentStruct struct {
 
 // GetSelfContentContro 获取前端发送的用户id, 并将其在数据库中对应的用户自述响应给前端
 func GetSelfContentContro(c *gin.Context) {
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
+	input := struct {
+		Username string `json:"username"`
+	}{}
+	err := c.Bind(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
 		return
 	}
 
+	//hh
+
 	// 根据学号获取id
-	id, err := mysql.GetIdByUsername(username)
+	id, err := mysql.GetIdByUsername(input.Username)
 	if err != nil {
 		fmt.Println("homepage.UpdateSelfContentContro() mysql.GetIdByUsername() err : ", err)
 	}

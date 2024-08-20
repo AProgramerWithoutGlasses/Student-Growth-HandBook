@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/homepage"
-	"studentGrow/utils/token"
 )
 
 // 前台个人主页
@@ -11,7 +10,7 @@ func routesHomepage(r *gin.Engine) {
 	rh := r.Group("/user")
 
 	rh.GET("/profiles_get", homepage.GetMesControl)
-	rh.POST("/userHeadshot_update", token.AuthMiddleware(), homepage.UpdateHeadshotControl)
+	rh.POST("/userHeadshot_update", homepage.UpdateHeadshotControl)
 	rh.POST("/selfCotnent_get", homepage.GetSelfContentContro)
 	rh.POST("/selfContent_update", homepage.UpdateSelfContentContro)
 	rh.POST("/userMotto_update", homepage.UpdateHomepageMottoControl)
