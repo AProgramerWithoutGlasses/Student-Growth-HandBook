@@ -20,7 +20,7 @@ func routesArticle(r *gin.Engine) {
 	// 获取文章内容
 	at.POST("/content", article.GetArticleIdController)
 	// 获取文章列表
-	at.POST("/list", middleWare.NewCasbinAuth(casbinService), article.GetArticleListController)
+	at.POST("/list", token.AuthMiddleware(), article.GetArticleListController)
 	// 对文章进行评论
 	at.POST("/comment", token.AuthMiddleware(), article.PostCom)
 	// 获取文章标签
@@ -28,9 +28,9 @@ func routesArticle(r *gin.Engine) {
 	//文章或评论点赞
 	at.POST("/like", token.AuthMiddleware(), article.LikeController)
 	//封禁文章
-	at.POST("/ban", middleWare.NewCasbinAuth(casbinService), token.AuthMiddleware(), article.BannedArticleController)
+	at.POST("/ban", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), article.BannedArticleController)
 	//删除文章
-	at.POST("/delete", middleWare.NewCasbinAuth(casbinService), token.AuthMiddleware(), article.DeleteArticleController)
+	at.POST("/delete", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), article.DeleteArticleController)
 	//举报文章
 	at.POST("/report", token.AuthMiddleware(), article.ReportArticle)
 	// 获取今日热帖
