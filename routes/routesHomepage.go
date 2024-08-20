@@ -9,7 +9,7 @@ import (
 func routesHomepage(r *gin.Engine) {
 	rh := r.Group("/user")
 
-	rh.GET("/profiles_get", homepage.GetMesControl)
+	rh.POST("/profiles_get", homepage.GetMesControl)
 	rh.POST("/userHeadshot_update", homepage.UpdateHeadshotControl)
 	rh.POST("/selfCotnent_get", homepage.GetSelfContentContro)
 	rh.POST("/selfContent_update", homepage.UpdateSelfContentContro)
