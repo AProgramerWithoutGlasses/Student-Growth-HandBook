@@ -6,13 +6,15 @@ import (
 	"go.uber.org/zap"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	token2 "studentGrow/utils/token"
 )
 
 func GetMesControl(c *gin.Context) {
 	// 接收
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
+	input := struct {
+		Username  string `json:"username"`
+		UserMotto string `json:"user_motto"`
+	}{}
+	err := c.BindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
@@ -20,12 +22,12 @@ func GetMesControl(c *gin.Context) {
 	}
 
 	// 校验
-	if username == "" {
+	if input.Username == "" {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "请求参数为空")
 		return
 	}
 
-	homepageMesStruct, err := service.GetHomepageMesService(username)
+	homepageMesStruct, err := service.GetHomepageMesService(input.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error("homepage.GetHomepageMesContro() service.GetHomepageMesService() failed : ", zap.Error(err))

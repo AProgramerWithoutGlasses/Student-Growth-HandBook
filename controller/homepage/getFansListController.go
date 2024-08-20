@@ -20,6 +20,7 @@ func GetFansListControl(c *gin.Context) {
 		return
 	}
 
+	///////
 	//token := c.GetHeader("token")
 	//username, err := token2.GetUsername(token)
 	//if err != nil {
