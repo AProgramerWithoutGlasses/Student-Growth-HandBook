@@ -237,7 +237,7 @@ func GetStarService(page int, limit int, username string) ([]jrx_model.HomepageA
 	return homepageStarList, err
 }
 
-func GetClassListService(username string) ([]jrx_model.HomepageClassmateStruct, error) {
+func GetClassmateListService(username string) ([]jrx_model.HomepageClassmateStruct, error) {
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		return nil, err
