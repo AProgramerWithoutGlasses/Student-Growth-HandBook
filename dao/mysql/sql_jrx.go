@@ -322,6 +322,8 @@ func GetConcernListDao(concernId []int) ([]jrx_model.HomepageFanStruct, error) {
 }
 
 func ChangeConcernDao(id int, otherId int) error {
+	err := DB.Find(&user_followers, "user_id = ? AND follower_id = ?", userId, followerId).Error
+
 	err := DB.Table("user_followers").Where("follower_id = ? and user_id = ?", id, otherId).Delete(nil).Error
 	return err
 }
