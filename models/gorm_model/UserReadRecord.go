@@ -6,6 +6,8 @@ import (
 
 type UserReadRecord struct {
 	gorm.Model
-	UserID    uint //属于
-	ArticleID uint //属于
+	UserID    uint `gorm:"not null"` //属于
+	User      User
+	ArticleID uint `gorm:"not null"` //属于
+	Article   Article
 }

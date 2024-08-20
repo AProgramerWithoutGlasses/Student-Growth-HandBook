@@ -23,7 +23,7 @@ func RoutesXue(router *gin.Engine) {
 	{
 		//1.像前端返回验证码
 		user.POST("/code", login.RidCode)
-		//2.接收数据查询是否登录成功id
+		//2.后台登录
 		user.POST("/hlogin", login.HLogin)
 		//前台登录
 		user.POST("/qlogin", login.QLogin)
@@ -48,8 +48,14 @@ func RoutesXue(router *gin.Engine) {
 		//获取登陆者的全部信息
 		userLoginAfter.GET("/message", menuController.HeadRoute)
 	}
-
-	//暂时不添加casbin中间件
+	//前台展示成长之星
+	showStar := router.Group("star")
+	{
+		showStar.GET("/class_star", growth.BackStarClass)
+		showStar.GET("/grade_star", growth.BackStarGrade)
+		showStar.GET("/college_star", growth.BackStarCollege)
+	}
+	//后台成长之星
 	elected := router.Group("star")
 	elected.Use(token.AuthMiddleware())
 	{
@@ -65,13 +71,13 @@ func RoutesXue(router *gin.Engine) {
 		elected.POST("/public/college", growth.PublicStar)
 		//搜索第几届成长之星的接口
 		elected.GET("/termStar", growth.StarPub)
-		elected.GET("/class_star", growth.BackStarClass)
-		elected.GET("/grade_star", growth.BackStarGrade)
-		elected.GET("/college_star", growth.BackStarCollege)
-		elected.POST("/change_disabled", growth.ChangeStatus)
 	}
-	//前端侧边栏
-	router.GET("/sidebar/message", menuController.MenuSide)
+	//前端侧边栏(鉴权)
+	sidebar := router.Group("sidebar")
+	{
+		sidebar.GET("/message", menuController.MenuSide)
+	}
+
 	//菜单管理 casbin鉴权
 	menu := router.Group("menuManage")
 	//menu.Use(middleWare.NewCasbinAuth(casbinService))
@@ -92,4 +98,6 @@ func RoutesXue(router *gin.Engine) {
 	{
 		role.GET("/list", RoleController.RoleList)
 	}
+	//不需要鉴权的接口
+	router.POST("/star/change_disabled", growth.ChangeStatus)
 }
