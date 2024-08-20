@@ -6,31 +6,30 @@ import (
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	token2 "studentGrow/utils/token"
 )
 
 func GetConcernListControl(c *gin.Context) {
 	// 接收
-	//input := struct {
-	//	Username string `json:"username"`
-	//}{}
-	//err := c.BindJSON(&input)
+	input := struct {
+		Username string `json:"username"`
+	}{}
+	err := c.BindJSON(&input)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	} //HH
+
+	//token := c.GetHeader("token")
+	//username, err := token2.GetUsername(token)
 	//if err != nil {
 	//	response.ResponseError(c, response.ParamFail)
 	//	zap.L().Error(err.Error())
 	//	return
 	//}
 
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
-		return
-	}
-
 	// 业务
-	userConcern, err := service.GetConcernListService(username)
+	userConcern, err := service.GetConcernListService(input.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
