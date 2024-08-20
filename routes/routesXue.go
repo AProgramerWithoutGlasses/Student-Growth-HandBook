@@ -93,6 +93,8 @@ func RoutesXue(router *gin.Engine) {
 		menu.GET("/selectInfo", menuController.SearchMenu)
 		//编辑菜单
 		menu.POST("/edit", menuController.UpdateMenu)
+		//菜单列表
+		menu.GET("/list", menuController.MenuList)
 	}
 	//角色管理
 	role := router.Group("role")

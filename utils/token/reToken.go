@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"strings"
 	"studentGrow/models"
+	"studentGrow/pkg/response"
 )
 
 // AuthMiddleware 中间件检验token是否合法
@@ -13,10 +14,9 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取前端传过来的信息
 		tokenString := c.GetHeader("token")
-		fmt.Print("请求token", tokenString)
 		//验证前端传过来的token格式，不为空，开头为Bearer
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-			c.JSON(400, gin.H{"code": "400", "msg": "验证失败"})
+			response.ResponseError(c, 400)
 			c.Abort()
 			return
 		}
@@ -26,7 +26,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		token, _, err := ParseToken(tokenString)
 		//解析失败||解析后的token无效
 		if err != nil || !token.Valid {
-			c.JSON(400, gin.H{"code": "400", "msg": "验证失败"})
+			response.ResponseError(c, 400)
 			c.Abort()
 			return
 		}
