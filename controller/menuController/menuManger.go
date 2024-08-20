@@ -145,3 +145,13 @@ func UpdateMenu(c *gin.Context) {
 	}
 	response.ResponseSuccess(c, "")
 }
+
+// MenuList 菜单下拉列表
+func MenuList(c *gin.Context) {
+	menulist, err := service.MenuList(0)
+	if err != nil {
+		response.ResponseError(c, 400)
+		return
+	}
+	response.ResponseSuccess(c, menulist)
+}

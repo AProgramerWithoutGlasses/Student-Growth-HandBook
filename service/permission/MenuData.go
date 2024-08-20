@@ -153,3 +153,29 @@ func UpdateMenuData(menu models.Menu) error {
 	}
 	return nil
 }
+
+// MenuList 菜单下拉列表
+func MenuList(parentID int) ([]models.MenuList, error) {
+	//定义返回的menu切片
+	var backMenu []models.MenuList
+	//查询父id是参数的菜单
+	menus, err := mysql.SelOneDad(parentID)
+	if err != nil {
+		return nil, err
+	}
+	//循环遍历这个切片
+	for i := range menus {
+		//返回前端的切片中的一个对象
+		menulist := models.MenuList{
+			Name:  menus[i].Name,
+			Value: menus[i].Name,
+		}
+		children, err := MenuList(int(menus[i].ID))
+		if err != nil {
+			return nil, err
+		}
+		menulist.Children = children
+		backMenu = append(backMenu, menulist)
+	}
+	return backMenu, nil
+}

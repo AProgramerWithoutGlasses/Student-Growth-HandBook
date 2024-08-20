@@ -6,12 +6,11 @@ import (
 	"strings"
 )
 
-func SelMenuId(role, requestUrl, requestMethod string) (string, error) {
+func SelMenuId(requestUrl, requestMethod string) (string, error) {
 	var menuId string
 	//获取最后一个/后的信息
 	re := regexp.MustCompile("/([^/]+)$")
 	matches := re.FindStringSubmatch(requestUrl)
-	fmt.Println(matches[1])
 	//判断是不是角色
 	ok, err := SelMRole(matches[1])
 	if ok {

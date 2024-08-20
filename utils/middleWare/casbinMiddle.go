@@ -26,7 +26,7 @@ func NewCasbinAuth(srv *casbinModels.CasbinService) gin.HandlerFunc {
 			fmt.Println("NewCasbinAuth myToken.GetRole(token) err:")
 			return
 		}
-		menuId, err := mysql.SelMenuId(role, c.Request.URL.Path, c.Request.Method)
+		menuId, err := mysql.SelMenuId(c.Request.URL.Path, c.Request.Method)
 		if err != nil || menuId == "" {
 			fmt.Println("NewCasbinAuth() mysql.SelMenuId err", err)
 			pkg.ResponseErrorWithMsg(c, 500, "没有找到菜单ID")

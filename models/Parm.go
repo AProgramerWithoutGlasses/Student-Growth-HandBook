@@ -104,3 +104,10 @@ type RoleList struct {
 	RoleName string `json:"role_name"`
 	RoleCode string `json:"role_Engname"`
 }
+
+// MenuList 返回前端菜单列表
+type MenuList struct {
+	Name     string     `json:"label"`
+	Value    string     `json:"value"`
+	Children []MenuList `json:"chiledren"`
+}
