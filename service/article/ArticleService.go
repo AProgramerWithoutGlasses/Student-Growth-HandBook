@@ -92,9 +92,10 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 }
 
 // GetArticleListService 后台获取文章列表
-func GetArticleListService(page, limit int, sortType, order, startAt, endAt, topic, keyWords, name string, isBan bool) ([]model.Article, error) {
+func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) ([]model.Article, error) {
+
 	//执行查询文章列表语句
-	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sortType, order, startAt, endAt, topic, keyWords, name, isBan)
+	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.SelectArticleAndUserListByPage err=", zap.Error(err))
 		return nil, myErr.NotFoundError()

@@ -148,6 +148,7 @@ func CollectToMysql(aid int, username string) error {
 			zap.L().Error("CollectToMysql() service.article.QueryCollectNum err=", zap.Error(err))
 			return err
 		}
+		fmt.Println("mysql读入收藏，收藏后收藏数为:", num)
 
 		// 收藏数+1
 		err = mysql.UpdateCollectNum(aid, num+1, tx)
@@ -157,6 +158,14 @@ func CollectToMysql(aid int, username string) error {
 		}
 		return nil
 	})
+
+	afterNum, err := mysql.QueryCollectNum(aid)
+	if err != nil {
+		zap.L().Error("CollectToMysql() service.article.QueryCollectNum err=", zap.Error(err))
+		return err
+	}
+
+	fmt.Println("mysql读入收藏，收藏后收藏数为:", afterNum)
 	if err != nil {
 		zap.L().Error("CollectToMysql() service.article.Transaction err=", zap.Error(err))
 		return err
@@ -185,6 +194,7 @@ func CancelCollectToMysql(aid int, username string) error {
 			zap.L().Error("CollectToMysql() service.article.QueryCollectNum err=", zap.Error(err))
 			return err
 		}
+		fmt.Println("mysql读入取消收藏，收藏前收藏数为:", num)
 		// 收藏数-1
 		err = mysql.UpdateCollectNum(aid, num-1, tx)
 		if err != nil {
@@ -193,6 +203,13 @@ func CancelCollectToMysql(aid int, username string) error {
 		}
 		return nil
 	})
+	afterNum, err := mysql.QueryCollectNum(aid)
+	if err != nil {
+		zap.L().Error("CollectToMysql() service.article.QueryCollectNum err=", zap.Error(err))
+		return err
+	}
+
+	fmt.Println("mysql读入取消收藏，取消收藏后收藏数为:", afterNum)
 	if err != nil {
 		zap.L().Error("CancelCollectToMysql() service.article.Transaction err=", zap.Error(err))
 		return err
