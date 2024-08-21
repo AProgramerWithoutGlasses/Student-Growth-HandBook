@@ -152,7 +152,7 @@ func UpdateHeadshotService(file *multipart.FileHeader, username string) error {
 	return err
 }
 
-func GetFansListService(username string) ([]jrx_model.HomepageFanStruct, error) {
+func GetFansListService(username string, tokenUsername string) ([]jrx_model.HomepageFanStruct, error) {
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		return nil, err
@@ -168,7 +168,12 @@ func GetFansListService(username string) ([]jrx_model.HomepageFanStruct, error) 
 		return nil, err
 	}
 
-	fansList, err = mysql.GetFansListIsConcernDao(fansList, id)
+	tokenId, err := mysql.GetIdByUsername(tokenUsername)
+	if err != nil {
+		return nil, err
+	}
+
+	fansList, err = mysql.GetFansListIsConcernDao(fansList, tokenId)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +181,7 @@ func GetFansListService(username string) ([]jrx_model.HomepageFanStruct, error) 
 	return fansList, err
 }
 
-func GetConcernListService(username string) ([]jrx_model.HomepageFanStruct, error) {
+func GetConcernListService(username string, tokenUsername string) ([]jrx_model.HomepageFanStruct, error) {
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		return nil, err
@@ -192,7 +197,12 @@ func GetConcernListService(username string) ([]jrx_model.HomepageFanStruct, erro
 		return nil, err
 	}
 
-	concernList, err = mysql.GetFansListIsConcernDao(concernList, id)
+	tokenId, err := mysql.GetIdByUsername(tokenUsername)
+	if err != nil {
+		return nil, err
+	}
+
+	concernList, err = mysql.GetFansListIsConcernDao(concernList, tokenId)
 	if err != nil {
 		return nil, err
 	}

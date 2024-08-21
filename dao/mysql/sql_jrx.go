@@ -493,6 +493,12 @@ func GetFansListIsConcernDao(fansList []jrx_model.HomepageFanStruct, id int) ([]
 		if err != nil {
 			return nil, err
 		}
+
+		// 如果列表中显示了自己的账号
+		if otherId == id {
+			fansList[i].IsConcern = ""
+			break
+		}
 		// 判断我是否关注这名粉丝
 		err = DB.Table("user_followers").Where("user_id = ? AND follower_id = ?", otherId, id).Count(&count).Error //我关注了他吗
 		if err != nil {
