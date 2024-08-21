@@ -193,7 +193,7 @@ func UpdateParam(newParam gorm_model.Param) error {
 func SelRoleMenu(role string, id int) (bool, error) {
 	var number int64
 	err := DB.Model(&gorm_model.Menus{}).Where("id = ?", id).Where("roles LIKE ?", "%"+role+"%").Count(&number).Error
-	if err != nil || number != 1 {
+	if err != nil || number == 0 {
 		return false, err
 	}
 	return true, nil

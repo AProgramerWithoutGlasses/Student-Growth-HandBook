@@ -215,7 +215,7 @@ func RoleMenuTree(role string, parentID int) ([]models.Menu, error) {
 			Params:        params,
 			Status:        status,
 		}
-		children, err := BuildMenuTree(int(menus[i].ID))
+		children, err := RoleMenuTree(role, int(menus[i].ID))
 		if err != nil {
 			return nil, err
 		}
