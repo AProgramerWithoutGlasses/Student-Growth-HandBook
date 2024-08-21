@@ -127,9 +127,8 @@ func ReadAmount(uidslice []int) int64 {
 	return allNumber
 }
 
-// 柱状图
+// PillarData 柱状图
 func PillarData() ([]string, []int, error) {
-	// 假设 mysql.SelTagArticle() 返回的是 []models.TagAmount 类型
 	tagcount, err := mysql.SelTagArticle()
 	if err != nil {
 		fmt.Println("PillarData SelTagArticle err", err)
@@ -158,29 +157,32 @@ func PillarData() ([]string, []int, error) {
 	return tagName, count, nil
 }
 
-// 特定日期的柱状图
+// PillarDataTime 特定日期的柱状图
 func PillarDataTime(date string) ([]string, []int, error) {
-	tagName := make([]string, 7)
-	count := make([]int, 7)
 	tagcount, err := mysql.SelTagArticleTime(date)
 	if err != nil {
 		fmt.Println("PillarData SelTagArticle err", err)
 		return nil, nil, err
 	}
+
 	// 根据人数排序
 	sort.Slice(tagcount, func(i, j int) bool {
 		return tagcount[i].Count > tagcount[j].Count
 	})
-	for i := 0; i < len(tagcount) && i < 7; i++ {
-		for _, tagmodel := range tagcount {
-			tagname, err := mysql.TagName(tagmodel.Tag)
-			if err != nil {
-				fmt.Println("PillarDataTime TagName err", err)
-				return nil, nil, err
-			}
-			tagName[i] = tagname
-			count[i] = tagmodel.Count
+
+	// 只取前7个或更少的元素
+	tagName := make([]string, 0, 7)
+	count := make([]int, 0, 7)
+
+	for i := 0; i < 7 && i < len(tagcount); i++ {
+		tagnames, err := mysql.TagName(tagcount[i].Tag)
+		if err != nil {
+			fmt.Println("PillarDataTime TagName err", err)
+			return nil, nil, err
 		}
+		tagName = append(tagName, tagnames)
+		count = append(count, tagcount[i].Count)
 	}
+
 	return tagName, count, nil
 }
