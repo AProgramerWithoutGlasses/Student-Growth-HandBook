@@ -25,7 +25,7 @@ func AddSingleStuContro(c *gin.Context) {
 		return
 	}
 
-	//role, err := token2.GetRole(token)
+	// role, err := token2.GetRole(token)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())

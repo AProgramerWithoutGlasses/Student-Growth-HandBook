@@ -11,6 +11,7 @@ import (
 func ChangeConcernControl(c *gin.Context) {
 	// 接收
 	input := struct {
+		//Username  string `json:"username"`
 		Othername string `json:"othername"`
 	}{}
 	err := c.BindJSON(&input)
