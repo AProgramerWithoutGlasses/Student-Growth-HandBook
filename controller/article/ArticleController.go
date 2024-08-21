@@ -99,8 +99,10 @@ func GetArticleListController(c *gin.Context) {
 			"created_at":      val.CreatedAt,
 		})
 	}
-	res.ResponseSuccess(c, map[string][]map[string]any{
-		"list": list,
+
+	res.ResponseSuccess(c, map[string]any{
+		"list":           list,
+		"article_amount": len(list),
 	})
 }
 
