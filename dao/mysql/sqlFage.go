@@ -94,7 +94,7 @@ func SelUsername(class string) ([]string, error) {
 // SelStudent 查询所有学生人数
 func SelStudent() (int64, error) {
 	var number int64
-	err := DB.Model(&gorm_model.User{}).Where("identity = ?", "student").Count(&number).Error
+	err := DB.Model(&gorm_model.User{}).Where("identity = ?", "学生").Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err
@@ -105,7 +105,7 @@ func SelStudent() (int64, error) {
 // SelTeacher 查询所有教师人数
 func SelTeacher() (int64, error) {
 	var number int64
-	err := DB.Model(&gorm_model.User{}).Where("identity = ?", "teacher").Count(&number).Error
+	err := DB.Model(&gorm_model.User{}).Where("identity = ?", "老师").Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err
