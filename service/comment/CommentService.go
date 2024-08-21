@@ -27,43 +27,44 @@ func PostComment(commentType, username, content string, id int) error {
 
 	var cid int
 	//判断评论类型
-	switch commentType {
-	//给文章评论
-	case "0":
-		err := mysql.DB.Transaction(func(tx *gorm.DB) error {
+
+	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+		switch commentType {
+		//给文章评论
+		case "0":
 			//向数据库插入评论数据
 			cid, err = mysql.InsertIntoCommentsForArticle(content, id, uid, tx)
 			if err != nil {
 				zap.L().Error("PostComment() service.article.InsertIntoCommentsForArticle err=", zap.Error(err))
 				return err
 			}
-			// 增加文章评论数
-			num, err := mysql.QueryArticleCommentNum(id)
-			if err != nil {
-				zap.L().Error("PostComment() service.article.QueryArticleCommentNum err=", zap.Error(err))
-				return err
-			}
-			err = mysql.UpdateArticleCommentNum(id, num+1, tx)
-			if err != nil {
-				zap.L().Error("PostComment() service.article.UpdateArticleCommentNum err=", zap.Error(err))
-				return err
-			}
-			return nil
-		})
-		if err != nil {
-			zap.L().Error("PostComment() service.article.Transaction err=", zap.Error(err))
-			return err
-		}
 
-	case "1":
-		//向数据库插入评论数据
-		cid, err = mysql.InsertIntoCommentsForComment(content, uid, id)
+		case "1":
+			//向数据库插入评论数据
+			cid, err = mysql.InsertIntoCommentsForComment(content, uid, id, tx)
+			if err != nil {
+				zap.L().Error("PostComment() service.article.InsertIntoCommentsForComment err=", zap.Error(err))
+				return err
+			}
+		default:
+			return myErr.DataFormatError()
+		}
+		// 增加文章评论数
+		num, err := mysql.QueryArticleCommentNum(id)
 		if err != nil {
-			zap.L().Error("PostComment() service.article.InsertIntoCommentsForComment err=", zap.Error(err))
+			zap.L().Error("PostComment() service.article.QueryArticleCommentNum err=", zap.Error(err))
 			return err
 		}
-	default:
-		return myErr.DataFormatError()
+		err = mysql.UpdateArticleCommentNum(id, num+1, tx)
+		if err != nil {
+			zap.L().Error("PostComment() service.article.UpdateArticleCommentNum err=", zap.Error(err))
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		zap.L().Error("PostComment() service.article.Transaction err=", zap.Error(err))
+		return err
 	}
 
 	// 将评论数据加入redis
