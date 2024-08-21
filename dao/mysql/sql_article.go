@@ -516,10 +516,10 @@ func UpdateArticleStatusById(aid int, status bool, db *gorm.DB) error {
 
 // QueryUserByArticleId 通过文章获取用户User
 func QueryUserByArticleId(aid int) (*model.User, error) {
-	var user model.User
-	if err := DB.Preload("User").Where("id = ?", aid).First(&user).Error; err != nil {
+	var article model.Article
+	if err := DB.Preload("User").Where("id = ?", aid).First(&article).Error; err != nil {
 		zap.L().Error("QueryUserByArticleId() dao.mysql.sql_article", zap.Error(err))
 		return nil, err
 	}
-	return &user, nil
+	return &article.User, nil
 }
