@@ -64,3 +64,14 @@ type HomepageClassmateStruct struct {
 	HeadShot string `json:"user_headshot"`
 	Name     string `json:"name"`
 }
+
+type HomepageTrack struct {
+	ID              int    `json:"article_id,omitempty"`
+	Content         string `json:"article_content"`
+	Type            string `json:"article_type"`
+	Name            string `json:"name"`
+	CreateAt        string `json:"i_time"`
+	LikeAmount      int    `json:"like_amount"`
+	CommentAmount   int    `json:"comment_amount"`
+	Comment_content string `json:"comment_content"`
+}

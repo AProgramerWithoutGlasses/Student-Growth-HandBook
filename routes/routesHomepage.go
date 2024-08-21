@@ -23,6 +23,7 @@ func routesHomepage(r *gin.Engine) {
 	rh.POST("/concern_change", homepage.ChangeConcernControl)
 	rh.POST("/history_get", homepage.GetHistoryControl)
 	// 我的足迹
+	rh.POST("/tracks_get", homepage.GetTracksControl)
 	rh.POST("/star_get", homepage.GetStarControl)
 	rh.POST("/class_get", homepage.GetClassControl)
 	// 获取积分统计

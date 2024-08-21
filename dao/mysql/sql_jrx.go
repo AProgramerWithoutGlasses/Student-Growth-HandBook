@@ -532,3 +532,15 @@ func GetIsConcernDao(id int, otherId int) (bool, error) {
 	}
 
 }
+
+func GetTracksDao(id int, page int, limit int) ([]jrx_model.HomepageTrack, error) {
+	var tracks []jrx_model.HomepageTrack
+	err := DB.Raw(`
+		SELECT ID, CONTENT, NAME, like_amount, comment_amount, 'articles' AS I_TYPE, CreatedAt FROM articles where user_id = id
+		UNION ALL
+		SELECT a.ID, a.CONTENT, a.NAME, a.like_amount, a.comment_amount, c.comment_content, 'comments' AS I_TYPE, c.CreatedAt FROM articles a where user_id = id
+		LEFT JOIN comments c ON a.id = c.article_id
+	`).Order("CreatedAt DESC").Scan(&tracks).Error
+
+	return tracks, err
+}
