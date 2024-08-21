@@ -18,7 +18,7 @@ func RoutesXue(router *gin.Engine) {
 	if err != nil {
 		fmt.Println("Setup models.NewCasbinService()  err")
 	}
-	router.Use(middleWare.CORSMiddleware())
+	//验证码登录不鉴权
 	user := router.Group("user")
 	{
 		//1.像前端返回验证码
@@ -27,13 +27,17 @@ func RoutesXue(router *gin.Engine) {
 		user.POST("/hlogin", login.HLogin)
 		//前台登录
 		user.POST("/qlogin", login.QLogin)
-		//获取注册天数
+	}
+	//获取注册天数
+	tokenUser := router.Group("user")
+	tokenUser.Use(token.AuthMiddleware())
+	{
 		user.POST("/register/day", login.RegisterDay)
 	}
 
 	//casbin鉴权
 	userLoginAfter := router.Group("user")
-	userLoginAfter.Use(middleWare.NewCasbinAuth(casbinService))
+	userLoginAfter.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
 	{
 		//班级管理员首页
 		userLoginAfter.POST("/fpage/class", login.FPageClass)
@@ -50,6 +54,7 @@ func RoutesXue(router *gin.Engine) {
 	}
 	//前台展示成长之星
 	showStar := router.Group("star")
+	showStar.Use(token.AuthMiddleware())
 	{
 		showStar.GET("/class_star", growth.BackStarClass)
 		showStar.GET("/grade_star", growth.BackStarGrade)
@@ -76,14 +81,14 @@ func RoutesXue(router *gin.Engine) {
 	}
 	//前端侧边栏(鉴权)
 	sidebar := router.Group("sidebar")
-	sidebar.Use(middleWare.NewCasbinAuth(casbinService))
+	sidebar.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
 	{
 		sidebar.GET("/message", menuController.MenuSide)
 	}
 
 	//菜单管理 casbin鉴权
 	menu := router.Group("menuManage")
-	menu.Use(middleWare.NewCasbinAuth(casbinService))
+	menu.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
 	{
 		//菜单初始化
 		menu.GET("/init", menuController.MenuMangerInit)
@@ -100,7 +105,7 @@ func RoutesXue(router *gin.Engine) {
 	}
 	//角色管理
 	role := router.Group("role")
-	role.Use(middleWare.NewCasbinAuth(casbinService))
+	role.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
 	{
 		role.GET("/list", RoleController.RoleList)
 		role.GET("/permission", RoleController.ShowMenu)
