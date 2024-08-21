@@ -6,6 +6,7 @@ import (
 	service "studentGrow/service/permission"
 )
 
+// RoleList 展示角色
 func RoleList(c *gin.Context) {
 	rolelist, err := service.RoleData()
 	if err != nil {

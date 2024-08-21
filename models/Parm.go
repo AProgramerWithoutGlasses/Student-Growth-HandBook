@@ -7,8 +7,8 @@ import (
 
 // Login 后台登录的结构体
 type Login struct {
-	Username string `json:"username" binding:"len=11"`
-	Password string `json:"password" binding:"max=17"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 	Code     string `json:"verify" binging:""`
 	Id       string `json:"verifyId"`
 }

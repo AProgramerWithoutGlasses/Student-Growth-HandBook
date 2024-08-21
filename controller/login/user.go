@@ -39,11 +39,11 @@ func HLogin(c *gin.Context) {
 		return
 	}
 	//查询用户是否存在
-	//ok, err := mysql.SelExit(user.Username)
-	//if !ok || err != nil {
-	//	pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
-	//	return
-	//}
+	ok, err := mysql.SelExit(user.Username)
+	if !ok || err != nil {
+		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+		return
+	}
 	//验证密码
 	if ok := userService.BVerify(user.Username, user.Password); !ok {
 		pkg.ResponseErrorWithMsg(c, 400, "密码错误")
@@ -54,9 +54,9 @@ func HLogin(c *gin.Context) {
 		pkg.ResponseErrorWithMsg(c, 400, "验证码错误")
 		return
 	}
-	//验证用户是否存在
+	//验证用户是否为管理员
 	if ok := userService.BVerifyExit(user.Username); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+		pkg.ResponseErrorWithMsg(c, 400, "身份验证失败")
 		return
 	}
 	//查询用户角色
@@ -97,11 +97,11 @@ func QLogin(c *gin.Context) {
 		return
 	}
 	//查询用户是否存在
-	//ok, err := mysql.SelExit(user.Username)
-	//if !ok || err != nil {
-	//	pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
-	//	return
-	//}
+	ok, err := mysql.SelExit(user.Username)
+	if !ok || err != nil {
+		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+		return
+	}
 	//验证密码
 	if ok := userService.BVerify(user.Username, user.Password); !ok {
 		pkg.ResponseErrorWithMsg(c, 400, "密码错误")

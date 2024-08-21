@@ -24,7 +24,7 @@ func AddMenu(c *gin.Context) {
 	var fId int
 	var backMenu models.Menu
 	err := c.Bind(&backMenu)
-	if err != nil {
+	if err != nil || backMenu.Name == "" {
 		response.ResponseErrorWithMsg(c, 400, "获取数据失败")
 		return
 	}
@@ -65,6 +65,11 @@ func AddMenu(c *gin.Context) {
 		return
 	}
 	//4.新增路由参数
+	//查询是否有路由参数
+	if backMenu.Params[0].ParamsKey == "" {
+		response.ResponseSuccess(c, "")
+		return
+	}
 	//查询此菜单的id
 	newid, err := mysql.SelMenuFId(backMenu.Name)
 	for _, parm := range backMenu.Params {
@@ -85,7 +90,7 @@ func DeleteMenu(c *gin.Context) {
 		MenuID int `json:"MenuId"`
 	}
 	err := c.Bind(&fromdata)
-	if err != nil {
+	if err != nil || fromdata.MenuID == 0 {
 		response.ResponseError(c, 400)
 		return
 	}
@@ -106,6 +111,8 @@ func DeleteMenu(c *gin.Context) {
 
 // SearchMenu 搜索菜单
 func SearchMenu(c *gin.Context) {
+	//返回前端数据
+	var menus []models.Menu
 	//接收前端数据
 	var inputdata struct {
 		Input string `form:"input"`
@@ -115,12 +122,17 @@ func SearchMenu(c *gin.Context) {
 		response.ResponseError(c, 401)
 		return
 	}
-	//返回前端的数据
-	menus, err := service.BuildMenu(inputdata.Input)
-	if err != nil {
-		response.ResponseError(c, 400)
-		return
+	if inputdata.Input == "" {
+		menus, err = service.BuildMenuTree(0)
+	} else {
+		//返回前端的数据
+		menus, err = service.BuildMenu(inputdata.Input)
+		if err != nil {
+			response.ResponseError(c, 400)
+			return
+		}
 	}
+
 	response.ResponseSuccess(c, menus)
 }
 
