@@ -46,32 +46,7 @@ func Like(objId, username string, likeType int) error {
 		zap.L().Error("Like() service.article.likeService.Atoi err=", zap.Error(err))
 		return err
 	}
-	//
-	//// 增加文章或评论的点赞数量
-	//switch likeType {
-	//case constant.ArticleInteractionConstant:
-	//	num, err := redis.GetObjLikes(strconv.Itoa(id), constant.ArticleInteractionConstant)
-	//	if err != nil {
-	//		zap.L().Error("Like() service.article.likeService.QueryArticleLikeNum err=", zap.Error(err))
-	//		return err
-	//	}
-	//	err = redis.SetObjLikes(strconv.Itoa(id), num+1, constant.ArticleInteractionConstant)
-	//	if err != nil {
-	//		zap.L().Error("Like() service.article.likeService.UpdateArticleLikeNum err=", zap.Error(err))
-	//		return err
-	//	}
-	//case 1:
-	//	num, err := redis.GetObjLikes(strconv.Itoa(id), constant.CommentInteractionConstant)
-	//	if err != nil {
-	//		zap.L().Error("Like() service.article.likeService.v err=", zap.Error(err))
-	//		return err
-	//	}
-	//	err = redis.SetObjLikes(strconv.Itoa(id), num+1, constant.CommentInteractionConstant)
-	//	if err != nil {
-	//		zap.L().Error("Like() service.article.likeService.UpdateCommentLikeNum err=", zap.Error(err))
-	//		return err
-	//	}
-	//}
+
 	// 写入通道
 
 	switch likeType {
