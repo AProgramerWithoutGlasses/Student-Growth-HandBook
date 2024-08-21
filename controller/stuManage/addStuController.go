@@ -10,11 +10,42 @@ import (
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
 	"studentGrow/utils/readMessage"
+	token2 "studentGrow/utils/token"
 	"time"
 )
 
 // AddSingleStuContro 添加单个学生
 func AddSingleStuContro(c *gin.Context) {
+	token := c.GetHeader("token")
+
+	username, err := token2.GetUsername(token)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
+	//role, err := token2.GetRole(token)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
+	class, err := mysql.GetClassById(id)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
 	// 接收请求数据
 	stuMessage, err := readMessage.GetJsonvalue(c)
 	if err != nil {
@@ -40,6 +71,9 @@ func AddSingleStuContro(c *gin.Context) {
 	classValue, err := stuMessage.GetString("class")
 	if err != nil {
 		fmt.Println("class GetString() err : ", err)
+	}
+	if classValue != class {
+
 	}
 
 	genderValue, err := stuMessage.GetString("gender")
