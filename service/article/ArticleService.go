@@ -298,7 +298,7 @@ func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, S
 	// 遍历文章集合并判断当前用户是否点赞或收藏该文章
 	for i := 0; i < len(articles); i++ {
 		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(articles[i].ID)), username)
-		okLike, err := redis.IsUserLiked(strconv.Itoa(articles[i].LikeAmount), username, 0)
+		okLike, err := redis.IsUserLiked(strconv.Itoa(int(articles[i].ID)), username, 0)
 		if err != nil {
 			zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserLiked err=", zap.Error(err))
 			return nil, err
