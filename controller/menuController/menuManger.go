@@ -66,20 +66,18 @@ func AddMenu(c *gin.Context) {
 	}
 	//4.新增路由参数
 	//查询是否有路由参数
-	if backMenu.Params[0].ParamsKey == "" {
-		response.ResponseSuccess(c, "")
-		return
-	}
-	//查询此菜单的id
-	newid, err := mysql.SelMenuFId(backMenu.Name)
-	for _, parm := range backMenu.Params {
-		parm.MenuId = newid
-		err := mysql.AddParam(parm)
-		if err != nil {
-			return
+	if backMenu.Params[0].ParamsKey != "" {
+		//查询此菜单的id
+		newid, err := mysql.SelMenuFId(backMenu.Name)
+		for _, parm := range backMenu.Params {
+			parm.MenuId = newid
+			err = mysql.AddParam(parm)
+			if err != nil {
+				response.ResponseSuccess(c, "")
+				return
+			}
 		}
 	}
-
 	response.ResponseSuccess(c, "")
 }
 

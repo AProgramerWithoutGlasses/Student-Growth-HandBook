@@ -35,6 +35,7 @@ func SelValueString(id int, column string) (string, error) {
 	return value, nil
 }
 
+// SelParamKeyVal 查询路由参数
 func SelParamKeyVal(id int) ([]gorm_model.Param, error) {
 	var param []gorm_model.Param
 	err := DB.Model(&gorm_model.Param{}).Where("menu_id = ?", id).Scan(&param).Error
@@ -186,4 +187,14 @@ func UpdateParam(newParam gorm_model.Param) error {
 		return err
 	}
 	return nil
+}
+
+// SelRoleMenu 模糊查询权限角色是否有权限
+func SelRoleMenu(role string, id int) (bool, error) {
+	var number int64
+	err := DB.Model(&gorm_model.Menus{}).Where("id = ?", id).Where("roles LIKE ?", "%"+role+"%").Count(&number).Error
+	if err != nil || number != 1 {
+		return false, err
+	}
+	return true, nil
 }

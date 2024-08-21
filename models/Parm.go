@@ -77,6 +77,8 @@ type Menu struct {
 	Params        []gorm_model.Param `json:"params"`
 	Icon          string             `json:"icon"`
 	Children      []Menu             `json:"children"`
+
+	Status bool `json:"status"`
 }
 
 // Sidebar 返回前端侧边栏结构体

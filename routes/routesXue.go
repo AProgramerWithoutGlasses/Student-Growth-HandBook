@@ -103,5 +103,6 @@ func RoutesXue(router *gin.Engine) {
 	role.Use(middleWare.NewCasbinAuth(casbinService))
 	{
 		role.GET("/list", RoleController.RoleList)
+		role.GET("/permission", RoleController.ShowMenu)
 	}
 }
