@@ -3,7 +3,6 @@ package login
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm/utils"
 	"studentGrow/dao/mysql"
 	"studentGrow/pkg/response"
 	"studentGrow/service/permission"
@@ -372,7 +371,7 @@ func Pillar(c *gin.Context) {
 	if Num.Date == "" {
 		tagname, count, _ = service.PillarData()
 	} else {
-		tagname, count, _ = service.PillarDataTime(utils.ToString(Num.Date))
+		tagname, count, _ = service.PillarDataTime(Num.Date)
 	}
 
 	chartOption := map[string]any{

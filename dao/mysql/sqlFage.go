@@ -138,7 +138,7 @@ func SelArticleRead(id int) (int64, error) {
 // SelTagArticle 查询不同tag下的文章的大小
 func SelTagArticle() ([]models.TagAmount, error) {
 	var tagcount []models.TagAmount
-	err := DB.Model(&gorm_model.ArticleTag{}).Select("tag_id,COUNT(*)as count").Where("deleted_at IS NULL").Group("tag_id").Scan(&tagcount).Error
+	err := DB.Table("article_tags").Select("tag_id,COUNT(*)as count").Group("tag_id").Scan(&tagcount).Error
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func SelTagArticleTime(date string) ([]models.TagAmount, error) {
 	//获取第二天的开始时间（00:00:00），用于查询截止到当天结束的时间范围
 	to := nowDate.Add(24 * time.Hour)
 	var tagcount []models.TagAmount
-	err = DB.Model(&gorm_model.ArticleTag{}).Where("deleted_at IS NULL").Where("created_at BETWEEN ? AND ?", nowDate, to).Select("tag_id,COUNT(*)as count").Group("tag_id").Scan(&tagcount).Error
+	err = DB.Table("article_tags").Where("created_at BETWEEN ? AND ?", nowDate, to).Select("tag_id,COUNT(*)as count").Group("tag_id").Scan(&tagcount).Error
 	if err != nil {
 		return nil, err
 	}
