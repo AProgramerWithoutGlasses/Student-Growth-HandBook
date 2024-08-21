@@ -168,6 +168,11 @@ func GetFansListService(username string) ([]jrx_model.HomepageFanStruct, error) 
 		return nil, err
 	}
 
+	fansList, err = mysql.GetFansListIsConcernDao(fansList, id)
+	if err != nil {
+		return nil, err
+	}
+
 	return fansList, err
 }
 
@@ -183,6 +188,11 @@ func GetConcernListService(username string) ([]jrx_model.HomepageFanStruct, erro
 	}
 
 	concernList, err := mysql.GetConcernListDao(concernIdList)
+	if err != nil {
+		return nil, err
+	}
+
+	concernList, err = mysql.GetFansListIsConcernDao(concernList, id)
 	if err != nil {
 		return nil, err
 	}

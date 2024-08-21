@@ -30,10 +30,11 @@ type HomepageDataStruct struct {
 
 // 用于粉丝列表
 type HomepageFanStruct struct {
-	Username string `json:"username"`
-	Name     string `json:"name"`
-	Motto    string `json:"user_motto"`
-	HeadShot string `json:"user_headshot"`
+	Username  string `json:"username"`
+	Name      string `json:"name"`
+	Motto     string `json:"user_motto"`
+	HeadShot  string `json:"user_headshot"`
+	IsConcern string `json:"is_concern"`
 }
 
 type HomepageArticleHistoryStruct struct {
