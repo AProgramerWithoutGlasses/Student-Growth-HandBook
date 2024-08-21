@@ -92,3 +92,13 @@ func UpdateBan(username string) error {
 	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Updates(map[string]interface{}{"ban": false}).Error
 	return err
 }
+
+// SelExit 查看用户是否存在
+func SelExit(username string) (bool, error) {
+	var number int64
+	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Count(&number).Error
+	if err != nil || number != 1 {
+		return false, err
+	}
+	return true, nil
+}
