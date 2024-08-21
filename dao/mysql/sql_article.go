@@ -81,7 +81,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString,
 	}
 	var endAt time.Time
 	if endAtString != "" {
-		endAt, err = time.Parse(time.RFC3339, startAtString)
+		endAt, err = time.Parse(time.RFC3339, endAtString)
 		if err != nil {
 			zap.L().Error("GetArticleListService() service.article.Parse err=", zap.Error(err))
 			return nil, err
