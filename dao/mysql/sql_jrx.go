@@ -487,7 +487,7 @@ func GetClassList() ([]string, error) {
 }
 
 func GetFansListIsConcernDao(fansList []jrx_model.HomepageFanStruct, id int) ([]jrx_model.HomepageFanStruct, error) {
-	for _, v := range fansList {
+	for i, v := range fansList {
 		var count int64
 		otherId, err := GetIdByUsername(v.Username)
 		if err != nil {
@@ -500,10 +500,10 @@ func GetFansListIsConcernDao(fansList []jrx_model.HomepageFanStruct, id int) ([]
 		}
 		if count > 0 {
 			// 我关注了他
-			v.IsConcern = "已关注"
+			fansList[i].IsConcern = "已关注"
 		} else {
 			// 我未关注他
-			v.IsConcern = "关注"
+			fansList[i].IsConcern = "关注"
 		}
 	}
 	return fansList, nil
