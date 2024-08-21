@@ -285,7 +285,7 @@ func UpdateHomepagePhoneNumberDao(id int, phoneNumber string) error {
 
 // 修改个人主页邮箱
 func UpdateHomepageEmailDao(id int, eamil string) error {
-	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("email", eamil).Error
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("mail_box", eamil).Error
 	return err
 }
 
