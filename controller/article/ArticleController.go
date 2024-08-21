@@ -95,7 +95,7 @@ func GetArticleListController(c *gin.Context) {
 			"article_ban":     val.Ban,
 			"upvote_amount":   val.LikeAmount,
 			"comment_amount":  val.CommentAmount,
-			"username":        val.User.Name,
+			"username":        val.User.Username,
 			"created_at":      val.CreatedAt,
 		})
 	}

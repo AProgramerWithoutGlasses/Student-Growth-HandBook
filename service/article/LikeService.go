@@ -191,13 +191,24 @@ func LikeToMysql(objId, likeType int, username string) error {
 			zap.L().Error("CancelLikeToMysql() service.article.likeService.QueryLikeNum err=", zap.Error(err))
 			return err
 		}
+		fmt.Println("mysql读入点赞，点赞前点赞数为:", num)
+
 		err = mysql.UpdateLikeNum(objId, likeType, num+1, tx)
 		if err != nil {
 			zap.L().Error("CancelLikeToMysql() service.article.likeService.UpdateLikeNum err=", zap.Error(err))
 			return err
 		}
+
 		return nil
 	})
+
+	afterNum, err := mysql.QueryLikeNum(objId, likeType)
+	if err != nil {
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.QueryLikeNum err=", zap.Error(err))
+		return err
+	}
+
+	fmt.Println("mysql读入点赞，点赞后点赞数为:", afterNum)
 	if err != nil {
 		zap.L().Error("CancelLikeToMysql() service.article.likeService.Transaction err=", zap.Error(err))
 		return err
@@ -228,13 +239,24 @@ func CancelLikeToMysql(objId, likeType int, username string) error {
 			zap.L().Error("CancelLikeToMysql() service.article.likeService.QueryLikeNum err=", zap.Error(err))
 			return err
 		}
+
+		fmt.Println("mysql读入取消点赞，取消点赞前点赞数为:", num)
 		err = mysql.UpdateLikeNum(objId, likeType, num-1, db)
 		if err != nil {
 			zap.L().Error("CancelLikeToMysql() service.article.likeService.UpdateLikeNum err=", zap.Error(err))
 			return err
 		}
+
 		return nil
 	})
+
+	afterNum, err := mysql.QueryLikeNum(objId, likeType)
+	if err != nil {
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.QueryLikeNum err=", zap.Error(err))
+		return err
+	}
+
+	fmt.Println("mysql读入取消点赞，取消点赞后点赞数为:", afterNum)
 	if err != nil {
 		zap.L().Error("CancelLike() service.article.likeService.Transaction err=", zap.Error(err))
 		return err

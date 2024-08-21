@@ -58,7 +58,7 @@ func SelectArticleById(aid int) (err error, article *model.Article) {
 }
 
 // SelectArticleAndUserListByPage 后台分页查询文章及用户列表并模糊查询
-func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt, topic, keyWords, name string, isBan bool) (result []model.Article, err error) {
+func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) (result []model.Article, err error) {
 	//SELECT articles.*, users.*
 	//FROM articles
 	//JOIN users ON articles.user_id = users.id
@@ -69,20 +69,33 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAt, endAt
 	//    LIMIT ?, 1
 	//)
 	//LIMIT ?;
+
+	// 解析时间
+	startAt, err := time.Parse(time.RFC3339, startAtString)
+	if err != nil {
+		zap.L().Error("GetArticleListService() service.article.Parse err=", zap.Error(err))
+		return nil, err
+	}
+	endAt, err := time.Parse(time.RFC3339, endAtString)
+	if err != nil {
+		zap.L().Error("GetArticleListService() service.article.Parse err=", zap.Error(err))
+		return nil, err
+	}
+
 	var articles []model.Article
 	var query *gorm.DB
 
 	// 时间区间为空检查
-	if startAt != "" && endAt != "" {
-		query = DB.Where(fmt.Sprintf("articles.%s between ? and ? and topic like ? and content like ? and articles.ban = ?", sort),
+	if startAtString != "" && endAtString != "" {
+		query = DB.Where("articles.created_at between ? and ? and topic like ? and content like ? and articles.ban = ?",
 			startAt, endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
-	} else if startAt == "" && endAt != "" {
-		query = DB.Where(fmt.Sprintf("articles.%s < ? and topic like ? and content like ? and articles.ban = ?", sort),
+	} else if startAtString == "" && endAtString != "" {
+		query = DB.Where("articles.created_at < ? and topic like ? and content like ? and articles.ban = ?",
 			endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
-	} else if startAt != "" && endAt == "" {
-		query = DB.Where(fmt.Sprintf("articles.%s > ? and topic like ? and content like ? and articles.ban = ?", sort),
+	} else if startAtString != "" && endAtString == "" {
+		query = DB.Where("articles.created_at > ? and topic like ? and content like ? and articles.ban = ?",
 			startAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
-	} else if startAt == "" && endAt == "" {
+	} else if startAtString == "" && endAtString == "" {
 		query = DB.Where("topic like ? and content like ? and articles.ban = ?",
 			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	}
