@@ -304,6 +304,7 @@ func GetFansIdListDao(id int) ([]int, error) {
 func GetFansListDao(fansId []int) ([]jrx_model.HomepageFanStruct, error) {
 	var fansList []jrx_model.HomepageFanStruct
 	err := DB.Table("users").Where("id IN (?)", fansId).Find(&fansList).Error
+
 	fmt.Println("fanslist : ", fansList)
 	return fansList, err
 }
@@ -483,4 +484,27 @@ func GetClassList() ([]string, error) {
 	var classes []string
 	err := DB.Model(&gorm_model.User{}).Where("LENGTH(class) = 9").Distinct("class").Order("class ASC").Pluck("class", &classes).Error
 	return classes, err
+}
+
+func GetFansListIsConcernDao(fansList []jrx_model.HomepageFanStruct, id int) ([]jrx_model.HomepageFanStruct, error) {
+	for _, v := range fansList {
+		var count int64
+		otherId, err := GetIdByUsername(v.Username)
+		if err != nil {
+			return nil, err
+		}
+		// 判断我是否关注这名粉丝
+		err = DB.Table("user_followers").Where("user_id = ? AND follower_id = ?", otherId, id).Count(&count).Error //我关注了他吗
+		if err != nil {
+			return nil, err
+		}
+		if count > 0 {
+			// 我关注了他
+			v.IsConcern = "已关注"
+		} else {
+			// 我未关注他
+			v.IsConcern = "关注"
+		}
+	}
+	return fansList, nil
 }
