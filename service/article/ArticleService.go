@@ -41,8 +41,6 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 		return nil, err
 	}
 
-	fmt.Println(article.CollectAmount)
-
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		if username != "passenger" {
 			// 查询是否点赞或收藏

@@ -39,6 +39,12 @@ func GetArticleIdController(c *gin.Context) {
 		tags = append(tags, tag.Tag.TagName)
 	}
 
+	articleContent := map[string]any{
+		"article_image": art.ArticlePics,
+		"article_text":  art.Content,
+		"article_video": art.Video,
+	}
+
 	res.ResponseSuccess(c, map[string]any{
 		"ban":             art.Ban,
 		"user_headshot":   art.User.HeadShot,
@@ -47,7 +53,7 @@ func GetArticleIdController(c *gin.Context) {
 		"user_class":      art.User.Class,
 		"article_tags":    tags,
 		"post_time":       art.PostTime,
-		"article_content": art.Content,
+		"article_content": articleContent,
 		"like_amount":     art.LikeAmount,
 		"collect_amount":  art.CollectAmount,
 		"comment_amount":  art.CommentAmount,
