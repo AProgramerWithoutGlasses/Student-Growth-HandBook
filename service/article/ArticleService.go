@@ -420,7 +420,7 @@ func GetArticlesByClassService(keyWords, username, sortWay string, limit, page, 
 	// 遍历文章集合并判断当前用户是否点赞或收藏该文章
 	for i := 0; i < len(articles); i++ {
 		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(articles[i].ID)), username)
-		okLike, err := redis.IsUserLiked(strconv.Itoa(articles[i].LikeAmount), username, 0)
+		okLike, err := redis.IsUserLiked(strconv.Itoa(int(articles[i].ID)), username, 0)
 		if err != nil {
 			fmt.Println("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserSelectedService err=", err)
 			return nil, err
