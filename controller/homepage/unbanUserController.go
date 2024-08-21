@@ -13,7 +13,7 @@ func UnbanUserControl(c *gin.Context) {
 	input := struct {
 		UnbanUsername string `json:"unban_username"`
 	}{}
-	err := c.Bind(&input)
+	err := c.BindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())

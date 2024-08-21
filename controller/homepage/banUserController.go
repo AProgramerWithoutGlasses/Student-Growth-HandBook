@@ -15,7 +15,7 @@ func BanUserControl(c *gin.Context) {
 		BanTime     int    `json:"ban_time"`
 		BanUsername string `json:"ban_username"`
 	}{}
-	err := c.Bind(&input)
+	err := c.BindJSON(&input)
 	if err != nil {
 		fmt.Println("stuManage.BanStuControl() c.Bind() err : ", err)
 		response.ResponseErrorWithMsg(c, 500, "stuManage.BanStuControl() c.Bind() failed : "+err.Error())
