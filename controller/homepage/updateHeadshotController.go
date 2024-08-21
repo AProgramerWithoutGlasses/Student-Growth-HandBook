@@ -21,7 +21,7 @@ func UpdateHeadshotControl(c *gin.Context) {
 	//}
 
 	// 获取上传的文件
-	file, err := c.FormFile("user_headshot")
+	file, err := c.FormFile("file")
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
@@ -31,13 +31,13 @@ func UpdateHeadshotControl(c *gin.Context) {
 
 	token := c.GetHeader("token")
 	username, err := token2.GetUsername(token)
+
+	fmt.Println("11111")
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
 		return
 	}
-
-	fmt.Println(222222)
 
 	// 业务
 	err = service.UpdateHeadshotService(file, username)
@@ -46,6 +46,8 @@ func UpdateHeadshotControl(c *gin.Context) {
 		zap.L().Error(err.Error())
 		return
 	}
+
+	fmt.Println("231212312312")
 
 	// 响应
 	response.ResponseSuccess(c, struct{}{})

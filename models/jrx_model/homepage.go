@@ -38,7 +38,7 @@ type HomepageFanStruct struct {
 }
 
 type HomepageArticleHistoryStruct struct {
-	ID            string    `json:"article_id,omitempty,omitempty"`
+	ID            int       `json:"article_id,omitempty,omitempty"`
 	HeadShot      string    `json:"user_headshot,omitempty"`
 	Name          string    `json:"name,omitempty"`
 	Content       string    `json:"article_content,omitempty"`
