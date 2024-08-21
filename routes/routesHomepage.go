@@ -19,6 +19,7 @@ func routesHomepage(r *gin.Engine) {
 	rh.POST("/userData_get", homepage.GetUserDataControl)
 	rh.POST("/fans_get", homepage.GetFansListControl)
 	rh.POST("/concern_get", homepage.GetConcernListControl)
+	rh.POST("/isConcern_get", homepage.GetIsConcernControl)
 	rh.POST("/concern_change", homepage.ChangeConcernControl)
 	rh.POST("/history_get", homepage.GetHistoryControl)
 	// 我的足迹

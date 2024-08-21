@@ -351,3 +351,22 @@ func UnbanHomepageUserService(banUsername string, username string) error {
 
 	return err
 }
+
+func GetIsConcernService(username string, otherUsername string) (bool, error) {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return false, err
+	}
+
+	otherId, err := mysql.GetIdByUsername(otherUsername)
+	if err != nil {
+		return false, err
+	}
+
+	isConcern, err := mysql.GetIsConcernDao(id, otherId)
+	if err != nil {
+		return false, err
+	}
+
+	return isConcern, err
+}
