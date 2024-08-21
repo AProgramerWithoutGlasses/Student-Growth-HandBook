@@ -148,6 +148,7 @@ func CollectToMysql(aid int, username string) error {
 			zap.L().Error("CollectToMysql() service.article.QueryCollectNum err=", zap.Error(err))
 			return err
 		}
+
 		// 收藏数+1
 		err = mysql.UpdateCollectNum(aid, num+1, tx)
 		if err != nil {

@@ -28,7 +28,7 @@ func InsertIntoCommentsForArticle(content string, aid int, uid int, db *gorm.DB)
 }
 
 // InsertIntoCommentsForComment 向数据库插入评论数据(回复评论)
-func InsertIntoCommentsForComment(content string, uid int, pid int) (int, error) {
+func InsertIntoCommentsForComment(content string, uid int, pid int, db *gorm.DB) (int, error) {
 	// 找到父级评论的文章
 	pComment := model.Comment{}
 	if err := DB.Preload("Article").Where("id = ?", pid).First(&pComment).Error; err != nil {
@@ -47,7 +47,7 @@ func InsertIntoCommentsForComment(content string, uid int, pid int) (int, error)
 		ArticleID:  pComment.Article.ID,
 	}
 
-	if err := DB.Create(&comment).Error; err != nil {
+	if err := db.Create(&comment).Error; err != nil {
 		zap.L().Error("InsertIntoCommentsForComment() dao.mysql.nzx_sql.Create err=", zap.Error(err))
 		return -1, err
 	}

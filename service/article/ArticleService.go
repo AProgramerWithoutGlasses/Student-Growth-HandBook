@@ -41,39 +41,50 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 		return nil, err
 	}
 
-	// 查询是否点赞或收藏
-	liked, err := redis.IsUserLiked(strconv.Itoa(aid), username, 0)
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.IsUserLiked err=", zap.Error(err))
-		return nil, err
-	}
-	article.IsLike = liked
-	selected, err := redis.IsUserCollected(username, strconv.Itoa(aid))
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.IsUserCollected err=", zap.Error(err))
-		return nil, err
-	}
-	article.IsCollect = selected
+	fmt.Println(article.CollectAmount)
 
-	// 计算发布时间
-	article.PostTime = timeConverter.IntervalConversion(article.CreatedAt)
+	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+		if username != "passenger" {
+			// 查询是否点赞或收藏
+			liked, err := redis.IsUserLiked(strconv.Itoa(aid), username, 0)
+			if err != nil {
+				zap.L().Error("GetArticleService() service.article.IsUserLiked err=", zap.Error(err))
+				return err
+			}
+			article.IsLike = liked
+			selected, err := redis.IsUserCollected(username, strconv.Itoa(aid))
+			if err != nil {
+				zap.L().Error("GetArticleService() service.article.IsUserCollected err=", zap.Error(err))
+				return err
+			}
+			article.IsCollect = selected
 
-	// 该文章阅读量+1
-	err = UpdateArticleReadNumService(aid, 1)
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.UpdateArticleReadNumService err=", zap.Error(err))
-		return nil, err
-	}
+			// 存储到浏览记录
+			uid, err := mysql.SelectUserByUsername(username)
+			if err != nil {
+				zap.L().Error("GetArticleService() service.article.GetIdByUsername err=", zap.Error(err))
+				return err
+			}
+			err = mysql.InsertReadRecord(uid, aid, tx)
+			if err != nil {
+				zap.L().Error("GetArticleService() service.article.InsertReadRecord err=", zap.Error(err))
+				return err
+			}
+		}
 
-	// 存储到浏览记录
-	uid, err := mysql.GetIdByUsername(username)
+		// 计算发布时间
+		article.PostTime = timeConverter.IntervalConversion(article.CreatedAt)
+
+		// 该文章阅读量+1
+		err = UpdateArticleReadNumService(aid, 1, tx)
+		if err != nil {
+			zap.L().Error("GetArticleService() service.article.UpdateArticleReadNumService err=", zap.Error(err))
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		zap.L().Error("GetArticleService() service.article.GetIdByUsername err=", zap.Error(err))
-		return nil, err
-	}
-	err = mysql.InsertReadRecord(uid, aid)
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.InsertReadRecord err=", zap.Error(err))
+		zap.L().Error("GetArticleService() service.article.Transaction err=", zap.Error(err))
 		return nil, err
 	}
 

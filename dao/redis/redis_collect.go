@@ -66,6 +66,7 @@ func GetUserCollectionSet(uid string) ([]string, error) {
 
 // RemoveUserCollectionSet 将文章从用户收藏集合中移除
 func RemoveUserCollectionSet(aid, uid string) error {
+	fmt.Println("uid", uid)
 	err := RDB.SRem(Selection+uid, aid).Err()
 	if err != nil {
 		zap.L().Error("RemoveUserCollectionSet() dao.redis.redis_collect.SRem err=", zap.Error(err))

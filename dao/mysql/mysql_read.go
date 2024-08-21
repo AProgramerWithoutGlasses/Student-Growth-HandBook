@@ -2,18 +2,19 @@ package mysql
 
 import (
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 )
 
 // InsertReadRecord 插入浏览记录
-func InsertReadRecord(uid, aid int) error {
+func InsertReadRecord(uid, aid int, db *gorm.DB) error {
 	readRecord := gorm_model.UserReadRecord{
 		UserID:    uint(uid),
 		ArticleID: uint(aid),
 	}
 
-	if err := DB.Create(&readRecord).Error; err != nil {
+	if err := db.Create(&readRecord).Error; err != nil {
 		zap.L().Error("InsertReadRecord() dao.mysql.mysql_read.Create err=", zap.Error(err))
 		return err
 	}
@@ -44,8 +45,8 @@ func QueryArticleReadNumById(aid int) (int, error) {
 }
 
 // UpdateArticleReadNumById 通过文章id修改文章浏览量
-func UpdateArticleReadNumById(aid, num int) error {
-	if err := DB.Model(&gorm_model.Article{}).Where("id = ?", aid).Update("read_amount", num).Error; err != nil {
+func UpdateArticleReadNumById(aid, num int, db *gorm.DB) error {
+	if err := db.Model(&gorm_model.Article{}).Where("id = ?", aid).Update("read_amount", num).Error; err != nil {
 		zap.L().Error("UpdateArticleReadNumById() dao.mysql.sql_article", zap.Error(err))
 		return err
 	}
