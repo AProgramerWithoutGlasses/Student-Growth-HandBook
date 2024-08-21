@@ -370,3 +370,17 @@ func GetIsConcernService(username string, otherUsername string) (bool, error) {
 
 	return isConcern, err
 }
+
+func GetTracksService(page int, limit int, username string) ([]jrx_model.HomepageTrack, error) {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	Tracks, err := mysql.GetTracksDao(id, page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return Tracks, nil
+}
