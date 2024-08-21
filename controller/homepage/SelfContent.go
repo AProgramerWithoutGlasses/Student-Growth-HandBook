@@ -19,7 +19,7 @@ func GetSelfContentContro(c *gin.Context) {
 	input := struct {
 		Username string `json:"username"`
 	}{}
-	err := c.Bind(&input)
+	err := c.BindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
