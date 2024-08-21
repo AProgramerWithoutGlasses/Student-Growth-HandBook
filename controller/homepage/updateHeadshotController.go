@@ -31,6 +31,7 @@ func UpdateHeadshotControl(c *gin.Context) {
 
 	token := c.GetHeader("token")
 	username, err := token2.GetUsername(token)
+
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
