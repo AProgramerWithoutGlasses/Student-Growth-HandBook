@@ -179,3 +179,48 @@ func MenuList(parentID int) ([]models.MenuList, error) {
 	}
 	return backMenu, nil
 }
+
+// RoleMenuTree 递归查询所有的子菜单并标注是否有权限
+func RoleMenuTree(role string, parentID int) ([]models.Menu, error) {
+	//定义返回的menu切片
+	var backMenu []models.Menu
+	//查询父id是参数的菜单
+	menus, err := mysql.SelOneDad(parentID)
+	if err != nil {
+		return nil, err
+	}
+	//循环遍历这个切片
+	for i := range menus {
+		//查询父菜单的名字
+		fatherName, err := mysql.SelValueString(parentID, "name")
+		//查询这个菜单或者目录的参数切片
+		params, err := mysql.SelParamKeyVal(int(menus[i].ID))
+		//查询是否有权限
+		status, err := mysql.SelRoleMenu(role, int(menus[i].ID))
+		//返回前端的切片中的一个对象
+		menu := models.Menu{
+			ID:            int(menus[i].ID),
+			ParentId:      parentID,
+			Name:          menus[i].Name,
+			Type:          menus[i].Type,
+			RouteName:     menus[i].RouteName,
+			Path:          menus[i].Path,
+			Perm:          menus[i].Perm,
+			Redirect:      menus[i].Redirect,
+			Visible:       menus[i].Visible,
+			Sort:          menus[i].Sort,
+			FatherMenu:    fatherName,
+			RequestUrl:    menus[i].RequestUrl,
+			RequestMethod: menus[i].RequestMethod,
+			Params:        params,
+			Status:        status,
+		}
+		children, err := BuildMenuTree(int(menus[i].ID))
+		if err != nil {
+			return nil, err
+		}
+		menu.Children = children
+		backMenu = append(backMenu, menu)
+	}
+	return backMenu, nil
+}
