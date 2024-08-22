@@ -20,6 +20,9 @@ func HeadRoute(c *gin.Context) {
 	//2.查找用户头像
 	avatar, err := mysql.SelHead(username)
 	//3.查找权限下按钮的所有权限标识
+	if role == "grade1" || role == "grade2" || role == "grade3" || role == "grade4" {
+		role = "grade"
+	}
 	perms, err := mysql.SelPerms(role)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "侧边栏获取信息失败")
