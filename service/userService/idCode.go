@@ -8,26 +8,22 @@ import (
 )
 
 var digitDriver = &base64Captcha.DriverString{
-	Height:          60,
-	Width:           200,
+	Height:          40,
+	Width:           100,
 	NoiseCount:      0,
 	ShowLineOptions: 2,
 	Length:          4,
 	Source:          "abcdefghijklmnopqrstuvwxyz",
-	BgColor: &color.RGBA{
-		R: 3,
-		G: 102,
-		B: 214,
-		A: 125,
-	},
-	Fonts: []string{"wqy-microhei.ttc"},
+	BgColor:         &color.RGBA{R: 3, G: 102, B: 214, A: 125},
+	Fonts:           []string{"wqy-microhei.ttc"},
 }
 
 var store = base64Captcha.DefaultMemStore
 
 // CaptchaGenerate 生成验证码
 func CaptchaGenerate() (string, string, string, error) {
-	b := base64Captcha.NewCaptcha(digitDriver, store)
+	driver := digitDriver.ConvertFonts()
+	b := base64Captcha.NewCaptcha(driver, store)
 	id, b64s, _, err := b.Generate()
 	hcode := store.Get(id, false)
 	if err != nil {
