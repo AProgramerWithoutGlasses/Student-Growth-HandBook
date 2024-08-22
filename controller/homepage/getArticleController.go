@@ -1,20 +1,19 @@
 package homepage
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	token2 "studentGrow/utils/token"
 )
 
 func GetArticleControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Page  int `json:"page"`
-		Limit int `json:"limit"`
+		Page     int    `json:"page"`
+		Limit    int    `json:"limit"`
+		Username string `json:"username"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {
@@ -23,16 +22,16 @@ func GetArticleControl(c *gin.Context) {
 		return
 	}
 
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
-		return
-	}
+	//token := c.GetHeader("token")
+	//username, err := token2.GetUsername(token)
+	//if err != nil {
+	//	response.ResponseError(c, response.ParamFail)
+	//	zap.L().Error(err.Error())
+	//	return
+	//}
 
 	// 业务
-	articleList, err := service.GetArticleService(input.Page, input.Limit, username)
+	articleList, err := service.GetArticleService(input.Page, input.Limit, input.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -46,12 +45,11 @@ func GetArticleControl(c *gin.Context) {
 		Content: articleList,
 	}
 
-	fmt.Println("output.Content", output.Content)
-
-	if output.Content != nil {
-		response.ResponseSuccess(c, output)
-	} else {
-
+	if output.Content == nil {
+		response.ResponseSuccess(c, "")
+		return
 	}
+
+	response.ResponseSuccess(c, output)
 
 }
