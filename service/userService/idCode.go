@@ -7,11 +7,11 @@ import (
 )
 
 var digitDriver = &base64Captcha.DriverString{
-	Height:          32,
-	Width:           100,
+	Height:          70,
+	Width:           240,
 	NoiseCount:      0,
 	ShowLineOptions: 2,
-	Length:          4,
+	Length:          6,
 	Source:          "abcdefghijklmnopqrstuvwxyz",
 }
 
