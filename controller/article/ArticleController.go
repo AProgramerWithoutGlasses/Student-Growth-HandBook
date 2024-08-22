@@ -38,9 +38,13 @@ func GetArticleIdController(c *gin.Context) {
 	for _, tag := range art.ArticleTags {
 		tags = append(tags, tag.Tag.TagName)
 	}
+	var pics []string
+	for _, pic := range art.ArticlePics {
+		pics = append(pics, pic.Pic)
+	}
 
 	articleContent := map[string]any{
-		"article_image": art.ArticlePics,
+		"article_image": pics,
 		"article_text":  art.Content,
 		"article_video": art.Video,
 	}
