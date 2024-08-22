@@ -73,7 +73,7 @@ func CheckErrors(err error, c *gin.Context) {
 
 	if errors.Is(err, NotFoundError()) {
 		// 找不到对应数据s
-		res.ResponseSuccessWithMsg(c, NotFoundError().Msg, struct{}{})
+		res.ResponseSuccessWithMsg(c, NotFoundError().Msg, []struct{}{})
 		return
 	}
 

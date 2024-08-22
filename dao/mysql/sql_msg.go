@@ -225,6 +225,11 @@ func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, e
 		zap.L().Error("QueryLikeRecordByUser() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
 	}
+
+	if len(likes) == 0 {
+		return nil, myErr.NotFoundError()
+	}
+
 	return likes, nil
 }
 
