@@ -11,7 +11,7 @@ func GetUsername(c *gin.Context) {
 	input := struct {
 		Username string `json:"username"`
 	}{}
-	err := c.BindJSON(&input)
+	err := c.Bind(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
@@ -22,7 +22,7 @@ func GetUsername(c *gin.Context) {
 	id, err := mysql.GetIdByUsername(input.Username)
 	if err != nil {
 		zap.L().Error(err.Error())
-		response.ResponseError(c, response.ParamFail)
+		response.ResponseError(c, response.ServerErrorCode)
 		return
 	}
 
