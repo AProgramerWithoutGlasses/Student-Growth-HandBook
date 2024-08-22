@@ -3,6 +3,7 @@ package userService
 import (
 	"fmt"
 	"github.com/mojocn/base64Captcha"
+	"strings"
 )
 
 var digitDriver = &base64Captcha.DriverString{
@@ -10,8 +11,8 @@ var digitDriver = &base64Captcha.DriverString{
 	Width:           100,
 	NoiseCount:      0,
 	ShowLineOptions: 2,
-	Length:          5,
-	Source:          "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+	Length:          4,
+	Source:          "abcdefghijklmnopqrstuvwxyz",
 }
 
 var store = base64Captcha.DefaultMemStore
@@ -30,5 +31,5 @@ func CaptchaGenerate() (string, string, string, error) {
 
 // GetCodeAnswer 验证验证码
 func GetCodeAnswer(id, code string) bool {
-	return store.Verify(id, code, true)
+	return store.Verify(id, strings.ToLower(code), true)
 }

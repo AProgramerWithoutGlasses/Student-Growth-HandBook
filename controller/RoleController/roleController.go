@@ -40,13 +40,13 @@ func ShowMenu(c *gin.Context) {
 
 // UpdateRoleMenu 修改权限
 func UpdateRoleMenu(c *gin.Context) {
-	var casbinService *casbinModels.CasbinService
+	casbinService, err := casbinModels.NewCasbinService(mysql.DB)
 	//1.接收前端传来的新的权限组
 	var NewMenuList struct {
 		Role     string   `json:"role"`
 		MenuList []string `json:"menuList"`
 	}
-	err := c.Bind(&NewMenuList)
+	err = c.Bind(&NewMenuList)
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
