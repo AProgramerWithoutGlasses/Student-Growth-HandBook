@@ -35,5 +35,5 @@ func CaptchaGenerate() (string, string, string, error) {
 
 // GetCodeAnswer 验证验证码
 func GetCodeAnswer(id, code string) bool {
-	return store.Verify(id, strings.ToLower(code), true)
+	return store.Verify(id, strings.ToLower(code), false)
 }
