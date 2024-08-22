@@ -45,5 +45,11 @@ func GetArticleControl(c *gin.Context) {
 		Content: articleList,
 	}
 
+	if output.Content == nil {
+		response.ResponseSuccess(c, "")
+		return
+	}
+
 	response.ResponseSuccess(c, output)
+
 }
