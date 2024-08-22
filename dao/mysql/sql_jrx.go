@@ -291,7 +291,7 @@ func UpdateHomepageEmailDao(id int, eamil string) error {
 
 // 修改个人主页头像
 func UpdateHeadshotDao(id int, url string) error {
-	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("user_headshot", url).Error
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("head_shot", url).Error
 	return err
 }
 
@@ -540,11 +540,11 @@ func GetTracksDao(id int, page int, limit int) ([]jrx_model.HomepageTrack, error
 
 	var tracks []jrx_model.HomepageTrack
 	err = DB.Raw(`
-		SELECT a.id, a.content, u.name, a.like_amount, a.comment_amount, 'articles' AS IType, a.created_at, NULL AS content FROM articles a
+		SELECT a.id, a.content, u.name, a.like_amount, a.comment_amount, 'articles' AS IType, a.created_at, "" AS c.content FROM articles a
 		JOIN users u ON a.user_id = u.id
 		WHERE a.id in ?
 		UNION ALL
-		Select c.created_at, c.content, c.article_id, a.content AS article_content, a.like_amount, a.comment_amount, a.user_id AS article_user_id, u.name AS article_author_name FROM comments c
+		Select c.created_at, c.content, c.article_id, a.content, a.like_amount, a.comment_amount, 'comments' AS IType, u.name FROM comments c
 		JOIN articles a ON c.article_id = a.id
 		JOIN users u ON a.user_id = u.id
 		Where c.user_id = ?

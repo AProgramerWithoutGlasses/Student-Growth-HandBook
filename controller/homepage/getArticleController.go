@@ -1,6 +1,7 @@
 package homepage
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/models/jrx_model"
@@ -45,5 +46,12 @@ func GetArticleControl(c *gin.Context) {
 		Content: articleList,
 	}
 
-	response.ResponseSuccess(c, output)
+	fmt.Println("output.Content", output.Content)
+
+	if output.Content != nil {
+		response.ResponseSuccess(c, output)
+	} else {
+
+	}
+
 }

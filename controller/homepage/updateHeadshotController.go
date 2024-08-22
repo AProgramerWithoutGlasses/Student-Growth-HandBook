@@ -21,13 +21,12 @@ func UpdateHeadshotControl(c *gin.Context) {
 	//}
 
 	// 获取上传的文件
-	file, err := c.FormFile("user_headshot")
+	file, err := c.FormFile("file")
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
 		return
 	}
-	fmt.Println("file : ", file)
 
 	token := c.GetHeader("token")
 	username, err := token2.GetUsername(token)
