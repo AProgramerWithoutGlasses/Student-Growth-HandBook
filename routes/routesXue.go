@@ -109,5 +109,6 @@ func RoutesXue(router *gin.Engine) {
 	{
 		role.GET("/list", RoleController.RoleList)
 		role.GET("/permission", RoleController.ShowMenu)
+		role.POST("/update", RoleController.UpdateRoleMenu)
 	}
 }
