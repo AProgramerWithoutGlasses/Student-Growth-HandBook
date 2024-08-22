@@ -7,12 +7,13 @@ import (
 )
 
 var digitDriver = &base64Captcha.DriverString{
-	Height:          90,
+	Height:          70,
 	Width:           240,
 	NoiseCount:      0,
 	ShowLineOptions: 2,
 	Length:          4,
 	Source:          "abcdefghijklmnopqrstuvwxyz",
+	Fonts:           []string{"wqy-microhei.ttc"},
 }
 
 var store = base64Captcha.DefaultMemStore
