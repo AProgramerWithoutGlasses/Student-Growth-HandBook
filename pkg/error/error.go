@@ -91,6 +91,7 @@ func CheckErrors(err error, c *gin.Context) {
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		res.ResponseSuccessWithMsg(c, NotFoundError().Msg, []struct{}{})
+		return
 	}
 	// 其他错误
 	res.ResponseErrorWithMsg(c, res.ServerErrorCode, err.Error())
