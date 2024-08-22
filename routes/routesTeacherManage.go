@@ -18,4 +18,5 @@ func routesTeacherManage(r *gin.Engine) {
 	rt.POST("/editTeacher", teacherManage.EditTeacherControl)
 	rt.POST("/banTeacher", teacherManage.BanTeacherControl)
 	rt.POST("/outputMultipleTeacher", teacherManage.OutputMultipleTeacherControl)
+	rt.POST("/getUsername", teacherManage.GetUsername)
 }
