@@ -414,12 +414,12 @@ func GetClassmateList(class string) ([]jrx_model.HomepageClassmateStruct, error)
 func GetArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
 	// 获取该用户发布的文章的id
 	var articles []jrx_model.HomepageArticleHistoryStruct
-	err := DB.Table("articles").
+	err := DB.Model(&gorm_model.Article{}).
 		Select("articles.id, articles.content, articles.comment_amount, articles.like_amount, articles.collect_amount, articles.status, articles.topic, articles.created_at").
 		Where("articles.user_id = ?", id).
 		Offset((page - 1) * limit).
 		Limit(limit).
-		Scan(&articles).Error
+		Find(&articles).Error
 	if err != nil {
 		return nil, err
 	}
@@ -534,13 +534,33 @@ func GetIsConcernDao(id int, otherId int) (bool, error) {
 }
 
 func GetTracksDao(id int, page int, limit int) ([]jrx_model.HomepageTrack, error) {
+	likedArticleIds, err := GetLikedArticleIds(id)
+
+	//commentedArticleIds, err := GetCommentedArticleIds(id)
+
 	var tracks []jrx_model.HomepageTrack
-	err := DB.Raw(`
-		SELECT ID, CONTENT, NAME, like_amount, comment_amount, 'articles' AS I_TYPE, CreatedAt FROM articles where user_id = id
+	err = DB.Raw(`
+		SELECT a.id, a.content, u.name, a.like_amount, a.comment_amount, 'articles' AS IType, a.created_at, NULL AS content FROM articles a
+		JOIN users u ON a.user_id = u.id
+		WHERE a.id in ?
 		UNION ALL
-		SELECT a.ID, a.CONTENT, a.NAME, a.like_amount, a.comment_amount, c.comment_content, 'comments' AS I_TYPE, c.CreatedAt FROM articles a where user_id = id
-		LEFT JOIN comments c ON a.id = c.article_id
-	`).Order("CreatedAt DESC").Scan(&tracks).Error
+		Select c.created_at, c.content, c.article_id, a.content AS article_content, a.like_amount, a.comment_amount, a.user_id AS article_user_id, u.name AS article_author_name FROM comments c
+		JOIN articles a ON c.article_id = a.id
+		JOIN users u ON a.user_id = u.id
+		Where c.user_id = ?
+	`, likedArticleIds, id).Order("CreatedAt DESC").Offset((page - 1) * limit).Limit(limit).Scan(&tracks).Error
 
 	return tracks, err
+}
+
+func GetLikedArticleIds(id int) ([]int, error) {
+	var likedArticleIds []int
+	err := DB.Model(&gorm_model.UserLikeRecord{}).Where("user_id = ?", id).Pluck("article_id", &likedArticleIds).Error
+	return likedArticleIds, err
+}
+
+func GetCommentedArticleIds(id int) ([]int, error) {
+	var commentedArticleIds []int
+	err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", id).Pluck("article_id", &commentedArticleIds).Error
+	return commentedArticleIds, err
 }

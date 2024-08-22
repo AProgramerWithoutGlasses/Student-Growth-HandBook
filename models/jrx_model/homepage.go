@@ -66,11 +66,11 @@ type HomepageClassmateStruct struct {
 }
 
 type HomepageTrack struct {
-	ID              int    `json:"article_id,omitempty"`
+	ID              int    `json:"article_id"`
 	Content         string `json:"article_content"`
-	Type            string `json:"article_type"`
+	IType           string `json:"i_type"`
 	Name            string `json:"name"`
-	CreateAt        string `json:"i_time"`
+	Created_at      string `json:"i_time"`
 	LikeAmount      int    `json:"like_amount"`
 	CommentAmount   int    `json:"comment_amount"`
 	Comment_content string `json:"comment_content"`
