@@ -1,8 +1,10 @@
 package homepage
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
@@ -33,9 +35,13 @@ func GetFansListControl(c *gin.Context) {
 	// 业务
 	userfans, err := service.GetFansListService(input.Username, tokenUsername)
 	if err != nil {
-		response.ResponseError(c, response.ServerErrorCode)
-		zap.L().Error(err.Error())
-		return
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+
+		} else {
+			response.ResponseError(c, response.ServerErrorCode)
+			zap.L().Error(err.Error())
+			return
+		}
 	}
 
 	// 响应

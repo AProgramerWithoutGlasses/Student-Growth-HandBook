@@ -1,8 +1,10 @@
 package homepage
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
@@ -31,11 +33,14 @@ func GetClassControl(c *gin.Context) {
 	// 业务
 	classmateList, err := service.GetClassmateListService(input.Username)
 	if err != nil {
-		response.ResponseError(c, response.ServerErrorCode)
-		zap.L().Error(err.Error())
-		return
-	}
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 
+		} else {
+			response.ResponseError(c, response.ServerErrorCode)
+			zap.L().Error(err.Error())
+			return
+		}
+	}
 	// 响应
 	output := struct {
 		History []jrx_model.HomepageClassmateStruct `json:"student_total"`
