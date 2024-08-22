@@ -20,6 +20,7 @@ func QueryTeacherControl(c *gin.Context) {
 	err := c.BindJSON(&queryParama)
 	if err != nil {
 		zap.L().Error("teacherManage.QueryTeacher() c.Bind() err : ", zap.Error(err))
+		response.ResponseError(c, response.ServerErrorCode)
 	}
 
 	fmt.Printf("queryParama: %+v\n", queryParama)

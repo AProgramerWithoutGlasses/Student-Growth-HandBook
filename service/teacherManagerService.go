@@ -39,7 +39,7 @@ func QueryTeacher(queryTeacherParama jrx_model.QueryTeacherParamStruct) ([]jrx_m
 
 // 获得查询老师的sql语句
 func GetQueryTeacherSql(queryTeacherParama jrx_model.QueryTeacherParamStruct) string {
-	querySql := `Select name, username, password, gender, is_manager, ban from users where identity = '老师'`
+	querySql := `Select name, username, password, gender, is_manager, ban from users where identity = '老师' and deleted_at is NULL`
 
 	if queryTeacherParama.Gender != "" {
 		querySql = querySql + " and gender = '" + queryTeacherParama.Gender + "'"
