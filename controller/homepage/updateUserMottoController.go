@@ -13,7 +13,7 @@ func UpdateHomepageMottoControl(c *gin.Context) {
 	input := struct {
 		UserMotto string `json:"user_motto"`
 	}{}
-	err := c.BindJSON(&input)
+	err := c.ShouldBindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
