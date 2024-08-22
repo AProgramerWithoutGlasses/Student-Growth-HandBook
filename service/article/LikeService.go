@@ -202,12 +202,13 @@ func CancelLikeToMysql(objId, likeType int, username string) error {
 
 	err = mysql.DB.Transaction(func(db *gorm.DB) error {
 		//删除点赞记录
+		fmt.Println("删除前")
 		err = mysql.DeleteLikeRecord(objId, likeType, userId)
 		if err != nil {
 			zap.L().Error("CancelLikeToMysql() service.article.likeService.DeleteLikeRecord err=", zap.Error(err))
 			return err
 		}
-
+		fmt.Println("删除后")
 		// 更新点赞数
 		num, err := mysql.QueryLikeNum(objId, likeType)
 		if err != nil {
