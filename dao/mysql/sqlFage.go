@@ -14,8 +14,8 @@ func SelGradeId(data time.Time, year int) ([]int, []string, error) {
 	// 计算时间间隔的左端
 	CurrentYear := data.AddDate(year+1, 9, 1)
 	YearAgo := data.AddDate(year, 9, 1)
-	err := DB.Model(&gorm_model.User{}).Select("id").Where("deleted_at IS NULL").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&uidslice).Error
-	err = DB.Model(&gorm_model.User{}).Select("username").Where("deleted_at IS NULL").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Scan(&usernameslice).Error
+	err := DB.Model(&gorm_model.User{}).Where("identify = ?", "学生").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Select("id").Scan(&uidslice).Error
+	err = DB.Model(&gorm_model.User{}).Where("identify = ?", "学生").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Select("username").Scan(&usernameslice).Error
 	if err != nil {
 		return nil, nil, err
 	}
