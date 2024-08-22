@@ -2,14 +2,15 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	_ "studentGrow/controller/article"
 	"studentGrow/logger"
 	"studentGrow/utils/middleWare"
 )
 
 func Setup() *gin.Engine {
 	r := gin.New()
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
-	r.Use(middleWare.CORSMiddleware())
+	r.Use(logger.GinLogger(), logger.GinRecovery(true), middleWare.CORSMiddleware())
+	//r.Use() // 跨域中间件
 
 	// 星
 	routesArticle(r)

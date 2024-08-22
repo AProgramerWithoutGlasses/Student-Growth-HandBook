@@ -262,7 +262,15 @@ func PublishManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	err = message.PublishManagerMsgService(username, in.Content)
+	// 获取角色
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("PublishManagerMsgController() controller.message.GetRole err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = message.PublishManagerMsgService(username, in.Content, role)
 	if err != nil {
 		zap.L().Error("PublishManagerMsgController() controller.message.PublishManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
