@@ -3,17 +3,24 @@ package userService
 import (
 	"fmt"
 	"github.com/mojocn/base64Captcha"
+	"image/color"
 	"strings"
 )
 
 var digitDriver = &base64Captcha.DriverString{
-	Height:          70,
-	Width:           240,
+	Height:          60,
+	Width:           200,
 	NoiseCount:      0,
 	ShowLineOptions: 2,
 	Length:          4,
 	Source:          "abcdefghijklmnopqrstuvwxyz",
-	Fonts:           []string{"wqy-microhei.ttc"},
+	BgColor: &color.RGBA{
+		R: 3,
+		G: 102,
+		B: 214,
+		A: 125,
+	},
+	Fonts: []string{"wqy-microhei.ttc"},
 }
 
 var store = base64Captcha.DefaultMemStore
