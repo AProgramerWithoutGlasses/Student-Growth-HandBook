@@ -8,7 +8,7 @@ import (
 )
 
 var digitDriver = &base64Captcha.DriverString{
-	Height:          40,
+	Height:          32,
 	Width:           100,
 	NoiseCount:      0,
 	ShowLineOptions: 2,
