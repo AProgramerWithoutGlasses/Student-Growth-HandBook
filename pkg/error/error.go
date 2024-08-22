@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/AzureAD/microsoft-authentication-library-for-go/apps/errors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 import res "studentGrow/pkg/response"
 
@@ -86,6 +87,10 @@ func CheckErrors(err error, c *gin.Context) {
 		// 权限越界
 		res.ResponseErrorWithMsg(c, res.UnprocessableEntity, OverstepCompetence().Msg)
 		return
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		res.ResponseSuccessWithMsg(c, NotFoundError().Msg, []struct{}{})
 	}
 	// 其他错误
 	res.ResponseErrorWithMsg(c, res.ServerErrorCode, err.Error())
