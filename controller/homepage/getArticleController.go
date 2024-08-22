@@ -1,8 +1,10 @@
 package homepage
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
@@ -33,9 +35,13 @@ func GetArticleControl(c *gin.Context) {
 	// 业务
 	articleList, err := service.GetArticleService(input.Page, input.Limit, input.Username)
 	if err != nil {
-		response.ResponseError(c, response.ServerErrorCode)
-		zap.L().Error(err.Error())
-		return
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+
+		} else {
+			response.ResponseError(c, response.ServerErrorCode)
+			zap.L().Error(err.Error())
+			return
+		}
 	}
 
 	// 响应
@@ -43,11 +49,6 @@ func GetArticleControl(c *gin.Context) {
 		Content []jrx_model.HomepageArticleHistoryStruct `json:"content"`
 	}{
 		Content: articleList,
-	}
-
-	if output.Content == nil {
-		response.ResponseSuccess(c, "")
-		return
 	}
 
 	response.ResponseSuccess(c, output)
