@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	_ "studentGrow/controller/article"
-	"studentGrow/controller/student"
 	"studentGrow/logger"
 	"studentGrow/utils/middleWare"
 )
@@ -13,25 +12,20 @@ func Setup() *gin.Engine {
 	r.Use(logger.GinLogger(), logger.GinRecovery(true), middleWare.CORSMiddleware())
 	//r.Use() // 跨域中间件
 
+	// 星
 	routesArticle(r)
 	routesTopic(r)
 	routesMsg(r)
 	routesComment(r)
 
-	RoutesXue(r)
+	// 勋
+	routesHomepage(r)
+	routesStudentManage(r)
+	routesTeacherManage(r)
+	routesClass(r)
 
-	// 勋x
-	r.POST("/student/getSelfCotnent", student.GetSelfContentContro)
-	r.POST("/student/updateSelfContent", student.UpdateSelfContentContro)
-	/*	r.POST("/stuManage/queryStudent", stuManage.QueryStuContro)
-		r.POST("/stuManage/addSingleStudent", stuManage.AddSingleStuContro)
-		r.POST("/stuManage/addMultipleStudent", stuManage.AddMultipleStuContro)
-		r.POST("/stuManage/deleteStudent", stuManage.DeleteStuContro)
-		r.POST("/stuManage/banStudent", stuManage.BanStuContro)
-		r.POST("/stuManage/editStudent", stuManage.EditStuContro)
-		r.POST("/stuManage/setStudentManager", stuManage.setStuManagerContro)
-		r.POST("/stuManage/outputMultipleStudent", stuManage.outputMultipleStuContro)
-	*/
+	// 雪
+	RoutesXue(r)
 
 	return r
 }
