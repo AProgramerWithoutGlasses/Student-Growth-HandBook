@@ -92,7 +92,7 @@ func GetArticleAndCommentLikedMsgService(username string, page, limit int) ([]nz
 		return nil, -1, err
 	}
 
-	var list []nzx_model.Out
+	list := make([]nzx_model.Out, 0)
 
 	for _, like := range likes {
 		// 判断文章点赞还是评论点赞
@@ -150,7 +150,7 @@ func GetCollectMsgService(username string, page, limit int) ([]map[string]any, i
 		return nil, -1, err
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 
 	for _, collect := range articleCollects {
 		list = append(list, map[string]any{
@@ -184,7 +184,7 @@ func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMs
 		return nil, -1, err
 	}
 
-	var commentMsgs nzx_model.CommentMsgs
+	commentMsgs := make(nzx_model.CommentMsgs, 0)
 
 	for _, comment := range comments {
 		// 判断其为文章评论还是评论回复

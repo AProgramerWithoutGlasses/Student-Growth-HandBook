@@ -60,7 +60,7 @@ func GetUnreadReportsController(c *gin.Context) {
 		articleContent[item.ArticleID] = item.Article.Content
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 	for key, val := range reportContent {
 		list = append(list, map[string]any{
 			"article_id":      key,

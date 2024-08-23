@@ -96,7 +96,7 @@ func GetArticleListController(c *gin.Context) {
 		return
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 	for _, val := range result {
 		list = append(list, map[string]any{
 			"article_id":      val.ID,
@@ -232,7 +232,7 @@ func GetHotArticlesOfDayController(c *gin.Context) {
 		return
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 	for _, a := range articles {
 		list = append(list, map[string]any{
 			"article_id":    a.ID,
@@ -270,7 +270,7 @@ func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
 		return
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 	for _, a := range articles {
 		var pics []string
 		var tags []string
@@ -332,7 +332,7 @@ func GetArticleByClassController(c *gin.Context) {
 		return
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 	for _, a := range articles {
 		var pics []string
 		var tags []string
