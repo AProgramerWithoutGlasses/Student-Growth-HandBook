@@ -26,7 +26,7 @@ func routesHomepage(r *gin.Engine) {
 	rh.POST("/tracks_get", homepage.GetTracksControl)
 	rh.POST("/star_get", homepage.GetStarControl)
 	rh.POST("/class_get", homepage.GetClassControl)
-	// 获取积分统计
+	rh.POST("/points_get", homepage.GetTopicPointsControl)
 	rh.POST("/article_get", homepage.GetArticleControl)
 	rh.POST("/ban", homepage.BanUserControl)
 	rh.POST("/unban", homepage.UnbanUserControl)

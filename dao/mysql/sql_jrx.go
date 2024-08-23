@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 	_ "gorm.io/gorm/clause"
+	"strings"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"time"
@@ -37,7 +38,7 @@ func GetNameById(id int) (string, error) {
 // 获取不同的班级
 func GetDiffClass() ([]string, error) {
 	var diffClassSlice []string
-	err := DB.Table("users").Select("class").Distinct("class").Where("LENGTH(class) < 10").Order("class ASC").Scan(&diffClassSlice).Error
+	err := DB.Table("users").Select("class").Distinct("class").Where("LENGTH(class) = 9").Order("class ASC").Scan(&diffClassSlice).Error
 	return diffClassSlice, err
 }
 
@@ -291,7 +292,7 @@ func UpdateHomepageEmailDao(id int, eamil string) error {
 
 // 修改个人主页头像
 func UpdateHeadshotDao(id int, url string) error {
-	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("head_shot", url).Error
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("user_headshot", url).Error
 	return err
 }
 
@@ -414,12 +415,12 @@ func GetClassmateList(class string) ([]jrx_model.HomepageClassmateStruct, error)
 func GetArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
 	// 获取该用户发布的文章的id
 	var articles []jrx_model.HomepageArticleHistoryStruct
-	err := DB.Model(&gorm_model.Article{}).
+	err := DB.Table("articles").
 		Select("articles.id, articles.content, articles.comment_amount, articles.like_amount, articles.collect_amount, articles.status, articles.topic, articles.created_at").
 		Where("articles.user_id = ?", id).
 		Offset((page - 1) * limit).
 		Limit(limit).
-		Find(&articles).Error
+		Scan(&articles).Error
 	if err != nil {
 		return nil, err
 	}
@@ -534,33 +535,33 @@ func GetIsConcernDao(id int, otherId int) (bool, error) {
 }
 
 func GetTracksDao(id int, page int, limit int) ([]jrx_model.HomepageTrack, error) {
-	likedArticleIds, err := GetLikedArticleIds(id)
-
-	//commentedArticleIds, err := GetCommentedArticleIds(id)
-
 	var tracks []jrx_model.HomepageTrack
-	err = DB.Raw(`
-		SELECT a.id, a.content, u.name, a.like_amount, a.comment_amount, 'articles' AS IType, a.created_at, "" AS c.content FROM articles a
-		JOIN users u ON a.user_id = u.id
-		WHERE a.id in ?
+	err := DB.Raw(`
+		SELECT ID, CONTENT, NAME, like_amount, comment_amount, 'articles' AS I_TYPE, CreatedAt FROM articles where user_id = id
 		UNION ALL
-		Select c.created_at, c.content, c.article_id, a.content, a.like_amount, a.comment_amount, 'comments' AS IType, u.name FROM comments c
-		JOIN articles a ON c.article_id = a.id
-		JOIN users u ON a.user_id = u.id
-		Where c.user_id = ?
-	`, likedArticleIds, id).Order("CreatedAt DESC").Offset((page - 1) * limit).Limit(limit).Scan(&tracks).Error
+		SELECT a.ID, a.CONTENT, a.NAME, a.like_amount, a.comment_amount, c.comment_content, 'comments' AS I_TYPE, c.CreatedAt FROM articles a where user_id = id
+		LEFT JOIN comments c ON a.id = c.article_id
+	`).Order("CreatedAt DESC").Scan(&tracks).Error
 
 	return tracks, err
 }
 
-func GetLikedArticleIds(id int) ([]int, error) {
-	var likedArticleIds []int
-	err := DB.Model(&gorm_model.UserLikeRecord{}).Where("user_id = ?", id).Pluck("article_id", &likedArticleIds).Error
-	return likedArticleIds, err
-}
+func GetTotalPointsByUserAndTopic(id int, name string) (int, error) {
+	var totalPoints int
+	// 在topic表中根据name查到主键t_id，再去point表中满足id=user_id，t_id=topic_id条件的所有point字段值的总和
+	err := DB.Model(&gorm_model.UserPoint{}).
+		Select("SUM(user_points.point)").
+		Joins("JOIN topics ON user_points.topic_id = topics.id").
+		Where("topics.topic_name = ? AND user_points.user_id = ?", name, id).
+		Row().Scan(&totalPoints)
+	if err != nil {
+		if strings.Contains(err.Error(), "converting NULL to int is unsupported") {
+			fmt.Println("数据库中该记录的point字段为NULL，为避免error，手动返回0")
+			return 0, nil
+		} else {
+			return 0, err
+		}
+	}
 
-func GetCommentedArticleIds(id int) ([]int, error) {
-	var commentedArticleIds []int
-	err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", id).Pluck("article_id", &commentedArticleIds).Error
-	return commentedArticleIds, err
+	return totalPoints, nil
 }

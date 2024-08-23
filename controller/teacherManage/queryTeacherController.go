@@ -19,10 +19,10 @@ func QueryTeacherControl(c *gin.Context) {
 	var queryParama jrx_model.QueryTeacherParamStruct
 	err := c.BindJSON(&queryParama)
 	if err != nil {
+		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("teacherManage.QueryTeacher() c.Bind() err : ", zap.Error(err))
 		response.ResponseError(c, response.ServerErrorCode)
 	}
-
 	fmt.Printf("queryParama: %+v\n", queryParama)
 
 	// 业务
