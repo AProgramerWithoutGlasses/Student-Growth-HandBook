@@ -187,9 +187,9 @@ func GetAllUserCount(identity string) (int64, error) {
 }
 
 // GetStuMesList 根据搜索框内容查询学生信息列表
-func GetTeacherList(querySql string) ([]jrx_model.QueryTeacherResStruct, error) {
+func GetTeacherList(querySql string) ([]jrx_model.QueryTeacherStruct, error) {
 	// 从mysql中获取数据到user表中
-	var userSlice []jrx_model.QueryTeacherResStruct
+	var userSlice []jrx_model.QueryTeacherStruct
 
 	err := DB.Raw(querySql).Find(&userSlice).Error
 	if err != nil {

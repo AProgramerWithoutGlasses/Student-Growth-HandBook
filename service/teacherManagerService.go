@@ -23,19 +23,37 @@ func QueryTeacher(queryTeacherParama jrx_model.QueryTeacherParamStruct) ([]jrx_m
 	// 总数量类型转换
 	allTeacherCount := int(allTeacherCount64)
 
-	// 获取老师列表
+	// 获取查询老师sql语句
 	queryTeacherSql := GetQueryTeacherSql(queryTeacherParama)
 	fmt.Println("sql:", queryTeacherSql)
 
 	teacherList, err := mysql.GetTeacherList(queryTeacherSql)
-	for k, v := range teacherList {
-		fmt.Println(k, v.Name, v.Username, v.Gender, v.Password, *v.Ban, *v.IsManager)
-	}
 	if err != nil {
-		return nil, allTeacherCount, err
+		return nil, 0, err
 	}
 
-	return teacherList, allTeacherCount, err
+	teacherResList := make([]jrx_model.QueryTeacherResStruct, len(teacherList))
+
+	for i := 0; i < len(teacherList); i++ {
+		teacherResList[i].Name = teacherList[i].Name
+		teacherResList[i].Username = teacherList[i].Username
+		teacherResList[i].Password = teacherList[i].Password
+		teacherResList[i].Gender = teacherList[i].Gender
+		teacherResList[i].Ban = teacherList[i].Ban
+
+		// 获取管理员等级信息
+		if *teacherList[i].IsManager {
+			managerType, err := GetManagerType(teacherList[i].Username)
+			if err != nil {
+				return nil, 0, err
+			}
+			teacherResList[i].ManagerType = managerType
+		} else {
+			teacherResList[i].ManagerType = "无"
+		}
+	}
+
+	return teacherResList, allTeacherCount, err
 }
 
 // 获得查询老师的sql语句
@@ -65,15 +83,14 @@ func GetQueryTeacherSql(queryTeacherParama jrx_model.QueryTeacherParamStruct) st
 
 }
 
-func GetManagerTypeService(username string) (string, error) {
+func GetManagerType(username string) (string, error) {
 	CId, err := mysql.GetManagerCId(username)
 	if err != nil {
-		// 为了防止record not found使得程序中止
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// 如果casbin表中不存在users表中 isManager=true 的数据
+			fmt.Println("recored not founf recoery")
 			return "无", nil
 		} else {
-			return "无", err
+			return "", err
 		}
 	}
 
@@ -253,7 +270,7 @@ func EditTeacherService(newTeacher jrx_model.ChangeTeacherMesStruct) error {
 }
 
 // 获取导出老师信息的 excel表格
-func GetSelectedTeacherExcel(selectedTeacher []jrx_model.QueryTeacherResStruct) (*bytes.Buffer, error) {
+func GetSelectedTeacherExcel(selectedTeacher []jrx_model.QueryTeacherStruct) (*bytes.Buffer, error) {
 	// 提取处学号数组
 	usernameSlice := make([]string, len(selectedTeacher))
 	for i, v := range selectedTeacher {
