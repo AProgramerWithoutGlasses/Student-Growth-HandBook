@@ -91,7 +91,7 @@ func GetTagsByTopicController(c *gin.Context) {
 	result, err := article.GetTagsByTopicService(in.TopicID)
 	if err != nil {
 		zap.L().Error("GetTagsByTopicController() controller.article.getArticle.GetTagsByTopicService err=", zap.Error(err))
-		if errors.Is(err, myErr.NotFoundError()) {
+		if errors.Is(err, myErr.ErrNotFoundError) {
 			myErr.CheckErrors(err, c)
 			return
 		}

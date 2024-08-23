@@ -29,7 +29,7 @@ func QueryReadListByUserId(uid int) (readRecords []gorm_model.UserReadRecord, er
 	}
 
 	if len(readRecords) == 0 {
-		return nil, myErr.NotFoundError()
+		return nil, myErr.ErrNotFoundError
 	}
 	return readRecords, nil
 }

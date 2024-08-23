@@ -18,13 +18,7 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("Code: %d, Message: %s", e.Code, e.Msg)
 }
 
-// NotFoundError 错误--找不到相应数据
-func NotFoundError() *Error {
-	return &Error{
-		Code: res.ServerErrorCode,
-		Msg:  "record not found",
-	}
-}
+var ErrNotFoundError = errors.New("record not found")
 
 // HasExistError 错误--数据内容重复冲突
 func HasExistError() *Error {
@@ -71,12 +65,6 @@ func CheckErrors(err error, c *gin.Context) {
 		return
 	}
 
-	if errors.Is(err, NotFoundError()) {
-		// 找不到对应数据s
-		res.ResponseSuccessWithMsg(c, NotFoundError().Msg, []struct{}{})
-		return
-	}
-
 	if errors.Is(err, RejectRepeatSubmission()) {
 		// 拒绝重复提交
 		res.ResponseErrorWithMsg(c, res.ServerErrorCode, RejectRepeatSubmission().Msg)
@@ -89,8 +77,15 @@ func CheckErrors(err error, c *gin.Context) {
 		return
 	}
 
+	if errors.Is(err, ErrNotFoundError) {
+		// 错误捕获-分页查询时找不到数据
+		res.ResponseSuccessWithMsg(c, ErrNotFoundError.Error(), []struct{}{})
+		return
+	}
+
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		res.ResponseSuccessWithMsg(c, NotFoundError().Msg, []struct{}{})
+		// 错误捕获-gorm数据库找不到数据错误
+		res.ResponseSuccessWithMsg(c, ErrNotFoundError.Error(), struct{}{})
 		return
 	}
 	// 其他错误
