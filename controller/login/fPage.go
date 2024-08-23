@@ -84,7 +84,7 @@ func FPageClass(c *gin.Context) {
 	}
 
 	//班级帖子总赞数
-	upvote_amount := service.LikeAmount(uidslice)
+	upvote_amount, err := service.LikeAmount(uidslice)
 
 	//班级帖子总阅读数
 	article_read_total := service.ReadAmount(uidslice)
@@ -209,7 +209,7 @@ func FPageGrade(c *gin.Context) {
 	}
 
 	//总赞数
-	upvote_amount := service.LikeAmount(uidSlice)
+	upvote_amount, err := service.LikeAmount(uidSlice)
 
 	//总阅读数
 	article_read_total := service.ReadAmount(uidSlice)
@@ -310,7 +310,7 @@ func FPageCollege(c *gin.Context) {
 	}
 
 	//总赞数
-	upvote_amount := service.LikeAmount(uidslice)
+	upvote_amount, err := service.LikeAmount(uidslice)
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
