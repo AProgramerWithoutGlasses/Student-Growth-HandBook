@@ -525,7 +525,7 @@ func QueryArticlePoint(aid int) (int, error) {
 
 // UpdateArticlePoint 修改文章分数
 func UpdateArticlePoint(aid int, point int) error {
-	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("point = ?", point).Error; err != nil {
+	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("point", point).Error; err != nil {
 		zap.L().Error("UpdateArticlePoint() dao.mysql.sql_article", zap.Error(err))
 		return err
 	}
