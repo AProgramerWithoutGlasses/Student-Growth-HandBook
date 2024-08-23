@@ -201,7 +201,7 @@ func GetTeacherList(querySql string) ([]jrx_model.QueryTeacherResStruct, error) 
 
 func GetManagerCId(username string) (string, error) {
 	var casbinUser gorm_model.UserCasbinRules
-	err := DB.Where("c_username = ?", username).First(&casbinUser).Error
+	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).First(&casbinUser).Error
 	return casbinUser.CasbinCid, err
 }
 

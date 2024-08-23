@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
+	"gorm.io/gorm"
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
@@ -67,7 +68,11 @@ func GetQueryTeacherSql(queryTeacherParama jrx_model.QueryTeacherParamStruct) st
 func GetManagerType(username string) (string, error) {
 	CId, err := mysql.GetManagerCId(username)
 	if err != nil {
-		return "", err
+		if err == gorm.ErrRecordNotFound {
+			fmt.Println("recored not founf recoery")
+		} else {
+			return "", err
+		}
 	}
 
 	var managerType string

@@ -279,6 +279,7 @@ func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 		stuMesSlice[i].Telephone = userSlice[i].PhoneNumber
 		stuMesSlice[i].Ban = userSlice[i].Ban
 
+		// 获取管理员等级信息
 		if userSlice[i].IsManager {
 			managerType, err := GetManagerType(userSlice[i].Username)
 			if err != nil {
