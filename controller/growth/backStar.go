@@ -198,15 +198,6 @@ func ElectClass(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
 		return
 	}
-	//判断是否超出权限范围
-	length := len(Responsedata.ElectedArr)
-	if Star := length + Number; Star > 3 {
-		response.ResponseErrorWithMsg(c, 200, "超出名额限制请重新推选")
-		return
-	}
-	if Star := length + Number; Star == 3 {
-		response.ResponseSuccess(c, "No seats left")
-	}
 	for _, student := range Responsedata.ElectedArr {
 		username := student.Username
 		name := student.Name
@@ -214,6 +205,12 @@ func ElectClass(c *gin.Context) {
 		number, err := mysql.Selstarexit(username)
 		if err != nil || number != 0 {
 			response.ResponseErrorWithMsg(c, 400, "数据已存在")
+			return
+		}
+		//判断是否超出权限范围
+		length := len(Responsedata.ElectedArr)
+		if Star := length + Number; Star > 3 {
+			response.ResponseSuccess(c, "No seats left")
 			return
 		}
 		//添加数据
@@ -259,12 +256,9 @@ func ElectGrade(c *gin.Context) {
 
 	//查询这次需要推选的人
 	length := len(Responsedata.ElectedArr)
-	if Star := length + number; Star > 5 {
-		response.ResponseErrorWithMsg(c, 200, "超出名额限制请重新推选")
-		return
-	}
-	if Star := length + number; Star == 5 {
+	if star := number + length; star > 5 {
 		response.ResponseSuccess(c, "No seats left")
+		return
 	}
 
 	//开始添加
