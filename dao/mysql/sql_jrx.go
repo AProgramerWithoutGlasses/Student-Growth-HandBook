@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 	_ "gorm.io/gorm/clause"
+	"strings"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"time"
@@ -37,7 +38,7 @@ func GetNameById(id int) (string, error) {
 // 获取不同的班级
 func GetDiffClass() ([]string, error) {
 	var diffClassSlice []string
-	err := DB.Table("users").Select("class").Distinct("class").Where("LENGTH(class) < 10").Order("class ASC").Scan(&diffClassSlice).Error
+	err := DB.Table("users").Select("class").Distinct("class").Where("LENGTH(class) = 9").Order("class ASC").Scan(&diffClassSlice).Error
 	return diffClassSlice, err
 }
 
@@ -543,4 +544,24 @@ func GetTracksDao(id int, page int, limit int) ([]jrx_model.HomepageTrack, error
 	`).Order("CreatedAt DESC").Scan(&tracks).Error
 
 	return tracks, err
+}
+
+func GetTotalPointsByUserAndTopic(id int, name string) (int, error) {
+	var totalPoints int
+	// 在topic表中根据name查到主键t_id，再去point表中满足id=user_id，t_id=topic_id条件的所有point字段值的总和
+	err := DB.Model(&gorm_model.UserPoint{}).
+		Select("SUM(user_points.point)").
+		Joins("JOIN topics ON user_points.topic_id = topics.id").
+		Where("topics.topic_name = ? AND user_points.user_id = ?", name, id).
+		Row().Scan(&totalPoints)
+	if err != nil {
+		if strings.Contains(err.Error(), "converting NULL to int is unsupported") {
+			fmt.Println("数据库中该记录的point字段为NULL，为避免error，手动返回0")
+			return 0, nil
+		} else {
+			return 0, err
+		}
+	}
+
+	return totalPoints, nil
 }

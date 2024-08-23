@@ -75,3 +75,13 @@ type HomepageTrack struct {
 	CommentAmount   int    `json:"comment_amount"`
 	Comment_content string `json:"comment_content"`
 }
+
+type HomepageTopicPoint struct {
+	StudyPoint     int `json:"study_point"`
+	HonorPoint     int `json:"honor_point"`
+	WorkPoint      int `json:"work_point"`
+	SocialPoint    int `json:"social_point"`
+	VolunteerPoint int `json:"volunteer_point"`
+	SportPoint     int `json:"sport_point"`
+	LifePoint      int `json:"life_point"`
+}
