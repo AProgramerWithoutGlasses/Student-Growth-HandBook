@@ -538,7 +538,7 @@ func GetTagsByTopicService(topicId int) ([]map[string]any, error) {
 		return nil, err
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 	for i, v := range tags {
 		list = append(list, map[string]any{
 			"id":   i,

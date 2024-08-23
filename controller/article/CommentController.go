@@ -92,7 +92,7 @@ func GetLel1CommentsController(c *gin.Context) {
 		return
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 	for _, comt := range comments {
 		num, err := mysql.QuerySonCommentNum(int(comt.ID))
 		if err != nil {
@@ -144,7 +144,7 @@ func GetSonCommentsController(c *gin.Context) {
 		return
 	}
 
-	var list []map[string]any
+	list := make([]map[string]any, 0)
 	for _, comt := range comments {
 		list = append(list, map[string]any{
 			"user_headshot":    comt.User.HeadShot,

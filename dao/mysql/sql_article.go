@@ -112,11 +112,6 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString,
 		return nil, err
 	}
 
-	// 检查是否存在用户列表记录
-	if len(articles) <= 0 {
-		return nil, myErr.ErrNotFoundError
-	}
-
 	return articles, nil
 }
 
@@ -130,10 +125,6 @@ func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page
 		Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPageFirstPage() dao.mysql.sql_nzx err=", zap.Error(err))
 		return nil, err
-	}
-
-	if len(articles) == 0 {
-		return nil, myErr.ErrNotFoundError
 	}
 
 	return articles, nil
@@ -363,11 +354,6 @@ func SearchHotArticlesOfDay(startOfDay time.Time, endOfDay time.Time) (model.Art
 		zap.L().Error("SearchHotArticlesOfDay() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
 	}
-
-	if len(articles) <= 0 {
-		zap.L().Error("SearchHotArticlesOfDay() dao.mysql.sql_nzx.Find err=", zap.Error(myErr.ErrNotFoundError))
-		return nil, myErr.ErrNotFoundError
-	}
 	return articles, nil
 }
 
@@ -492,10 +478,6 @@ func QueryArticleByClass(limit, page int, class, keyWord string) (model.Articles
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 		return nil, err
-	}
-
-	if len(articles) == 0 {
-		return nil, myErr.ErrNotFoundError
 	}
 
 	return articles, nil
