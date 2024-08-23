@@ -188,7 +188,7 @@ func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMs
 
 	for _, comment := range comments {
 		// 判断其为文章评论还是评论回复
-		content := comment.Article.Content
+		content := comment.Content
 		commentType := 0
 		if comment.Pid != 0 {
 			content = comment.Content
