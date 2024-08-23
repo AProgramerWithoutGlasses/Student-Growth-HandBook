@@ -198,12 +198,6 @@ func ElectClass(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
 		return
 	}
-	//判断是否超出权限范围
-	length := len(Responsedata.ElectedArr)
-	if Star := length + Number; Star > 3 {
-		response.ResponseSuccess(c, "No seats left")
-		return
-	}
 	for _, student := range Responsedata.ElectedArr {
 		username := student.Username
 		name := student.Name
@@ -211,6 +205,12 @@ func ElectClass(c *gin.Context) {
 		number, err := mysql.Selstarexit(username)
 		if err != nil || number != 0 {
 			response.ResponseErrorWithMsg(c, 400, "数据已存在")
+			return
+		}
+		//判断是否超出权限范围
+		length := len(Responsedata.ElectedArr)
+		if Star := length + Number; Star > 3 {
+			response.ResponseSuccess(c, "No seats left")
 			return
 		}
 		//添加数据
