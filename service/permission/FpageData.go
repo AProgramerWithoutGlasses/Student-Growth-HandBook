@@ -98,7 +98,7 @@ func VictorRate(todayVictor int64) (float64, error) {
 		return 0, nil
 	}
 	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(todayVictor-yesdayVictor)/float64(todayVictor)), 64)
-	return rate, err
+	return rate * 100, err
 }
 
 // LikeAmount 获取帖子总赞数
