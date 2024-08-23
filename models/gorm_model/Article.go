@@ -18,6 +18,7 @@ type Article struct {
 	CollectAmount int                 `gorm:"default:0"json:"collect_amount"`
 	CommentAmount int                 `gorm:"default:0"json:"comment_amount"`
 	ReportAmount  int                 `gorm:"default:0"json:"report_amount"`
+	Point         int                 `gorm:"default:3"json:"point"`
 	Ban           bool                `gorm:"default:false"json:"-"`
 	UserID        uint                `gorm:"not null"` //文章属于用户
 	User          User                `json:"user"`     //文章属于用户

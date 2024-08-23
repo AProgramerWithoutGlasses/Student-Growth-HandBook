@@ -160,6 +160,7 @@ func GetCollectMsgService(username string, page, limit int) ([]map[string]any, i
 			"user_headshot":   collect.Article.User.HeadShot,
 			"post_time":       timeConverter.IntervalConversion(collect.CreatedAt),
 			"is_read":         collect.IsRead,
+			"article_id":      collect.ArticleID,
 			"msg_id":          collect.ID,
 		})
 	}

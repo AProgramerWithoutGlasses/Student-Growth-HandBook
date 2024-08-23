@@ -513,6 +513,25 @@ func UpdateArticleStatusById(aid int, status bool, db *gorm.DB) error {
 	return nil
 }
 
+// QueryArticlePoint 查询文章分数
+func QueryArticlePoint(aid int) (int, error) {
+	var point int
+	if err := DB.Model(&model.Article{}).Select("point").Where("id = ?", aid).First(&point).Error; err != nil {
+		zap.L().Error("QueryArticlePoint() dao.mysql.sql_article", zap.Error(err))
+		return -1, err
+	}
+	return point, nil
+}
+
+// UpdateArticlePoint 修改文章分数
+func UpdateArticlePoint(aid int, point int) error {
+	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("point = ?", point).Error; err != nil {
+		zap.L().Error("UpdateArticlePoint() dao.mysql.sql_article", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
 // QueryUserByArticleId 通过文章获取用户User
 func QueryUserByArticleId(aid int) (*model.User, error) {
 	var article model.Article
