@@ -295,7 +295,7 @@ func ElectCollege(c *gin.Context) {
 		username := user.Username
 		//查询数据是否已经存在
 		//防止有重复数据
-		number, err := mysql.Selstarexit(username, 2)
+		number, err := mysql.Selstarexit(username, 3)
 		if err != nil || number != 0 {
 			response.ResponseErrorWithMsg(c, 400, "数据已存在")
 			return
