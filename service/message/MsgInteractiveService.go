@@ -196,10 +196,10 @@ func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMs
 		}
 
 		commentMsgs = append(commentMsgs, nzx_model.CommentMsg{
-			Username:     comment.Article.User.Username,
-			Name:         comment.Article.User.Name,
+			Username:     comment.User.Username,
+			Name:         comment.User.Name,
 			Content:      content,
-			UserHeadshot: comment.Article.User.HeadShot,
+			UserHeadshot: comment.User.HeadShot,
 			PostTime:     timeConverter.IntervalConversion(comment.CreatedAt),
 			IsRead:       comment.IsRead,
 			Type:         commentType,

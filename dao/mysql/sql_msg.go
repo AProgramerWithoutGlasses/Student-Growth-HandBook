@@ -280,7 +280,7 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 	var comments gorm_model.Comments
 	var commentIDs []int
 
-	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", uid).Pluck("pid", &commentIDs).Error; err != nil {
+	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", uid).Pluck("id", &commentIDs).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return nil, err
 	}
@@ -291,7 +291,7 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 	}
 
 	if err := DB.Joins("JOIN articles ON articles.id = comments.article_id").
-		Preload("Article.User").
+		Preload("User").
 		Where("comments.pid IN ?", commentIDs).
 		Or("articles.user_id = ? AND articles.ban = ?", uid, false).
 		Limit(limit).Offset((page - 1) * limit).Order("comments.created_at DESC").
