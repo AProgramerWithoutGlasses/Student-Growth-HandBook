@@ -333,7 +333,7 @@ func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, S
 	// 查询符合模糊搜索的文章集合
 	var articles model.Articles
 	var err error
-	if topic == "全部" {
+	if topic == "全部话题" {
 		articles, err = mysql.QueryArticleAndUserListByPageFirstPage(keyWords, limit, page)
 		if err != nil {
 			zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryArticleAndUserListByPageFirstPage err=", zap.Error(err))
@@ -385,7 +385,7 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 
 	//  将图片上传至oss
 	var picPath []string
-	if len(pics) > 0 {
+	if len(pics) > 0 && len(pics) < 10 {
 		for _, pic := range pics {
 			url, err := fileProcess.UploadFile("image", pic)
 			fmt.Println(url)
@@ -437,17 +437,18 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 			return err
 		}
 
-		// 增加分数
-		err = UpdatePointService(uid, point, topicId, tx)
-		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.UpdatePointService err=", zap.Error(err))
-			return err
+		if status {
+			// 添加分数记录
+			err = UpdatePointService(uid, point, topicId, tx)
+			if err != nil {
+				zap.L().Error("PublishArticleService() service.article.UpdatePointService err=", zap.Error(err))
+				return err
+			}
 		}
 
 		// 将文章更新到redis点赞、收藏
 		redis.RDB.HSet("article", strconv.Itoa(aid), 0)
 		redis.RDB.HSet("collect", strconv.Itoa(aid), 0)
-		fmt.Println("article", strconv.Itoa(aid))
 		return nil
 	})
 	if err != nil {
@@ -455,11 +456,13 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 		return err
 	}
 
-	// 增加文章分数
-	err = mysql.UpdateArticlePoint(aid, point)
-	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(err))
-		return err
+	if status {
+		// 增加改文章的分数
+		err = mysql.UpdateArticlePoint(aid, point)
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(err))
+			return err
+		}
 	}
 
 	return nil

@@ -96,17 +96,14 @@ func GetArticleAndCommentLikedMsgService(username string, page, limit int) ([]nz
 
 	for _, like := range likes {
 		// 判断文章点赞还是评论点赞
-		usernameL := like.Article.User.Username
-		name := like.Article.User.Name
+		usernameL := like.User.Username
+		name := like.User.Name
 		content := like.Article.Content
-		userHeadshot := like.Article.User.HeadShot
+		userHeadshot := like.User.HeadShot
 		likeType := 0
 		articleId := like.ArticleID
 		if like.Type == 1 {
-			usernameL = like.Comment.User.Username
-			name = like.Comment.User.Name
 			content = like.Comment.Content
-			userHeadshot = like.Comment.User.HeadShot
 			likeType = 1
 			articleId = like.Comment.ArticleID
 		}
@@ -154,10 +151,10 @@ func GetCollectMsgService(username string, page, limit int) ([]map[string]any, i
 
 	for _, collect := range articleCollects {
 		list = append(list, map[string]any{
-			"username":        collect.Article.User.Username,
-			"name":            collect.Article.User.Name,
+			"username":        collect.User.Username,
+			"name":            collect.User.Name,
 			"article_content": collect.Article.Content,
-			"user_headshot":   collect.Article.User.HeadShot,
+			"user_headshot":   collect.User.HeadShot,
 			"post_time":       timeConverter.IntervalConversion(collect.CreatedAt),
 			"is_read":         collect.IsRead,
 			"article_id":      collect.ArticleID,
