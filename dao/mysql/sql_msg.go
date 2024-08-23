@@ -264,10 +264,10 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 		return nil, err
 	}
 
-	if err := DB.Joins("JOIN articles ON articles.id = comments.article_id").
+	if err := DB.Model(&gorm_model.Comment{}).Joins("JOIN articles ON articles.id = comments.article_id").
 		Preload("User").
 		Where("comments.pid IN ?", commentIDs).
-		Or("articles.user_id = ? AND articles.ban = ?", uid, false).
+		Or("articles.user_id = ? AND articles.ban = ? AND articles.deleted_at IS NULL", uid, false).
 		Limit(limit).Offset((page - 1) * limit).Order("comments.created_at DESC").
 		Find(&comments).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(err))
@@ -288,14 +288,10 @@ func QueryCommentRecordNumByUserId(uid int) (int, error) {
 		return -1, err
 	}
 
-	if len(commentIDs) <= 0 {
-		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.ErrNotFoundError))
-		return -1, myErr.ErrNotFoundError
-	}
 	if err := DB.Model(&gorm_model.Comment{}).Joins("JOIN articles ON articles.id = comments.article_id").
 		Preload("Article.User").
 		Where("comments.pid IN ? AND is_read = ?", commentIDs, false).
-		Or("articles.user_id = ? AND articles.ban = ? AND is_read = ?", uid, false, false).
+		Or("articles.user_id = ? AND articles.ban = ? AND comments.is_read = ? AND articles.deleted_at IS NULL", uid, false, false).
 		Count(&count).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(err))
 		return -1, err
