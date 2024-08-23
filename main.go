@@ -14,6 +14,7 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
+	"studentGrow/models/gorm_model"
 	"studentGrow/routes"
 	"studentGrow/service/article"
 	"studentGrow/settings"
@@ -42,9 +43,9 @@ func main() {
 		return
 	}
 
-	//if err := mysql.DB.AutoMigrate(&gorm_model.Article{}); err != nil {
-	//	return
-	//}
+	if err := mysql.DB.AutoMigrate(&gorm_model.Article{}); err != nil {
+		return
+	}
 
 	// 4. 初始化redis
 	if err := redis.Init(); err != nil {

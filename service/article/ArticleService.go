@@ -129,7 +129,7 @@ func GetArticleListService(page, limit int, sortType, order, startAtString, endA
 // BannedArticleService 解封或封禁文章
 func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 	// 获取文章id和封禁状态
-	id, err := j.GetInt("article_id")
+	aid, err := j.GetInt("article_id")
 	if err != nil {
 		zap.L().Error("AddTopicsService() service.article.GetInt err=", zap.Error(err))
 		return err
@@ -139,25 +139,25 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		switch role {
 		case "class":
-			err = mysql.BannedArticleByIdForClass(id, isBan, username, tx)
+			err = mysql.BannedArticleByIdForClass(aid, isBan, username, tx)
 		case "grade1":
-			err = mysql.BannedArticleByIdForGrade(id, 1, tx)
+			err = mysql.BannedArticleByIdForGrade(aid, 1, tx)
 		case "grade2":
-			err = mysql.BannedArticleByIdForGrade(id, 2, tx)
+			err = mysql.BannedArticleByIdForGrade(aid, 2, tx)
 		case "grade3":
-			err = mysql.BannedArticleByIdForGrade(id, 3, tx)
+			err = mysql.BannedArticleByIdForGrade(aid, 3, tx)
 		case "grade4":
-			err = mysql.BannedArticleByIdForGrade(id, 4, tx)
+			err = mysql.BannedArticleByIdForGrade(aid, 4, tx)
 		case "college":
-			err = mysql.BannedArticleByIdForSuperman(id, tx)
+			err = mysql.BannedArticleByIdForSuperman(aid, tx)
 		case "superman":
-			err = mysql.BannedArticleByIdForSuperman(id, tx)
+			err = mysql.BannedArticleByIdForSuperman(aid, tx)
 		default:
 			return myErr.ErrNotFoundError
 		}
 
 		if err != nil {
-			zap.L().Error("BannedArticleService() service.article.GetIdByUsername err=", zap.Error(myErr.DataFormatError()))
+			zap.L().Error("BannedArticleService() service.article.GetIdByUsername err=", zap.Error(err))
 			return err
 		}
 
@@ -165,12 +165,12 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 			若举报信箱存在该文章id，则标记该信息已读
 		*/
 
-		ok, err := mysql.QueryIsExistArticleIdByReportMsg(id)
+		ok, err := mysql.QueryIsExistArticleIdByReportMsg(aid)
 
 		if ok {
-			err = mysql.DeleteArticleReportMsg(id, tx)
+			err = mysql.DeleteArticleReportMsg(aid, tx)
 			if err != nil {
-				zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(myErr.DataFormatError()))
+				zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 				return err
 			}
 		}
@@ -178,13 +178,17 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		/*
 			回滚分数
 		*/
-		point := constant.PointConstant
-		if isBan {
-			point = -point
-		}
-		err = UpdatePointByUsernamePointAid(username, point, id, tx)
+		curPoint, err := mysql.QueryArticlePoint(aid)
 		if err != nil {
-			zap.L().Error("BannedArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
+			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
+			return err
+		}
+		if isBan {
+			curPoint = -curPoint
+		}
+		err = UpdatePointByUsernamePointAid(username, curPoint, aid, tx)
+		if err != nil {
+			zap.L().Error("BannedArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(err))
 			return err
 		}
 		return nil
@@ -199,9 +203,9 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 // DeleteArticleService 删除文章
 func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 	// 获取文章id
-	id, err := j.GetInt("article_id")
+	aid, err := j.GetInt("article_id")
 	if err != nil {
-		zap.L().Error("DeleteArticleService() service.article.GetInt err=", zap.Error(myErr.DataFormatError()))
+		zap.L().Error("DeleteArticleService() service.article.GetInt err=", zap.Error(err))
 		return err
 	}
 
@@ -209,39 +213,45 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		回滚分数
 	*/
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
-		err = UpdatePointByUsernamePointAid(username, -constant.PointConstant, id, tx)
+		curPoint, err := mysql.QueryArticlePoint(aid)
 		if err != nil {
-			zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
+			zap.L().Error("DeleteArticleService() service.article.GetInt err=", zap.Error(err))
+			return err
+		}
+
+		err = UpdatePointByUsernamePointAid(username, -curPoint, aid, tx)
+		if err != nil {
+			zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(err))
 			return err
 		}
 
 		switch role {
 		case "class":
-			err = mysql.DeleteArticleByIdForClass(id, username, tx)
+			err = mysql.DeleteArticleByIdForClass(aid, username, tx)
 		case "grade1":
-			err = mysql.DeleteArticleByIdForGrade(id, 1, tx)
+			err = mysql.DeleteArticleByIdForGrade(aid, 1, tx)
 		case "grade2":
-			err = mysql.DeleteArticleByIdForGrade(id, 2, tx)
+			err = mysql.DeleteArticleByIdForGrade(aid, 2, tx)
 		case "grade3":
-			err = mysql.DeleteArticleByIdForGrade(id, 3, tx)
+			err = mysql.DeleteArticleByIdForGrade(aid, 3, tx)
 		case "grade4":
-			err = mysql.DeleteArticleByIdForGrade(id, 4, tx)
+			err = mysql.DeleteArticleByIdForGrade(aid, 4, tx)
 		case "college":
-			err = mysql.DeleteArticleByIdForSuperman(id, tx)
+			err = mysql.DeleteArticleByIdForSuperman(aid, tx)
 		case "superman":
-			err = mysql.DeleteArticleByIdForSuperman(id, tx)
+			err = mysql.DeleteArticleByIdForSuperman(aid, tx)
 		default:
 			return myErr.ErrNotFoundError
 		}
 
 		if err != nil {
-			zap.L().Error("DeleteArticleService() service.article.DeleteArticleByIdForClass err=", zap.Error(myErr.DataFormatError()))
+			zap.L().Error("DeleteArticleService() service.article.DeleteArticleByIdForClass err=", zap.Error(err))
 			return err
 		}
 		return nil
 	})
 	if err != nil {
-		zap.L().Error("DeleteArticleService() service.article.Transaction err=", zap.Error(myErr.DataFormatError()))
+		zap.L().Error("DeleteArticleService() service.article.Transaction err=", zap.Error(err))
 		return err
 	}
 	return nil
@@ -357,7 +367,7 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 			url, err := fileProcess.UploadFile("image", pic)
 			fmt.Println(url)
 			if err != nil {
-				zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(myErr.DataFormatError()))
+				zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(err))
 				return err
 			}
 			picPath = append(picPath, url)
@@ -375,35 +385,45 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	if len(video) > 0 {
 		url, err := fileProcess.UploadFile("video", video[0])
 		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(myErr.DataFormatError()))
+			zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(err))
 			return err
 		}
 		videoPath = url
 	}
 	uid, err := mysql.GetIdByUsername(username)
 	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.GetIdByUsername err=", zap.Error(myErr.DataFormatError()))
+		zap.L().Error("PublishArticleService() service.article.GetIdByUsername err=", zap.Error(err))
 		return err
 	}
+
+	// 计算文章分数
+	point := len(pics)*constant.ImagePointConstant + len(video)*constant.VideoPointConstant + constant.TextPointConstant
 
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		// 插入新文章
 		aid, err := mysql.InsertArticleContent(content, topic, uid, wordCount, tags, picPath, videoPath, status, tx)
 		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.InsertArticleContent err=", zap.Error(myErr.DataFormatError()))
+			zap.L().Error("PublishArticleService() service.article.InsertArticleContent err=", zap.Error(err))
 			return err
 		}
 
 		topicId, err := mysql.QueryTopicIdByTopicName(topic)
 		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(myErr.DataFormatError()))
+			zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(err))
+			return err
+		}
+
+		// 增加文章分数
+		err = mysql.UpdateArticlePoint(aid, point)
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(err))
 			return err
 		}
 
 		// 增加分数
-		err = UpdatePointService(uid, constant.PointConstant, topicId, tx)
+		err = UpdatePointService(uid, point, topicId, tx)
 		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.UpdatePointService err=", zap.Error(myErr.DataFormatError()))
+			zap.L().Error("PublishArticleService() service.article.UpdatePointService err=", zap.Error(err))
 			return err
 		}
 
@@ -482,9 +502,13 @@ func ReviseArticleStatusService(aid int, status bool) error {
 			回滚积分
 		*/
 
-		point := constant.PointConstant
+		curPoint, err := mysql.QueryArticlePoint(aid)
+		if err != nil {
+			zap.L().Error("ReviseArticleStatus() service.article.QueryArticlePoint", zap.Error(err))
+			return err
+		}
 		if status == false {
-			point = -constant.PointConstant
+			curPoint = -curPoint
 		}
 
 		user, err := mysql.QueryUserByArticleId(aid)
@@ -492,7 +516,7 @@ func ReviseArticleStatusService(aid int, status bool) error {
 			zap.L().Error("DeleteArticleService() service.article.QueryUserByArticleId err=", zap.Error(myErr.DataFormatError()))
 			return err
 		}
-		err = UpdatePointByUsernamePointAid(user.Username, point, aid, tx)
+		err = UpdatePointByUsernamePointAid(user.Username, curPoint, aid, tx)
 		if err != nil {
 			zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
 			return err

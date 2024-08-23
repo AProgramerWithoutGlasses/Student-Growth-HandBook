@@ -1,7 +1,11 @@
 package constant
 
-// PointConstant 积分常量
-const PointConstant = 5
+// TextPointConstant 积分常量
+const TextPointConstant = 3
+
+const ImagePointConstant = 4
+
+const VideoPointConstant = 5
 
 /*
 热度权重
