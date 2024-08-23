@@ -55,3 +55,9 @@ const ManagerMsgConstant = 2
 const WordLimitMin = 10
 
 const WordLimitMax = 300
+
+/*
+超级管理员用户id
+*/
+
+const SupserManId = 182

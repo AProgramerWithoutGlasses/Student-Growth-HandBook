@@ -49,7 +49,7 @@ func QueryArticleIsExist(aid int) (bool, error) {
 func QueryArticleById(aid int, uid uint) (err error, article *model.Article) {
 	//查询用户 select * from articles where id = aid
 	if err := DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
-		Where("id = ? and ban = ? and status = ?", aid, false, true).Or("user_id = ? and ban = ? and status = ?", uid, true, false).First(&article).Error; err != nil {
+		Where("id = ? and ban = ? and status = ?", aid, false, true).Or("user_id = ? and ban = ? and status = ?", uid, false, false).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
 	} else {
@@ -126,11 +126,26 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString,
 	return articles, nil
 }
 
-// SelectArticleAndUserListByPageFirstPage 前台模糊查询文章列表
-func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page int) (result model.Articles, err error) {
+// QueryArticleAndUserListByPageFirstPageByTopic 前台模糊查询文章列表(话题)
+func QueryArticleAndUserListByPageFirstPageByTopic(keyWords, topic string, limit, page int) (result model.Articles, err error) {
 	var articles model.Articles
 	if err = DB.Preload("User").Preload("ArticleTags.Tag").Preload("ArticlePics").
 		Where("topic = ? and content like ? and ban = ? and status = ?", topic, fmt.Sprintf("%%%s%%", keyWords), false, true).
+		Order("created_at desc").
+		Limit(limit).
+		Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		zap.L().Error("SelectArticleAndUserListByPageFirstPage() dao.mysql.sql_nzx err=", zap.Error(err))
+		return nil, err
+	}
+
+	return articles, nil
+}
+
+// QueryArticleAndUserListByPageFirstPage 前台模糊查询文章列表(全部)
+func QueryArticleAndUserListByPageFirstPage(keyWords string, limit, page int) (result model.Articles, err error) {
+	var articles model.Articles
+	if err = DB.Preload("User").Preload("ArticleTags.Tag").Preload("ArticlePics").
+		Where("content like ? and ban = ? and status = ?", fmt.Sprintf("%%%s%%", keyWords), false, true).
 		Order("created_at desc").
 		Limit(limit).
 		Offset((page - 1) * limit).Find(&articles).Error; err != nil {
@@ -530,6 +545,16 @@ func UpdateArticlePoint(aid int, point int) error {
 		return err
 	}
 	return nil
+}
+
+// QueryContentByArticleId 通过文章id获取文章内容
+func QueryContentByArticleId(aid int) (string, error) {
+	var content string
+	if err := DB.Model(&model.Article{}).Select("content").Where("id = ?", aid).First(&content).Error; err != nil {
+		zap.L().Error("QueryContentByArticleId() dao.mysql.sql_article", zap.Error(err))
+		return "", err
+	}
+	return content, nil
 }
 
 // QueryUserByArticleId 通过文章获取用户User
