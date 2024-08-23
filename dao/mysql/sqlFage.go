@@ -14,8 +14,8 @@ func SelGradeId(data time.Time, year int) ([]int, []string, error) {
 	// 计算时间间隔的左端
 	CurrentYear := data.AddDate(year+1, 9, 1)
 	YearAgo := data.AddDate(year, 9, 1)
-	err := DB.Model(&gorm_model.User{}).Where("identify = ?", "学生").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Select("id").Scan(&uidslice).Error
-	err = DB.Model(&gorm_model.User{}).Where("identify = ?", "学生").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Select("username").Scan(&usernameslice).Error
+	err := DB.Model(&gorm_model.User{}).Where("identity = ?", "学生").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Select("id").Scan(&uidslice).Error
+	err = DB.Model(&gorm_model.User{}).Where("identity = ?", "学生").Where("plus_time >= ?", YearAgo).Where("plus_time <= ?", CurrentYear).Select("username").Scan(&usernameslice).Error
 	if err != nil {
 		return nil, nil, err
 	}
@@ -49,7 +49,7 @@ func SelCollegeId() ([]int, []string, error) {
 // SelArticleNum 根据id查询每个用户的帖子数
 func SelArticleNum(id int) (int64, error) {
 	var number int64
-	err := DB.Model(&gorm_model.Articles{}).Where("deleted_at IS NULL").Where("user_id = ?", id).Count(&number).Error
+	err := DB.Model(&gorm_model.Articles{}).Where("user_id = ?", id).Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
 		return 0, err

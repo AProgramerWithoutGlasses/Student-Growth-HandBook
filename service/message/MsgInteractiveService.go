@@ -188,7 +188,7 @@ func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMs
 
 	for _, comment := range comments {
 		// 判断其为文章评论还是评论回复
-		content := comment.Article.Content
+		content := comment.Content
 		commentType := 0
 		if comment.Pid != 0 {
 			content = comment.Content
@@ -196,10 +196,10 @@ func GetCommentMsgService(username string, page, limit int) (nzx_model.CommentMs
 		}
 
 		commentMsgs = append(commentMsgs, nzx_model.CommentMsg{
-			Username:     comment.Article.User.Username,
-			Name:         comment.Article.User.Name,
+			Username:     comment.User.Username,
+			Name:         comment.User.Name,
 			Content:      content,
-			UserHeadshot: comment.Article.User.HeadShot,
+			UserHeadshot: comment.User.HeadShot,
 			PostTime:     timeConverter.IntervalConversion(comment.CreatedAt),
 			IsRead:       comment.IsRead,
 			Type:         commentType,
