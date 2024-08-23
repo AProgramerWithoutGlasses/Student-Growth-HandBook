@@ -49,7 +49,7 @@ func SelIfexit(username string) (int64, error) {
 // SelHead 查找用户头像
 func SelHead(username string) (string, error) {
 	var headshot string
-	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Select("head_shot").Scan(&headshot).Error
+	err := DB.Model(&gorm_model.User{}).Where("username = ? AND head_shot IS NOT NULL", username).Select("head_shot").Scan(&headshot).Error
 	if err != nil {
 		return "", err
 	}
