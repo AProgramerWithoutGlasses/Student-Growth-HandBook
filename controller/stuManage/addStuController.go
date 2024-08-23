@@ -9,6 +9,7 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	"studentGrow/service"
 	"studentGrow/utils/readMessage"
 	token2 "studentGrow/utils/token"
 	"time"
@@ -25,13 +26,6 @@ func AddSingleStuContro(c *gin.Context) {
 		return
 	}
 
-	// role, err := token2.GetRole(token)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
-		return
-	}
-
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
@@ -39,7 +33,26 @@ func AddSingleStuContro(c *gin.Context) {
 		return
 	}
 
+	// 拿到登陆者自己的class
 	class, err := mysql.GetClassById(id)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
+	// 拿到登陆者自己的grade
+	plusTime, err := mysql.GetPlusTimeById(id)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
+	// 计算出当前是大几的学生
+	nowGrade := service.CalculateNowGrade(plusTime)
+
+	role, err := token2.GetRole(token)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
@@ -72,8 +85,21 @@ func AddSingleStuContro(c *gin.Context) {
 	if err != nil {
 		fmt.Println("class GetString() err : ", err)
 	}
-	if classValue != class {
 
+	// 去除班级名称中的 ”班“ 字
+	if len(classValue) == 12 {
+		classValue = classValue[:len(classValue)-3]
+	}
+
+	// 导入班级权限判断
+	if classValue != class {
+		if role == nowGrade || role == "college" {
+
+		} else {
+			response.ResponseErrorWithMsg(c, response.ServerErrorCode, "导入失败，您只能导入您所管班级的学生或所管年级的学生!")
+			zap.L().Error("导入失败，您只能导入您所管班级的学生或所管年级的学生!")
+			return
+		}
 	}
 
 	genderValue, err := stuMessage.GetString("gender")
@@ -90,7 +116,7 @@ func AddSingleStuContro(c *gin.Context) {
 	yearInt := yearEndInt + 2000           // 将整数转换为 "2022"
 
 	now := time.Now()
-	plusTime := time.Date(yearInt, 9, 1, 0, 0, 0, 0, now.Location())
+	plusTime = time.Date(yearInt, 9, 1, 0, 0, 0, 0, now.Location())
 
 	fmt.Println("plusTime:", plusTime)
 

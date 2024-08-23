@@ -298,3 +298,31 @@ func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 
 	return stuMesSlice, err
 }
+
+func CalculateNowGrade(birthday time.Time) (grade string) {
+	now := time.Now()
+
+	// 计算出相差的年数
+	age := now.Year() - birthday.Year()
+
+	// 如果当前月份小于出生月份,或者当前月份等于出生月份但当前日期小于出生日期,则age减1
+	if now.Month() < birthday.Month() || (now.Month() == birthday.Month() && now.Day() < birthday.Day()) {
+		age--
+	}
+
+	switch age {
+	case 0:
+		grade = "grade1"
+
+	case 1:
+		grade = "grade2"
+
+	case 2:
+		grade = "grade3"
+
+	case 3:
+		grade = "grade4"
+	}
+
+	return grade
+}

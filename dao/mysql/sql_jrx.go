@@ -406,6 +406,12 @@ func GetClassById(id int) (string, error) {
 	return users.Class, err
 }
 
+func GetPlusTimeById(id int) (time.Time, error) {
+	var users gorm_model.User
+	err := DB.Where("id = ?", id).First(&users).Error
+	return users.PlusTime, err
+}
+
 func GetClassmateList(class string) ([]jrx_model.HomepageClassmateStruct, error) {
 	var classmateList []jrx_model.HomepageClassmateStruct
 	err := DB.Table("users").Where("class = ?", class).Find(&classmateList).Error
@@ -415,7 +421,7 @@ func GetClassmateList(class string) ([]jrx_model.HomepageClassmateStruct, error)
 func GetArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
 	// 获取该用户发布的文章的id
 	var articles []jrx_model.HomepageArticleHistoryStruct
-	err := DB.Table("articles").
+	err := DB.Model(&gorm_model.Article{}).
 		Select("articles.id, articles.content, articles.comment_amount, articles.like_amount, articles.collect_amount, articles.status, articles.topic, articles.created_at").
 		Where("articles.user_id = ?", id).
 		Offset((page - 1) * limit).
