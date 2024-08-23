@@ -114,7 +114,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString,
 
 	// 检查是否存在用户列表记录
 	if len(articles) <= 0 {
-		return nil, myErr.NotFoundError()
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return articles, nil
@@ -133,7 +133,7 @@ func SelectArticleAndUserListByPageFirstPage(keyWords, topic string, limit, page
 	}
 
 	if len(articles) == 0 {
-		return nil, myErr.NotFoundError()
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return articles, nil
@@ -314,14 +314,14 @@ func ReportArticleById(aid int, uid int, msg string) error {
 	}
 	// 查询更新结果
 	if result.RowsAffected <= 0 {
-		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Save err=", zap.Error(myErr.NotFoundError()))
-		return myErr.NotFoundError()
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Save err=", zap.Error(myErr.ErrNotFoundError))
+		return myErr.ErrNotFoundError
 	}
 
 	// 检查举报记录：不允许重复举报
 	var report []model.UserReportArticleRecord
 	if err := DB.Where("user_id = ? and article_id = ?", uid, aid).Find(&report).Error; err != nil {
-		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Find err=", zap.Error(myErr.NotFoundError()))
+		zap.L().Error("ReportArticleById() dao.mysql.sql_nzx.Find err=", zap.Error(myErr.ErrNotFoundError))
 		bg.Rollback()
 		return err
 	}
@@ -365,8 +365,8 @@ func SearchHotArticlesOfDay(startOfDay time.Time, endOfDay time.Time) (model.Art
 	}
 
 	if len(articles) <= 0 {
-		zap.L().Error("SearchHotArticlesOfDay() dao.mysql.sql_nzx.Find err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("SearchHotArticlesOfDay() dao.mysql.sql_nzx.Find err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 	return articles, nil
 }
@@ -495,7 +495,7 @@ func QueryArticleByClass(limit, page int, class, keyWord string) (model.Articles
 	}
 
 	if len(articles) == 0 {
-		return nil, myErr.NotFoundError()
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return articles, nil

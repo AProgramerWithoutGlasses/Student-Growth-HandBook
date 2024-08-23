@@ -35,8 +35,8 @@ func QueryUserAllPoint(uid int) ([]gorm_model.UserPoint, error) {
 	}
 
 	if len(points) == 0 {
-		zap.L().Error("QueryUserAllPoint() dao.mysql.sql_point.First err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryUserAllPoint() dao.mysql.sql_point.First err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 	return points, nil
 }

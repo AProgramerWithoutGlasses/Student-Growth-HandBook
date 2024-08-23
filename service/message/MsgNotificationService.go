@@ -27,9 +27,8 @@ func GetUnreadReportsForService(username, role string, limit, page int) (reports
 	case "superman":
 		reports, err = mysql.GetUnreadReportsForSuperman(limit, page)
 	default:
-		return nil, myErr.NotFoundError()
+		return nil, myErr.ErrNotFoundError
 	}
-
 	if err != nil {
 		zap.L().Error("GetUnreadReportsForClassService() service.article.GetUnreadReports err=", zap.Error(err))
 		return nil, err
@@ -57,7 +56,7 @@ func AckUnreadReportsService(reportId int, username string, role string) (err er
 	case "superman":
 		err = mysql.AckUnreadReportsForSuperman(reportId)
 	default:
-		return myErr.NotFoundError()
+		return myErr.ErrNotFoundError
 	}
 
 	if err != nil {
