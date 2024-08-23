@@ -219,8 +219,11 @@ func QueryLikeRecordNumByUser(uid int) (int, error) {
 func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCollectRecord, error) {
 	var articleCollects []gorm_model.UserCollectRecord
 
-	if err := DB.Preload("Article.User").Preload("Article", "user_id = ? and ban = ?", uid, false).
-		Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
+	DB.Joins("JOIN")
+	if err := DB.Model(&gorm_model.UserCollectRecord{}).
+		Preload("Article.User").
+		Joins("LEFT JOIN articles ON articles.id = article_id AND articles.ban = ?", false).
+		Where("user_collect_records.user_id = ?", uid).Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
 		Find(&articleCollects).Error; err != nil {
 		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
@@ -233,7 +236,7 @@ func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCo
 func QueryCollectRecordNumByUserArticle(uid int) (int, error) {
 	var count int64
 
-	if err := DB.Model(gorm_model.UserCollectRecord{}).Preload("Article", "user_id = ? and ban = ?", uid, false).Where("is_read = ?", false).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.UserCollectRecord{}).Preload("Article", "user_id = ? and ban = ?", uid, false).Where("is_read = ?", false).Count(&count).Error; err != nil {
 		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.sql_msg.Count err=", zap.Error(err))
 		return -1, err
 	}
