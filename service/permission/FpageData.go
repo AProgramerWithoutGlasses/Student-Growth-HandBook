@@ -102,27 +102,31 @@ func VictorRate(todayVictor int64) (float64, error) {
 }
 
 // LikeAmount 获取帖子总赞数
-func LikeAmount(uidslice []int) int64 {
-	var allNumber int64
+func LikeAmount(uidslice []int) (int, error) {
+	var allNumber int
 	for _, id := range uidslice {
 		number, err := mysql.SelArticleLike(id)
 		if err != nil {
-			fmt.Println("LikeAmount SelArticleLike err", err)
+			return 0, err
 		}
-		allNumber += number
+		for _, num := range number {
+			allNumber += num
+		}
 	}
-	return allNumber
+	return allNumber, nil
 }
 
 // ReadAmount 获取帖子总阅读数
-func ReadAmount(uidslice []int) int64 {
-	var allNumber int64
+func ReadAmount(uidslice []int) int {
+	var allNumber int
 	for _, id := range uidslice {
 		number, err := mysql.SelArticleRead(id)
 		if err != nil {
 			fmt.Println("LikeAmount SelArticleLike err", err)
 		}
-		allNumber += number
+		for _, num := range number {
+			allNumber += num
+		}
 	}
 	return allNumber
 }

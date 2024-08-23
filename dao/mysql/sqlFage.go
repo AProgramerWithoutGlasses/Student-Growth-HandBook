@@ -114,23 +114,23 @@ func SelTeacher() (int64, error) {
 }
 
 // SelArticleLike 查询帖子总赞数
-func SelArticleLike(id int) (int64, error) {
-	var number int64
+func SelArticleLike(id int) ([]int, error) {
+	var number []int
 	err := DB.Model(&gorm_model.Articles{}).Select("like_amount").Where("user_id = ?", id).Scan(&number).Error
 	// 检查并返回错误
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	return number, nil
 }
 
 // SelArticleRead 查询帖子总阅读数
-func SelArticleRead(id int) (int64, error) {
-	var number int64
+func SelArticleRead(id int) ([]int, error) {
+	var number []int
 	err := DB.Model(&gorm_model.Articles{}).Select("read_amount").Where("user_id = ?", id).Scan(&number).Error
 	// 检查并返回错误
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	return number, nil
 }
