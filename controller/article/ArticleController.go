@@ -49,21 +49,44 @@ func GetArticleIdController(c *gin.Context) {
 		"article_video": art.Video,
 	}
 
-	res.ResponseSuccess(c, map[string]any{
-		"ban":             art.Ban,
-		"user_headshot":   art.User.HeadShot,
-		"name":            art.User.Name,
-		"username":        art.User.Username,
-		"user_class":      art.User.Class,
-		"article_tags":    tags,
-		"post_time":       art.PostTime,
-		"article_content": articleContent,
-		"like_amount":     art.LikeAmount,
-		"collect_amount":  art.CollectAmount,
-		"comment_amount":  art.CommentAmount,
-		"is_like":         art.IsLike,
-		"is_collect":      art.IsCollect,
-	})
+	var data map[string]any
+	if art.Ban == true || art.Status == false {
+		data = map[string]any{
+			"ban":             art.Ban,
+			"status":          art.Status,
+			"user_headshot":   nil,
+			"name":            nil,
+			"username":        nil,
+			"user_class":      nil,
+			"article_tags":    nil,
+			"post_time":       nil,
+			"article_content": nil,
+			"like_amount":     nil,
+			"collect_amount":  nil,
+			"comment_amount":  nil,
+			"is_like":         nil,
+			"is_collect":      nil,
+		}
+	} else {
+		data = map[string]any{
+			"ban":             art.Ban,
+			"status":          art.Status,
+			"user_headshot":   art.User.HeadShot,
+			"name":            art.User.Name,
+			"username":        art.User.Username,
+			"user_class":      art.User.Class,
+			"article_tags":    tags,
+			"post_time":       art.PostTime,
+			"article_content": articleContent,
+			"like_amount":     art.LikeAmount,
+			"collect_amount":  art.CollectAmount,
+			"comment_amount":  art.CommentAmount,
+			"is_like":         art.IsLike,
+			"is_collect":      art.IsCollect,
+		}
+	}
+
+	res.ResponseSuccess(c, data)
 }
 
 // GetArticleListController 获取文章列表

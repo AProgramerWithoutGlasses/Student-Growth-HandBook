@@ -175,6 +175,20 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 			}
 		}
 
+		// 将封禁信息创建在系统通知
+		content, err := mysql.QueryContentByArticleId(aid)
+		if err != nil {
+			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
+			return err
+		}
+
+		msg := fmt.Sprintf("您的内容为:<br/>%s<br/>已被封禁!", content)
+		err = mysql.AddSystemMsg(msg, constant.SupserManId)
+		if err != nil {
+			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
+			return err
+		}
+
 		/*
 			回滚分数
 		*/
@@ -316,12 +330,21 @@ func SearchHotArticlesOfDayService(j *jsonvalue.V) (model.Articles, error) {
 
 // SelectArticleAndUserListByPageFirstPageService 前台首页模糊查询文章列表
 func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, SortWay string, limit, page int) ([]model.Article, error) {
-
 	// 查询符合模糊搜索的文章集合
-	articles, err := mysql.SelectArticleAndUserListByPageFirstPage(keyWords, topic, limit, page)
-	if err != nil {
-		zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.SelectArticleAndUserListByPageFirstPage err=", zap.Error(err))
-		return nil, err
+	var articles model.Articles
+	var err error
+	if topic == "全部" {
+		articles, err = mysql.QueryArticleAndUserListByPageFirstPage(keyWords, limit, page)
+		if err != nil {
+			zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryArticleAndUserListByPageFirstPage err=", zap.Error(err))
+			return nil, err
+		}
+	} else {
+		articles, err = mysql.QueryArticleAndUserListByPageFirstPageByTopic(keyWords, topic, limit, page)
+		if err != nil {
+			zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryArticleAndUserListByPageFirstPageByTopic err=", zap.Error(err))
+			return nil, err
+		}
 	}
 
 	if SortWay == "hot" {
