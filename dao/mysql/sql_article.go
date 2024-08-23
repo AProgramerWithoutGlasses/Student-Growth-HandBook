@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	_ "gorm.io/gorm"
+	"os/user"
 	model "studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 	"studentGrow/utils/timeConverter"
@@ -45,16 +46,27 @@ func QueryArticleIsExist(aid int) (bool, error) {
 	return false, nil
 }
 
-// SelectArticleById 通过id查找文章
-func SelectArticleById(aid int) (err error, article *model.Article) {
+// QueryArticleById 通过id查找文章(普通用户)
+func QueryArticleById(aid int, uid uint) (err error, article *model.Article) {
 	//查询用户 select * from articles where id = aid
 	if err := DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
-		Where("id = ? and ban = ? and status = ?", aid, false, true).First(&article).Error; err != nil {
+		Where("id = ? and ban = ? and status = ?", aid, false, true).Or("user_id = ? and ban = ? and status = ?", uid, true, false).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
 	} else {
 		return nil, article
 	}
+}
+
+// QueryArticleByIdOfManager QueryArticleById 通过id查找文章(管理员)
+func QueryArticleByIdOfManager(aid int) (*model.Article, error) {
+	var article model.Article
+	if err := DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
+		Where("id = ?", aid).First(&article).Error; err != nil {
+		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
+		return nil, err
+	}
+	return &article, nil
 }
 
 // SelectArticleAndUserListByPage 后台分页查询文章及用户列表并模糊查询
@@ -510,4 +522,14 @@ func QueryUserByArticleId(aid int) (*model.User, error) {
 		return nil, err
 	}
 	return &article.User, nil
+}
+
+// QueryUserIsManager 查询用户是否为管理员
+func QueryUserIsManager(uid uint) (bool, error) {
+	var isManager bool
+	if err := DB.Model(&user.User{}).Select("is_manager").Where("id = ?", uid).First(&isManager).Error; err != nil {
+		zap.L().Error("QueryUserByArticleId() dao.mysql.sql_article", zap.Error(err))
+		return false, err
+	}
+	return isManager, nil
 }

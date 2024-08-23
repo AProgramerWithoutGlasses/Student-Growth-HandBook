@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
@@ -41,6 +42,7 @@ func QueryArticleReadNumById(aid int) (int, error) {
 		zap.L().Error("QueryArticleReadNum() dao.mysql.sql_article", zap.Error(err))
 		return -1, err
 	}
+	fmt.Println("readAmount:", article.ReadAmount)
 	return article.ReadAmount, nil
 }
 
