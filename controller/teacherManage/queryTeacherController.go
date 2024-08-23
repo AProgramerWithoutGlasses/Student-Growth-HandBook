@@ -25,16 +25,16 @@ func QueryTeacherControl(c *gin.Context) {
 	fmt.Printf("queryParama: %+v\n", queryParama)
 
 	// 业务
-	teacherList, allTeacherCount, err := service.QueryTeacher(queryParama)
+	teacherResList, allTeacherCount, err := service.QueryTeacher(queryParama)
 	if err != nil {
-		response.ResponseError(c, 500)
+		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error("teacherManage.QueryTeacher() service.QueryTeacher() err : ", zap.Error(err))
 		return
 	}
 
 	// 响应
 	responseStruct := ResponseStruct{
-		TeacherInfo:     teacherList,
+		TeacherInfo:     teacherResList,
 		AllTeacherCount: allTeacherCount,
 	}
 

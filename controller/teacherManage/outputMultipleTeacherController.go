@@ -14,7 +14,7 @@ import (
 func OutputMultipleTeacherControl(c *gin.Context) {
 	// 接收请求
 	var input struct {
-		SelectedTeachers []jrx_model.QueryTeacherResStruct `json:"selected_teachers"`
+		SelectedTeachers []jrx_model.QueryTeacherStruct `json:"selected_teachers"`
 	}
 	err := c.Bind(&input)
 	if err != nil {

@@ -94,7 +94,7 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 	stuMesMap := stuMessage.ForRangeObj()
 
 	// 初始化查询学生信息的sql语句
-	querySql := `Select name, username, password, class, plus_time, gender, phone_number, ban, is_manager from users where identity = '学生'`
+	querySql := `Select name, username, password, class, plus_time, gender, phone_number, ban, is_manager from users where identity = '学生' and deleted_at is NULL`
 
 	// temp标签用于在下方stuMesMap遍历中判断该字段是否为第一个有值的字段
 

@@ -9,7 +9,7 @@ import (
 func routesTeacherManage(r *gin.Engine) {
 	rt := r.Group("/teacherManage")
 
-	rt.GET("/queryTeacher", teacherManage.QueryTeacherControl)
+	rt.POST("/queryTeacher", teacherManage.QueryTeacherControl)
 	rt.POST("/addSingleTeacher", teacherManage.AddSingleTeacherControl)
 	rt.POST("/addMultipleTeacher", teacherManage.AddMultipleTeacherControl)
 	rt.POST("/deleteTeacher", teacherManage.DeleteTeacherControl)
