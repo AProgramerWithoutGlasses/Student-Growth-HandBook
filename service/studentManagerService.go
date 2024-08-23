@@ -281,7 +281,7 @@ func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 
 		// 获取管理员等级信息
 		if userSlice[i].IsManager {
-			managerType, err := GetManagerType(userSlice[i].Username)
+			managerType, err := GetManagerTypeService(userSlice[i].Username)
 			if err != nil {
 				return nil, err
 			}

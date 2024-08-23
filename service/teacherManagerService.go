@@ -65,13 +65,15 @@ func GetQueryTeacherSql(queryTeacherParama jrx_model.QueryTeacherParamStruct) st
 
 }
 
-func GetManagerType(username string) (string, error) {
+func GetManagerTypeService(username string) (string, error) {
 	CId, err := mysql.GetManagerCId(username)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			fmt.Println("recored not founf recoery")
+		// 为了防止record not found使得程序中止
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// 如果casbin表中不存在users表中 isManager=true 的数据
+			return "无", nil
 		} else {
-			return "", err
+			return "无", err
 		}
 	}
 
