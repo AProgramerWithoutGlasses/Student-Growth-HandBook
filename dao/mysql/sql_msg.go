@@ -191,8 +191,7 @@ func QueryUnreadManagerMsg(uid int) (int, error) {
 // QueryLikeRecordByUser 分页查询其文章和评论的点赞记录
 func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, error) {
 	var likes []gorm_model.UserLikeRecord
-	if err := DB.Preload("Article.User").
-		Preload("Comment.User").
+	if err := DB.Preload("User").Preload("Article").Preload("Comment.Article").
 		Where("article_id IN (SELECT id FROM articles WHERE user_id = ?) OR comment_id IN (SELECT id FROM comments WHERE user_id = ?)", uid, uid).
 		Limit(limit).
 		Offset((page - 1) * limit).Order("created_at desc").
@@ -217,13 +216,17 @@ func QueryLikeRecordNumByUser(uid int) (int, error) {
 
 // QueryCollectRecordByUserArticles 通过用户的所有文章查找其收藏记录(该用户的文章被谁收藏了记录)
 func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCollectRecord, error) {
-	var articleCollects []gorm_model.UserCollectRecord
+	// 获取该用户文章列表
+	aids, err := QueryArticleIdsByUserId(uid)
+	if err != nil {
+		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.QueryArticleIdsByUserId err=", zap.Error(err))
+		return nil, err
+	}
 
-	DB.Joins("JOIN")
-	if err := DB.Model(&gorm_model.UserCollectRecord{}).
-		Preload("Article.User").
-		Joins("LEFT JOIN articles ON articles.id = article_id AND articles.ban = ?", false).
-		Where("user_collect_records.user_id = ?", uid).Limit(limit).Offset((page - 1) * limit).Order("created_at desc").
+	// 通过文章id查询收藏记录
+	var articleCollects []gorm_model.UserCollectRecord
+	if err := DB.Preload("Article").Preload("User").Where("article_id IN ?", aids).
+		Limit(limit).Offset((page - 1) * limit).
 		Find(&articleCollects).Error; err != nil {
 		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
@@ -234,9 +237,16 @@ func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCo
 
 // QueryCollectRecordNumByUserArticle 通过uid查询其文章的未读收藏记录数量
 func QueryCollectRecordNumByUserArticle(uid int) (int, error) {
+	// 获取该用户文章列表
+	aids, err := QueryArticleIdsByUserId(uid)
+	if err != nil {
+		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.QueryArticleIdsByUserId err=", zap.Error(err))
+		return -1, err
+	}
+
 	var count int64
 
-	if err := DB.Model(&gorm_model.UserCollectRecord{}).Preload("Article", "user_id = ? and ban = ?", uid, false).Where("is_read = ?", false).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.UserCollectRecord{}).Where("article_id IN ? and is_read = ?", aids, false).Count(&count).Error; err != nil {
 		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.sql_msg.Count err=", zap.Error(err))
 		return -1, err
 	}

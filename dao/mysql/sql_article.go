@@ -557,6 +557,17 @@ func QueryContentByArticleId(aid int) (string, error) {
 	return content, nil
 }
 
+// QueryArticleIdsByUserId 通过用户id获取该用户的所有文章id
+func QueryArticleIdsByUserId(uid int) ([]int, error) {
+	// 查询该用户的所有文章id
+	var aids []int
+	if err := DB.Model(&model.Article{}).Select("id").Where("user_id = ?", uid).Find(&aids).Error; err != nil {
+		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.Find err=", zap.Error(err))
+		return nil, err
+	}
+	return aids, nil
+}
+
 // QueryUserByArticleId 通过文章获取用户User
 func QueryUserByArticleId(aid int) (*model.User, error) {
 	var article model.Article
