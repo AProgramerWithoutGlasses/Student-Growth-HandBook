@@ -41,17 +41,6 @@ func AddSingleStuContro(c *gin.Context) {
 		return
 	}
 
-	// 拿到登陆者自己的grade
-	plusTime, err := mysql.GetPlusTimeById(id)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
-		return
-	}
-
-	// 计算出当前是大几的学生
-	nowGrade := service.CalculateNowGrade(plusTime)
-
 	role, err := token2.GetRole(token)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
@@ -86,6 +75,24 @@ func AddSingleStuContro(c *gin.Context) {
 		fmt.Println("class GetString() err : ", err)
 	}
 
+	// 拿到添加学生的grade
+	addStuId, err := mysql.GetIdByUsername(usernameValue)
+	if err != nil {
+		response.ResponseError(c, response.ServerErrorCode)
+		zap.L().Error(err.Error())
+		return
+	}
+
+	addStuPlusTime, err := mysql.GetPlusTimeById(addStuId)
+	if err != nil {
+		response.ResponseError(c, response.ServerErrorCode)
+		zap.L().Error(err.Error())
+		return
+	}
+
+	// 计算出要添加的学生是大几的
+	addStuNowGrade := service.CalculateNowGrade(addStuPlusTime)
+
 	// 去除班级名称中的 ”班“ 字
 	if len(classValue) == 12 {
 		classValue = classValue[:len(classValue)-3]
@@ -93,7 +100,7 @@ func AddSingleStuContro(c *gin.Context) {
 
 	// 导入班级权限判断
 	if classValue != class {
-		if role == nowGrade || role == "college" {
+		if role == addStuNowGrade || role == "college" {
 
 		} else {
 			response.ResponseErrorWithMsg(c, response.ServerErrorCode, "导入失败，您只能导入您所管班级的学生或所管年级的学生!")
@@ -116,9 +123,9 @@ func AddSingleStuContro(c *gin.Context) {
 	yearInt := yearEndInt + 2000           // 将整数转换为 "2022"
 
 	now := time.Now()
-	plusTime = time.Date(yearInt, 9, 1, 0, 0, 0, 0, now.Location())
+	addStuPlusTime = time.Date(yearInt, 9, 1, 0, 0, 0, 0, now.Location())
 
-	fmt.Println("plusTime:", plusTime)
+	fmt.Println("plusTime:", addStuPlusTime)
 
 	// 将新增学生信息整合到结构体中
 	user := gorm_model.User{
@@ -128,7 +135,7 @@ func AddSingleStuContro(c *gin.Context) {
 		Class:    classValue,
 		Gender:   genderValue,
 		Identity: "学生",
-		PlusTime: plusTime,
+		PlusTime: addStuPlusTime,
 	}
 
 	// 在数据库中添加该学生信息
