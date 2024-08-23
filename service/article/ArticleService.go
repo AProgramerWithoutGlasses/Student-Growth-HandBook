@@ -34,11 +34,35 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 		return nil, err
 	}
 
-	//查找文章信息
-	err, article := mysql.SelectArticleById(aid)
+	user, err := mysql.GetUserByUsername(username)
 	if err != nil {
-		zap.L().Error("GetArticleService() service.article.SelectArticleById err=", zap.Error(err))
+		zap.L().Error("GetArticleService() service.article.GetUserByUsername err=", zap.Error(err))
 		return nil, err
+	}
+
+	// 查询用户是否为管理员
+	IsManager, err := mysql.QueryUserIsManager(user.ID)
+	if err != nil {
+		zap.L().Error("GetArticleService() service.article.QueryUserIsManager err=", zap.Error(err))
+		return nil, err
+	}
+
+	//查找文章信息
+	var article *model.Article
+	if IsManager {
+		// 若为管理员
+		article, err = mysql.QueryArticleByIdOfManager(aid)
+		if err != nil {
+			zap.L().Error("GetArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
+			return nil, err
+		}
+	} else {
+		// 若为普通用户
+		err, article = mysql.QueryArticleById(aid, user.ID)
+		if err != nil {
+			zap.L().Error("GetArticleService() service.article.QueryArticleById err=", zap.Error(err))
+			return nil, err
+		}
 	}
 
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
