@@ -5,7 +5,6 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	_ "gorm.io/gorm"
-	"os/user"
 	model "studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 	"studentGrow/utils/timeConverter"
@@ -527,7 +526,7 @@ func QueryUserByArticleId(aid int) (*model.User, error) {
 // QueryUserIsManager 查询用户是否为管理员
 func QueryUserIsManager(uid uint) (bool, error) {
 	var isManager bool
-	if err := DB.Model(&user.User{}).Select("is_manager").Where("id = ?", uid).First(&isManager).Error; err != nil {
+	if err := DB.Model(&model.User{}).Select("is_manager").Where("id = ?", uid).First(&isManager).Error; err != nil {
 		zap.L().Error("QueryUserByArticleId() dao.mysql.sql_article", zap.Error(err))
 		return false, err
 	}
