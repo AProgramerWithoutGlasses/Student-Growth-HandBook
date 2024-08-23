@@ -202,9 +202,9 @@ func SelStar(session int, starType int) ([]string, error) {
 }
 
 // Selstarexit 查找这条数据是否存在数据库中
-func Selstarexit(username string) (int64, error) {
+func Selstarexit(username string, SType int) (int64, error) {
 	var number int64
-	err := DB.Model(&gorm_model.Star{}).Where("username = ?", username).Where("session = ?", 0).Count(&number).Error
+	err := DB.Model(&gorm_model.Star{}).Where("username = ?", username).Where("type = ?", SType).Where("session = ?", 0).Count(&number).Error
 	if err != nil {
 		return 0, err
 	}
