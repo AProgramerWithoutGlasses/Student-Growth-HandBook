@@ -278,6 +278,7 @@ func ElectGrade(c *gin.Context) {
 			return
 		}
 	}
+	response.ResponseSuccess(c, "推选成功")
 }
 
 // ElectCollege 院级管理员推选
