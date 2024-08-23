@@ -87,8 +87,8 @@ func QueryAllTopics() ([]gorm_model.Topic, error) {
 		return nil, err
 	}
 	if len(topics) == 0 {
-		zap.L().Error("QueryAllTopics() dao.mysql.sql_topic err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryAllTopics() dao.mysql.sql_topic err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 	return topics, nil
 }
@@ -102,8 +102,8 @@ func QueryTagsByTopic(id int) ([]gorm_model.Tag, error) {
 	}
 
 	if len(tags) == 0 {
-		zap.L().Error("QueryTagsByTopic() dao.mysql.sql_topic err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryTagsByTopic() dao.mysql.sql_topic err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return tags, nil
@@ -113,8 +113,8 @@ func QueryTagsByTopic(id int) ([]gorm_model.Tag, error) {
 func QueryTagIdByTagName(name string) (int, error) {
 	var tag gorm_model.Tag
 	if err := DB.Where("tag_name = ?", name).First(&tag).Error; err != nil {
-		zap.L().Error("QueryTagIdByTagName() dao.mysql.sql_topic err=", zap.Error(myErr.NotFoundError()))
-		return -1, myErr.NotFoundError()
+		zap.L().Error("QueryTagIdByTagName() dao.mysql.sql_topic err=", zap.Error(myErr.ErrNotFoundError))
+		return -1, myErr.ErrNotFoundError
 	}
 	return int(tag.ID), nil
 }

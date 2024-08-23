@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
@@ -39,8 +40,8 @@ func GetUnreadReportsForClass(username string, limit, page int) ([]gorm_model.Us
 	}
 
 	if len(reports) == 0 {
-		zap.L().Error("GetClassByUsername() dao.mysql.sql_msg.myErr.NotFoundError() err=", zap.Error(err))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("GetClassByUsername() dao.mysql.sql_msg.myErr.ErrNotFoundError err=", zap.Error(err))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return reports, nil
@@ -69,8 +70,8 @@ func GetUnreadReportsForGrade(grade int, limit, page int) ([]gorm_model.UserRepo
 	}
 
 	if len(reports) == 0 {
-		zap.L().Error("GetUnreadReportsForGrade() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("GetUnreadReportsForGrade() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return reports, nil
@@ -92,8 +93,8 @@ func GetUnreadReportsForSuperman(limit, page int) ([]gorm_model.UserReportArticl
 	}
 
 	if len(reports) == 0 {
-		zap.L().Error("GetUnreadReportsForSuperman() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("GetUnreadReportsForSuperman() dao.mysql.sql_msg.myErr.Find() err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return reports, nil
@@ -169,8 +170,8 @@ func QuerySystemMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
 	}
 
 	if len(msg) == 0 {
-		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return msg, nil
@@ -196,8 +197,8 @@ func QueryManagerMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
 	}
 
 	if len(msg) == 0 {
-		zap.L().Error("QueryManagerMsg() dao.mysql.sql_msg", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryManagerMsg() dao.mysql.sql_msg", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return msg, nil
@@ -225,6 +226,11 @@ func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, e
 		zap.L().Error("QueryLikeRecordByUser() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
 	}
+
+	if len(likes) == 0 {
+		return nil, myErr.ErrNotFoundError
+	}
+
 	return likes, nil
 }
 
@@ -251,8 +257,8 @@ func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCo
 	}
 
 	if len(articleCollects) == 0 {
-		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, gorm.ErrRecordNotFound
 	}
 	return articleCollects, nil
 }
@@ -280,8 +286,8 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 	}
 
 	if len(commentIDs) <= 0 {
-		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	if err := DB.Joins("JOIN articles ON articles.id = comments.article_id").
@@ -295,8 +301,8 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 	}
 
 	if len(comments) == 0 {
-		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryCollectRecordNumByUserArticle() dao.mysql.sql_msg err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return comments, nil
@@ -314,8 +320,8 @@ func QueryCommentRecordNumByUserId(uid int) (int, error) {
 	}
 
 	if len(commentIDs) <= 0 {
-		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
-		return -1, myErr.NotFoundError()
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(myErr.ErrNotFoundError))
+		return -1, myErr.ErrNotFoundError
 	}
 	if err := DB.Model(&gorm_model.Comment{}).Joins("JOIN articles ON articles.id = comments.article_id").
 		Preload("Article.User").
@@ -348,8 +354,8 @@ func QueryCommentRecordByUserComments(cid int) (gorm_model.Comments, error) {
 	}
 
 	if len(comments) == 0 {
-		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryCommentRecordByUserComments() dao.mysql.sql_msg err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 	return comments, nil
 }
@@ -439,8 +445,8 @@ func QueryAllUserId() ([]uint, error) {
 	}
 
 	if len(ids) == 0 {
-		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return ids, nil

@@ -96,7 +96,7 @@ func GetArticleListService(page, limit int, sortType, order, startAtString, endA
 	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.SelectArticleAndUserListByPage err=", zap.Error(err))
-		return nil, myErr.NotFoundError()
+		return nil, err
 	}
 
 	return result, nil
@@ -129,7 +129,7 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		case "superman":
 			err = mysql.BannedArticleByIdForSuperman(id, tx)
 		default:
-			return myErr.NotFoundError()
+			return myErr.ErrNotFoundError
 		}
 
 		if err != nil {
@@ -207,7 +207,7 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		case "superman":
 			err = mysql.DeleteArticleByIdForSuperman(id, tx)
 		default:
-			return myErr.NotFoundError()
+			return myErr.ErrNotFoundError
 		}
 
 		if err != nil {

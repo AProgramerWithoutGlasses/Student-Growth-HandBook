@@ -67,8 +67,8 @@ func QueryLevelOneComments(aid, limit, page int) ([]model.Comment, error) {
 	}
 
 	if len(comments) == 0 {
-		zap.L().Error("QueryLevelOneComments() dao.mysql.nzx_sql.Find err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryLevelOneComments() dao.mysql.nzx_sql.Find err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 	return comments, nil
 }
@@ -86,8 +86,8 @@ func QueryLevelSonComments(pid, limit, page int) ([]model.Comment, error) {
 	}
 
 	if len(comments) == 0 {
-		zap.L().Error("QueryLevelSonComments() dao.mysql.nzx_sql.Find err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryLevelSonComments() dao.mysql.nzx_sql.Find err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 	return comments, nil
 }
@@ -190,8 +190,8 @@ func QueryUserAllComments(uid int) (model.Comments, error) {
 	}
 
 	if len(comments) == 0 {
-		zap.L().Error("QueryUserAllComments() dao.mysql.sql_comment.Find err=", zap.Error(myErr.NotFoundError()))
-		return nil, myErr.NotFoundError()
+		zap.L().Error("QueryUserAllComments() dao.mysql.sql_comment.Find err=", zap.Error(myErr.ErrNotFoundError))
+		return nil, myErr.ErrNotFoundError
 	}
 
 	return comments, nil
@@ -200,7 +200,7 @@ func QueryUserAllComments(uid int) (model.Comments, error) {
 // UpdateCommentLikeNum 设置评论点赞数
 func UpdateCommentLikeNum(cid, num int, db *gorm.DB) error {
 	if err := db.Model(&model.Comment{}).Where("id = ?", cid).Update("like_amount", num).Error; err != nil {
-		zap.L().Error("UpdateCommentLikeNum() dao.mysql.sql_comment.Update err=", zap.Error(myErr.NotFoundError()))
+		zap.L().Error("UpdateCommentLikeNum() dao.mysql.sql_comment.Update err=", zap.Error(myErr.ErrNotFoundError))
 		return err
 	}
 	return nil
@@ -210,7 +210,7 @@ func UpdateCommentLikeNum(cid, num int, db *gorm.DB) error {
 func QueryCommentLikeNum(cid int) (int, error) {
 	comment := model.Comment{}
 	if err := DB.Where("id = ?", cid).First(&comment).Error; err != nil {
-		zap.L().Error("QueryCommentLikeNum() dao.mysql.sql_comment.First err=", zap.Error(myErr.NotFoundError()))
+		zap.L().Error("QueryCommentLikeNum() dao.mysql.sql_comment.First err=", zap.Error(myErr.ErrNotFoundError))
 		return -1, err
 	}
 	return comment.LikeAmount, nil
