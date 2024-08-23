@@ -51,6 +51,7 @@ func QueryStuContro(c *gin.Context) {
 		return
 	}
 
+	// 权限管理
 	switch role {
 	case "class":
 		ranges = " and class = '" + class + "'"
