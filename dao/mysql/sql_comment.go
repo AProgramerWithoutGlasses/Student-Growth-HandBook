@@ -66,10 +66,6 @@ func QueryLevelOneComments(aid, limit, page int) ([]model.Comment, error) {
 		return nil, err
 	}
 
-	if len(comments) == 0 {
-		zap.L().Error("QueryLevelOneComments() dao.mysql.nzx_sql.Find err=", zap.Error(myErr.ErrNotFoundError))
-		return nil, myErr.ErrNotFoundError
-	}
 	return comments, nil
 }
 
@@ -85,10 +81,6 @@ func QueryLevelSonComments(pid, limit, page int) ([]model.Comment, error) {
 		return nil, err
 	}
 
-	if len(comments) == 0 {
-		zap.L().Error("QueryLevelSonComments() dao.mysql.nzx_sql.Find err=", zap.Error(myErr.ErrNotFoundError))
-		return nil, myErr.ErrNotFoundError
-	}
 	return comments, nil
 }
 
