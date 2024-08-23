@@ -399,22 +399,16 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	// 计算文章分数
 	point := len(pics)*constant.ImagePointConstant + len(video)*constant.VideoPointConstant + constant.TextPointConstant
 
+	var aid int
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		// 插入新文章
-		aid, err := mysql.InsertArticleContent(content, topic, uid, wordCount, tags, picPath, videoPath, status, tx)
+		aid, err = mysql.InsertArticleContent(content, topic, uid, wordCount, tags, picPath, videoPath, status, tx)
 		if err != nil {
 			zap.L().Error("PublishArticleService() service.article.InsertArticleContent err=", zap.Error(err))
 			return err
 		}
 
 		topicId, err := mysql.QueryTopicIdByTopicName(topic)
-		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(err))
-			return err
-		}
-
-		// 增加文章分数
-		err = mysql.UpdateArticlePoint(aid, point)
 		if err != nil {
 			zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(err))
 			return err
@@ -435,6 +429,13 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	})
 	if err != nil {
 		zap.L().Error("PublishArticleService() service.article.Transaction err=", zap.Error(myErr.DataFormatError()))
+		return err
+	}
+
+	// 增加文章分数
+	err = mysql.UpdateArticlePoint(aid, point)
+	if err != nil {
+		zap.L().Error("PublishArticleService() service.article.QueryTagIdByTagName err=", zap.Error(err))
 		return err
 	}
 
