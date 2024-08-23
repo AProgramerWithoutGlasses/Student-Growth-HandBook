@@ -145,7 +145,7 @@ func CreatClass(username string, name string) error {
 // UpdateGrade 年级管理员推选更新数据
 func UpdateGrade(username string) error {
 	var star gorm_model.Star
-	err := DB.Where("username = ?", username).Where("session = ?", 0).Where("type = ?", 1).First(&star).Error
+	err := DB.Where("username = ?", username).Where("session = ?", 0).Where("type = ?", 2).First(&star).Error
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func UpdateGrade(username string) error {
 // UpdateCollege 院级管理员推选更新数据
 func UpdateCollege(username string) error {
 	var star gorm_model.Star
-	err := DB.Where("username = ?", username).Where("session = ?", 0).Where("type = ?", 2).First(&star).Error
+	err := DB.Where("username = ?", username).Where("session = ?", 0).Where("type = ?", 3).First(&star).Error
 	if err != nil {
 		return err
 	}
