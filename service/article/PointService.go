@@ -30,9 +30,15 @@ func UpdatePointService(uid, point, topicId int, db *gorm.DB) error {
 		return err
 	}
 
+	// 修改后的分数
+	aftarPoint := curPoint + point
+	if aftarPoint < 0 {
+		aftarPoint = 0
+	}
+
 	if curPoint >= 0 {
 		// 修改分数
-		err = mysql.UpdateUserPointByTopic(curPoint+point, uid, topicId, db)
+		err = mysql.UpdateUserPointByTopic(aftarPoint, uid, topicId, db)
 		if err != nil {
 			zap.L().Error("UpdatePointService() service.article.UpdateUserPointByTopic err=", zap.Error(err))
 			return err
