@@ -284,7 +284,7 @@ func AckSystemMsgService(username string) error {
 // PublishManagerMsgService 发布管理员通知
 func PublishManagerMsgService(username, content, role string) error {
 	// 权限验证
-	if role != "college" {
+	if role != "college" && role != "superman" {
 		zap.L().Error("PublishManagerMsgService() service.article.likeService.role err=", zap.Error(myErr.OverstepCompetence()))
 		return myErr.OverstepCompetence()
 	}
