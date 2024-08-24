@@ -561,7 +561,7 @@ func QueryContentByArticleId(aid int) (string, error) {
 func QueryArticleIdsByUserId(uid int) ([]int, error) {
 	// 查询该用户的所有文章id
 	var aids []int
-	if err := DB.Model(&model.Article{}).Select("id").Where("user_id = ?", uid).Find(&aids).Error; err != nil {
+	if err := DB.Model(&model.Article{}).Select("id").Where("user_id = ? AND ban = ? AND status = ?", uid, false, true).Find(&aids).Error; err != nil {
 		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.Find err=", zap.Error(err))
 		return nil, err
 	}
