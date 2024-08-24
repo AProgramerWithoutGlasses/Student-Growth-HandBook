@@ -50,7 +50,7 @@ type HomepageArticleHistoryStruct struct {
 	Status        bool      `json:"article_status,omitempty"`
 	ReadAmount    int       `json:"read_amount,omitempty"`
 	ReportAmount  int       `json:"report_amount,omitempty"`
-	Ban           bool      `json:"ban,omitempty"`
+	Ban           bool      `json:"ban"`
 	UserID        uint      `json:"user_id,omitempty"`
 	IsLike        bool      `json:"is_like,omitempty"`
 	IsCollect     bool      `json:"is_collect,omitempty"`
