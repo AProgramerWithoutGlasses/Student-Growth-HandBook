@@ -483,11 +483,12 @@ func AddManagerMsg(username, content string, uid int) error {
 }
 
 // AddSystemMsg 添加系统通知
-func AddSystemMsg(content string, uid int, db *gorm.DB) error {
+func AddSystemMsg(content string, uid int, db *gorm.DB, username string) error {
 	systemMsg := gorm_model.MsgRecord{
-		Content: content,
-		UserID:  uint(uid),
-		Type:    constant.SystemMsgConstant,
+		Username: username,
+		Content:  content,
+		UserID:   uint(uid),
+		Type:     constant.SystemMsgConstant,
 	}
 
 	if err := db.Create(&systemMsg).Error; err != nil {
@@ -503,11 +504,6 @@ func QueryAllUserId() ([]uint, error) {
 	if err := DB.Model(&gorm_model.User{}).Pluck("id", &ids).Error; err != nil {
 		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(err))
 		return nil, err
-	}
-
-	if len(ids) == 0 {
-		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(myErr.ErrNotFoundError))
-		return nil, myErr.ErrNotFoundError
 	}
 
 	return ids, nil
