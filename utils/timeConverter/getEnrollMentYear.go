@@ -35,7 +35,7 @@ func GetUserGrade(plusTime time.Time) int {
 	currentYear, currentMonth, _ := time.Now().Date()
 	year := currentYear - plusTime.Year()
 
-	if currentMonth < 9 {
+	if currentMonth < 8 {
 		year--
 	}
 
