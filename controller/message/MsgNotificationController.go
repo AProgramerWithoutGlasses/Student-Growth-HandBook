@@ -50,6 +50,14 @@ func GetUnreadReportsController(c *gin.Context) {
 		return
 	}
 
+	// 获取未读举报数目
+	count, err := message.GetUnreadRoportNumForService(username, role)
+	if err != nil {
+		zap.L().Error("GetUnreadReportsController() controller.message.GetUnreadReportsForService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
 	// 通过文章id映射report_content,article_content
 	var reportContent = make(map[uint][]map[string]any)
 	var articleContent = make(map[uint]string)
@@ -74,7 +82,7 @@ func GetUnreadReportsController(c *gin.Context) {
 	res.ResponseSuccess(c, map[string]any{
 		"article_ban":  list,
 		"username":     username,
-		"unread_count": len(list),
+		"unread_count": count,
 	})
 }
 

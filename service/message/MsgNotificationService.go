@@ -37,6 +37,33 @@ func GetUnreadReportsForService(username, role string, limit, page int) (reports
 	return reports, nil
 }
 
+// GetUnreadRoportNumForService 获取未读举报信息的数目
+func GetUnreadRoportNumForService(username, role string) (count int, err error) {
+	switch role {
+	case "class":
+		count, err = mysql.GetUnreadReportNumForClass(username)
+	case "grade1":
+		count, err = mysql.GetUnreadReportNumForGrade(1)
+	case "grade2":
+		count, err = mysql.GetUnreadReportNumForGrade(2)
+	case "grade3":
+		count, err = mysql.GetUnreadReportNumForGrade(3)
+	case "grade4":
+		count, err = mysql.GetUnreadReportNumForGrade(4)
+	case "college":
+		count, err = mysql.GetUnreadReportNumForSuperman()
+	case "superman":
+		count, err = mysql.GetUnreadReportNumForSuperman()
+	default:
+		return -1, myErr.ErrNotFoundError
+	}
+	if err != nil {
+		zap.L().Error("GetUnreadRoportNumForService() service.article.GetUnreadReports err=", zap.Error(err))
+		return -1, err
+	}
+	return count, nil
+}
+
 // AckUnreadReportsService 确认举报信息
 func AckUnreadReportsService(reportId int, username string, role string) (err error) {
 	// 选择管理员角色
