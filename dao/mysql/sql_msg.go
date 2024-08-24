@@ -158,7 +158,7 @@ func GetUnreadReportsForSuperman(limit, page int) ([]gorm_model.UserReportArticl
 func GetUnreadReportNumForSuperman() (int, error) {
 	var count int64
 
-	if err := DB.Joins("JOIN articles ON user_report_article_records.article_id = articles.id AND articles.ban = ?", false).
+	if err := DB.Model(&gorm_model.UserReportArticleRecord{}).Joins("JOIN articles ON user_report_article_records.article_id = articles.id AND articles.ban = ?", false).
 		Where("user_report_article_records.is_read = ?", false).
 		Order("user_report_article_records.created_at DESC, user_report_article_records.article_id ASC").
 		Preload("User").Preload("Article").
