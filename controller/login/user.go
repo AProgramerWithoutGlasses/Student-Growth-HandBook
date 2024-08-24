@@ -59,6 +59,31 @@ func HLogin(c *gin.Context) {
 		pkg.ResponseErrorWithMsg(c, 400, "身份验证失败")
 		return
 	}
+	//验证用户是否被封禁
+	ban, err := userService.BVerifyBan(user.Username)
+	if err != nil {
+		pkg.ResponseError(c, 400)
+		return
+	}
+	if ban {
+		data := time.Now().Format("2006-01-02")
+		ok, err := userService.UpdateStatus(data, user.Username)
+		if err != nil {
+			pkg.ResponseError(c, 400)
+			return
+		}
+		if !ok {
+			pkg.ResponseErrorWithMsg(c, 400, "账号被封禁")
+			return
+		} else {
+			//解禁
+			err := mysql.UpdateBan(user.Username)
+			if err != nil {
+				pkg.ResponseError(c, 400)
+				return
+			}
+		}
+	}
 	//查询用户角色
 	casbinId, _ := mysql.SelCasId(user.Username)
 	if casbinId == "" {
