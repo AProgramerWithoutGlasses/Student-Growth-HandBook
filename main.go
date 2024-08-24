@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"studentGrow/aliyun/oss"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
@@ -54,6 +55,9 @@ func main() {
 
 	// 5. 注册路由
 	r := routes.Setup()
+
+	// 启动oss
+	oss.Init()
 
 	// 6. 启动服务（优雅关机）
 	srv := &http.Server{

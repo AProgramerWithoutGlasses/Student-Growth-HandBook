@@ -135,7 +135,7 @@ func GetHomepageUserDataService(username string) (*jrx_model.HomepageDataStruct,
 // 更新个人主页头像
 func UpdateHeadshotService(file *multipart.FileHeader, username string) error {
 	fmt.Println("成功进入业务")
-	url, err := fileProcess.UploadFile("png", file)
+	url, err := fileProcess.UploadFile("image", file)
 	if err != nil {
 		return err
 	}
