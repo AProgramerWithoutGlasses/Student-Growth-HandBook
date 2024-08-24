@@ -20,6 +20,14 @@ func GetArticleIdController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
+
+	// 获取用户名
+	username, err := json.GetString("username")
+	if err != nil {
+		zap.L().Error("GetArticleService() service.article.GetString err=", zap.Error(err))
+		return
+	}
+
 	// 获取文章详情
 	art, err := article.GetArticleService(json)
 	if err != nil {
@@ -50,7 +58,7 @@ func GetArticleIdController(c *gin.Context) {
 	}
 
 	var data map[string]any
-	if art.Ban == true || art.Status == false {
+	if (art.Ban == true && art.User.Username != username) || art.Status == false {
 		data = map[string]any{
 			"ban":             art.Ban,
 			"status":          art.Status,
