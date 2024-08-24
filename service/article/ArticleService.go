@@ -194,7 +194,7 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		}
 
 		msg := fmt.Sprintf("您的内容为:<br/>%s<br/>已被封禁!", content)
-		err = mysql.AddSystemMsg(msg, int(user.ID), tx)
+		err = mysql.AddSystemMsg(msg, int(user.ID), tx, username)
 		if err != nil {
 			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 			return err
