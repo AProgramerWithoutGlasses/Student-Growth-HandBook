@@ -39,7 +39,7 @@ func UpdateHeadshotControl(c *gin.Context) {
 	fmt.Println("成功接收到token")
 
 	// 业务
-	err = service.UpdateHeadshotService(file, username)
+	url, err := service.UpdateHeadshotService(file, username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -48,6 +48,12 @@ func UpdateHeadshotControl(c *gin.Context) {
 
 	fmt.Println("成功执行完业务")
 
+	output := struct {
+		UserHeadshot string `json:"user_headshot"`
+	}{
+		UserHeadshot: url,
+	}
+
 	// 响应
-	response.ResponseSuccess(c, struct{}{})
+	response.ResponseSuccess(c, output)
 }
