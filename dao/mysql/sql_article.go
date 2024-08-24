@@ -104,16 +104,16 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString,
 
 	// 时间区间为空检查
 	if startAtString != "" && endAtString != "" {
-		query = DB.Where("articles.created_at between ? and ? and topic like ? and content like ? and articles.ban = ?",
+		query = DB.Where("articles.created_at between ? and ? and topic like ? and content like ?",
 			startAt, endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	} else if startAtString == "" && endAtString != "" {
-		query = DB.Where("articles.created_at < ? and topic like ? and content like ? and articles.ban = ?",
+		query = DB.Where("articles.created_at < ? and topic like ? and content like ?",
 			endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	} else if startAtString != "" && endAtString == "" {
-		query = DB.Where("articles.created_at > ? and topic like ? and content like ? and articles.ban = ?",
+		query = DB.Where("articles.created_at > ? and topic like ? and content like ?",
 			startAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	} else if startAtString == "" && endAtString == "" {
-		query = DB.Where("topic like ? and content like ? and articles.ban = ?",
+		query = DB.Where("topic like ? and content like ?",
 			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	}
 
