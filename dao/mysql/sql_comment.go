@@ -103,6 +103,7 @@ func DeleteComment(cid int, username string) error {
 		return err
 	}
 
+	// 只有自己能删除自己的评论
 	if username != comment.User.Username {
 		return myErr.OverstepCompetence()
 	}
@@ -160,6 +161,16 @@ func DeleteComment(cid int, username string) error {
 		return err
 	}
 	return nil
+}
+
+// QueryArticleIdByCommentId 查询评论的文章id
+func QueryArticleIdByCommentId(cid int) (int, error) {
+	var aid int
+	if err := DB.Model(&model.Comment{}).Select("article_id").Where("id = ?", cid).First(&aid).Error; err != nil {
+		zap.L().Error("QueryArticleIdByCommentId() dao.mysql.nzx_sql.Transaction err=", zap.Error(err))
+		return -1, err
+	}
+	return aid, nil
 }
 
 // QueryCommentNumForLel1 获取一级评论的评论数
