@@ -75,23 +75,8 @@ func AddSingleStuContro(c *gin.Context) {
 		fmt.Println("class GetString() err : ", err)
 	}
 
-	// 拿到添加学生的grade
-	addStuId, err := mysql.GetIdByUsername(usernameValue)
-	if err != nil {
-		response.ResponseError(c, response.ServerErrorCode)
-		zap.L().Error(err.Error())
-		return
-	}
-
-	addStuPlusTime, err := mysql.GetPlusTimeById(addStuId)
-	if err != nil {
-		response.ResponseError(c, response.ServerErrorCode)
-		zap.L().Error(err.Error())
-		return
-	}
-
 	// 计算出要添加的学生是大几的
-	addStuNowGrade := service.CalculateNowGrade(addStuPlusTime)
+	addStuNowGrade := service.CalculateNowGradeByClass(classValue)
 
 	// 去除班级名称中的 ”班“ 字
 	if len(classValue) == 12 {
@@ -123,7 +108,7 @@ func AddSingleStuContro(c *gin.Context) {
 	yearInt := yearEndInt + 2000           // 将整数转换为 "2022"
 
 	now := time.Now()
-	addStuPlusTime = time.Date(yearInt, 9, 1, 0, 0, 0, 0, now.Location())
+	addStuPlusTime := time.Date(yearInt, 9, 1, 0, 0, 0, 0, now.Location())
 
 	fmt.Println("plusTime:", addStuPlusTime)
 

@@ -326,3 +326,32 @@ func CalculateNowGrade(birthday time.Time) (grade string) {
 
 	return grade
 }
+
+func CalculateNowGradeByClass(class string) (grade string) {
+	classNumber, err := strconv.Atoi("20" + class[6:8])
+	if err != nil {
+		return grade
+	}
+
+	startGrade1 := time.Date(classNumber, 8, 1, 0, 0, 0, 0, time.UTC)
+	endGrade1 := time.Date(classNumber+1, 8, 1, 0, 0, 0, 0, time.UTC)
+	startGrade2 := time.Date(classNumber+1, 8, 1, 0, 0, 0, 0, time.UTC)
+	endGrade2 := time.Date(classNumber+2, 8, 1, 0, 0, 0, 0, time.UTC)
+	startGrade3 := time.Date(classNumber+2, 8, 1, 0, 0, 0, 0, time.UTC)
+	endGrade3 := time.Date(classNumber+3, 8, 1, 0, 0, 0, 0, time.UTC)
+	startGrade4 := time.Date(classNumber+3, 8, 1, 0, 0, 0, 0, time.UTC)
+	endGrade4 := time.Date(classNumber+4, 8, 1, 0, 0, 0, 0, time.UTC)
+
+	now := time.Now()
+	if now.After(startGrade1) && now.Before(endGrade1) {
+		grade = "grade1"
+	} else if now.After(startGrade2) && now.Before(endGrade2) {
+		grade = "grade2"
+	} else if now.After(startGrade3) && now.Before(endGrade3) {
+		grade = "grade3"
+	} else if now.After(startGrade4) && now.Before(endGrade4) {
+		grade = "grade4"
+	}
+
+	return grade
+}
