@@ -68,6 +68,17 @@ func QueryArticleByIdOfManager(aid int) (*model.Article, error) {
 	return &article, nil
 }
 
+// QueryArticleNumByDay 查询当日的相应话题的文章发表数量
+func QueryArticleNumByDay(topic string, startOfDay time.Time, endOfDay time.Time) (int, error) {
+	var count int64
+	if err := DB.Model(&model.Article{}).Where("created_at >= ? AND	created_at < ? AND topic = ?", startOfDay, endOfDay, topic).
+		Count(&count).Error; err != nil {
+		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+}
+
 // SelectArticleAndUserListByPage 后台分页查询文章及用户列表并模糊查询
 func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) (result []model.Article, err error) {
 	//SELECT articles.*, users.*
@@ -126,7 +137,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString,
 	return articles, nil
 }
 
-// QueryArticleAndUserListByPageFirstPageByTopic 前台模糊查询文章列表(话题)
+// QueryArticleAndUserListByPageFirstPageByTopic 前台模糊查询文章列表(根据话题查询)
 func QueryArticleAndUserListByPageFirstPageByTopic(keyWords, topic string, limit, page int) (result model.Articles, err error) {
 	var articles model.Articles
 	if err = DB.Preload("User").Preload("ArticleTags.Tag").Preload("ArticlePics").

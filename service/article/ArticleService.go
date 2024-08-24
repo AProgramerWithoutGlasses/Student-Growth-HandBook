@@ -1,6 +1,7 @@
 package article
 
 import (
+	"errors"
 	"fmt"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
 	"go.uber.org/zap"
@@ -135,6 +136,10 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		return err
 	}
 	isBan, err := j.GetBool("article_ban")
+	if err != nil {
+		zap.L().Error("AddTopicsService() service.article.GetBool err=", zap.Error(err))
+		return err
+	}
 
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		switch role {
@@ -214,6 +219,7 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		return nil
 	})
 	if err != nil {
+		zap.L().Error("BannedArticleService() service.article.Transaction err=", zap.Error(err))
 		return err
 	}
 
@@ -429,6 +435,19 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	if len(video) > 1 {
 		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
 		return myErr.DataFormatError()
+	}
+
+	// 检查本日发表相应话题的文章数
+	startOfDay := time.Now().Truncate(24 * time.Hour) // 今天的开始时间
+	endOfDay := startOfDay.Add(24 * time.Hour)        // 明天的开始时间
+
+	count, err := mysql.QueryArticleNumByDay(topic, startOfDay, endOfDay)
+	if err != nil {
+		zap.L().Error("PublishArticleService() service.article.QueryArticleNumByDay err=", zap.Error(err))
+		return err
+	}
+	if count >= constant.ArticlePublishLimit {
+		return errors.New("文章发布次数已达上限")
 	}
 
 	// 将视频上传至oss

@@ -88,7 +88,6 @@ func GetUnreadReportsController(c *gin.Context) {
 
 // AckUnreadReportsController 确认未读举报信息
 func AckUnreadReportsController(c *gin.Context) {
-
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
@@ -107,6 +106,12 @@ func AckUnreadReportsController(c *gin.Context) {
 
 	//获取前端发送的数据
 	json, err := readUtil.GetJsonvalue(c)
+	if err != nil {
+		zap.L().Error("AckUnreadReportsController() controller.message.GetJsonvalue err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
 	reportId, err := json.GetInt("article_id")
 	if err != nil {
 		zap.L().Error("AckUnreadReportsController() controller.message.GetInt err=", zap.Error(err))
@@ -124,5 +129,4 @@ func AckUnreadReportsController(c *gin.Context) {
 
 	// 返回响应
 	res.ResponseSuccess(c, struct{}{})
-
 }
