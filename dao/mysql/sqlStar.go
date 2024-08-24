@@ -202,9 +202,9 @@ func SelStar(session int, starType int) ([]string, error) {
 }
 
 // Selstarexit 查找这条数据是否存在数据库中
-func Selstarexit(username string, SType int) (int64, error) {
+func Selstarexit(username string) (int64, error) {
 	var number int64
-	err := DB.Model(&gorm_model.Star{}).Where("username = ?", username).Where("type = ?", SType).Where("session = ?", 0).Count(&number).Error
+	err := DB.Model(&gorm_model.Star{}).Where("username = ?", username).Where("type = ?", 1).Where("session = ?", 0).Count(&number).Error
 	if err != nil {
 		return 0, err
 	}
@@ -249,7 +249,7 @@ func UpdateOne(username string) error {
 // SelNotClass 查询被推选为年级院级成长之星的学号合集
 func SelNotClass() ([]string, error) {
 	var username []string
-	err := DB.Model(&gorm_model.Star{}).Where("type <> ? ", 1).Select("username").Scan(&username).Error
+	err := DB.Model(&gorm_model.Star{}).Where("type <> ? ", 1).Where("session = ?", 0).Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}

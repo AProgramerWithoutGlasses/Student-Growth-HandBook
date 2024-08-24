@@ -202,7 +202,7 @@ func ElectClass(c *gin.Context) {
 		username := student.Username
 		name := student.Name
 		//防止有重复数据
-		number, err := mysql.Selstarexit(username, 1)
+		number, err := mysql.Selstarexit(username)
 		if err != nil || number != 0 {
 			response.ResponseErrorWithMsg(c, 400, "数据已存在")
 			return
@@ -220,6 +220,7 @@ func ElectClass(c *gin.Context) {
 			return
 		}
 	}
+	response.ResponseSuccess(c, "推选成功")
 }
 
 // ElectGrade 年级管理员推选数据
@@ -264,13 +265,6 @@ func ElectGrade(c *gin.Context) {
 	//开始添加
 	for _, user := range Responsedata.ElectedArr {
 		username := user.Username
-		//查询数据是否为班级管理员推选上来的数据
-		//防止有重复数据
-		number, err := mysql.Selstarexit(username, 2)
-		if err != nil || number != 0 {
-			response.ResponseErrorWithMsg(c, 400, "数据已存在")
-			return
-		}
 		//更新数据
 		err = mysql.UpdateGrade(username)
 		if err != nil {
@@ -294,13 +288,6 @@ func ElectCollege(c *gin.Context) {
 	}
 	for _, user := range Responsedata.ElectedArr {
 		username := user.Username
-		//查询数据是否已经存在
-		//防止有重复数据
-		number, err := mysql.Selstarexit(username, 3)
-		if err != nil || number != 0 {
-			response.ResponseErrorWithMsg(c, 400, "数据已存在")
-			return
-		}
 		err = mysql.UpdateCollege(username)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "推选失败")
