@@ -30,6 +30,12 @@ func GetStarControl(c *gin.Context) {
 		return
 	}
 
+	// 校验
+	if input.Page <= 0 || input.Limit <= 0 {
+		response.ResponseError(c, response.ParamFail)
+		return
+	}
+
 	// 业务
 	homepageStarList, err := service.GetStarService(input.Page, input.Limit, username)
 	if err != nil {
