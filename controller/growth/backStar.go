@@ -210,7 +210,7 @@ func ElectClass(c *gin.Context) {
 		//判断是否超出权限范围
 		length := len(Responsedata.ElectedArr)
 		if Star := length + Number; Star > 3 {
-			response.ResponseSuccess(c, "No seats left")
+			response.ResponseErrorWithMsg(c, 200, "本次推选超出名额限制")
 			return
 		}
 		//添加数据
@@ -219,6 +219,12 @@ func ElectClass(c *gin.Context) {
 			response.ResponseErrorWithMsg(c, 400, "推选失败")
 			return
 		}
+	}
+	//判断是否超出权限范围
+	len := len(Responsedata.ElectedArr)
+	if Star := len + Number; Star == 3 {
+		response.ResponseSuccess(c, "No seats left")
+		return
 	}
 	response.ResponseSuccess(c, "推选成功")
 }
@@ -258,7 +264,7 @@ func ElectGrade(c *gin.Context) {
 	//查询这次需要推选的人
 	length := len(Responsedata.ElectedArr)
 	if star := number + length; star > 5 {
-		response.ResponseSuccess(c, "No seats left")
+		response.ResponseErrorWithMsg(c, 200, "本次推选超出名额限制")
 		return
 	}
 
@@ -271,6 +277,11 @@ func ElectGrade(c *gin.Context) {
 			response.ResponseErrorWithMsg(c, 400, "推选失败")
 			return
 		}
+	}
+	len := len(Responsedata.ElectedArr)
+	if Star := len + number; Star == 5 {
+		response.ResponseSuccess(c, "No seats left")
+		return
 	}
 	response.ResponseSuccess(c, "推选成功")
 }
@@ -294,6 +305,7 @@ func ElectCollege(c *gin.Context) {
 			return
 		}
 	}
+	response.ResponseSuccess(c, "推选成功")
 }
 
 // PublicStar 公布成长之星
