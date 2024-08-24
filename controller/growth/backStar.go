@@ -204,7 +204,7 @@ func ElectClass(c *gin.Context) {
 		//防止有重复数据
 		number, err := mysql.Selstarexit(username)
 		if err != nil || number != 0 {
-			response.ResponseErrorWithMsg(c, 400, "数据已存在")
+			response.ResponseErrorWithMsg(c, 200, "该人员已被推选")
 			return
 		}
 		//判断是否超出权限范围
