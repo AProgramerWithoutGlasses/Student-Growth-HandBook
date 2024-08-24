@@ -82,7 +82,7 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 			}
 			article.IsCollect = selected
 
-			// 存储到浏览记录
+			// 存储到浏览记录s
 			uid, err := mysql.SelectUserByUsername(username)
 			if err != nil {
 				zap.L().Error("GetArticleService() service.article.GetIdByUsername err=", zap.Error(err))
