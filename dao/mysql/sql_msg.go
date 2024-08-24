@@ -259,18 +259,21 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 	var comments gorm_model.Comments
 	var commentIDs []int
 
-	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", uid).Pluck("id", &commentIDs).Error; err != nil {
+	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ? AND pid = ?", uid, 0).Pluck("id", &commentIDs).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return nil, err
 	}
 
-	if err := DB.Model(&gorm_model.Comment{}).Joins("JOIN articles ON articles.id = comments.article_id").
-		Preload("User").
-		Where("comments.pid IN ?", commentIDs).
-		Or("articles.user_id = ? AND articles.ban = ? AND articles.deleted_at IS NULL", uid, false).
-		Limit(limit).Offset((page - 1) * limit).Order("comments.created_at DESC").
-		Find(&comments).Error; err != nil {
-		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(err))
+	var articleIDs []int
+	if err := DB.Model(&gorm_model.Article{}).Where("user_id = ?", uid).Pluck("id", &articleIDs).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return nil, err
+	}
+
+	// 查找到的是回复评论的评论内容以及评论文章的评论内容
+	if err := DB.Model(&gorm_model.Comment{}).Preload("User").Preload("Article").Limit(limit).Offset((page-1)*limit).
+		Where("pid IN ?", commentIDs).Or("article_id IN ? AND pid = ?", articleIDs, 0).Find(&comments).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -283,17 +286,21 @@ func QueryCommentRecordNumByUserId(uid int) (int, error) {
 
 	var commentIDs []int
 
-	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ?", uid).Pluck("pid", &commentIDs).Error; err != nil {
+	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ? AND pid = ?", uid, 0).Pluck("id", &commentIDs).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return -1, err
 	}
 
-	if err := DB.Model(&gorm_model.Comment{}).Joins("JOIN articles ON articles.id = comments.article_id").
-		Preload("Article.User").
-		Where("comments.pid IN ? AND is_read = ?", commentIDs, false).
-		Or("articles.user_id = ? AND articles.ban = ? AND comments.is_read = ? AND articles.deleted_at IS NULL", uid, false, false).
-		Count(&count).Error; err != nil {
-		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg err=", zap.Error(err))
+	var articleIDs []int
+	if err := DB.Model(&gorm_model.Article{}).Where("user_id = ?", uid).Pluck("id", &articleIDs).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return -1, err
+	}
+
+	// 查找到的是回复评论的评论内容以及评论文章的评论内容
+	if err := DB.Model(&gorm_model.Comment{}).Preload("User").Preload("Article").
+		Where("pid IN ? AND is_read = ?", commentIDs, false).Or("article_id IN ? AND pid = ? AND is_read = ?", articleIDs, 0, false).Count(&count).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return -1, err
 	}
 	return int(count), nil
