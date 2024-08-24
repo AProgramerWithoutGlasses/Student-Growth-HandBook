@@ -85,7 +85,7 @@ func AddSingleStuContro(c *gin.Context) {
 
 	// 导入班级权限判断
 	if classValue != class {
-		if role == addStuNowGrade || role == "college" {
+		if role == addStuNowGrade || role == "college" || role == "superman" {
 
 		} else {
 			response.ResponseErrorWithMsg(c, response.ServerErrorCode, "导入失败，您只能导入您所管班级的学生或所管年级的学生!")
