@@ -11,13 +11,14 @@ import (
 )
 
 func routesMsg(r *gin.Engine) {
+	gp := r.Group("/report_box")
 
 	casbinService, err := casbinModels.NewCasbinService(mysql.DB)
 	if err != nil {
 		zap.L().Error("routesMsg() routes.routesArticle.NewCasbinService err=", zap.Error(err))
 		return
 	}
-	gp := r.Group("/report_box")
+
 	// 查看举报信息
 	gp.POST("/getlist", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.GetUnreadReportsController)
 
