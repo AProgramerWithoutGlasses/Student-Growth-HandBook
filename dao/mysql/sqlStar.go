@@ -70,7 +70,17 @@ func SelHot(id int) (int, error) {
 // SelStarUser 查询未公布的学号合集
 func SelStarUser() ([]string, error) {
 	var alluser []string
-	err := DB.Table("stars").Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	err := DB.Model(&gorm_model.Star{}).Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	if err != nil {
+		return nil, err
+	}
+	return alluser, nil
+}
+
+// SelNStarUser 查询未公布且未推举的学号合集
+func SelNStarUser() ([]string, error) {
+	var alluser []string
+	err := DB.Model(&gorm_model.Star{}).Where("type = ?", 1).Where("session = ?", 0).Select("username").Scan(&alluser).Error
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +90,7 @@ func SelStarUser() ([]string, error) {
 // SelSearchGrade 查询未公布的学号合集
 func SelSearchGrade(name string) ([]string, error) {
 	var alluser []string
-	err := DB.Model(&gorm_model.Star{}).Where("name LIKE ?", name).Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	err := DB.Model(&gorm_model.Star{}).Where("name LIKE ?", "%"+name+"%").Where("session = ?", 0).Select("username").Scan(&alluser).Error
 	if err != nil {
 		return nil, err
 	}

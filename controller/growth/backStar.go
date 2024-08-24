@@ -50,7 +50,7 @@ func Search(c *gin.Context) {
 
 	//查找stars库中所有的数据
 	//查找权限下的数据
-	alluser, err := mysql.SelStarUser()
+	alluser, err := mysql.SelNStarUser()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "获取表格数据失败")
 		return
