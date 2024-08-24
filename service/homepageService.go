@@ -133,23 +133,28 @@ func GetHomepageUserDataService(username string) (*jrx_model.HomepageDataStruct,
 }
 
 // 更新个人主页头像
-func UpdateHeadshotService(file *multipart.FileHeader, username string) (string, error) {
+func UpdateHeadshotService(file *multipart.FileHeader, username string) error {
+	fmt.Println("成功进入业务")
 	url, err := fileProcess.UploadFile("png", file)
 	if err != nil {
-		return "", err
+		return err
 	}
+
+	fmt.Println("成功获得url")
 
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	err = mysql.UpdateHeadshotDao(id, url)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return url, err
+	fmt.Println("成功更换头像DAO")
+
+	return err
 }
 
 func GetFansListService(username string, tokenUsername string) ([]jrx_model.HomepageFanStruct, error) {

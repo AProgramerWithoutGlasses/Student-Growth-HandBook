@@ -27,35 +27,27 @@ func UpdateHeadshotControl(c *gin.Context) {
 		zap.L().Error(err.Error())
 		return
 	}
+	fmt.Println("成功接收到file")
 
 	token := c.GetHeader("token")
 	username, err := token2.GetUsername(token)
-
-	fmt.Println("11111")
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
 		return
 	}
-
-	fmt.Println(222222)
+	fmt.Println("成功接收到token")
 
 	// 业务
-	url, err := service.UpdateHeadshotService(file, username)
+	err = service.UpdateHeadshotService(file, username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
 		return
 	}
 
-	fmt.Println("231212312312")
+	fmt.Println("成功执行完业务")
 
 	// 响应
-	output := struct {
-		UserHeadshot string `json:"user_headshot"`
-	}{
-		UserHeadshot: url,
-	}
-
-	response.ResponseSuccess(c, output)
+	response.ResponseSuccess(c, struct{}{})
 }
