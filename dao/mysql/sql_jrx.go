@@ -349,7 +349,7 @@ func ChangeConcernDao(id int, otherId int) error {
 func GetHistoryByArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
 	// 获取该用户阅读过的文章的id
 	var articleIds []int
-	err := DB.Table("user_read_records").
+	err := DB.Model(&gorm_model.UserReadRecord{}).
 		Where("user_id = ?", id).
 		Pluck("article_id", &articleIds).Error
 	if err != nil {
@@ -358,10 +358,12 @@ func GetHistoryByArticleDao(id int, page int, limit int) ([]jrx_model.HomepageAr
 
 	// 获取这些文章id的文章信息以及文章发布者的信息  	// 多表查询
 	var homepageArticleHistoryList []jrx_model.HomepageArticleHistoryStruct
-	err = DB.Table("articles").
-		Select("articles.id, articles.content, articles.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
+	err = DB.Model(&gorm_model.Article{}).
+		Select("articles.id, articles.content, article_pics.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
 		Joins("JOIN users ON articles.user_id = users.id").
+		Joins("JOIN article_pics ON article_pics.article_id = articles.id").
 		Where("articles.id IN (?)", articleIds).
+		Order("articles.created_at DESC").
 		Offset((page - 1) * limit).
 		Limit(limit).
 		Scan(&homepageArticleHistoryList).Error
@@ -390,6 +392,7 @@ func GetStarDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistory
 		Joins("JOIN users ON articles.user_id = users.id").
 		Joins("JOIN article_pics ON article_pics.article_id = articles.id").
 		Where("articles.id IN (?)", articleIds).
+		Order("articles.created_at DESC").
 		Offset((page - 1) * limit).
 		Limit(limit).
 		Scan(&homepageArticleHistoryList).Error
@@ -423,7 +426,7 @@ func GetArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHist
 	// 获取该用户发布的文章的id
 	var articles []jrx_model.HomepageArticleHistoryStruct
 	err := DB.Model(&gorm_model.Article{}).
-		Select("articles.id, articles.content, articles.comment_amount, articles.like_amount, articles.collect_amount, articles.status, articles.topic, articles.created_at").
+		Select("articles.id, articles.content, articles.comment_amount, articles.like_amount, articles.collect_amount, articles.status, articles.topic, articles.created_at, articles.ban").
 		Where("articles.user_id = ?", id).
 		Order("articles.created_at DESC").
 		Offset((page - 1) * limit).
