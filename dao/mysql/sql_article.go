@@ -114,7 +114,7 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString,
 			startAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords))
 	} else if startAtString == "" && endAtString == "" {
 		query = DB.Where("topic like ? and content like ?",
-			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
+			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords))
 	}
 
 	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
