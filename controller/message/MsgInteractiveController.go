@@ -29,15 +29,26 @@ func GetSystemMsgController(c *gin.Context) {
 		return
 	}
 
-	msg, UnreadCount, err := message.GetSystemMsgService(in.Limit, in.Page, username)
+	msgs, UnreadCount, err := message.GetSystemMsgService(in.Limit, in.Page, username)
 	if err != nil {
 		zap.L().Error("GetSystemMsgController() controller.message.GetSystemMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
+	list := make([]map[string]any, 0)
+	for _, msg := range msgs {
+		list = append(list, map[string]any{
+			"ID":            msg.ID,
+			"msg_content":   msg.Content,
+			"msg_time":      msg.Time,
+			"username":      username,
+			"user_headshot": msg.User.HeadShot,
+		})
+	}
+
 	res.ResponseSuccess(c, map[string]any{
-		"admin_info":   msg,
+		"admin_info":   list,
 		"unread_count": UnreadCount,
 	})
 }
@@ -63,15 +74,26 @@ func GetManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	msg, UnreadCount, err := message.GetManagerMsgService(in.Limit, in.Page, username)
+	msgs, UnreadCount, err := message.GetManagerMsgService(in.Limit, in.Page, username)
 	if err != nil {
 		zap.L().Error("GetManagerMsgController() controller.message.GetManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
+	list := make([]map[string]any, 0)
+	for _, msg := range msgs {
+		list = append(list, map[string]any{
+			"ID":            msg.ID,
+			"msg_content":   msg.Content,
+			"msg_time":      msg.Time,
+			"username":      username,
+			"user_headshot": msg.User.HeadShot,
+		})
+	}
+
 	res.ResponseSuccess(c, map[string]any{
-		"manager_info": msg,
+		"manager_info": list,
 		"unread_count": UnreadCount,
 	})
 }
@@ -299,7 +321,14 @@ func PublishSystemMsgController(c *gin.Context) {
 		return
 	}
 
-	err = message.PublishSystemMsgService(in.Content, role)
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("PublishSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = message.PublishSystemMsgService(in.Content, role, username)
 	if err != nil {
 		zap.L().Error("PublishSystemMsgController() controller.message.PublishSystemMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)

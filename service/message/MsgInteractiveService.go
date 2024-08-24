@@ -1,7 +1,6 @@
 package message
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"studentGrow/dao/mysql"
@@ -15,20 +14,19 @@ import (
 // GetSystemMsgService 获取系统消息通知
 func GetSystemMsgService(limit, page int, username string) ([]gorm_model.MsgRecord, int, error) {
 	// 获取uid
-	uid, err := mysql.GetIdByUsername(username)
+	user, err := mysql.GetUserByUsername(username)
 	if err != nil {
-		zap.L().Error("GetSystemMsgService() service.message.QuerySystemMsg", zap.Error(err))
 		return nil, 0, err
 	}
 
-	msgs, err := mysql.QuerySystemMsg(page, limit, uid)
+	msgs, err := mysql.QuerySystemMsg(page, limit, int(user.ID))
 	if err != nil {
 		zap.L().Error("GetSystemMsgService() service.message.QuerySystemMsg", zap.Error(err))
 		return nil, -1, err
 	}
 
 	// 查询未读消息条数
-	count, err := mysql.QueryUnreadSystemMsg(uid)
+	count, err := mysql.QueryUnreadSystemMsg(int(user.ID))
 	if err != nil {
 		zap.L().Error("GetSystemMsgService() service.message.QueryUnreadSystemMsg", zap.Error(err))
 		return nil, -1, err
@@ -303,9 +301,8 @@ func PublishManagerMsgService(username, content, role string) error {
 }
 
 // PublishSystemMsgService 发布系统通知
-func PublishSystemMsgService(content, role string) error {
+func PublishSystemMsgService(content, role, username string) error {
 	// 权限验证
-	fmt.Println(role)
 	if role != "superman" {
 		return myErr.OverstepCompetence()
 	}
@@ -317,7 +314,7 @@ func PublishSystemMsgService(content, role string) error {
 	}
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		for _, uid := range ids {
-			err = mysql.AddSystemMsg(content, int(uid), tx)
+			err = mysql.AddSystemMsg(content, int(uid), tx, username)
 			if err != nil {
 				zap.L().Error("PublishSystemMsgService() service.article.likeService.AddSystemMsg err=", zap.Error(err))
 				return err
