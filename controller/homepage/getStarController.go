@@ -45,5 +45,10 @@ func GetStarControl(c *gin.Context) {
 		History: homepageStarList,
 	}
 
+	if output.History == nil || len(output.History) == 0 {
+		response.ResponseSuccess(c, "")
+		return
+	}
+
 	response.ResponseSuccess(c, output)
 }
