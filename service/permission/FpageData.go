@@ -97,7 +97,7 @@ func VictorRate(todayVictor int64) (float64, error) {
 	if todayVictor == 0 || yesdayVictor == 0 {
 		return 0, nil
 	}
-	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(todayVictor-yesdayVictor)/float64(todayVictor)), 64)
+	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(todayVictor-yesdayVictor)/float64(yesdayVictor)), 64)
 	return rate * 100, err
 }
 
