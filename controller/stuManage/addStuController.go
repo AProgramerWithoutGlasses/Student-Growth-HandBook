@@ -91,7 +91,7 @@ func AddSingleStuContro(c *gin.Context) {
 	}
 
 	// 计算出要添加的学生是大几的
-	addStuNowGrade := service.CalculateNowGrade(addStuPlusTime)
+	addStuNowGrade := service.CalculateNowGradeByClass(classValue)
 
 	// 去除班级名称中的 ”班“ 字
 	if len(classValue) == 12 {
