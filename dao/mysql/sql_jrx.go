@@ -163,7 +163,7 @@ func CancelStuManager(username string, casbinCid string) error {
 	}
 
 	// casbin_ruler表设置
-	err = DB.Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).Update("casbin_cid", 0).Error
+	err = DB.Unscoped().Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).Delete(nil).Error
 
 	if err != nil {
 		return err
