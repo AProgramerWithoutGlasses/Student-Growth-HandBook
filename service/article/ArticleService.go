@@ -82,7 +82,7 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 			}
 			article.IsCollect = selected
 
-			// 存储到浏览记录
+			// 存储到浏览记录s
 			uid, err := mysql.SelectUserByUsername(username)
 			if err != nil {
 				zap.L().Error("GetArticleService() service.article.GetIdByUsername err=", zap.Error(err))
@@ -194,7 +194,7 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		}
 
 		msg := fmt.Sprintf("您的内容为:<br/>%s<br/>已被封禁!", content)
-		err = mysql.AddSystemMsg(msg, int(user.ID), tx)
+		err = mysql.AddSystemMsg(msg, int(user.ID), tx, username)
 		if err != nil {
 			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 			return err
