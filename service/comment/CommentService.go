@@ -49,21 +49,28 @@ func PostComment(commentType, username, content string, id int) error {
 		default:
 			return myErr.DataFormatError()
 		}
-		// 增加文章评论数
-		num, err := mysql.QueryArticleCommentNum(id)
-		if err != nil {
-			zap.L().Error("PostComment() service.article.QueryArticleCommentNum err=", zap.Error(err))
-			return err
-		}
-		err = mysql.UpdateArticleCommentNum(id, num+1, tx)
-		if err != nil {
-			zap.L().Error("PostComment() service.article.UpdateArticleCommentNum err=", zap.Error(err))
-			return err
-		}
 		return nil
 	})
 	if err != nil {
 		zap.L().Error("PostComment() service.article.Transaction err=", zap.Error(err))
+		return err
+	}
+
+	// 获取评论的文章id
+	aid, err := mysql.QueryArticleIdByCommentId(cid)
+	if err != nil {
+		zap.L().Error("PostComment() service.article.QueryArticleIdByCommentId err=", zap.Error(err))
+		return err
+	}
+	// 增加文章评论数
+	num, err := mysql.QueryArticleCommentNum(aid)
+	if err != nil {
+		zap.L().Error("PostComment() service.article.QueryArticleCommentNum err=", zap.Error(err))
+		return err
+	}
+	err = mysql.UpdateArticleCommentNum(aid, num+1, mysql.DB)
+	if err != nil {
+		zap.L().Error("PostComment() service.article.UpdateArticleCommentNum err=", zap.Error(err))
 		return err
 	}
 
