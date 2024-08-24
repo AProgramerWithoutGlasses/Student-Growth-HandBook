@@ -134,10 +134,13 @@ func GetHomepageUserDataService(username string) (*jrx_model.HomepageDataStruct,
 
 // 更新个人主页头像
 func UpdateHeadshotService(file *multipart.FileHeader, username string) error {
+	fmt.Println("成功进入业务")
 	url, err := fileProcess.UploadFile("png", file)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("成功获得url")
 
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
@@ -148,6 +151,8 @@ func UpdateHeadshotService(file *multipart.FileHeader, username string) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("成功更换头像DAO")
 
 	return err
 }
