@@ -1,6 +1,7 @@
 package article
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
@@ -64,7 +65,7 @@ func PostCom(c *gin.Context) {
 func GetLel1CommentsController(c *gin.Context) {
 	var input struct {
 		Aid      int    `json:"article_id"`
-		SortWay  string `json:"comment_way"`
+		SortWay  string `json:"comment_sort"`
 		Limit    int    `json:"comment_count"`
 		Page     int    `json:"comment_page"`
 		Username string `json:"username"`
@@ -82,6 +83,10 @@ func GetLel1CommentsController(c *gin.Context) {
 		zap.L().Error("GetLel1CommentsController() controller.article.GetLel1CommentsService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
+	}
+
+	for i := 0; i < len(comments); i++ {
+		fmt.Println(i, comments[i].LikeAmount)
 	}
 
 	// 获取文章评论数

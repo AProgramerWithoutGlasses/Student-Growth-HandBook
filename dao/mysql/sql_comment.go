@@ -55,8 +55,8 @@ func InsertIntoCommentsForComment(content string, uid int, pid int, db *gorm.DB)
 }
 
 // QueryLevelOneComments 查询一级评论
-func QueryLevelOneComments(aid, limit, page int) ([]model.Comment, error) {
-	var comments []model.Comment
+func QueryLevelOneComments(aid, limit, page int) (model.Comments, error) {
+	var comments model.Comments
 	if err := DB.Preload("User").Where("article_id = ? AND pid = ?", aid, 0).
 		Order("created_at desc").
 		Limit(limit).Offset((page - 1) * limit).

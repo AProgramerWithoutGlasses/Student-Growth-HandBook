@@ -81,7 +81,7 @@ func PostComment(commentType, username, content string, id int) error {
 }
 
 // GetLel1CommentsService 获取一级评论详情列表
-func GetLel1CommentsService(aid, limit, page int, username, sortWay string) ([]gorm_model.Comment, error) {
+func GetLel1CommentsService(aid, limit, page int, username, sortWay string) (gorm_model.Comments, error) {
 	// 分页查询评论
 	comments, err := mysql.QueryLevelOneComments(aid, limit, page)
 	if err != nil {
@@ -90,7 +90,7 @@ func GetLel1CommentsService(aid, limit, page int, username, sortWay string) ([]g
 	}
 	// 排序
 	if sortWay == "hot" {
-		sort.Sort(gorm_model.Comments(comments))
+		sort.Sort(comments)
 	}
 	// 判断是否点赞, 并计算其子评论数量, 计算评论时间
 	for i := 0; i < len(comments); i++ {
