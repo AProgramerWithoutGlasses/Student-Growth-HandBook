@@ -223,10 +223,10 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		return err
 	}
 
-	/*
-		回滚分数
-	*/
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+		/*
+			回滚分数
+		*/
 		curPoint, err := mysql.QueryArticlePoint(aid)
 		if err != nil {
 			zap.L().Error("DeleteArticleService() service.article.GetInt err=", zap.Error(err))
@@ -239,6 +239,9 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 			return err
 		}
 
+		/*
+			删除文章
+		*/
 		switch role {
 		case "class":
 			err = mysql.DeleteArticleByIdForClass(aid, username, tx)
@@ -262,6 +265,25 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 			zap.L().Error("DeleteArticleService() service.article.DeleteArticleByIdForClass err=", zap.Error(err))
 			return err
 		}
+
+		/*
+			删除文章的关联图片表
+		*/
+		err = mysql.DeleteArticlePicByArticleId(aid)
+		if err != nil {
+			zap.L().Error("DeleteArticleService() service.article.DeleteArticlePicByArticleId err=", zap.Error(err))
+			return err
+		}
+
+		/*
+			删除文章的标签关联表
+		*/
+		err = mysql.DeleteArticleTagByArticleId(aid)
+		if err != nil {
+			zap.L().Error("DeleteArticleService() service.article.DeleteArticleTagByArticleId err=", zap.Error(err))
+			return err
+		}
+
 		return nil
 	})
 	if err != nil {

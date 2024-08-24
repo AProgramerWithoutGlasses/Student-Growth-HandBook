@@ -587,3 +587,21 @@ func QueryUserIsManager(uid uint) (bool, error) {
 	}
 	return isManager, nil
 }
+
+// DeleteArticlePicByArticleId 根据文章id删除文章关联的图片表
+func DeleteArticlePicByArticleId(aid int) error {
+	if err := DB.Where("article_id = ?", aid).Delete(&model.ArticlePic{}).Error; err != nil {
+		zap.L().Error("DeleteArticlePicByArticleId() dao.mysql.sql_article", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// DeleteArticleTagByArticleId 根据文章id删除文章关联的标签表
+func DeleteArticleTagByArticleId(aid int) error {
+	if err := DB.Where("article_id = ?", aid).Delete(&model.ArticleTag{}).Error; err != nil {
+		zap.L().Error("DeleteArticlePicByArticleId() dao.mysql.sql_article", zap.Error(err))
+		return err
+	}
+	return nil
+}
