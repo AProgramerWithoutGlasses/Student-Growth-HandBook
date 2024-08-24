@@ -130,6 +130,7 @@ func GetArticleListController(c *gin.Context) {
 			"comment_amount":  val.CommentAmount,
 			"username":        val.User.Username,
 			"created_at":      val.CreatedAt,
+			"name":            val.User.Name,
 		})
 	}
 
