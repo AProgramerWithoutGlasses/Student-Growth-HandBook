@@ -31,7 +31,7 @@ func GetUnreadReportsForClass(username string, limit, page int) ([]gorm_model.Us
 	//  通过文章id查找到到对应的用户
 	var reports []gorm_model.UserReportArticleRecord
 	if err := DB.Preload("User", "class = ?", user.Class).Preload("Article", "ban = ?", false).
-		Where("is_read = ?", false).Order("created_at DESC, article_id ASC").
+		Where("is_read = ? AND articles.deleted_at IS NULL", false).Order("created_at DESC, article_id ASC").
 		Limit(limit).Offset((page - 1) * limit).
 		Find(&reports).Error; err != nil {
 		zap.L().Error("GetClassByUsername() dao.mysql.sql_msg.Find err=", zap.Error(err))
