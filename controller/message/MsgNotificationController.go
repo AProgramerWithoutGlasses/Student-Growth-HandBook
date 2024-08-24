@@ -7,6 +7,7 @@ import (
 	res "studentGrow/pkg/response"
 	"studentGrow/service/message"
 	readUtil "studentGrow/utils/readMessage"
+	"studentGrow/utils/timeConverter"
 	"studentGrow/utils/token"
 )
 
@@ -54,7 +55,7 @@ func GetUnreadReportsController(c *gin.Context) {
 	var articleContent = make(map[uint]string)
 	for _, item := range reports {
 		reportContent[item.ArticleID] = append(reportContent[item.ArticleID], map[string]any{
-			"report_time": item.CreatedAt,
+			"report_time": timeConverter.IntervalConversion(item.CreatedAt),
 			"report_msg":  item.Msg,
 		})
 		articleContent[item.ArticleID] = item.Article.Content
