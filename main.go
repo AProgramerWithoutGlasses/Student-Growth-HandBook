@@ -55,7 +55,7 @@ func main() {
 	// redis读写mysql
 	article.InitMyMQ()
 
-	// 5. 注册路由
+	// 5. 注册路由ss
 	r := routes.Setup()
 
 	//6.初始化oss
