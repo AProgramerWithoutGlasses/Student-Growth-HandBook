@@ -15,16 +15,19 @@ import (
 	"time"
 )
 
-// AddSingleStuContro 添加单个学生
+// 添加单个学生
 func AddSingleStuContro(c *gin.Context) {
+	fmt.Println(1111)
 	token := c.GetHeader("token")
-
 	username, err := token2.GetUsername(token)
+	fmt.Println(username)
+
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
 		return
 	}
+	fmt.Println(username)
 
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
@@ -74,14 +77,22 @@ func AddSingleStuContro(c *gin.Context) {
 	if err != nil {
 		fmt.Println("class GetString() err : ", err)
 	}
-
-	// 计算出要添加的学生是大几的
-	addStuNowGrade := service.CalculateNowGradeByClass(classValue)
-
 	// 去除班级名称中的 ”班“ 字
 	if len(classValue) == 12 {
 		classValue = classValue[:len(classValue)-3]
 	}
+
+	// 使用正则表达式进行匹配
+	pattern := `^[\p{Han}]{2}\d{3}$`
+	match, _ := regexp.MatchString(pattern, classValue)
+	if !match {
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "请输入正确的班级格式")
+		println("1111")
+		return
+	}
+
+	// 计算出要添加的学生是大几的
+	addStuNowGrade := service.CalculateNowGradeByClass(classValue)
 
 	// 导入班级权限判断
 	if classValue != class {
@@ -101,9 +112,9 @@ func AddSingleStuContro(c *gin.Context) {
 
 	// 根据班级获取入学时间
 	re := regexp.MustCompile(`^\D*(\d{2})`)
-	match := re.FindStringSubmatch(classValue)
+	match1 := re.FindStringSubmatch(classValue)
 
-	yearEnd := match[1]                    // 获取 "22"
+	yearEnd := match1[1]                   // 获取 "22"
 	yearEndInt, _ := strconv.Atoi(yearEnd) // 将 "22" 转换为整数
 	yearInt := yearEndInt + 2000           // 将整数转换为 "2022"
 
