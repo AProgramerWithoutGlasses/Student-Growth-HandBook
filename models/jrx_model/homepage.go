@@ -54,7 +54,7 @@ type HomepageArticleHistoryStruct struct {
 	UserID        uint      `json:"user_id,omitempty"`
 	IsLike        bool      `json:"is_like,omitempty"`
 	IsCollect     bool      `json:"is_collect,omitempty"`
-	CreateAt      time.Time `json:"-"`
+	CreatedAt     time.Time `json:"-"`
 	PostTime      string    `json:"post_time,omitempty"`
 	ArticleTags   []string  `json:"article_tags,omitempty"`
 }

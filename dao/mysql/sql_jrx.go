@@ -425,6 +425,7 @@ func GetArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHist
 	err := DB.Model(&gorm_model.Article{}).
 		Select("articles.id, articles.content, articles.comment_amount, articles.like_amount, articles.collect_amount, articles.status, articles.topic, articles.created_at").
 		Where("articles.user_id = ?", id).
+		Order("articles.created_at DESC").
 		Offset((page - 1) * limit).
 		Limit(limit).
 		Scan(&articles).Error
@@ -433,7 +434,7 @@ func GetArticleDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHist
 	}
 
 	for i := range articles {
-		articles[i].PostTime = articles[i].CreateAt.Format("2006-01-02")
+		articles[i].PostTime = articles[i].CreatedAt.Format("2006-01-02")
 
 		var tagIds []int
 		err := DB.Table("article_tags").
