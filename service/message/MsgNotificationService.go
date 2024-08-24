@@ -83,7 +83,7 @@ func AckUnreadReportsService(reportId int, username string, role string) (err er
 	case "superman":
 		err = mysql.AckUnreadReportsForSuperman(reportId)
 	default:
-		return myErr.ErrNotFoundError
+		return myErr.DataFormatError()
 	}
 
 	if err != nil {

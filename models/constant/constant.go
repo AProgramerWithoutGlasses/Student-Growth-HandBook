@@ -61,3 +61,9 @@ const WordLimitMax = 300
 */
 
 const SupserManId = 182
+
+/*
+一天对多发的话题数
+*/
+
+const ArticlePublishLimit = 2
