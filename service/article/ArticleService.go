@@ -49,7 +49,7 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 
 	//查找文章信息
 	var article *model.Article
-	if IsManager {
+	if IsManager || user.Username == username {
 		// 若为管理员
 		article, err = mysql.QueryArticleByIdOfManager(aid)
 		if err != nil {
@@ -189,7 +189,7 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		}
 
 		msg := fmt.Sprintf("您的内容为:<br/>%s<br/>已被封禁!", content)
-		err = mysql.AddSystemMsg(msg, int(user.ID))
+		err = mysql.AddSystemMsg(msg, int(user.ID), tx)
 		if err != nil {
 			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 			return err

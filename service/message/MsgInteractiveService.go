@@ -3,6 +3,7 @@ package message
 import (
 	"fmt"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
@@ -314,12 +315,19 @@ func PublishSystemMsgService(content, role string) error {
 		zap.L().Error("PublishSystemMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
 		return err
 	}
-	for _, uid := range ids {
-		err = mysql.AddSystemMsg(content, int(uid))
-		if err != nil {
-			zap.L().Error("PublishSystemMsgService() service.article.likeService.AddSystemMsg err=", zap.Error(err))
-			return err
+	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+		for _, uid := range ids {
+			err = mysql.AddSystemMsg(content, int(uid), tx)
+			if err != nil {
+				zap.L().Error("PublishSystemMsgService() service.article.likeService.AddSystemMsg err=", zap.Error(err))
+				return err
+			}
 		}
+		return nil
+	})
+	if err != nil {
+		zap.L().Error("PublishSystemMsgService() service.article.likeService.Transaction err=", zap.Error(err))
+		return err
 	}
 	return nil
 }

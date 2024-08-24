@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
@@ -482,14 +483,14 @@ func AddManagerMsg(username, content string, uid int) error {
 }
 
 // AddSystemMsg 添加系统通知
-func AddSystemMsg(content string, uid int) error {
+func AddSystemMsg(content string, uid int, db *gorm.DB) error {
 	systemMsg := gorm_model.MsgRecord{
 		Content: content,
 		UserID:  uint(uid),
 		Type:    constant.SystemMsgConstant,
 	}
 
-	if err := DB.Create(&systemMsg).Error; err != nil {
+	if err := db.Create(&systemMsg).Error; err != nil {
 		zap.L().Error("AddSystemMsg() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
