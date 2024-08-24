@@ -149,6 +149,8 @@ func QLogin(c *gin.Context) {
 	} else {
 		role = "user"
 	}
+	//验证用户是否是老师
+	ifTeacher, err := mysql.IfTeacher(user.Username)
 	//记录用户登录
 	id, err := mysql.SelId(user.Username)
 	err = mysql.CreateUser(user.Username, id)
@@ -163,9 +165,10 @@ func QLogin(c *gin.Context) {
 		return
 	}
 	slice := map[string]any{
-		"username": user.Username,
-		"token":    tokenString,
-		"role":     role,
+		"username":  user.Username,
+		"token":     tokenString,
+		"role":      role,
+		"ifTeacher": ifTeacher,
 	}
 	//发送给前端
 	pkg.ResponseSuccess(c, slice)
