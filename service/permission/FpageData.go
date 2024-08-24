@@ -76,7 +76,7 @@ func ArticleDataClassRate(uidslice []int, nownumber int64) (float64, error) {
 		return 0, nil
 	}
 	//计算比率
-	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(nownumber-allNumber)/float64(nownumber)), 64)
+	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(nownumber-allNumber)/float64(allNumber)), 64)
 	return rate * 100, err
 }
 
@@ -97,7 +97,7 @@ func VictorRate(todayVictor int64) (float64, error) {
 	if todayVictor == 0 || yesdayVictor == 0 {
 		return 0, nil
 	}
-	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(todayVictor-yesdayVictor)/float64(todayVictor)), 64)
+	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(todayVictor-yesdayVictor)/float64(yesdayVictor)), 64)
 	return rate * 100, err
 }
 
