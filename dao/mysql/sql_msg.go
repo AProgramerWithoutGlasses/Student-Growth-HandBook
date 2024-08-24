@@ -192,7 +192,7 @@ func QueryUnreadManagerMsg(uid int) (int, error) {
 func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, error) {
 	var likes []gorm_model.UserLikeRecord
 	if err := DB.Preload("User").Preload("Article").Preload("Comment.Article").
-		Where("article_id IN (SELECT id FROM articles WHERE user_id = ?) OR comment_id IN (SELECT id FROM comments WHERE user_id = ?)", uid, uid).
+		Where("(article_id IN (SELECT id FROM articles WHERE user_id = ? AND ban = ? AND status = ? AND deleted_at IS NULL) OR comment_id IN (SELECT id FROM comments WHERE user_id = ? AND deleted_at IS NULL))", uid, false, true, uid).
 		Limit(limit).
 		Offset((page - 1) * limit).Order("created_at desc").
 		Find(&likes).Error; err != nil {
@@ -207,7 +207,7 @@ func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, e
 func QueryLikeRecordNumByUser(uid int) (int, error) {
 	var count int64
 
-	if err := DB.Model(&gorm_model.UserLikeRecord{}).Where("is_read = ? and article_id IN (SELECT id FROM articles WHERE user_id = ?) OR comment_id IN (SELECT id FROM comments WHERE user_id = ?)", false, uid, uid).Count(&count).Error; err != nil {
+	if err := DB.Model(&gorm_model.UserLikeRecord{}).Where("is_read = ? AND (article_id IN (SELECT id FROM articles WHERE user_id = ? AND ban = ? AND status = ? AND deleted_at IS NULL) OR comment_id IN (SELECT id FROM comments WHERE user_id = ? AND deleted_at IS NULL))", false, uid, false, true, uid).Count(&count).Error; err != nil {
 		zap.L().Error("QueryLikeRecordNumByUserArticle() dao.mysql.sql_msg.Count err=", zap.Error(err))
 		return -1, err
 	}
@@ -226,6 +226,7 @@ func QueryCollectRecordByUserArticles(uid, page, limit int) ([]gorm_model.UserCo
 	// 通过文章id查询收藏记录
 	var articleCollects []gorm_model.UserCollectRecord
 	if err := DB.Preload("Article").Preload("User").Where("article_id IN ?", aids).
+		Order("created_at desc").
 		Limit(limit).Offset((page - 1) * limit).
 		Find(&articleCollects).Error; err != nil {
 		zap.L().Error("QueryCollectRecordByUserArticles() dao.mysql.sql_msg.Find err=", zap.Error(err))
@@ -265,13 +266,14 @@ func QueryCommentRecordByUserArticles(uid, page, limit int) (gorm_model.Comments
 	}
 
 	var articleIDs []int
-	if err := DB.Model(&gorm_model.Article{}).Where("user_id = ?", uid).Pluck("id", &articleIDs).Error; err != nil {
+	if err := DB.Model(&gorm_model.Article{}).Where("user_id = ? AND ban = ? AND status = ?", uid, false, true).Pluck("id", &articleIDs).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return nil, err
 	}
 
 	// 查找到的是回复评论的评论内容以及评论文章的评论内容
 	if err := DB.Model(&gorm_model.Comment{}).Preload("User").Preload("Article").Limit(limit).Offset((page-1)*limit).
+		Order("created_at desc").
 		Where("pid IN ?", commentIDs).Or("article_id IN ? AND pid = ?", articleIDs, 0).Find(&comments).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return nil, err
@@ -292,7 +294,7 @@ func QueryCommentRecordNumByUserId(uid int) (int, error) {
 	}
 
 	var articleIDs []int
-	if err := DB.Model(&gorm_model.Article{}).Where("user_id = ?", uid).Pluck("id", &articleIDs).Error; err != nil {
+	if err := DB.Model(&gorm_model.Article{}).Where("user_id = ? AND ban = ? AND status = ?", uid, false, true).Pluck("id", &articleIDs).Error; err != nil {
 		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return -1, err
 	}
