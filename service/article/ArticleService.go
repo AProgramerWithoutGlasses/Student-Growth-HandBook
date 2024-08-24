@@ -441,7 +441,13 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	startOfDay := time.Now().Truncate(24 * time.Hour) // 今天的开始时间
 	endOfDay := startOfDay.Add(24 * time.Hour)        // 明天的开始时间
 
-	count, err := mysql.QueryArticleNumByDay(topic, startOfDay, endOfDay)
+	uid, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		zap.L().Error("PublishArticleService() service.article.GetIdByUsername err=", zap.Error(err))
+		return err
+	}
+
+	count, err := mysql.QueryArticleNumByDay(topic, startOfDay, endOfDay, uid)
 	if err != nil {
 		zap.L().Error("PublishArticleService() service.article.QueryArticleNumByDay err=", zap.Error(err))
 		return err
@@ -459,11 +465,6 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 			return err
 		}
 		videoPath = url
-	}
-	uid, err := mysql.GetIdByUsername(username)
-	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.GetIdByUsername err=", zap.Error(err))
-		return err
 	}
 
 	// 计算文章分数
