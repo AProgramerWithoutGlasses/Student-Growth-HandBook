@@ -60,6 +60,12 @@ func DeleteSingleUser(id int) error {
 	return err
 }
 
+// 删除单个学生的管理员信息
+func DeleteSingleUserManager(username string) error {
+	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("username = ?", username).Delete(nil).Error
+	return err
+}
+
 // 封禁该用户
 func BanStudent(id int) (int, error) {
 	var temp int
@@ -157,8 +163,7 @@ func CancelStuManager(username string, casbinCid string) error {
 	}
 
 	// casbin_ruler表设置
-
-	err = DB.Table("user_casbin_rules").Where("c_username = ?", username).Delete(nil).Error
+	err = DB.Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).Update("casbin_cid", 0).Error
 
 	if err != nil {
 		return err

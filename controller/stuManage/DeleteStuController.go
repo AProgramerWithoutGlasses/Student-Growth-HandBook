@@ -22,9 +22,9 @@ func DeleteStuControl(c *gin.Context) {
 	}
 
 	// 删除选中的用户
-	for _, v := range input.Selected_students {
+	for i, _ := range input.Selected_students {
 
-		id, err := mysql.GetIdByUsername(v.Username)
+		id, err := mysql.GetIdByUsername(input.Selected_students[i].Username)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 500, "stuManager.DeleteStuControl() mysql.GetIdByUsername() failed : "+err.Error())
 			zap.L().Error("stuManager.DeleteStuControl() mysql.GetIdByUsername() failed : ", zap.Error(err))
@@ -37,6 +37,18 @@ func DeleteStuControl(c *gin.Context) {
 			zap.L().Error("stuManager.DeleteStuControl() mysql.DeleteSingleStudent() err : ", zap.Error(err))
 			return
 		}
+
+		isManager, err := mysql.GetIsManagerByUsername(input.Selected_students[i].Username)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
+			zap.L().Error(err.Error())
+			return
+		}
+
+		if isManager {
+			mysql.DeleteSingleUserManager(input.Selected_students[i].Username)
+		}
+
 	}
 
 	// 响应成功
