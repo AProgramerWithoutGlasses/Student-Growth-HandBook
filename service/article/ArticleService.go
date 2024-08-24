@@ -175,14 +175,14 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 			}
 		}
 
-		// 将封禁信息创建在系统通知
-		user, err := mysql.GetUserByUsername(username)
+		// 将封禁信息通过系统通知发送给作者本人
+		content, err := mysql.QueryContentByArticleId(aid)
 		if err != nil {
-			zap.L().Error("BannedArticleService() service.article.GetUserByUsername err=", zap.Error(err))
+			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 			return err
 		}
 
-		content, err := mysql.QueryContentByArticleId(aid)
+		user, err := mysql.QueryUserByArticleId(aid)
 		if err != nil {
 			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 			return err
