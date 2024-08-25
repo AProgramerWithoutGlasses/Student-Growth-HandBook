@@ -10,10 +10,6 @@ import (
 // StarGrid 查询表格所有数据
 func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 	var starBack []models.StarBack
-	//用户积分
-	var score int
-	//用户热度
-	var hot int
 	for _, username := range usernameslice {
 		//结构体对象存放数据
 		//var star models.StarBack
@@ -38,7 +34,7 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 			fmt.Println("StarGridClass Selfans err", err)
 			return nil, err
 		}
-
+		var score int
 		//查询积分
 		allScore, err := mysql.Score(id)
 		for _, thisScore := range allScore {
@@ -63,6 +59,7 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 			return nil, err
 		}
 
+		var hot int
 		//查询热度
 		likes, collects, err := mysql.SelHot(id)
 		for _, like := range likes {
