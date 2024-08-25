@@ -167,11 +167,13 @@ func Search(c *gin.Context) {
 		response.ResponseError(c, 400)
 		return
 	}
+	headline, err := mysql.SelMax()
 	data := map[string]any{
 		"tableData":   tableData,
 		"total":       total,
 		"peopleLimit": peopleLimit,
 		"isDisabled":  status,
+		"headline":    headline,
 	}
 	response.ResponseSuccess(c, data)
 }
