@@ -1,13 +1,17 @@
 package stuManage
 
 import (
+	"errors"
+	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	"time"
 )
 
 func AddMultipleStuControl(c *gin.Context) {
@@ -35,19 +39,24 @@ func AddMultipleStuControl(c *gin.Context) {
 	// 检查数据库中是否已经存在该用户
 	for _, row := range rows[1:] { // 忽略表头行
 		err = mysql.ExistedUsername(row[2])
+		fmt.Println("1111122222")
 		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-
+			// 用户不存在
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				err = nil
+				continue
 			} else {
 				response.ResponseErrorWithMsg(c, 500, "stuManage.AddMultipleStuControl() mysql.ExistedUsername() failed: "+err.Error())
 				zap.L().Error("stuManage.AddMultipleStuControl() mysql.ExistedUsername() failed: " + err.Error())
 				return
 			}
 
-		} else { // 用户存在
-			duplicatedUser = append(duplicatedUser, row[2])
-		}
+		} // 用户存在
+		duplicatedUser = append(duplicatedUser, row[2])
+
 	}
+
+	fmt.Println("检测结束")
 
 	var duplicatedUserStr string
 	if len(duplicatedUser) > 0 {
@@ -62,6 +71,12 @@ func AddMultipleStuControl(c *gin.Context) {
 
 	// 创建新的用户
 	for _, row := range rows[1:] {
+		yearInt, err := strconv.Atoi(row[0][6:8])
+		if err != nil {
+			response.ResponseError(c, response.ServerErrorCode)
+			zap.L().Error(err.Error())
+			return
+		}
 		user := gorm_model.User{
 			Class:    row[0],
 			Name:     row[1],
@@ -69,6 +84,7 @@ func AddMultipleStuControl(c *gin.Context) {
 			Password: row[3],
 			Gender:   row[4],
 			Identity: "学生",
+			PlusTime: time.Date(yearInt+2000, 9, 1, 0, 0, 0, 0, time.Now().Location()),
 		}
 		err = mysql.AddSingleStudent(&user)
 		if err != nil {

@@ -19,7 +19,7 @@ func NewCasbinAuth(srv *casbinModels.CasbinService) gin.HandlerFunc {
 			return
 		}
 		//获取请求头token解析出username
-		token := c.GetHeader("myToken")
+		token := c.GetHeader("token")
 		//查询账号对应的角色
 		role, err := myToken.GetRole(token)
 		if err != nil || role == "" {
