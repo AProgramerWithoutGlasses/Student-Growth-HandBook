@@ -365,8 +365,8 @@ func GetHistoryByArticleDao(id int, page int, limit int) ([]jrx_model.HomepageAr
 	var homepageArticleHistoryList []jrx_model.HomepageArticleHistoryStruct
 	err = DB.Model(&gorm_model.Article{}).
 		Select("articles.id, articles.content, article_pics.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
-		Joins("JOIN users ON articles.user_id = users.id").
-		Joins("JOIN article_pics ON article_pics.article_id = articles.id").
+		Joins("LEFT JOIN users ON articles.user_id = users.id").
+		Joins("LEFT JOIN article_pics ON article_pics.article_id = articles.id").
 		Where("articles.id IN (?)", articleIds).
 		Order("articles.created_at DESC").
 		Offset((page - 1) * limit).
@@ -392,10 +392,10 @@ func GetStarDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistory
 
 	// 获取这些文章id的文章信息以及文章发布者的信息  	// 多表查询
 	var homepageArticleHistoryList []jrx_model.HomepageArticleHistoryStruct
-	err = DB.Table("articles").
+	err = DB.Model(&gorm_model.Article{}).
 		Select("articles.id, articles.content, article_pics.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
-		Joins("JOIN users ON articles.user_id = users.id").
-		Joins("JOIN article_pics ON article_pics.article_id = articles.id").
+		Joins("LEFT JOIN users ON articles.user_id = users.id").
+		Joins("LEFT JOIN article_pics ON article_pics.article_id = articles.id").
 		Where("articles.id IN (?)", articleIds).
 		Order("articles.created_at DESC").
 		Offset((page - 1) * limit).
