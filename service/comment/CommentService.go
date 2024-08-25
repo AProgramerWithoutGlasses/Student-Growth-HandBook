@@ -10,6 +10,7 @@ import (
 	"studentGrow/dao/redis"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
+	"studentGrow/service/article"
 	timeUtil "studentGrow/utils/timeConverter"
 )
 
@@ -82,6 +83,16 @@ func PostComment(commentType, username, content string, id int) error {
 
 // GetLel1CommentsService 获取一级评论详情列表
 func GetLel1CommentsService(aid, limit, page int, username, sortWay string) (gorm_model.Comments, error) {
+	// 判断该用户是否被封禁或私密
+	bl, err := article.QueryArticleStatusAndBanById(aid)
+	if err != nil {
+		zap.L().Error("GetLel1CommentsService() service.article.QueryArticleStatusAndBanById err=", zap.Error(err))
+		return nil, err
+	}
+	if !bl {
+		return nil, myErr.ErrNotFoundError
+	}
+
 	// 分页查询评论
 	comments, err := mysql.QueryLevelOneComments(aid, limit, page)
 	if err != nil {

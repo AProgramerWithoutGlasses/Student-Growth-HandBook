@@ -362,6 +362,24 @@ func SearchHotArticlesOfDayService(j *jsonvalue.V) (model.Articles, error) {
 	return list, nil
 }
 
+// QueryArticleStatusAndBanById 查询文章的私密、封禁状态
+func QueryArticleStatusAndBanById(aid int) (bool, error) {
+	isBan, err := mysql.QueryIsBanByArticleId(aid)
+	if err != nil {
+		zap.L().Error("QueryArticleStatusAndBanById() service.article.QueryIsBanByArticleId.GetInt err=", zap.Error(err))
+		return false, err
+	}
+	status, err := mysql.QueryArticleStatusById(aid)
+	if err != nil {
+		zap.L().Error("QueryArticleStatusAndBanById() service.article.QueryArticleStatusById.GetInt err=", zap.Error(err))
+		return false, err
+	}
+	if !isBan && status {
+		return true, nil
+	}
+	return false, nil
+}
+
 // SelectArticleAndUserListByPageFirstPageService 前台首页模糊查询文章列表
 func SelectArticleAndUserListByPageFirstPageService(username, keyWords, topic, SortWay string, limit, page int) ([]model.Article, error) {
 	// 查询符合模糊搜索的文章集合
