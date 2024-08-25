@@ -36,11 +36,11 @@ func Selfans(id int) (int64, error) {
 }
 
 // Score 查询积分
-func Score(username string) (int, error) {
-	var score int
-	err := DB.Model(&gorm_model.User{}).Select("point").Where("username = ?", username).Error
+func Score(id int) ([]int, error) {
+	var score []int
+	err := DB.Model(&gorm_model.UserPoint{}).Select("point").Where("user_id = ?", id).Error
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	return score, nil
 }
@@ -56,15 +56,15 @@ func Frequency(username string) (int64, error) {
 }
 
 // SelHot 查询热度
-func SelHot(id int) (int, error) {
-	var like int
-	var collect int
+func SelHot(id int) ([]int, []int, error) {
+	var like []int
+	var collect []int
 	err := DB.Model(&gorm_model.Article{}).Select("like_amount").Where("user_id =?", id).Scan(&like).Error
 	err = DB.Model(&gorm_model.Article{}).Select("collect_amount").Where("user_id = ?", id).Scan(&collect).Error
 	if err != nil {
-		return 0, err
+		return nil, nil, err
 	}
-	return collect + like, nil
+	return like, collect, nil
 }
 
 // SelStarUser 查询未公布的学号合集
