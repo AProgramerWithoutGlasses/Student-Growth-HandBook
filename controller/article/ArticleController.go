@@ -344,7 +344,7 @@ func GetArticleByClassController(c *gin.Context) {
 		Username string `json:"username"`
 		KeyWords string `json:"key_word"`
 		SortWay  string `json:"article_sort"`
-		ClassId  int    `json:"class_id"`
+		Class    string `json:"class_name"`
 		Limit    int    `json:"article_count"`
 		Page     int    ` json:"article_page"`
 	}{}
@@ -357,7 +357,7 @@ func GetArticleByClassController(c *gin.Context) {
 	}
 
 	// 获取列表
-	articles, err := article.GetArticlesByClassService(input.KeyWords, input.Username, input.SortWay, input.Limit, input.Page, input.ClassId)
+	articles, err := article.GetArticlesByClassService(input.KeyWords, input.Username, input.SortWay, input.Limit, input.Page, input.Class)
 	if err != nil {
 		zap.L().Error("GetArticleByClassController() controller.article.GetArticlesByClassService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
