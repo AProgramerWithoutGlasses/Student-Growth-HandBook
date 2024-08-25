@@ -38,7 +38,7 @@ func Selfans(id int) (int64, error) {
 // Score 查询积分
 func Score(id int) ([]int, error) {
 	var score []int
-	err := DB.Model(&gorm_model.UserPoint{}).Select("point").Where("user_id = ?", id).Error
+	err := DB.Model(&gorm_model.UserPoint{}).Where("user_id = ?", id).Select("point").Scan(&score).Error
 	if err != nil {
 		return nil, err
 	}
