@@ -499,7 +499,7 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 // QueryClassByClassId 根据classid查找class
 func QueryClassByClassId(classId int) (string, error) {
 	class := model.UserClass{}
-	if err := DB.Where("id = ?", classId).First(&class).Error; err != nil {
+	if err := DB.Where("class = ?", class).First(&class).Error; err != nil {
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 		return "", err
 	}
@@ -508,12 +508,18 @@ func QueryClassByClassId(classId int) (string, error) {
 
 // QueryArticleByClass 根据班级分页查询文章
 func QueryArticleByClass(limit, page int, class, keyWord string) (model.Articles, error) {
+	var uids []int
+	if err := DB.Model(&model.User{}).Where("class = ?", class).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("QueryArticleByClass() dao.mysql.sql_article", zap.Error(err))
+		return nil, err
+	}
+
 	var articles model.Articles
-	if err := DB.Preload("User", "class = ?", class).Preload("ArticleTags.Tag").
-		Where("content like ? and ban = ? and status = ?", keyWord, false, true).
+	if err := DB.Preload("User").Preload("ArticleTags.Tag").
+		Where("content like ? and ban = ? and status = ? AND user_id IN ?", fmt.Sprintf("%%%s%%", keyWord), false, true, uids).
 		Order("created_at desc").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
-		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
+		zap.L().Error("QueryArticleByClass() dao.mysql.sql_article", zap.Error(err))
 		return nil, err
 	}
 

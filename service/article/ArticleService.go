@@ -517,13 +517,7 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 }
 
 // GetArticlesByClassService 班级分类查询文章
-func GetArticlesByClassService(keyWords, username, sortWay string, limit, page, classId int) ([]model.Article, error) {
-	// 获取class
-	class, err := mysql.QueryClassByClassId(classId)
-	if err != nil {
-		zap.L().Error("GetArticlesByClassService() service.article.QueryClassByClassId err=", zap.Error(err))
-		return nil, err
-	}
+func GetArticlesByClassService(keyWords, username, sortWay string, limit, page int, class string) ([]model.Article, error) {
 
 	articles, err := mysql.QueryArticleByClass(limit, page, class, keyWords)
 	if err != nil {
