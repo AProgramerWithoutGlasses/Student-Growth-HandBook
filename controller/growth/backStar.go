@@ -173,7 +173,7 @@ func Search(c *gin.Context) {
 		"total":       total,
 		"peopleLimit": peopleLimit,
 		"isDisabled":  status,
-		"headline":    headline,
+		"headline":    headline + 1,
 	}
 	response.ResponseSuccess(c, data)
 }
