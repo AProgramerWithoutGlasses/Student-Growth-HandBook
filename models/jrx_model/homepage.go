@@ -4,16 +4,16 @@ import "time"
 
 // 个人主页信息
 type HomepageMesStruct struct {
-	Username     string `json:"username"`
-	Ban          bool   `json:"ban"`
-	Name         string `json:"name"`
-	UserHeadShot string `json:"user_headshot"`
-	UserMotto    string `json:"user_motto"`
-	UserFans     int    `json:"user_fans"`
-	UserConcern  int    `json:"user_concern"`
-	UserLike     int    `json:"user_like"`
-	Point        int    `json:"user_point"`
-	UserClass    string `json:"user_class"`
+	Username     string  `json:"username"`
+	Ban          bool    `json:"ban"`
+	Name         string  `json:"name"`
+	UserHeadShot string  `json:"user_headshot"`
+	UserMotto    string  `json:"user_motto"`
+	UserFans     int     `json:"user_fans"`
+	UserConcern  int     `json:"user_concern"`
+	UserLike     int     `json:"user_like"`
+	Point        float64 `json:"user_point"`
+	UserClass    string  `json:"user_class"`
 }
 
 // 个人资料信息
@@ -23,7 +23,7 @@ type HomepageDataStruct struct {
 	UserMotto    string `json:"user_motto"`
 	UserClass    string `json:"user_class"`
 	UserGender   string `json:"user_gender"`
-	Phone_number string `json:"phone_number"`
+	PhoneNumber  string `json:"phone_number"`
 	UserEmail    string `json:"user_email"`
 	UserYear     string `json:"user_year"`
 }
@@ -77,11 +77,12 @@ type HomepageTrack struct {
 }
 
 type HomepageTopicPoint struct {
-	StudyPoint     int `json:"study_point"`
-	HonorPoint     int `json:"honor_point"`
-	WorkPoint      int `json:"work_point"`
-	SocialPoint    int `json:"social_point"`
-	VolunteerPoint int `json:"volunteer_point"`
-	SportPoint     int `json:"sport_point"`
-	LifePoint      int `json:"life_point"`
+	StudyPoint     int     `json:"study_point"`
+	HonorPoint     int     `json:"honor_point"`
+	WorkPoint      int     `json:"work_point"`
+	SocialPoint    int     `json:"social_point"`
+	VolunteerPoint int     `json:"volunteer_point"`
+	SportPoint     int     `json:"sport_point"`
+	LifePoint      int     `json:"life_point"`
+	TotalPoint     float64 `json:"total_point"`
 }

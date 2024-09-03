@@ -26,6 +26,7 @@ func GetIdByUsername(username string) (int, error) {
 	var users gorm_model.User
 	err := DB.Where("username = ?", username).First(&users).Error
 	return int(users.ID), err
+	
 }
 
 // 根据id获取姓名

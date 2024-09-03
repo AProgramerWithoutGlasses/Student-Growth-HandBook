@@ -77,6 +77,10 @@ func AddMultipleStuControl(c *gin.Context) {
 			zap.L().Error(err.Error())
 			return
 		}
+
+		if len(row[0]) > 9 {
+			row[0] = row[0][0:9]
+		}
 		user := gorm_model.User{
 			Class:    row[0],
 			Name:     row[1],
