@@ -40,7 +40,7 @@ func GetHomepageMesService(username string) (*jrx_model.HomepageMesStruct, error
 		return nil, err
 	}
 
-	point, err := mysql.GetHomepagePointDao(id)
+	userTopicPointStruct, err := GetTopicPointsService(username)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func GetHomepageMesService(username string) (*jrx_model.HomepageMesStruct, error
 	homepageMes.UserFans = userFans
 	homepageMes.UserConcern = userConcern
 	homepageMes.UserLike = userLike
-	homepageMes.Point = point
+	homepageMes.Point = userTopicPointStruct.TotalPoint
 	homepageMes.UserClass = userMes.Class
 
 	fmt.Printf("homepageMes2: %+v\n", homepageMes)
@@ -123,7 +123,7 @@ func GetHomepageUserDataService(username string) (*jrx_model.HomepageDataStruct,
 	userData.UserGender = userDataTemp.Gender
 	userData.UserClass = userDataTemp.Class
 	userData.UserMotto = userDataTemp.Motto
-	userData.Phone_number = userDataTemp.PhoneNumber
+	userData.PhoneNumber = userDataTemp.PhoneNumber
 	userData.UserEmail = userDataTemp.MailBox
 	userData.UserYear = userDataTemp.PlusTime.Format("2006")
 
@@ -480,6 +480,8 @@ func GetTopicPointsService(username string) (jrx_model.HomepageTopicPoint, error
 		return jrx_model.HomepageTopicPoint{}, err
 	}
 
+	totalPointFloat := 0.25*float64(studyPoint) + 0.2*float64(honorPoint+workPoint) + 0.1*float64(socialPoint+volunteerPoint+sportPoint) + 0.05*float64(lifePoint)
+
 	var homepageTopicPoint jrx_model.HomepageTopicPoint
 	homepageTopicPoint = jrx_model.HomepageTopicPoint{
 		StudyPoint:     studyPoint,
@@ -489,9 +491,8 @@ func GetTopicPointsService(username string) (jrx_model.HomepageTopicPoint, error
 		VolunteerPoint: volunteerPoint,
 		SportPoint:     sportPoint,
 		LifePoint:      lifePoint,
+		TotalPoint:     totalPointFloat,
 	}
-
-	// totalPointFloat := 0.25*studyPoint + 0.2*(honorPoint+workPoint) + 0.1*(socialPoint+volunteerPoint+sportPoint) + 0.05*lifePoint
 
 	return homepageTopicPoint, nil
 }
