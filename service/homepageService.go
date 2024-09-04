@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"math"
 	"mime/multipart"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
@@ -481,6 +482,7 @@ func GetTopicPointsService(username string) (jrx_model.HomepageTopicPoint, error
 	}
 
 	totalPointFloat := 0.25*float64(studyPoint) + 0.2*float64(honorPoint+workPoint) + 0.1*float64(socialPoint+volunteerPoint+sportPoint) + 0.05*float64(lifePoint)
+	totalPointFloat = math.Round(totalPointFloat*10) / 10
 
 	var homepageTopicPoint jrx_model.HomepageTopicPoint
 	homepageTopicPoint = jrx_model.HomepageTopicPoint{
