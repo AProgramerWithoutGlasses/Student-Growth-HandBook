@@ -200,6 +200,14 @@ func ElectClass(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
 		return
 	}
+
+	//判断是否超出权限范围
+	length := len(Responsedata.ElectedArr)
+	if Star := length + Number; Star > 3 {
+		response.ResponseErrorWithMsg(c, 200, "本次推选超出名额限制")
+		return
+	}
+
 	for _, student := range Responsedata.ElectedArr {
 		username := student.Username
 		name := student.Name
@@ -209,12 +217,7 @@ func ElectClass(c *gin.Context) {
 			response.ResponseErrorWithMsg(c, 200, "该人员已被推选")
 			return
 		}
-		//判断是否超出权限范围
-		length := len(Responsedata.ElectedArr)
-		if Star := length + Number; Star > 3 {
-			response.ResponseErrorWithMsg(c, 200, "本次推选超出名额限制")
-			return
-		}
+
 		//添加数据
 		err = mysql.CreatClass(username, name)
 		if err != nil {
@@ -223,8 +226,7 @@ func ElectClass(c *gin.Context) {
 		}
 	}
 	//判断是否超出权限范围
-	len := len(Responsedata.ElectedArr)
-	if Star := len + Number; Star == 3 {
+	if Star := length + Number; Star == 3 {
 		response.ResponseSuccess(c, "No seats left")
 		return
 	}
@@ -253,10 +255,10 @@ func ElectGrade(c *gin.Context) {
 		response.ResponseError(c, 400)
 		return
 	}
-	var Responsedata struct {
+	var ResponseData struct {
 		ElectedArr []Student `json:"electedArr"`
 	}
-	err = c.Bind(&Responsedata)
+	err = c.Bind(&ResponseData)
 	if err != nil {
 		zap.L().Error("Search Bind err", zap.Error(err))
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
@@ -264,14 +266,14 @@ func ElectGrade(c *gin.Context) {
 	}
 
 	//查询这次需要推选的人
-	length := len(Responsedata.ElectedArr)
+	length := len(ResponseData.ElectedArr)
 	if star := number + length; star > 5 {
 		response.ResponseErrorWithMsg(c, 200, "本次推选超出名额限制")
 		return
 	}
 
 	//开始添加
-	for _, user := range Responsedata.ElectedArr {
+	for _, user := range ResponseData.ElectedArr {
 		username := user.Username
 		//更新数据
 		err = mysql.UpdateGrade(username)
@@ -280,8 +282,7 @@ func ElectGrade(c *gin.Context) {
 			return
 		}
 	}
-	len := len(Responsedata.ElectedArr)
-	if Star := len + number; Star == 5 {
+	if Star := length + number; Star == 5 {
 		response.ResponseSuccess(c, "No seats left")
 		return
 	}
