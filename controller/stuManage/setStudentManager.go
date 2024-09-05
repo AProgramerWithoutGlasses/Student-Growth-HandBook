@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 type InnerInput struct {
@@ -19,7 +20,7 @@ type Input struct {
 
 // 设置用户为管理员
 func SetStuManagerControl(c *gin.Context) {
-	// 接收请求信息
+	// 接收
 	var input Input
 	err := c.Bind(&input)
 	if err != nil {
@@ -27,16 +28,23 @@ func SetStuManagerControl(c *gin.Context) {
 		response.ResponseError(c, response.ParamFail)
 		return
 	}
-
-	// 设置管理员
-	err = service.SetStuManagerService(input.Student.Username, input.ManagerType, input.Student.Year)
+	token := c.GetHeader("token")
+	username, err := token2.GetUsername(token) // class, grade(1-4), collge, superman
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 500, err.Error())
-		zap.L().Error("stuManager.SetStuManagerControl() mysql.SetStuManager() failed : ", zap.Error(err))
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
 		return
 	}
 
-	// 响应成功
+	// 业务
+	err = service.SetStuManagerService(input.Student.Username, username, input.ManagerType, input.Student.Year)
+	if err != nil {
+		response.ResponseError(c, response.ServerErrorCode)
+		zap.L().Error("stuManager.SetStuManagerControl() service.SetStuManagerService() failed : ", zap.Error(err))
+		return
+	}
+
+	// 响应
 	response.ResponseSuccess(c, 200)
 
 }

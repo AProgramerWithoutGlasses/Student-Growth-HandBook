@@ -11,10 +11,19 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	token2 "studentGrow/utils/token"
 	"time"
 )
 
 func AddMultipleStuControl(c *gin.Context) {
+	token := c.GetHeader("token")
+	username, err := token2.GetUsername(token)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
 	// 获取上传的Excel文件
 	file, _, err := c.Request.FormFile("file")
 	if err != nil {
@@ -96,6 +105,19 @@ func AddMultipleStuControl(c *gin.Context) {
 			zap.L().Error("stuManage.AddMultipleStuControl() mysql.AddSingleStudent failed: " + err.Error())
 			return
 		}
+
+		// 添加学生记录
+		addUserRecord := gorm_model.UserAddRecord{
+			Username:    username,
+			AddUsername: row[2],
+		}
+		err = mysql.AddSingleStudentRecord(&addUserRecord)
+		if err != nil {
+			response.ResponseError(c, response.ServerErrorCode)
+			zap.L().Error("stuManage.AddMultipleStuControl() mysql.AddSingleStudentRecord() failed: " + err.Error())
+			return
+		}
+
 	}
 
 	response.ResponseSuccess(c, "导入成功!")
