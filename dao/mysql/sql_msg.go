@@ -152,7 +152,6 @@ func GetUnreadReportsForSuperman(limit, page int) ([]gorm_model.UserReportArticl
 	}
 
 	return reports, nil
-
 }
 
 // GetUnreadReportNumForSuperman 获取未读举报信息数目 - 超级(院级)
