@@ -79,25 +79,14 @@ func QueryArticleNumByDay(topic string, startOfDay time.Time, endOfDay time.Time
 	return int(count), nil
 }
 
-// SelectArticleAndUserListByPage 后台分页查询文章及用户列表并模糊查询
-func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) (result []model.Article, err error) {
-	//SELECT articles.*, users.*
-	//FROM articles
-	//JOIN users ON articles.user_id = users.id
-	//WHERE articles.created_at > (
-	//    SELECT created_at
-	//    FROM articles
-	//    ORDER BY created_at DESC
-	//    LIMIT ?, 1
-	//)
-	//LIMIT ?;
-
+// QueryArticleByAdvancedFilter 后台分页高级筛选文章结果
+func QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords string, isBan bool) (query *gorm.DB, err error) {
 	// 解析时间
 	var startAt time.Time
 	if startAtString != "" {
 		startAt, err = time.Parse(time.RFC3339, startAtString)
 		if err != nil {
-			zap.L().Error("GetArticleListService() service.article.Parse err=", zap.Error(err))
+			zap.L().Error("QueryArticleByAdvancedFilter() service.article.Parse err=", zap.Error(err))
 			return nil, err
 		}
 	}
@@ -105,29 +94,63 @@ func SelectArticleAndUserListByPage(page, limit int, sort, order, startAtString,
 	if endAtString != "" {
 		endAt, err = time.Parse(time.RFC3339, endAtString)
 		if err != nil {
-			zap.L().Error("GetArticleListService() service.article.Parse err=", zap.Error(err))
+			zap.L().Error("QueryArticleByAdvancedFilter() service.article.Parse err=", zap.Error(err))
 			return nil, err
 		}
 	}
 
-	var articles []model.Article
-	var query *gorm.DB
-
-	// 时间区间为空检查
+	// 筛选
 	if startAtString != "" && endAtString != "" {
-		query = DB.Where("articles.created_at between ? and ? and topic like ? and content like ?",
-			startAt, endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords))
+		query = DB.Where("articles.created_at between ? and ? and topic like ? and content like ? and articles.ban = ?",
+			startAt, endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	} else if startAtString == "" && endAtString != "" {
-		query = DB.Where("articles.created_at < ? and topic like ? and content like ?",
-			endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords))
+		query = DB.Where("articles.created_at < ? and topic like ? and content like ? and articles.ban = ?",
+			endAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	} else if startAtString != "" && endAtString == "" {
-		query = DB.Where("articles.created_at > ? and topic like ? and content like ?",
-			startAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords))
+		query = DB.Where("articles.created_at > ? and topic like ? and content like ? and articles.ban = ?",
+			startAt, fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	} else if startAtString == "" && endAtString == "" {
-		query = DB.Where("topic like ? and content like ?",
-			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords))
+		query = DB.Where("topic like ? and content like ? and articles.ban = ?",
+			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	}
 
+	return query, nil
+
+}
+
+// QueryArticleAndUserListByPageForClass 后台分页查询文章及用户列表并模糊查询 - 班级
+func QueryArticleAndUserListByPageForClass(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, class string) (result []model.Article, err error) {
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, isBan)
+
+	var articles []model.Article
+	if err := query.InnerJoins("User").Where("name like ? and class = ?", fmt.Sprintf("%%%s%%", name), class).Preload("ArticleTags.Tag").
+		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
+		return nil, err
+	}
+
+	return articles, nil
+}
+
+// QueryArticleAndUserListByPageForGrade 后台分页查询文章及用户列表并模糊查询 - 年级
+func QueryArticleAndUserListByPageForGrade(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, grade int) (result []model.Article, err error) {
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, isBan)
+
+	var articles []model.Article
+	if err := query.InnerJoins("User").Where("name like ? and grade = ?", fmt.Sprintf("%%%s%%", name), grade).Preload("ArticleTags.Tag").
+		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
+		return nil, err
+	}
+
+	return articles, nil
+}
+
+// QueryArticleAndUserListByPageForSuperman 后台分页查询文章及用户列表并模糊查询 - 院级(超级)
+func QueryArticleAndUserListByPageForSuperman(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) (result []model.Article, err error) {
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, isBan)
+
+	var articles []model.Article
 	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
 		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))

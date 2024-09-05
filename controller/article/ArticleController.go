@@ -114,13 +114,29 @@ func GetArticleListController(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		zap.L().Error("GetArticleListController() controller.article.ShouldBindJSON err=", zap.Error(myErr.DataFormatError()))
+		zap.L().Error("GetArticleListController() controller.article.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 通过token获取身份
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetArticleListController() controller.article.GetRole err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 通过token获取username
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetArticleListController() controller.article.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
 	//查询文章列表
-	result, err := article.GetArticleListService(in.Page, in.Limit, in.SortType, in.Order, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Name, in.IsBan)
+	result, err := article.GetArticleListService(in.Page, in.Limit, in.SortType, in.Order, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Name, in.IsBan, role, username)
 	if err != nil {
 		zap.L().Error("GetArticleListController() controller.article.GetArticleListService err=", zap.Error(myErr.DataFormatError()))
 		myErr.CheckErrors(err, c)

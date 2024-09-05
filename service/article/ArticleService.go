@@ -115,10 +115,35 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 }
 
 // GetArticleListService 后台获取文章列表
-func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) ([]model.Article, error) {
+func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, role, username string) ([]model.Article, error) {
+
+	var result []model.Article
+	var err error
+	user, err := mysql.GetUserByUsername(username)
+	if err != nil {
+		zap.L().Error("GetArticleListService() service.article.GetUserByUsername err=", zap.Error(err))
+		return nil, err
+	}
+
+	switch role {
+	case "class":
+		// 查询该用户班级
+		result, err = mysql.QueryArticleAndUserListByPageForClass(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, user.Class)
+	case "grade1":
+		result, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 1)
+	case "grade2":
+		result, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 2)
+	case "grade3":
+		result, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 3)
+	case "grade4":
+		result, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 4)
+	case "college":
+		result, err = mysql.QueryArticleAndUserListByPageForSuperman(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
+	case "superman":
+		result, err = mysql.QueryArticleAndUserListByPageForSuperman(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
+	}
 
 	//执行查询文章列表语句
-	result, err := mysql.SelectArticleAndUserListByPage(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.SelectArticleAndUserListByPage err=", zap.Error(err))
 		return nil, err
