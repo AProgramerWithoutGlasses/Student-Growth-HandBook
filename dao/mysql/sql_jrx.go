@@ -104,7 +104,7 @@ func ChangeStudentMessage(id int, users jrx_model.ChangeStuMesStruct) error {
 
 // 修改用户信息记录
 func EditUserRecord(userEditRecord gorm_model.UserEditRecord) error {
-	err := DB.Select("username", "EditUsername", "EditMessage").Create(userEditRecord).Error
+	err := DB.Create(&userEditRecord).Error
 	return err
 }
 

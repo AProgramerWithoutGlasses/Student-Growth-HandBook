@@ -42,7 +42,7 @@ func main() {
 		return
 	}
 
-	//err := mysql.DB.AutoMigrate(&model.User{}, &model.Article{}, &model.UserCasbinRules{}, &model.Comment{}, &model.ArticleTag{}, &model.Menus{}, &model.UserArticleLikeRecord{}, &model.UserLoginRecord{}, &model.UserCommentLikeRecord{}, &model.UserReadRecord{}, &model.UserPublisherRecord{}, &model.UserSelectRecord{})
+	//err := mysql.DB.AutoMigrate(&gorm_model.UserEditRecord{}, &gorm_model.UserAddRecord{}, &gorm_model.UserDeleteRecord{})
 	//if err != nil {
 	//	return
 	//}
