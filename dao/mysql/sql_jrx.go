@@ -51,7 +51,7 @@ func AddSingleStudent(users *gorm_model.User) error {
 
 // 添加单个学生记录
 func AddSingleStudentRecord(addUserRecord *gorm_model.UserAddRecord) error {
-	err := DB.Select("username", "addUsername").Create(addUserRecord).Error
+	err := DB.Create(addUserRecord).Error
 	return err
 }
 
@@ -69,7 +69,7 @@ func DeleteSingleUser(id int) error {
 
 // 删除学生记录
 func DeleteStudentRecord(deleteUserRecord *gorm_model.UserDeleteRecord) error {
-	err := DB.Select("username", "deleteUsername").Create(deleteUserRecord).Error
+	err := DB.Create(deleteUserRecord).Error
 	return err
 }
 

@@ -56,7 +56,10 @@ func DeleteStuControl(c *gin.Context) {
 		}
 
 		if isManager {
-			mysql.DeleteSingleUserManager(input.Selected_students[i].Username)
+			err := mysql.DeleteSingleUserManager(input.Selected_students[i].Username)
+			if err != nil {
+				return
+			}
 		}
 
 		// 删除学生记录
