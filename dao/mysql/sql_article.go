@@ -251,6 +251,16 @@ func BannedArticleByIdForSuperman(articleId int, db *gorm.DB) error {
 	return nil
 }
 
+// QueryIsBanByArticleId 通过文章id查询该文章的封禁状态
+func QueryIsBanByArticleId(aid int) (bool, error) {
+	var isBan bool
+	if err := DB.Model(&model.Article{}).Select("ban").Where("id = ?", aid).First(&isBan).Error; err != nil {
+		zap.L().Error("QueryIsBanByArticleId() dao.mysql.sql_nzx.Updates err=", zap.Error(err))
+		return false, err
+	}
+	return isBan, nil
+}
+
 // DeleteArticleReportMsg 已读举报信息
 func DeleteArticleReportMsg(aid int, db *gorm.DB) error {
 	if err := db.Model(model.UserReportArticleRecord{}).Where("article_id = ?", aid).Update("is_read", true).Error; err != nil {
