@@ -39,7 +39,7 @@ func SetStuManagerControl(c *gin.Context) {
 	// 业务
 	err = service.SetStuManagerService(input.Student.Username, username, input.ManagerType, input.Student.Year)
 	if err != nil {
-		response.ResponseError(c, response.ServerErrorCode)
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error("stuManager.SetStuManagerControl() service.SetStuManagerService() failed : ", zap.Error(err))
 		return
 	}
