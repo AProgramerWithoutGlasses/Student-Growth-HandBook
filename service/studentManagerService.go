@@ -364,12 +364,12 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 		return err
 	}
 
-	err = mysql.ChangeStudentMessage(id, user)
+	oldUser, err := mysql.GetUser(id)
 	if err != nil {
 		return err
 	}
 
-	oldUser, err := mysql.GetUser(id)
+	err = mysql.ChangeStudentMessage(id, user)
 	if err != nil {
 		return err
 	}
@@ -391,6 +391,8 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 		userEditRecord.OldPassword = oldUser.Password
 		userEditRecord.NewPassword = user.Password
 	}
+
+	fmt.Println("userEditRecordStruct ： ", userEditRecord)
 
 	err = mysql.EditUserRecord(userEditRecord)
 	if err != nil {

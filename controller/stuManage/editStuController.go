@@ -19,7 +19,12 @@ func EditStuControl(c *gin.Context) {
 	}
 
 	// 业务处理
-	service.EditStuService(user)
+	err := service.EditStuService(user)
+	if err != nil {
+		response.ResponseError(c, response.ServerErrorCode)
+		zap.L().Error(err.Error())
+		return
+	}
 
 	// 响应
 	response.ResponseSuccess(c, "")
