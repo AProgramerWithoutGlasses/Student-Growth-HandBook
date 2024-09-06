@@ -228,19 +228,41 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		/*
 			回滚分数
 		*/
+		// 回滚分数的条件：1. point>0;文章处于封禁或私密的状态	2. point<0;文章处于非封禁或私密的状态
+
+		// 通过文章id获取文章
+		article, err := mysql.QueryArticleByIdOfManager(aid)
+		if err != nil {
+			zap.L().Error("BannedArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
+			return err
+		}
+
 		curPoint, err := mysql.QueryArticlePoint(aid)
 		if err != nil {
 			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 			return err
 		}
-		if isBan {
+
+		// 封禁文章且文章状态为公开,则减去分数
+		if isBan && article.Status {
 			curPoint = -curPoint
+			err = UpdatePointByUsernamePointAid(username, curPoint, aid, tx)
+			if err != nil {
+				zap.L().Error("BannedArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(err))
+				return err
+			}
 		}
-		err = UpdatePointByUsernamePointAid(username, curPoint, aid, tx)
-		if err != nil {
-			zap.L().Error("BannedArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(err))
-			return err
+		// 解封文章且文章状态为公开，则加上分数
+		if !isBan && article.Status {
+			err = UpdatePointByUsernamePointAid(username, curPoint, aid, tx)
+			if err != nil {
+				zap.L().Error("BannedArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(err))
+				return err
+			}
 		}
+
+		// 其他情况，无需理会
+
 		return nil
 	})
 	if err != nil {
@@ -264,16 +286,26 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		/*
 			回滚分数
 		*/
+
+		// 条件: 删除文章且文章状态为公开且未被封禁
+
+		article, err := mysql.QueryArticleByIdOfManager(aid)
+		if err != nil {
+			return err
+		}
+
 		curPoint, err := mysql.QueryArticlePoint(aid)
 		if err != nil {
 			zap.L().Error("DeleteArticleService() service.article.GetInt err=", zap.Error(err))
 			return err
 		}
 
-		err = UpdatePointByUsernamePointAid(username, -curPoint, aid, tx)
-		if err != nil {
-			zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(err))
-			return err
+		if !article.Ban && article.Status {
+			err = UpdatePointByUsernamePointAid(username, -curPoint, aid, tx)
+			if err != nil {
+				zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(err))
+				return err
+			}
 		}
 
 		/*
@@ -614,25 +646,36 @@ func ReviseArticleStatusService(aid int, status bool) error {
 			回滚积分
 		*/
 
-		curPoint, err := mysql.QueryArticlePoint(aid)
+		// 条件：1. 私密&未被封禁	2. 公开&未被封禁
+
+		article, err := mysql.QueryArticleByIdOfManager(aid)
 		if err != nil {
-			zap.L().Error("ReviseArticleStatus() service.article.QueryArticlePoint", zap.Error(err))
 			return err
-		}
-		if status == false {
-			curPoint = -curPoint
 		}
 
-		user, err := mysql.QueryUserByArticleId(aid)
-		if err != nil {
-			zap.L().Error("DeleteArticleService() service.article.QueryUserByArticleId err=", zap.Error(myErr.DataFormatError()))
-			return err
+		if !article.Ban {
+
+			curPoint, err := mysql.QueryArticlePoint(aid)
+			if err != nil {
+				zap.L().Error("ReviseArticleStatus() service.article.QueryArticlePoint", zap.Error(err))
+				return err
+			}
+			if status == false {
+				curPoint = -curPoint
+			}
+			user, err := mysql.QueryUserByArticleId(aid)
+			if err != nil {
+				zap.L().Error("DeleteArticleService() service.article.QueryUserByArticleId err=", zap.Error(myErr.DataFormatError()))
+				return err
+			}
+			err = UpdatePointByUsernamePointAid(user.Username, curPoint, aid, tx)
+			if err != nil {
+				zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
+				return err
+			}
+
 		}
-		err = UpdatePointByUsernamePointAid(user.Username, curPoint, aid, tx)
-		if err != nil {
-			zap.L().Error("DeleteArticleService() service.article.UpdatePointByUsernamePointAid err=", zap.Error(myErr.DataFormatError()))
-			return err
-		}
+
 		return nil
 	})
 	if err != nil {
