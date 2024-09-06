@@ -95,72 +95,14 @@ func QuerySonCommentNum(cid int) (int, error) {
 
 }
 
-// DeleteComment 删除评论
-func DeleteComment(cid int, username string) error {
-	comment := model.Comment{}
-	if err := DB.Preload("User").Where("id = ?", cid).First(&comment).Error; err != nil {
+// QueryCommentById 通过评论id获取评论
+func QueryCommentById(cid int) (*model.Comment, error) {
+	var comment model.Comment
+	if err := DB.Preload("Article.User").Preload("User").Where("id = ?", cid).First(&comment).Error; err != nil {
 		zap.L().Error("DeleteComment() dao.mysql.nzx_sql.First err=", zap.Error(err))
-		return err
+		return nil, err
 	}
-
-	// 只有自己能删除自己的评论
-	if username != comment.User.Username {
-		return myErr.OverstepCompetence()
-	}
-
-	err := DB.Transaction(func(db *gorm.DB) error {
-		if comment.Pid == 0 {
-			// 若为一级评论
-			// 删除子评论
-			result := db.Where("pid = ?", comment.ID).Delete(&model.Comment{})
-			if result.Error != nil {
-				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Delete err=", zap.Error(result.Error))
-				return result.Error
-			}
-			// 删除父级评论
-			if err := db.Delete(&comment).Error; err != nil {
-				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Delete err=", zap.Error(err))
-				return err
-			}
-
-			//	减少文章评论数
-			num, err := QueryArticleCommentNum(int(comment.ArticleID))
-			if err != nil {
-				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.QueryArticleCommentNum err=", zap.Error(err))
-				return err
-			}
-			err = UpdateArticleCommentNum(int(comment.ArticleID), num-int(result.RowsAffected)-1, db)
-			if err != nil {
-				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.UpdateArticleCommentNum err=", zap.Error(err))
-				return err
-			}
-
-		} else {
-			// 若为二级评论
-			if err := DB.Where("id = ?", comment.ID).Delete(&model.Comment{}).Error; err != nil {
-				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Delete err=", zap.Error(err))
-				return err
-			}
-
-			//	减少文章评论数
-			num, err := QueryArticleCommentNum(int(comment.ArticleID))
-			if err != nil {
-				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.QueryArticleCommentNum err=", zap.Error(err))
-				return err
-			}
-			err = UpdateArticleCommentNum(int(comment.ArticleID), num-1, db)
-			if err != nil {
-				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.UpdateArticleCommentNum err=", zap.Error(err))
-				return err
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Transaction err=", zap.Error(err))
-		return err
-	}
-	return nil
+	return &comment, nil
 }
 
 // QueryArticleIdByCommentId 查询评论的文章id

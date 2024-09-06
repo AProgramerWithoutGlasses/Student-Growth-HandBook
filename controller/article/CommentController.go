@@ -194,8 +194,14 @@ func DeleteCommentController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
+
+	if err != nil {
+		zap.L().Error("DeleteCommentController() controller.article.GetRole err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 	// 删除评论
-	err = mysql.DeleteComment(cid, username)
+	err = comment.DeleteCommentService(cid, username)
 	if err != nil {
 		zap.L().Error("DeleteCommentController() controller.article.DeleteComment err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
