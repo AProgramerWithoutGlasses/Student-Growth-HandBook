@@ -3,9 +3,9 @@ package stuManage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/dao/mysql"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
+	"studentGrow/service"
 )
 
 func EditStuControl(c *gin.Context) {
@@ -19,18 +19,7 @@ func EditStuControl(c *gin.Context) {
 	}
 
 	// 业务处理
-	id, err := mysql.GetIdByUsername(user.Username)
-	if err != nil {
-		response.ResponseErrorWithMsg(c, 500, err.Error())
-		zap.L().Error("mysql.GetIdByUsername failed", zap.Error(err))
-		return
-	}
-
-	if err := mysql.ChangeStudentMessage(id, user); err != nil {
-		response.ResponseErrorWithMsg(c, 500, err.Error())
-		zap.L().Error("mysql.ChangeStudentMessage failed", zap.Error(err))
-		return
-	}
+	service.EditStuService(user)
 
 	// 响应
 	response.ResponseSuccess(c, "")

@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strconv"
 	"studentGrow/dao/mysql"
+	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"time"
 )
@@ -354,4 +355,48 @@ func CalculateNowGradeByClass(class string) (grade string) {
 	}
 
 	return grade
+}
+
+func EditStuService(user jrx_model.ChangeStuMesStruct) error {
+	// 更改
+	id, err := mysql.GetIdByUsername(user.Username)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.ChangeStudentMessage(id, user)
+	if err != nil {
+		return err
+	}
+
+	oldUser, err := mysql.GetUser(id)
+	if err != nil {
+		return err
+	}
+
+	// 记录更改
+	var userEditRecord gorm_model.UserEditRecord
+
+	if oldUser.Class != user.Class {
+		userEditRecord.OldClass = oldUser.Class
+		userEditRecord.NewClass = user.Class
+	}
+
+	if oldUser.PhoneNumber != user.Phone_number {
+		userEditRecord.OldPhoneNumber = oldUser.PhoneNumber
+		userEditRecord.NewPhoneNumber = user.Phone_number
+	}
+
+	if oldUser.Password != user.Password {
+		userEditRecord.OldPassword = oldUser.Password
+		userEditRecord.NewPassword = user.Password
+	}
+
+	err = mysql.EditUserRecord(userEditRecord)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }

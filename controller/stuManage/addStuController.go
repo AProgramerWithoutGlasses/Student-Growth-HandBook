@@ -17,11 +17,8 @@ import (
 
 // 添加单个学生
 func AddSingleStuContro(c *gin.Context) {
-	fmt.Println(1111)
 	token := c.GetHeader("token")
 	username, err := token2.GetUsername(token)
-	fmt.Println(username)
-
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
@@ -139,6 +136,18 @@ func AddSingleStuContro(c *gin.Context) {
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 500, "添加失败, 该用户已存在")
 		zap.L().Error("stuManage.AddMultipleStuControl() mysql.AddSingleStudent() failed: " + err.Error())
+		return
+	}
+
+	// 添加学生记录
+	addUserRecord := gorm_model.UserAddRecord{
+		Username:    username,
+		AddUsername: usernameValue,
+	}
+	err = mysql.AddSingleStudentRecord(&addUserRecord)
+	if err != nil {
+		response.ResponseError(c, response.ServerErrorCode)
+		zap.L().Error("stuManage.AddMultipleStuControl() mysql.AddSingleStudentRecord() failed: " + err.Error())
 		return
 	}
 

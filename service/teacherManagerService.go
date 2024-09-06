@@ -113,9 +113,14 @@ func GetManagerType(username string) (string, error) {
 }
 
 // 处理管理员
-func SetStuManagerService(username string, ManagerType string, year string) error {
+func SetStuManagerService(setUsername string, username string, ManagerType string, year string) error {
+	// 判断是否对自己进行设置
+	if setUsername == username {
+		return errors.New("您不能对自己账号进行设置")
+	}
+
 	// 判断这个用户是不是管理员
-	isManager, err := mysql.GetIsManagerByUsername(username)
+	isManager, err := mysql.GetIsManagerByUsername(setUsername)
 	if err != nil {
 		return err
 	}
@@ -141,7 +146,7 @@ func SetStuManagerService(username string, ManagerType string, year string) erro
 
 	case "取消管理员":
 		if isManager {
-			err := mysql.CancelStuManager(username, casbinCid)
+			err := mysql.CancelStuManager(setUsername, casbinCid)
 			return err
 		} else {
 			return errors.New("该用户不为管理员")
@@ -150,13 +155,13 @@ func SetStuManagerService(username string, ManagerType string, year string) erro
 	}
 
 	if !isManager { // 不是管理员
-		err := mysql.SetStuManager(username, casbinCid)
+		err := mysql.SetStuManager(setUsername, casbinCid)
 		if err != nil {
 			return err
 		}
 
 	} else { // 是管理员
-		existedCasbinCid, err := mysql.GetManagerCId(username)
+		existedCasbinCid, err := mysql.GetManagerCId(setUsername)
 		if err != nil {
 			return err
 		}
@@ -165,7 +170,7 @@ func SetStuManagerService(username string, ManagerType string, year string) erro
 			return errors.New("该用户已是" + ManagerType)
 		}
 
-		err = mysql.ChangeStuManager(username, casbinCid)
+		err = mysql.ChangeStuManager(setUsername, casbinCid)
 		if err != nil {
 			return err
 		}

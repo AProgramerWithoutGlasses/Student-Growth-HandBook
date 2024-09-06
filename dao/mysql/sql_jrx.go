@@ -26,7 +26,7 @@ func GetIdByUsername(username string) (int, error) {
 	var users gorm_model.User
 	err := DB.Where("username = ?", username).First(&users).Error
 	return int(users.ID), err
-	
+
 }
 
 // 根据id获取姓名
@@ -49,6 +49,12 @@ func AddSingleStudent(users *gorm_model.User) error {
 	return err
 }
 
+// 添加单个学生记录
+func AddSingleStudentRecord(addUserRecord *gorm_model.UserAddRecord) error {
+	err := DB.Select("username", "addUsername").Create(addUserRecord).Error
+	return err
+}
+
 // 添加单个老师
 func AddSingleTeacher(users *gorm_model.User) error {
 	err := DB.Select("name", "username", "password", "gender", "identity").Create(users).Error
@@ -58,6 +64,12 @@ func AddSingleTeacher(users *gorm_model.User) error {
 // 删除单个学生
 func DeleteSingleUser(id int) error {
 	err := DB.Table("users").Where("id = ?", id).Delete(nil).Error
+	return err
+}
+
+// 删除学生记录
+func DeleteStudentRecord(deleteUserRecord *gorm_model.UserDeleteRecord) error {
+	err := DB.Select("username", "deleteUsername").Create(deleteUserRecord).Error
 	return err
 }
 
@@ -87,6 +99,12 @@ func BanStudent(id int) (int, error) {
 // 修改用户信息username
 func ChangeStudentMessage(id int, users jrx_model.ChangeStuMesStruct) error {
 	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Updates(users).Error
+	return err
+}
+
+// 修改用户信息记录
+func EditUserRecord(userEditRecord gorm_model.UserEditRecord) error {
+	err := DB.Create(&userEditRecord).Error
 	return err
 }
 
@@ -581,4 +599,14 @@ func GetTotalPointsByUserAndTopic(id int, name string) (int, error) {
 	}
 
 	return totalPoints, nil
+}
+
+func GetUser(id int) (gorm_model.User, error) {
+	var user gorm_model.User
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
 }

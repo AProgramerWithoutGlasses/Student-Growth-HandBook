@@ -22,7 +22,6 @@ func GetIsConcernControl(c *gin.Context) {
 	}
 
 	// 获取角色
-
 	token := c.GetHeader("token")
 	username, err := token2.GetUsername(token) // class, grade(1-4), collge, superman
 	if err != nil {
