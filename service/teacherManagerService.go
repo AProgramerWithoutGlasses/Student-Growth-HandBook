@@ -122,7 +122,11 @@ func SetStuManagerService(setUsername string, username string, ManagerType strin
 	// 判断这个用户是不是管理员
 	isManager, err := mysql.GetIsManagerByUsername(setUsername)
 	if err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		} else {
+			return err
+		}
 	}
 
 	var casbinCid string
@@ -184,7 +188,11 @@ func SetTeacherManagerService(username string, ManagerType string) error {
 	// 判断这个用户是不是管理员
 	isManager, err := mysql.GetIsManagerByUsername(username)
 	if err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		} else {
+			return err
+		}
 	}
 
 	var casbinCid string

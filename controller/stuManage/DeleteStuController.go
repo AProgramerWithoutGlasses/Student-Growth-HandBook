@@ -1,8 +1,10 @@
 package stuManage
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
@@ -50,9 +52,13 @@ func DeleteStuControl(c *gin.Context) {
 
 		isManager, err := mysql.GetIsManagerByUsername(input.Selected_students[i].Username)
 		if err != nil {
-			response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
-			zap.L().Error(err.Error())
-			return
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				err = nil
+			} else {
+				response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
+				zap.L().Error(err.Error())
+				return
+			}
 		}
 
 		if isManager {
