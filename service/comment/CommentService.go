@@ -161,7 +161,8 @@ func DeleteCommentService(cid int, username string) error {
 		return err
 	}
 	// 只有自己和文章作者和管理员能删除评论
-	if username != comment.User.Username || username != comment.Article.User.Username || !user.IsManager {
+	if username != comment.User.Username && username != comment.Article.User.Username && !user.IsManager {
+		fmt.Println(user.IsManager)
 		return myErr.OverstepCompetence()
 	}
 
