@@ -31,6 +31,8 @@ func DeleteStuControl(c *gin.Context) {
 		return
 	}
 
+	var deletedStuName string
+
 	// 删除选中的用户
 	for i, _ := range input.Selected_students {
 
@@ -74,8 +76,10 @@ func DeleteStuControl(c *gin.Context) {
 			return
 		}
 
+		// 拼接删除了的学生姓名
+		deletedStuName = deletedStuName + input.Selected_students[i].Name + "、"
 	}
 
 	// 响应成功
-	response.ResponseSuccess(c, "删除成功!")
+	response.ResponseSuccessWithMsg(c, "删除成功!", nil)
 }

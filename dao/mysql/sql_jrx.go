@@ -610,3 +610,25 @@ func GetUser(id int) (gorm_model.User, error) {
 
 	return user, nil
 }
+
+func GetPasswordById(id int) (pwdFromMysql string, err error) {
+	var users gorm_model.User
+	err = DB.Where("id = ?", id).First(&users).Error
+	return users.Password, err
+}
+
+func SaveAdviceDao(advice gorm_model.Advice) error {
+	err := DB.Create(&advice).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdatePassword(id int, newPwd string) error {
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Update("password", newPwd).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

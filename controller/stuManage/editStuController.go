@@ -19,9 +19,14 @@ func EditStuControl(c *gin.Context) {
 	}
 
 	// 业务处理
-	service.EditStuService(user)
+	err := service.EditStuService(user)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
 
 	// 响应
-	response.ResponseSuccess(c, "")
+	response.ResponseSuccessWithMsg(c, "信息修改成功", nil)
 
 }

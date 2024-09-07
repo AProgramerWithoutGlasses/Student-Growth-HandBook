@@ -358,18 +358,17 @@ func CalculateNowGradeByClass(class string) (grade string) {
 }
 
 func EditStuService(user jrx_model.ChangeStuMesStruct) error {
-	// 更改
 	id, err := mysql.GetIdByUsername(user.Username)
 	if err != nil {
 		return err
 	}
 
-	err = mysql.ChangeStudentMessage(id, user)
+	oldUser, err := mysql.GetUser(id)
 	if err != nil {
 		return err
 	}
 
-	oldUser, err := mysql.GetUser(id)
+	err = mysql.ChangeStudentMessage(id, user)
 	if err != nil {
 		return err
 	}
