@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"mime/multipart"
@@ -497,4 +498,56 @@ func GetTopicPointsService(username string) (jrx_model.HomepageTopicPoint, error
 	}
 
 	return homepageTopicPoint, nil
+}
+
+// 检查输入的原密码与数据库中的原密码是否一致，是则返回ture
+func CheckPassword(id int, oldPwd string) (bool, error) {
+	PwdFromMysql, err := mysql.GetPasswordById(id)
+	if err != nil {
+		return false, err
+	}
+
+	if PwdFromMysql != oldPwd {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func ChangePasswordService(username string, oldPwd string, newPwd string) (bool, error) {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return false, err
+	}
+
+	pwdOk, err := CheckPassword(id, oldPwd)
+	if err != nil {
+		return false, err
+	}
+
+	if pwdOk {
+		err = mysql.UpdatePassword(id, newPwd)
+		if err != nil {
+			return false, err
+		}
+	} else {
+		return false, errors.New("您输入的密码与您的实际密码不符")
+	}
+
+	return false, nil
+}
+
+// 存储用户反馈到数据库中
+func SaveAdviceService(username string, advice string) error {
+	adviceStruct := gorm_model.Advice{
+		Username: username,
+		Advice:   advice,
+	}
+
+	err := mysql.SaveAdviceDao(adviceStruct)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

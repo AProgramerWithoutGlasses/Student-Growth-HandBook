@@ -45,6 +45,6 @@ func SetStuManagerControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, 200)
+	response.ResponseSuccess(c, "已将用户 "+input.Student.Username+" 设置为 "+input.ManagerType)
 
 }

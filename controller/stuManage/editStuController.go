@@ -27,6 +27,6 @@ func EditStuControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, "")
+	response.ResponseSuccessWithMsg(c, "信息修改成功", nil)
 
 }

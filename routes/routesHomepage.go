@@ -30,5 +30,7 @@ func routesHomepage(r *gin.Engine) {
 	rh.POST("/article_get", homepage.GetArticleControl)
 	rh.POST("/ban", homepage.BanUserControl)
 	rh.POST("/unban", homepage.UnbanUserControl)
+	rh.POST("/pwd_update", homepage.ChangePasswordControl)
+	rh.POST("/advice_get", homepage.GetAdviceControl)
 
 }
