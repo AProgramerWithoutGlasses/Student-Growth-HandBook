@@ -59,6 +59,7 @@ func RoutesXue(router *gin.Engine) {
 		showStar.GET("/class_star", growth.BackStarClass)
 		showStar.GET("/grade_star", growth.BackStarGrade)
 		showStar.GET("/college_star", growth.BackStarCollege)
+		showStar.GET("/time", growth.BackTime)
 	}
 	//后台成长之星
 	elected := router.Group("star")
