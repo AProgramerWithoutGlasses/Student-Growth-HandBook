@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"database/sql"
 	"studentGrow/models/gorm_model"
 	"time"
 )
@@ -48,12 +49,16 @@ func SelIfexit(username string) (int64, error) {
 
 // SelHead 查找用户头像
 func SelHead(username string) (string, error) {
-	var headshot string
-	err := DB.Model(&gorm_model.User{}).Where("username = ? AND head_shot IS NOT NULL", username).Select("head_shot").Scan(&headshot).Error
-	if err != nil {
-		return "", err
+	var headshot sql.NullString
+	result := DB.Model(&gorm_model.User{}).Where("username = ? ", username).Select("head_shot").Scan(&headshot)
+	if result.Error != nil {
+		return "", result.Error
 	}
-	return headshot, nil
+	if result.RowsAffected == 0 {
+		// 没有找到记录，返回空字符串
+		return "", nil
+	}
+	return headshot.String, nil
 }
 
 // SelBan 查询是否被ban

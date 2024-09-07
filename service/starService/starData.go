@@ -111,6 +111,28 @@ func PageQuery(starback []models.StarBack, page, limit int) []models.StarBack {
 	return starback[left:right]
 }
 
+// QPageQuery 实现分页查询
+func QPageQuery(starback []models.StarStu, page, limit int) []models.StarStu {
+	if limit <= 0 {
+		// 返回空切片，limit 应该大于0
+		return []models.StarStu{}
+	}
+	length := len(starback)
+	left := (page - 1) * limit
+	right := left + limit
+	// 修正right的计算，确保不会超出slice的长度
+	if right > length {
+		right = length
+	}
+
+	// 如果left超出length，返回空切片
+	if left >= length {
+		return []models.StarStu{}
+	}
+
+	return starback[left:right]
+}
+
 // StarGuidGrade StarGrade 把表中数据以年级分开
 func StarGuidGrade(usernamesli []string, year int) ([]string, error) {
 	var gradeusersli []string
@@ -290,4 +312,27 @@ func SelNumGrade(year int) (int, error) {
 		}
 	}
 	return classNum, nil
+}
+
+// SelTimeStar 前台通过开始时间和结束时间查询成长之星
+func SelTimeStar(starTime, endTime string, starType int) ([]models.StarStu, error) {
+	var starlist []models.StarStu
+	usernameslic, err := mysql.SelTimeStar(starTime, endTime, starType)
+	if err != nil {
+		return nil, err
+	}
+	for _, username := range usernameslic {
+		name, err := mysql.SelName(username)
+		headshot, err := mysql.SelHead(username)
+		starstu := models.StarStu{
+			Username:     username,
+			Name:         name,
+			UserHeadshot: headshot,
+		}
+		if err != nil {
+			return nil, err
+		}
+		starlist = append(starlist, starstu)
+	}
+	return starlist, nil
 }
