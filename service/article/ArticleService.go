@@ -311,23 +311,29 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		/*
 			删除文章
 		*/
-		switch role {
-		case "class":
-			err = mysql.DeleteArticleByIdForClass(aid, username, tx)
-		case "grade1":
-			err = mysql.DeleteArticleByIdForGrade(aid, 1, tx)
-		case "grade2":
-			err = mysql.DeleteArticleByIdForGrade(aid, 2, tx)
-		case "grade3":
-			err = mysql.DeleteArticleByIdForGrade(aid, 3, tx)
-		case "grade4":
-			err = mysql.DeleteArticleByIdForGrade(aid, 4, tx)
-		case "college":
+		// 若为本人删除
+		if article.User.Username == username {
 			err = mysql.DeleteArticleByIdForSuperman(aid, tx)
-		case "superman":
-			err = mysql.DeleteArticleByIdForSuperman(aid, tx)
-		default:
-			return myErr.ErrNotFoundError
+		} else {
+			// 若为管理员删除
+			switch role {
+			case "class":
+				err = mysql.DeleteArticleByIdForClass(aid, username, tx)
+			case "grade1":
+				err = mysql.DeleteArticleByIdForGrade(aid, 1, tx)
+			case "grade2":
+				err = mysql.DeleteArticleByIdForGrade(aid, 2, tx)
+			case "grade3":
+				err = mysql.DeleteArticleByIdForGrade(aid, 3, tx)
+			case "grade4":
+				err = mysql.DeleteArticleByIdForGrade(aid, 4, tx)
+			case "college":
+				err = mysql.DeleteArticleByIdForSuperman(aid, tx)
+			case "superman":
+				err = mysql.DeleteArticleByIdForSuperman(aid, tx)
+			default:
+				return myErr.ErrNotFoundError
+			}
 		}
 
 		if err != nil {
