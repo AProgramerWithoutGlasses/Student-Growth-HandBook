@@ -645,23 +645,26 @@ func ReviseArticleStatusService(aid int, status bool) error {
 		return myErr.HasExistError()
 	}
 
-	// 检查本日发表相应话题的文章数
-	startOfDay := time.Now().Truncate(24 * time.Hour) // 今天的开始时间
-	endOfDay := startOfDay.Add(24 * time.Hour)        // 明天的开始时间
+	// 若修改状态为公开，则检查本日的帖子限额
+	if status {
+		// 检查本日发表相应话题的文章数
+		startOfDay := time.Now().Truncate(24 * time.Hour) // 今天的开始时间
+		endOfDay := startOfDay.Add(24 * time.Hour)        // 明天的开始时间
 
-	article, err := mysql.QueryArticleByIdOfManager(aid)
-	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
-		return err
-	}
+		article, err := mysql.QueryArticleByIdOfManager(aid)
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
+			return err
+		}
 
-	count, err := mysql.QueryArticleNumByDay(article.Topic, startOfDay, endOfDay, int(article.UserID))
-	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.QueryArticleNumByDay err=", zap.Error(err))
-		return err
-	}
-	if count >= constant.ArticlePublishLimit {
-		return errors.New("文章发布次数已达上限")
+		count, err := mysql.QueryArticleNumByDay(article.Topic, startOfDay, endOfDay, int(article.UserID))
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.QueryArticleNumByDay err=", zap.Error(err))
+			return err
+		}
+		if count >= constant.ArticlePublishLimit {
+			return errors.New("文章发布次数已达上限")
+		}
 	}
 
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
