@@ -38,8 +38,8 @@ func SelUid(class string) ([]int, error) {
 func SelCollegeId() ([]int, []string, error) {
 	var uidslice []int
 	var usernameslice []string
-	err := DB.Model(&gorm_model.User{}).Where("identity <> ?", "开发者").Select("id").Scan(&uidslice).Error
-	err = DB.Model(&gorm_model.User{}).Where("identity <> ?", "开发者").Select("username").Scan(&usernameslice).Error
+	err := DB.Model(&gorm_model.User{}).Where("identity <> ?", "开发").Select("id").Scan(&uidslice).Error
+	err = DB.Model(&gorm_model.User{}).Where("identity <> ?", "开发").Select("username").Scan(&usernameslice).Error
 	if err != nil {
 		return nil, nil, err
 	}
