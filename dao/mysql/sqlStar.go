@@ -269,9 +269,13 @@ func SelNotClass() ([]string, error) {
 // SelTimeStar 查询特定时期的成长之星
 func SelTimeStar(starTime, endTime string, starType int) ([]string, error) {
 	var username []string
-	star, err := time.Parse("2006-01-02", starTime)
+	start, err := time.Parse("2006-01-02", starTime)
+	start = start.Add(-8 * time.Hour)
 	end, err := time.Parse("2006-01-02", endTime)
-	err = DB.Model(&gorm_model.Star{}).Where("type = ?", starType).Where("created_at BETWEEN ? AND ?", star, end).Select("username").Scan(&username).Error
+	end = end.AddDate(0, 0, 1)
+	end = end.Add(-8 * time.Hour)
+
+	err = DB.Model(&gorm_model.Star{}).Where("type = ?", starType).Where("created_at BETWEEN ? AND ?", start, end).Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}

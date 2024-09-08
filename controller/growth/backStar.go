@@ -448,7 +448,8 @@ func BackStarClass(c *gin.Context) {
 	}
 	//如果传来的数值为空
 	if backData.StartTime == "" && backData.EndTime == "" {
-		starList, err = starService.QStarClass(1)
+		allStarList, err := starService.QStarClass(1)
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
 			return
@@ -487,9 +488,10 @@ func BackStarGrade(c *gin.Context) {
 	}
 	//如果传来的数值为空
 	if backData.StartTime == "" && backData.EndTime == "" {
-		starList, err = starService.QStarClass(2)
+		allStarList, err := starService.QStarClass(2)
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
 		if err != nil {
-			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+			response.ResponseErrorWithMsg(c, 400, "未找到年级之星")
 			return
 		}
 	} else {
@@ -497,7 +499,7 @@ func BackStarGrade(c *gin.Context) {
 		//实现分页
 		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
 		if err != nil {
-			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+			response.ResponseErrorWithMsg(c, 400, "未找到年级之星")
 			return
 		}
 	}
@@ -526,9 +528,10 @@ func BackStarCollege(c *gin.Context) {
 	}
 	//如果传来的数值为空
 	if backData.StartTime == "" && backData.EndTime == "" {
-		starList, err = starService.QStarClass(3)
+		allStarList, err := starService.QStarClass(3)
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
 		if err != nil {
-			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+			response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
 			return
 		}
 	} else {
@@ -536,7 +539,7 @@ func BackStarCollege(c *gin.Context) {
 		//实现分页
 		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
 		if err != nil {
-			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+			response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
 			return
 		}
 	}
