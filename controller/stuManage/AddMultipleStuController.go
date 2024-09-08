@@ -120,6 +120,7 @@ func AddMultipleStuControl(c *gin.Context) {
 
 	}
 
-	response.ResponseSuccess(c, "导入成功!")
+	addStuNumber := strconv.Itoa(len(rows[1:]))
+	response.ResponseSuccessWithMsg(c, "已导入"+addStuNumber+" 名学生的信息！", nil)
 
 }

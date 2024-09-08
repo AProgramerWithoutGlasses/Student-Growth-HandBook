@@ -12,7 +12,7 @@ func GetUserDataControl(c *gin.Context) {
 	input := struct {
 		Username string `json:"username"`
 	}{}
-	err := c.BindJSON(&input)
+	err := c.ShouldBindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		return

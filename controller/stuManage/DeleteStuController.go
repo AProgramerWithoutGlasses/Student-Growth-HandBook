@@ -78,8 +78,9 @@ func DeleteStuControl(c *gin.Context) {
 
 		// 拼接删除了的学生姓名
 		deletedStuName = deletedStuName + input.Selected_students[i].Name + "、"
+		deletedStuName = deletedStuName[0 : len(deletedStuName)-1]
 	}
 
 	// 响应成功
-	response.ResponseSuccessWithMsg(c, "删除成功!", nil)
+	response.ResponseSuccessWithMsg(c, deletedStuName+"删除成功!", nil)
 }
