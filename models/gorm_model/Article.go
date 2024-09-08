@@ -12,7 +12,7 @@ type Article struct {
 	Pic           string
 	Video         string
 	Topic         string              `json:"article_topic"`
-	Status        bool                `gorm:"not null;default:true"json:"article_status"`
+	Status        bool                `gorm:"not null"json:"article_status"`
 	ReadAmount    int                 `gorm:"default:0"json:"read_amount"`
 	LikeAmount    int                 `gorm:"default:0"json:"Like_amount"`
 	CollectAmount int                 `gorm:"default:0"json:"collect_amount"`

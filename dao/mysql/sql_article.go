@@ -494,6 +494,7 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 		WordCount: wordCount,
 		Status:    status,
 	}
+	print(article.Status)
 	if err := db.Create(&article).Error; err != nil {
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 		return -1, err
