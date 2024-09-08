@@ -14,7 +14,6 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
-	"studentGrow/models/gorm_model"
 	"studentGrow/routes"
 	"studentGrow/service/article"
 	"studentGrow/settings"
@@ -40,10 +39,6 @@ func main() {
 	// 3. 初始化Mysql
 	if err := mysql.Init(); err != nil {
 		fmt.Printf("mysql.Init() gorm.Open() err : %v\n", err)
-		return
-	}
-
-	if err := mysql.DB.AutoMigrate(&gorm_model.Article{}); err != nil {
 		return
 	}
 

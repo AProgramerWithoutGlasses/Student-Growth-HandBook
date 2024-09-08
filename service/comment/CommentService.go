@@ -207,5 +207,8 @@ func DeleteCommentService(cid int, username string) error {
 		zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Transaction err=", zap.Error(err))
 		return err
 	}
+
+	// 删除redis
+	redis.RDB.HDel("comment", strconv.Itoa(cid))
 	return nil
 }

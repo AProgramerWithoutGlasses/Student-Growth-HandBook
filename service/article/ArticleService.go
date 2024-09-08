@@ -365,6 +365,11 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		zap.L().Error("DeleteArticleService() service.article.Transaction err=", zap.Error(err))
 		return err
 	}
+
+	// 删除redis
+	redis.RDB.HDel("article", strconv.Itoa(aid))
+	redis.RDB.HDel("collect", strconv.Itoa(aid))
+
 	return nil
 }
 
@@ -498,6 +503,12 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 		return myErr.DataFormatError()
 	}
 
+	//  检查视频数量
+	if len(video) > 1 {
+		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
+		return myErr.DataFormatError()
+	}
+
 	//  将图片上传至oss
 	var picPath []string
 	if len(pics) > 0 && len(pics) < 10 {
@@ -512,10 +523,15 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 		}
 	}
 
-	//  检查视频数量
-	if len(video) > 1 {
-		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
-		return myErr.DataFormatError()
+	// 将视频上传至oss
+	var videoPath string
+	if len(video) > 0 {
+		url, err := fileProcess.UploadFile("video", video[0])
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(err))
+			return err
+		}
+		videoPath = url
 	}
 
 	// 检查本日发表相应话题的文章数
@@ -535,17 +551,6 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	}
 	if count >= constant.ArticlePublishLimit {
 		return errors.New("文章发布次数已达上限")
-	}
-
-	// 将视频上传至oss
-	var videoPath string
-	if len(video) > 0 {
-		url, err := fileProcess.UploadFile("video", video[0])
-		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(err))
-			return err
-		}
-		videoPath = url
 	}
 
 	// 计算文章分数
