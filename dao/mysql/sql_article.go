@@ -71,7 +71,7 @@ func QueryArticleByIdOfManager(aid int) (*model.Article, error) {
 // QueryArticleNumByDay 查询当日的相应话题的文章发表数量
 func QueryArticleNumByDay(topic string, startOfDay time.Time, endOfDay time.Time, uid int) (int, error) {
 	var count int64
-	if err := DB.Model(&model.Article{}).Where("created_at >= ? AND	created_at < ? AND topic = ? AND user_id = ?", startOfDay, endOfDay, topic, uid).
+	if err := DB.Model(&model.Article{}).Where("created_at >= ? AND	created_at < ? AND topic = ? AND user_id = ? AND status = ? AND ban = ?", startOfDay, endOfDay, topic, uid, true, false).
 		Count(&count).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return -1, err
