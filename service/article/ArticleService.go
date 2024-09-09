@@ -115,14 +115,14 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 }
 
 // GetArticleListService 后台获取文章列表
-func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, role, username string) ([]model.Article, error) {
+func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, role, username string) ([]model.Article, int, error) {
 
 	var result []model.Article
 	var err error
 	user, err := mysql.GetUserByUsername(username)
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.GetUserByUsername err=", zap.Error(err))
-		return nil, err
+		return nil, -1, err
 	}
 
 	switch role {
@@ -143,13 +143,18 @@ func GetArticleListService(page, limit int, sortType, order, startAtString, endA
 		result, err = mysql.QueryArticleAndUserListByPageForSuperman(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
 	}
 
-	//执行查询文章列表语句
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.SelectArticleAndUserListByPage err=", zap.Error(err))
-		return nil, err
+		return nil, -1, err
 	}
 
-	return result, nil
+	// 查询文章总数
+	articleAmount, err := mysql.QueryArticleNum()
+	if err != nil {
+		zap.L().Error("GetArticleListService() service.article.QueryArticleNum err=", zap.Error(err))
+		return nil, -1, err
+	}
+	return result, articleAmount, nil
 }
 
 // BannedArticleService 解封或封禁文章

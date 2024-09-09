@@ -10,13 +10,14 @@ import (
 
 // UpdateLikeNum 修改点赞数量
 func UpdateLikeNum(objId, likeType, likeNum int, db *gorm.DB) error {
-	// 修改文章点赞
 	switch likeType {
+	// 修改文章点赞
 	case constant.ArticleInteractionConstant:
 		if err := db.Model(gorm_model.Article{}).Where("id = ?", objId).Update("like_amount", likeNum).Error; err != nil {
 			zap.L().Error("UpdateLikeNum() dao.mysql.mysql_like.Update err=", zap.Error(err))
 			return err
 		}
+		// 修改评论点赞
 	case constant.CommentInteractionConstant:
 		if err := db.Model(gorm_model.Comment{}).Where("id = ?", objId).Update("like_amount", likeNum).Error; err != nil {
 			zap.L().Error("UpdateLikeNum() dao.mysql.mysql_like.Update err=", zap.Error(err))
