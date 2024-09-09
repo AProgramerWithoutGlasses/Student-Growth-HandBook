@@ -656,3 +656,13 @@ func DeleteArticleTagByArticleId(aid int) error {
 	}
 	return nil
 }
+
+// QueryArticleNum 查看文章总数量
+func QueryArticleNum() (int, error) {
+	var count int64
+	if err := DB.Model(&model.Article{}).Count(&count).Error; err != nil {
+		zap.L().Error("QueryArticleNum() dao.mysql.sql_article.Count", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+}

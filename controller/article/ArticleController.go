@@ -136,7 +136,7 @@ func GetArticleListController(c *gin.Context) {
 	}
 
 	//查询文章列表
-	result, err := article.GetArticleListService(in.Page, in.Limit, in.SortType, in.Order, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Name, in.IsBan, role, username)
+	result, articleAmount, err := article.GetArticleListService(in.Page, in.Limit, in.SortType, in.Order, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Name, in.IsBan, role, username)
 	if err != nil {
 		zap.L().Error("GetArticleListController() controller.article.GetArticleListService err=", zap.Error(myErr.DataFormatError()))
 		myErr.CheckErrors(err, c)
@@ -160,7 +160,7 @@ func GetArticleListController(c *gin.Context) {
 
 	res.ResponseSuccess(c, map[string]any{
 		"list":           list,
-		"article_amount": len(list),
+		"article_amount": articleAmount,
 	})
 }
 
