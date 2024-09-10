@@ -11,7 +11,7 @@ import (
 func GetAdviceControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Advice string `form:"advice"`
+		Advice string `json:"advice"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {
