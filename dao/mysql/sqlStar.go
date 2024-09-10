@@ -67,17 +67,7 @@ func SelHot(id int) ([]int, []int, error) {
 	return like, collect, nil
 }
 
-// SelStarUser 查询未公布的学号合集
-func SelStarUser() ([]string, error) {
-	var alluser []string
-	err := DB.Model(&gorm_model.Star{}).Where("session = ?", 0).Select("username").Scan(&alluser).Error
-	if err != nil {
-		return nil, err
-	}
-	return alluser, nil
-}
-
-// SelNStarUser 查询未公布且未推举的学号合集
+// SelNStarUser 查询未公布且未推举的学号合集(年级管理员搜索表格的数据)
 func SelNStarUser() ([]string, error) {
 	var alluser []string
 	err := DB.Model(&gorm_model.Star{}).Where("type = ?", 1).Where("session = ?", 0).Select("username").Scan(&alluser).Error
@@ -201,13 +191,25 @@ func UpdateSession(session int) error {
 	return nil
 }
 
-// SelStar 查找指定届数的班级之星
-func SelStar(session int, starType int) ([]string, error) {
+// SelStar 查找指定届数的班级之星(前台后台公用)
+func SelStar(session int, starType int, page int, limit int) ([]string, error) {
 	var username []string
-	err := DB.Model(&gorm_model.Star{}).Where("session = ?", session).Where("type = ?", starType).Select("username").Scan(&username).Error
-	if err != nil {
-		return nil, err
+	condition := DB.Model(&gorm_model.Star{}).Where("session = ?", session).Where("type = ?", starType)
+	if page == 0 && limit == 0 {
+		err := condition.Select("username").Scan(&username).Error
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		if limit <= 0 {
+			limit = 10
+		}
+		err := condition.Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&username).Error
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	return username, nil
 }
 
@@ -256,26 +258,19 @@ func UpdateOne(username string) error {
 	return nil
 }
 
-// SelNotClass 查询被推选为年级院级成长之星的学号合集
-func SelNotClass() ([]string, error) {
-	var username []string
-	err := DB.Model(&gorm_model.Star{}).Where("type <> ? ", 1).Where("session = ?", 0).Select("username").Scan(&username).Error
-	if err != nil {
-		return nil, err
-	}
-	return username, nil
-}
-
 // SelTimeStar 查询特定时期的成长之星
-func SelTimeStar(starTime, endTime string, starType int) ([]string, error) {
+func SelTimeStar(starTime, endTime string, starType int, page int, limit int) ([]string, error) {
 	var username []string
 	start, err := time.Parse("2006-01-02", starTime)
 	start = start.Add(-8 * time.Hour)
 	end, err := time.Parse("2006-01-02", endTime)
 	end = end.AddDate(0, 0, 1)
 	end = end.Add(-8 * time.Hour)
-
-	err = DB.Model(&gorm_model.Star{}).Where("type = ?", starType).Where("created_at BETWEEN ? AND ?", start, end).Select("username").Scan(&username).Error
+	if page <= 0 || limit <= 0 {
+		page = 1 // 将页码设置为第一页
+		limit = 10
+	}
+	err = DB.Model(&gorm_model.Star{}).Where("type = ?", starType).Where("created_at BETWEEN ? AND ?", start, end).Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}
@@ -294,4 +289,35 @@ func SelTime() (string, string, error) {
 	maxdate := maxTime.Format("2006-01-02")
 	mindate := minTime.Format("2006-01-02")
 	return maxdate, mindate, nil
+}
+
+// SelStuClass 查询跟管理员一个班级的姓名合集
+func SelStuClass(class string) ([]string, error) {
+	var stuSli []string
+	err := DB.Model(&gorm_model.Star{}).Where("session = ?", 0).Where("username IN (?)", DB.Model(&gorm_model.User{}).Where("class = ?", class).Select("username")).Select("name").Scan(&stuSli).Error
+	if err != nil {
+		return nil, err
+	}
+	return stuSli, nil
+}
+
+// SelStuGrade 查询跟已推选未发布的年级之星姓名合集
+func SelStuGrade(data time.Time, year int) ([]string, error) {
+	var stuSli []string
+	_, username, err := SelGradeId(data, year)
+	err = DB.Model(&gorm_model.Star{}).Where("session = ?", 0).Where("username IN (?)", username).Select("name").Scan(&stuSli).Error
+	if err != nil {
+		return nil, err
+	}
+	return stuSli, nil
+}
+
+// SelDataCollege 查询院级管理员已经推选的数据
+func SelDataCollege() ([]string, error) {
+	var name []string
+	err := DB.Model(&gorm_model.Star{}).Where("session = ? AND type = ?", 0, 3).Select("name").Scan(&name).Error
+	if err != nil {
+		return nil, err
+	}
+	return name, nil
 }

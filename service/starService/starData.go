@@ -5,6 +5,7 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
 	"studentGrow/utils/timeConverter"
+	"time"
 )
 
 // StarGrid 查询表格所有数据
@@ -12,7 +13,6 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 	var starBack []models.StarBack
 	for _, username := range usernameslice {
 		//结构体对象存放数据
-		//var star models.StarBack
 		//查询 name ，id，userfans，score，hot
 		//查询名字
 		name, err := mysql.SelName(username)
@@ -107,33 +107,10 @@ func PageQuery(starback []models.StarBack, page, limit int) []models.StarBack {
 	if left >= length {
 		return []models.StarBack{}
 	}
-
 	return starback[left:right]
 }
 
-// QPageQuery 实现分页查询
-func QPageQuery(starback []models.StarStu, page, limit int) []models.StarStu {
-	if limit <= 0 {
-		// 返回空切片，limit 应该大于0
-		return []models.StarStu{}
-	}
-	length := len(starback)
-	left := (page - 1) * limit
-	right := left + limit
-	// 修正right的计算，确保不会超出slice的长度
-	if right > length {
-		right = length
-	}
-
-	// 如果left超出length，返回空切片
-	if left >= length {
-		return []models.StarStu{}
-	}
-
-	return starback[left:right]
-}
-
-// StarGuidGrade StarGrade 把表中数据以年级分开
+// StarGuidGrade 把表中数据以年级分开
 func StarGuidGrade(usernamesli []string, year int) ([]string, error) {
 	var gradeusersli []string
 	for _, username := range usernamesli {
@@ -166,7 +143,7 @@ func SearchGrade(name string, year int) ([]string, error) {
 func StarClass(session int) ([]models.StarClass, error) {
 	var StarClasssli []models.StarClass
 	//查询出所有班级之星
-	usernamesli, err := mysql.SelStar(session, 1)
+	usernamesli, err := mysql.SelStar(session, 1, 0, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +184,7 @@ func GroupByClass(usernamesli []string) (map[string][]string, error) {
 // StarGrade 返回年级之星
 func StarGrade(session int) ([]models.StarGrade, error) {
 	var starGrade []models.StarGrade
-	usernamesli, err := mysql.SelStar(session, 2)
+	usernamesli, err := mysql.SelStar(session, 2, 0, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +205,7 @@ func StarGrade(session int) ([]models.StarGrade, error) {
 // StarCollege 返回院级之星
 func StarCollege(session int) ([]models.StarGrade, error) {
 	var starGrade []models.StarGrade
-	usernamesli, err := mysql.SelStar(session, 3)
+	usernamesli, err := mysql.SelStar(session, 3, 0, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -247,13 +224,13 @@ func StarCollege(session int) ([]models.StarGrade, error) {
 }
 
 // QStarClass 返回前台成长之星
-func QStarClass(starType int) ([]models.StarStu, error) {
+func QStarClass(starType int, page int, limit int) ([]models.StarStu, error) {
 	var starlist []models.StarStu
 	session, err := mysql.SelMax()
 	if err != nil {
 		return nil, err
 	}
-	usernameslic, err := mysql.SelStar(session, starType)
+	usernameslic, err := mysql.SelStar(session, starType, page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -275,49 +252,26 @@ func QStarClass(starType int) ([]models.StarStu, error) {
 
 // SelNumClass 查询表中跟管理员一个班的有多少人
 func SelNumClass(class string) (int, error) {
-	var classnum int
-	//1.查询表中目前的人员
-	usernamesli, err := mysql.SelStarUser()
+	classnum, err := mysql.SelStuClass(class)
 	if err != nil {
 		return 0, err
 	}
-	//2.匹配
-	for _, username := range usernamesli {
-		thisclass, err := mysql.SelClass(username)
-		if err != nil {
-			return 0, err
-		}
-		if thisclass == class {
-			classnum += 1
-		}
-	}
-	return classnum, nil
+	return len(classnum), nil
 }
 
 // SelNumGrade 查询年级管理员已推选的人数
-func SelNumGrade(year int) (int, error) {
-	var classNum int
-	usernamesli, err := mysql.SelNotClass()
+func SelNumGrade(data time.Time, year int) (int, error) {
+	classNum, err := mysql.SelStuGrade(data, year)
 	if err != nil {
 		return 0, err
 	}
-	for _, username := range usernamesli {
-		plus, err := mysql.SelPlus(username)
-		if err != nil {
-			return 0, err
-		}
-		grade := timeConverter.GetUserGrade(plus)
-		if grade == year {
-			classNum += 1
-		}
-	}
-	return classNum, nil
+	return len(classNum), nil
 }
 
 // SelTimeStar 前台通过开始时间和结束时间查询成长之星
-func SelTimeStar(starTime, endTime string, starType int) ([]models.StarStu, error) {
+func SelTimeStar(starTime, endTime string, starType int, page int, limit int) ([]models.StarStu, error) {
 	var starlist []models.StarStu
-	usernameslic, err := mysql.SelTimeStar(starTime, endTime, starType)
+	usernameslic, err := mysql.SelTimeStar(starTime, endTime, starType, page, limit)
 	if err != nil {
 		return nil, err
 	}

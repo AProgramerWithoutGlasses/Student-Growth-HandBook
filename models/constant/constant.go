@@ -51,3 +51,11 @@ const ManagerMsgConstant = 2
 const WordLimitMin = 30
 
 const WordLimitMax = 300
+
+/*
+管理员推选人数限制
+*/
+
+const PeopleLimitClass = 3
+const PeopleLimitGrade = 5
+const PeopleLimitCollege = 10

@@ -5,9 +5,11 @@ import (
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
+	"studentGrow/models/constant"
 	"studentGrow/pkg/response"
 	"studentGrow/service/starService"
 	token2 "studentGrow/utils/token"
+	"time"
 )
 
 // Student 定义接收前端数据结构体
@@ -72,7 +74,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = mysql.SelSearchUser(datas.Name, class)
 		}
-		peopleLimit = 3
+		peopleLimit = constant.PeopleLimitClass
 		if err != nil {
 			zap.L().Error("Search SelSearchUser err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -84,7 +86,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 1)
 		}
-		peopleLimit = 5
+		peopleLimit = constant.PeopleLimitGrade
 		if err != nil {
 			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -96,7 +98,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 2)
 		}
-		peopleLimit = 5
+		peopleLimit = constant.PeopleLimitGrade
 		if err != nil {
 			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -108,7 +110,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 3)
 		}
-		peopleLimit = 5
+		peopleLimit = constant.PeopleLimitGrade
 		if err != nil {
 			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -120,7 +122,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = starService.SearchGrade(datas.Name, 4)
 		}
-		peopleLimit = 5
+		peopleLimit = constant.PeopleLimitGrade
 		if err != nil {
 			zap.L().Error("Search GetEnrollmentYear err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -132,7 +134,7 @@ func Search(c *gin.Context) {
 		} else {
 			usernamesli, err = mysql.SelSearchColl(datas.Name)
 		}
-		peopleLimit = 10
+		peopleLimit = constant.PeopleLimitCollege
 		if err != nil {
 			zap.L().Error("Search SelSearchColl err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
@@ -202,13 +204,12 @@ func ElectClass(c *gin.Context) {
 		return
 	}
 
-	//判断是否超出权限范围
+	//判断是否超出权限范围并判断是否有重复数据
 	length := len(Responsedata.ElectedArr)
-	if Star := length + Number; Star > 3 {
+	if Star := length + Number; Star > constant.PeopleLimitClass {
 		response.ResponseErrorWithMsg(c, 200, "本次推选超出名额限制")
 		return
 	}
-
 	for _, student := range Responsedata.ElectedArr {
 		username := student.Username
 		name := student.Name
@@ -226,36 +227,54 @@ func ElectClass(c *gin.Context) {
 			return
 		}
 	}
-	//判断是否超出权限范围
-	if Star := length + Number; Star == 3 {
-		response.ResponseSuccess(c, "No seats left")
+	stuName, err := mysql.SelStuClass(class)
+	if err != nil {
+		response.ResponseError(c, 400)
 		return
 	}
-	response.ResponseSuccess(c, "推选成功")
+	//判断是否超出权限范围
+
+	if Star := length + Number; Star == constant.PeopleLimitClass {
+		data := map[string]any{
+			"name": stuName,
+			"news": "No seats left",
+		}
+		response.ResponseSuccess(c, data)
+		return
+	}
+	data := map[string]any{
+		"name": stuName,
+		"news": "推选成功",
+	}
+	response.ResponseSuccess(c, data)
 }
 
 // ElectGrade 年级管理员推选数据
 func ElectGrade(c *gin.Context) {
 	//代表年级管理员已推选的个数
 	var number int
+	//已推选的人
+	var stuName []string
+	date := time.Now()
 	//拿到角色
 	token := c.GetHeader("token")
 	role, err := token2.GetRole(token)
 	//获取number的值
 	switch role {
 	case "grade1":
-		number, err = starService.SelNumGrade(1)
+		number, err = starService.SelNumGrade(date, -1)
 	case "grade2":
-		number, err = starService.SelNumGrade(2)
+		number, err = starService.SelNumGrade(date, -2)
 	case "grade3":
-		number, err = starService.SelNumGrade(3)
+		number, err = starService.SelNumGrade(date, -3)
 	case "grade4":
-		number, err = starService.SelNumGrade(4)
+		number, err = starService.SelNumGrade(date, -4)
 	}
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
 	}
+	//获取前端传来的数据
 	var ResponseData struct {
 		ElectedArr []Student `json:"electedArr"`
 	}
@@ -268,7 +287,7 @@ func ElectGrade(c *gin.Context) {
 
 	//查询这次需要推选的人
 	length := len(ResponseData.ElectedArr)
-	if star := number + length; star > 5 {
+	if star := number + length; star > constant.PeopleLimitGrade {
 		response.ResponseErrorWithMsg(c, 200, "本次推选超出名额限制")
 		return
 	}
@@ -283,11 +302,32 @@ func ElectGrade(c *gin.Context) {
 			return
 		}
 	}
-	if Star := length + number; Star == 5 {
-		response.ResponseSuccess(c, "No seats left")
+
+	//查询已经推选过的年纪之星合集
+	switch role {
+	case "grade1":
+		stuName, err = mysql.SelStuGrade(date, -1)
+	case "grade2":
+		stuName, err = mysql.SelStuGrade(date, -2)
+	case "grade3":
+		stuName, err = mysql.SelStuGrade(date, -3)
+	case "grade4":
+		stuName, err = mysql.SelStuGrade(date, -4)
+	}
+	//刚好推选够5个时
+	if Star := length + number; Star == constant.PeopleLimitGrade {
+		data := map[string]any{
+			"name": stuName,
+			"news": "No seats left",
+		}
+		response.ResponseSuccess(c, data)
 		return
 	}
-	response.ResponseSuccess(c, "推选成功")
+	data := map[string]any{
+		"name": stuName,
+		"news": "推选成功",
+	}
+	response.ResponseSuccess(c, data)
 }
 
 // ElectCollege 院级管理员推选
@@ -301,6 +341,12 @@ func ElectCollege(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "未获取到数据")
 		return
 	}
+	//已推选的个数
+	BefName, err := mysql.SelDataCollege()
+	if len(BefName)+len(Responsedata.ElectedArr) > constant.PeopleLimitCollege {
+		response.ResponseErrorWithMsg(c, 200, "超出名额限制")
+		return
+	}
 	for _, user := range Responsedata.ElectedArr {
 		username := user.Username
 		err = mysql.UpdateCollege(username)
@@ -309,7 +355,20 @@ func ElectCollege(c *gin.Context) {
 			return
 		}
 	}
-	response.ResponseSuccess(c, "推选成功")
+	stuName, err := mysql.SelDataCollege()
+	if len(BefName)+len(Responsedata.ElectedArr) == constant.PeopleLimitCollege {
+		data := map[string]any{
+			"name": stuName,
+			"news": "No seats left",
+		}
+		response.ResponseSuccess(c, data)
+		return
+	}
+	data := map[string]any{
+		"name": stuName,
+		"news": "推选成功",
+	}
+	response.ResponseSuccess(c, data)
 }
 
 // PublicStar 公布成长之星
@@ -448,16 +507,13 @@ func BackStarClass(c *gin.Context) {
 	}
 	//如果传来的数值为空
 	if backData.StartTime == "" && backData.EndTime == "" {
-		allStarList, err := starService.QStarClass(1)
-		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		starList, err = starService.QStarClass(1, backData.Page, backData.Limit)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
 			return
 		}
 	} else {
-		allStarList, err := starService.SelTimeStar(backData.StartTime, backData.EndTime, 1)
-		//实现分页
-		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		starList, err = starService.SelTimeStar(backData.StartTime, backData.EndTime, 1, backData.Page, backData.Limit)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
 			return
@@ -488,16 +544,13 @@ func BackStarGrade(c *gin.Context) {
 	}
 	//如果传来的数值为空
 	if backData.StartTime == "" && backData.EndTime == "" {
-		allStarList, err := starService.QStarClass(2)
-		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		starList, err = starService.QStarClass(2, backData.Page, backData.Limit)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "未找到年级之星")
 			return
 		}
 	} else {
-		allStarList, err := starService.SelTimeStar(backData.StartTime, backData.EndTime, 2)
-		//实现分页
-		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		starList, err = starService.SelTimeStar(backData.StartTime, backData.EndTime, 2, backData.Page, backData.Limit)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "未找到年级之星")
 			return
@@ -528,16 +581,13 @@ func BackStarCollege(c *gin.Context) {
 	}
 	//如果传来的数值为空
 	if backData.StartTime == "" && backData.EndTime == "" {
-		allStarList, err := starService.QStarClass(3)
-		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		starList, err = starService.QStarClass(3, backData.Page, backData.Limit)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
 			return
 		}
 	} else {
-		allStarList, err := starService.SelTimeStar(backData.StartTime, backData.EndTime, 3)
-		//实现分页
-		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		starList, err = starService.SelTimeStar(backData.StartTime, backData.EndTime, 3, backData.Page, backData.Limit)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
 			return
