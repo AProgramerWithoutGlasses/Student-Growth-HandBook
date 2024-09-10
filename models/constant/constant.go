@@ -57,6 +57,14 @@ const WordLimitMin = 10
 const WordLimitMax = 300
 
 /*
+管理员推选人数限制
+*/
+
+const PeopleLimitClass = 3
+const PeopleLimitGrade = 5
+const PeopleLimitCollege = 10
+
+/*
 超级管理员用户id
 */
 
