@@ -155,6 +155,7 @@ func GetArticleListController(c *gin.Context) {
 			"username":        val.User.Username,
 			"created_at":      val.CreatedAt,
 			"name":            val.User.Name,
+			"collect_amount":  val.CollectAmount,
 		})
 	}
 
