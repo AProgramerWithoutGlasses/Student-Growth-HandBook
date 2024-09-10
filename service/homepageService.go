@@ -514,27 +514,26 @@ func CheckPassword(id int, oldPwd string) (bool, error) {
 	return true, nil
 }
 
-func ChangePasswordService(username string, oldPwd string, newPwd string) (bool, error) {
+func ChangePasswordService(username string, oldPwd string, newPwd string) error {
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	pwdOk, err := CheckPassword(id, oldPwd)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if pwdOk {
 		err = mysql.UpdatePassword(id, newPwd)
 		if err != nil {
-			return false, err
+			return err
 		}
-	} else {
-		return false, errors.New("您输入的密码与您的实际密码不符")
+		return nil
 	}
 
-	return false, nil
+	return errors.New("输入密码与实际密码不符")
 }
 
 // 存储用户反馈到数据库中

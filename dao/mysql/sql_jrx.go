@@ -620,10 +620,7 @@ func GetPasswordById(id int) (pwdFromMysql string, err error) {
 
 func SaveAdviceDao(advice gorm_model.Advice) error {
 	err := DB.Create(&advice).Error
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func UpdatePassword(id int, newPwd string) error {

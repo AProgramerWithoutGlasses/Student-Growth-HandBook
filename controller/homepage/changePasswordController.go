@@ -31,7 +31,7 @@ func ChangePasswordControl(c *gin.Context) {
 	}
 
 	// 业务
-	pwdCheck, err := service.ChangePasswordService(username, input.OldPwd, input.NewPwd)
+	err = service.ChangePasswordService(username, input.OldPwd, input.NewPwd)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error(err.Error())
@@ -39,12 +39,6 @@ func ChangePasswordControl(c *gin.Context) {
 	}
 
 	// 响应
-	output := struct {
-		PwdCheck bool `json:"pwd_check"`
-	}{
-		PwdCheck: pwdCheck,
-	}
-
-	response.ResponseSuccess(c, output)
+	response.ResponseSuccess(c, "")
 
 }
