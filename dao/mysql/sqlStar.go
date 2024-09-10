@@ -265,3 +265,33 @@ func SelNotClass() ([]string, error) {
 	}
 	return username, nil
 }
+
+// SelTimeStar 查询特定时期的成长之星
+func SelTimeStar(starTime, endTime string, starType int) ([]string, error) {
+	var username []string
+	start, err := time.Parse("2006-01-02", starTime)
+	start = start.Add(-8 * time.Hour)
+	end, err := time.Parse("2006-01-02", endTime)
+	end = end.AddDate(0, 0, 1)
+	end = end.Add(-8 * time.Hour)
+
+	err = DB.Model(&gorm_model.Star{}).Where("type = ?", starType).Where("created_at BETWEEN ? AND ?", start, end).Select("username").Scan(&username).Error
+	if err != nil {
+		return nil, err
+	}
+	return username, nil
+}
+
+// SelTime 查询表的最大时间以及最小时间
+func SelTime() (string, string, error) {
+	var maxTime time.Time
+	var minTime time.Time
+	err := DB.Model(&gorm_model.Star{}).Select("MAX(created_at)").Scan(&maxTime).Error
+	err = DB.Model(&gorm_model.Star{}).Select("MIN(created_at)").Scan(&minTime).Error
+	if err != nil {
+		return "", "", err
+	}
+	maxdate := maxTime.Format("2006-01-02")
+	mindate := minTime.Format("2006-01-02")
+	return maxdate, mindate, nil
+}

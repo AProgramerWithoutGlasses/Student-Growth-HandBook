@@ -115,14 +115,14 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 }
 
 // GetArticleListService 后台获取文章列表
-func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, role, username string) ([]model.Article, error) {
+func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, role, username string) ([]model.Article, int, error) {
 
 	var result []model.Article
 	var err error
 	user, err := mysql.GetUserByUsername(username)
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.GetUserByUsername err=", zap.Error(err))
-		return nil, err
+		return nil, -1, err
 	}
 
 	switch role {
@@ -143,13 +143,18 @@ func GetArticleListService(page, limit int, sortType, order, startAtString, endA
 		result, err = mysql.QueryArticleAndUserListByPageForSuperman(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
 	}
 
-	//执行查询文章列表语句
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.SelectArticleAndUserListByPage err=", zap.Error(err))
-		return nil, err
+		return nil, -1, err
 	}
 
-	return result, nil
+	// 查询文章总数
+	articleAmount, err := mysql.QueryArticleNum()
+	if err != nil {
+		zap.L().Error("GetArticleListService() service.article.QueryArticleNum err=", zap.Error(err))
+		return nil, -1, err
+	}
+	return result, articleAmount, nil
 }
 
 // BannedArticleService 解封或封禁文章
@@ -311,23 +316,29 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		/*
 			删除文章
 		*/
-		switch role {
-		case "class":
-			err = mysql.DeleteArticleByIdForClass(aid, username, tx)
-		case "grade1":
-			err = mysql.DeleteArticleByIdForGrade(aid, 1, tx)
-		case "grade2":
-			err = mysql.DeleteArticleByIdForGrade(aid, 2, tx)
-		case "grade3":
-			err = mysql.DeleteArticleByIdForGrade(aid, 3, tx)
-		case "grade4":
-			err = mysql.DeleteArticleByIdForGrade(aid, 4, tx)
-		case "college":
+		// 若为本人删除
+		if article.User.Username == username {
 			err = mysql.DeleteArticleByIdForSuperman(aid, tx)
-		case "superman":
-			err = mysql.DeleteArticleByIdForSuperman(aid, tx)
-		default:
-			return myErr.ErrNotFoundError
+		} else {
+			// 若为管理员删除
+			switch role {
+			case "class":
+				err = mysql.DeleteArticleByIdForClass(aid, username, tx)
+			case "grade1":
+				err = mysql.DeleteArticleByIdForGrade(aid, 1, tx)
+			case "grade2":
+				err = mysql.DeleteArticleByIdForGrade(aid, 2, tx)
+			case "grade3":
+				err = mysql.DeleteArticleByIdForGrade(aid, 3, tx)
+			case "grade4":
+				err = mysql.DeleteArticleByIdForGrade(aid, 4, tx)
+			case "college":
+				err = mysql.DeleteArticleByIdForSuperman(aid, tx)
+			case "superman":
+				err = mysql.DeleteArticleByIdForSuperman(aid, tx)
+			default:
+				return myErr.ErrNotFoundError
+			}
 		}
 
 		if err != nil {
@@ -359,6 +370,11 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		zap.L().Error("DeleteArticleService() service.article.Transaction err=", zap.Error(err))
 		return err
 	}
+
+	// 删除redis
+	redis.RDB.HDel("article", strconv.Itoa(aid))
+	redis.RDB.HDel("collect", strconv.Itoa(aid))
+
 	return nil
 }
 
@@ -492,6 +508,12 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 		return myErr.DataFormatError()
 	}
 
+	//  检查视频数量
+	if len(video) > 1 {
+		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
+		return myErr.DataFormatError()
+	}
+
 	//  将图片上传至oss
 	var picPath []string
 	if len(pics) > 0 && len(pics) < 10 {
@@ -506,10 +528,15 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 		}
 	}
 
-	//  检查视频数量
-	if len(video) > 1 {
-		zap.L().Error("PublishArticleService() service.article.ArticleService err=", zap.Error(myErr.DataFormatError()))
-		return myErr.DataFormatError()
+	// 将视频上传至oss
+	var videoPath string
+	if len(video) > 0 {
+		url, err := fileProcess.UploadFile("video", video[0])
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(err))
+			return err
+		}
+		videoPath = url
 	}
 
 	// 检查本日发表相应话题的文章数
@@ -529,17 +556,6 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	}
 	if count >= constant.ArticlePublishLimit {
 		return errors.New("文章发布次数已达上限")
-	}
-
-	// 将视频上传至oss
-	var videoPath string
-	if len(video) > 0 {
-		url, err := fileProcess.UploadFile("video", video[0])
-		if err != nil {
-			zap.L().Error("PublishArticleService() service.article.UploadFile err=", zap.Error(err))
-			return err
-		}
-		videoPath = url
 	}
 
 	// 计算文章分数
@@ -632,6 +648,28 @@ func ReviseArticleStatusService(aid int, status bool) error {
 	if curStatus == status {
 		zap.L().Error("ReviseArticleStatus() service.article", zap.Error(myErr.HasExistError()))
 		return myErr.HasExistError()
+	}
+
+	// 若修改状态为公开，则检查本日的帖子限额
+	if status {
+		// 检查本日发表相应话题的文章数
+		startOfDay := time.Now().Truncate(24 * time.Hour) // 今天的开始时间
+		endOfDay := startOfDay.Add(24 * time.Hour)        // 明天的开始时间
+
+		article, err := mysql.QueryArticleByIdOfManager(aid)
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
+			return err
+		}
+
+		count, err := mysql.QueryArticleNumByDay(article.Topic, startOfDay, endOfDay, int(article.UserID))
+		if err != nil {
+			zap.L().Error("PublishArticleService() service.article.QueryArticleNumByDay err=", zap.Error(err))
+			return err
+		}
+		if count >= constant.ArticlePublishLimit {
+			return errors.New("文章发布次数已达上限")
+		}
 	}
 
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {

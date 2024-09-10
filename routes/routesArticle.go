@@ -30,7 +30,7 @@ func routesArticle(r *gin.Engine) {
 	//封禁文章
 	at.POST("/ban", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), article.BannedArticleController)
 	//删除文章
-	at.POST("/delete", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), article.DeleteArticleController)
+	at.POST("/delete", token.AuthMiddleware(), article.DeleteArticleController)
 	//举报文章
 	at.POST("/report", token.AuthMiddleware(), article.ReportArticle)
 	// 获取今日热帖

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
+	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service/starService"
 	token2 "studentGrow/utils/token"
@@ -431,39 +432,119 @@ func StarPub(c *gin.Context) {
 
 // BackStarClass 返回前台班级成长之星
 func BackStarClass(c *gin.Context) {
-	starlist, err := starService.QStarClass(1)
+	//返回前端数据
+	var starList []models.StarStu
+	//接收前端数据
+	var backData struct {
+		StartTime string `form:"startTime"`
+		EndTime   string `form:"endTime"`
+		Page      int    `form:"page"`
+		Limit     int    `form:"limit"`
+	}
+	err := c.Bind(&backData)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+		response.ResponseError(c, 400)
 		return
 	}
+	//如果传来的数值为空
+	if backData.StartTime == "" && backData.EndTime == "" {
+		allStarList, err := starService.QStarClass(1)
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+			return
+		}
+	} else {
+		allStarList, err := starService.SelTimeStar(backData.StartTime, backData.EndTime, 1)
+		//实现分页
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "未找到班级之星")
+			return
+		}
+	}
+
 	data := map[string]any{
-		"starlist": starlist,
+		"starlist": starList,
 	}
 	response.ResponseSuccess(c, data)
 }
 
 // BackStarGrade 返回前台年级成长之星
 func BackStarGrade(c *gin.Context) {
-	starlist, err := starService.QStarClass(2)
+	//返回前端数据
+	var starList []models.StarStu
+	//接收前端数据
+	var backData struct {
+		StartTime string `form:"startTime"`
+		EndTime   string `form:"endTime"`
+		Page      int    `form:"page"`
+		Limit     int    `form:"limit"`
+	}
+	err := c.Bind(&backData)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 400, "未找到年级之星")
+		response.ResponseError(c, 400)
 		return
 	}
+	//如果传来的数值为空
+	if backData.StartTime == "" && backData.EndTime == "" {
+		allStarList, err := starService.QStarClass(2)
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "未找到年级之星")
+			return
+		}
+	} else {
+		allStarList, err := starService.SelTimeStar(backData.StartTime, backData.EndTime, 2)
+		//实现分页
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "未找到年级之星")
+			return
+		}
+	}
+
 	data := map[string]any{
-		"starlist": starlist,
+		"starlist": starList,
 	}
 	response.ResponseSuccess(c, data)
 }
 
-// BackStarCollege 返回前台年级成长之星
+// BackStarCollege 返回前台院级成长之星
 func BackStarCollege(c *gin.Context) {
-	starlist, err := starService.QStarClass(3)
+	//返回前端数据
+	var starList []models.StarStu
+	//接收前端数据
+	var backData struct {
+		StartTime string `form:"startTime"`
+		EndTime   string `form:"endTime"`
+		Page      int    `form:"page"`
+		Limit     int    `form:"limit"`
+	}
+	err := c.Bind(&backData)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
+		response.ResponseError(c, 400)
 		return
 	}
+	//如果传来的数值为空
+	if backData.StartTime == "" && backData.EndTime == "" {
+		allStarList, err := starService.QStarClass(3)
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
+			return
+		}
+	} else {
+		allStarList, err := starService.SelTimeStar(backData.StartTime, backData.EndTime, 3)
+		//实现分页
+		starList = starService.QPageQuery(allStarList, backData.Page, backData.Limit)
+		if err != nil {
+			response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
+			return
+		}
+	}
 	data := map[string]any{
-		"starlist": starlist,
+		"starlist": starList,
 	}
 	response.ResponseSuccess(c, data)
 }
@@ -477,4 +558,18 @@ func ChangeStatus(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, 400, "修改状态失败")
 		return
 	}
+}
+
+// BackTime 返回前端最大年份及最小年份
+func BackTime(c *gin.Context) {
+	maxtime, mintime, err := mysql.SelTime()
+	if err != nil {
+		response.ResponseError(c, 400)
+		return
+	}
+	data := map[string]string{
+		"maxDate": maxtime,
+		"minDate": mintime,
+	}
+	response.ResponseSuccess(c, data)
 }

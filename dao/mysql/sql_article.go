@@ -71,7 +71,7 @@ func QueryArticleByIdOfManager(aid int) (*model.Article, error) {
 // QueryArticleNumByDay 查询当日的相应话题的文章发表数量
 func QueryArticleNumByDay(topic string, startOfDay time.Time, endOfDay time.Time, uid int) (int, error) {
 	var count int64
-	if err := DB.Model(&model.Article{}).Where("created_at >= ? AND	created_at < ? AND topic = ? AND user_id = ?", startOfDay, endOfDay, topic, uid).
+	if err := DB.Model(&model.Article{}).Where("created_at >= ? AND	created_at < ? AND topic = ? AND user_id = ? AND status = ? AND ban = ?", startOfDay, endOfDay, topic, uid, true, false).
 		Count(&count).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return -1, err
@@ -494,6 +494,7 @@ func InsertArticleContent(content, topic string, uid, wordCount int, tags []stri
 		WordCount: wordCount,
 		Status:    status,
 	}
+	print(article.Status)
 	if err := db.Create(&article).Error; err != nil {
 		zap.L().Error("InsertArticleContent() dao.mysql.sql_article", zap.Error(err))
 		return -1, err
@@ -654,4 +655,14 @@ func DeleteArticleTagByArticleId(aid int) error {
 		return err
 	}
 	return nil
+}
+
+// QueryArticleNum 查看文章总数量
+func QueryArticleNum() (int, error) {
+	var count int64
+	if err := DB.Model(&model.Article{}).Count(&count).Error; err != nil {
+		zap.L().Error("QueryArticleNum() dao.mysql.sql_article.Count", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
 }
