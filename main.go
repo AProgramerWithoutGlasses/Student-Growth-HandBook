@@ -41,7 +41,7 @@ func main() {
 		fmt.Printf("mysql.Init() gorm.Open() err : %v\n", err)
 		return
 	}
-	//err := mysql.DB.AutoMigrate(&gorm_model.Menus{})
+	//err := mysql.DB.AutoMigrate(&gorm_model.Advice{})
 	//if err != nil {
 	//	return
 	//}
