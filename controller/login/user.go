@@ -181,7 +181,8 @@ func QLogin(c *gin.Context) {
 	}
 	//验证用户是否是老师
 	ifTeacher, err := mysql.IfTeacher(user.Username)
-	if ifTeacher {
+	ifAutor, err := mysql.IfAutor(user.Username)
+	if ifTeacher || ifAutor {
 		class = ""
 		grade = 0
 	} else {

@@ -119,3 +119,15 @@ func IfTeacher(username string) (bool, error) {
 	}
 	return true, nil
 }
+
+// IfAutor 查看用户是不是老师
+func IfAutor(username string) (bool, error) {
+	var number int64
+	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Where("identity = ?", "开发").Count(&number).Error
+	if err != nil {
+		return false, err
+	} else if number != 1 {
+		return false, nil
+	}
+	return true, nil
+}
