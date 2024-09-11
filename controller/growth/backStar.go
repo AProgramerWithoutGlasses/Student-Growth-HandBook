@@ -602,7 +602,7 @@ func BackName(c *gin.Context) {
 		return
 	}
 	data := map[string]any{
-		"stuName": stuName,
+		"list": stuName,
 	}
 	response.ResponseSuccess(c, data)
 }
