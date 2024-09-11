@@ -347,6 +347,7 @@ func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
 			"is_collect":      a.IsCollect,
 			"post_time":       a.PostTime,
 			"username":        a.User.Username,
+			"article_quality": a.Quality,
 		})
 	}
 
@@ -493,17 +494,122 @@ func ReviseArticleStatusController(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		zap.L().Error("ReviseArticleStatusController() controller.article.getArticle.ShouldBindJSON err=", zap.Error(err))
+		zap.L().Error("ReviseArticleStatusController() controller.article.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
 	err = article.ReviseArticleStatusService(in.ArticleId, in.Status)
 	if err != nil {
-		zap.L().Error("ReviseArticleStatusController() controller.article.getArticle.ReviseArticleStatusService err=", zap.Error(err))
+		zap.L().Error("ReviseArticleStatusController() controller.article.ReviseArticleStatusService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
 	res.ResponseSuccess(c, struct{}{})
+}
+
+// SelectGoodArticleController 评选优秀帖子
+func SelectGoodArticleController(c *gin.Context) {
+	in := struct {
+		ArticleId      int `json:"article_id"`
+		ArticleQuality int `json:"article_quality"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("SelectGoodArticleController() controller.article.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 获取身份-token
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("SelectGoodArticleController() controller.article.GetRole err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("SelectGoodArticleController() controller.article.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	// 修改文章优秀等级
+	err = article.SelectGoodArticleService(in.ArticleId, in.ArticleQuality, role, username)
+	if err != nil {
+		zap.L().Error("SelectGoodArticleController() controller.article.SelectGoodArticleService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, struct{}{})
+}
+
+// AdvancedArticleFilteringController 高级筛选文章
+func AdvancedArticleFilteringController(c *gin.Context) {
+	in := struct {
+		KeyWords     string `json:"key_words"`
+		TopicName    string `json:"topic_name"`
+		ArticleCount int    `json:"article_count"`
+		ArticlePage  int    `json:"article_page"`
+		Username     string `json:"username"`
+		Sort         string `json:"sort"`
+		Order        string `json:"order"`
+		StartAt      string `json:"start_at"`
+		EndAt        string `json:"end_at"`
+		IsClass      bool   `json:"is_class"`
+		Name         string `json:"name"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("AdvancedArticleFilteringController() controller.article.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	articles, err := article.AdvancedArticleFilteringService(in.ArticlePage, in.ArticleCount, in.Sort, in.Order, in.StartAt, in.EndAt, in.TopicName, in.KeyWords, in.Name, in.Username, in.IsClass)
+	if err != nil {
+		zap.L().Error("AdvancedArticleFilteringController() controller.article.AdvancedArticleFilteringService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	content := make([]map[string]any, len(articles))
+	for _, at := range articles {
+
+		var pics []string
+		var tags []string
+		for _, pic := range at.ArticlePics {
+			pics = append(pics, pic.Pic)
+		}
+		for _, tag := range at.ArticleTags {
+			tags = append(tags, tag.Tag.TagName)
+		}
+
+		content = append(content, map[string]any{
+			"user_headshot":   at.User.HeadShot,
+			"user_class":      at.User.Class,
+			"name":            at.User.Name,
+			"article_id":      at.ID,
+			"like_amount":     at.LikeAmount,
+			"collect_amount":  at.CollectAmount,
+			"comment_amount":  at.CommentAmount,
+			"article_content": at.Content,
+			"article_pic":     pics,
+			"article_video":   at.Video,
+			"article_tags":    tags,
+			"article_topic":   at.Topic,
+			"is_like":         at.IsLike,
+			"is_collect":      at.IsCollect,
+			"post_time":       at.PostTime,
+			"username":        at.User.Username,
+			"article_quality": at.Quality,
+		})
+	}
+	res.ResponseSuccess(c, map[string]any{
+		"content": content,
+	})
 }
