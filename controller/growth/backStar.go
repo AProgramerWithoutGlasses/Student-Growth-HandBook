@@ -28,6 +28,7 @@ func Search(c *gin.Context) {
 	//返回前端限制人数
 	var peopleLimit int
 	var usernamesli []string
+	var total int64
 	//获取前端传来的数据
 	var datas struct {
 		Name  string `form:"search"`
@@ -51,14 +52,6 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	//查找stars库中所有的数据
-	//查找权限下的数据
-	alluser, err := mysql.SelNStarUser()
-	if err != nil {
-		response.ResponseErrorWithMsg(c, 400, "获取表格数据失败")
-		return
-	}
-
 	//根据角色分类
 	switch role {
 	case "class":
@@ -70,9 +63,9 @@ func Search(c *gin.Context) {
 			return
 		}
 		if datas.Name == "" {
-			usernamesli, err = mysql.SelUsername(class)
+			usernamesli, total, err = mysql.SelUsername(class, datas.Page, datas.Limit)
 		} else {
-			usernamesli, err = mysql.SelSearchUser(datas.Name, class)
+			usernamesli, total, err = mysql.SelSearchUser(datas.Name, class, datas.Page, datas.Limit)
 		}
 		peopleLimit = constant.PeopleLimitClass
 		if err != nil {
@@ -82,9 +75,9 @@ func Search(c *gin.Context) {
 		}
 	case "grade1":
 		if datas.Name == "" {
-			usernamesli, err = starService.StarGuidGrade(alluser, 1)
+			usernamesli, total, err = starService.StarGuidGrade(-1, datas.Page, datas.Limit)
 		} else {
-			usernamesli, err = starService.SearchGrade(datas.Name, 1)
+			usernamesli, total, err = starService.SearchGrade(datas.Name, -1, datas.Page, datas.Limit)
 		}
 		peopleLimit = constant.PeopleLimitGrade
 		if err != nil {
@@ -94,9 +87,9 @@ func Search(c *gin.Context) {
 		}
 	case "grade2":
 		if datas.Name == "" {
-			usernamesli, err = starService.StarGuidGrade(alluser, 2)
+			usernamesli, total, err = starService.StarGuidGrade(-2, datas.Page, datas.Limit)
 		} else {
-			usernamesli, err = starService.SearchGrade(datas.Name, 2)
+			usernamesli, total, err = starService.SearchGrade(datas.Name, -2, datas.Page, datas.Limit)
 		}
 		peopleLimit = constant.PeopleLimitGrade
 		if err != nil {
@@ -106,9 +99,9 @@ func Search(c *gin.Context) {
 		}
 	case "grade3":
 		if datas.Name == "" {
-			usernamesli, err = starService.StarGuidGrade(alluser, 3)
+			usernamesli, total, err = starService.StarGuidGrade(-3, datas.Page, datas.Limit)
 		} else {
-			usernamesli, err = starService.SearchGrade(datas.Name, 3)
+			usernamesli, total, err = starService.SearchGrade(datas.Name, -3, datas.Page, datas.Limit)
 		}
 		peopleLimit = constant.PeopleLimitGrade
 		if err != nil {
@@ -118,9 +111,9 @@ func Search(c *gin.Context) {
 		}
 	case "grade4":
 		if datas.Name == "" {
-			usernamesli, err = starService.StarGuidGrade(alluser, 4)
+			usernamesli, total, err = starService.StarGuidGrade(-4, datas.Page, datas.Limit)
 		} else {
-			usernamesli, err = starService.SearchGrade(datas.Name, 4)
+			usernamesli, total, err = starService.SearchGrade(datas.Name, -4, datas.Page, datas.Limit)
 		}
 		peopleLimit = constant.PeopleLimitGrade
 		if err != nil {
@@ -130,9 +123,9 @@ func Search(c *gin.Context) {
 		}
 	case "college":
 		if datas.Name == "" {
-			usernamesli, err = mysql.SelStarColl()
+			usernamesli, total, err = mysql.SelStarColl(datas.Page, datas.Limit)
 		} else {
-			usernamesli, err = mysql.SelSearchColl(datas.Name)
+			usernamesli, total, err = mysql.SelSearchColl(datas.Name, datas.Page, datas.Limit)
 		}
 		peopleLimit = constant.PeopleLimitCollege
 		if err != nil {
@@ -142,18 +135,17 @@ func Search(c *gin.Context) {
 		}
 	case "superman":
 		if datas.Name == "" {
-			usernamesli, err = mysql.SelStarColl()
+			usernamesli, total, err = mysql.SelStarColl(datas.Page, datas.Limit)
 		} else {
-			usernamesli, err = mysql.SelSearchColl(datas.Name)
+			usernamesli, total, err = mysql.SelSearchColl(datas.Name, datas.Page, datas.Limit)
 		}
-		peopleLimit = 0
+		peopleLimit = constant.PeopleLimitCollege
 		if err != nil {
 			zap.L().Error("Search SelSearchColl err", zap.Error(err))
 			response.ResponseError(c, response.ServerErrorCode)
 			return
 		}
 	}
-
 	//表格所需所有数据
 	starback, err := starService.StarGrid(usernamesli)
 	if err != nil {
@@ -161,9 +153,7 @@ func Search(c *gin.Context) {
 		response.ResponseError(c, response.ServerErrorCode)
 		return
 	}
-	total := len(starback)
-	//实现分页
-	tableData := starService.PageQuery(starback, datas.Page, datas.Limit)
+
 	//查询状态
 	status, err := mysql.SelStatus(username)
 	if err != nil {
@@ -172,8 +162,8 @@ func Search(c *gin.Context) {
 	}
 	headline, err := mysql.SelMax()
 	data := map[string]any{
-		"tableData":   tableData,
-		"total":       total,
+		"tableData":   starback,
+		"total":       int(total),
 		"peopleLimit": peopleLimit,
 		"isDisabled":  status,
 		"headline":    headline + 1,

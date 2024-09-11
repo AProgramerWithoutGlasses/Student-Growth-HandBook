@@ -110,8 +110,8 @@ func PageQuery(starback []models.StarBack, page, limit int) []models.StarBack {
 	return starback[left:right]
 }
 
-// StarGuidGrade 把表中数据以年级分开
-func StarGuidGrade(usernamesli []string, year int) ([]string, error) {
+// StarByGrade 把表中数据以年级分开
+func StarByGrade(usernamesli []string, year int) ([]string, error) {
 	var gradeusersli []string
 	for _, username := range usernamesli {
 		plus, err := mysql.SelPlus(username)
@@ -127,16 +127,23 @@ func StarGuidGrade(usernamesli []string, year int) ([]string, error) {
 	return gradeusersli, nil
 }
 
-// SearchGrade 年级管理员搜索
-func SearchGrade(name string, year int) ([]string, error) {
-	//查询表格未公布与名字相匹配的所有数据
-	usernamesli, err := mysql.SelSearchGrade(name)
+func StarGuidGrade(year int, page, limit int) ([]string, int64, error) {
+	data := time.Now()
+	usename, number, err := mysql.SelNStarUser(data, year, page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	//根据管理员权限查找数据
-	gUsername, err := StarGuidGrade(usernamesli, year)
-	return gUsername, nil
+	return usename, number, nil
+}
+
+// SearchGrade 年级管理员搜索
+func SearchGrade(name string, year int, page, limit int) ([]string, int64, error) {
+	data := time.Now()
+	gUsername, number, err := mysql.SelSearchGrade(name, data, year, page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+	return gUsername, number, nil
 }
 
 // StarClass 返回成长之星的班级之星
