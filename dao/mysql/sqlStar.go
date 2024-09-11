@@ -317,7 +317,7 @@ func SelStuClass(class string) ([]string, error) {
 func SelStuGrade(data time.Time, year int) ([]string, error) {
 	var stuSli []string
 	_, username, err := SelGradeId(data, year)
-	err = DB.Model(&gorm_model.Star{}).Where("session = ?", 0).Where("username IN (?)", username).Select("name").Scan(&stuSli).Error
+	err = DB.Model(&gorm_model.Star{}).Where("type = ?", 2).Where("session = ?", 0).Where("username IN (?)", username).Select("name").Scan(&stuSli).Error
 	if err != nil {
 		return nil, err
 	}
