@@ -88,7 +88,7 @@ func GetUnreadReportsForGrade(grade int, limit, page int) ([]gorm_model.UserRepo
 
 	// 查询该年级的所有成员id
 	var uids []int64
-	if err := DB.Model(&gorm_model.User{}).Where("grade = ? AND plus_time between ? and ?", grade, fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Pluck("id", &uids).Error; err != nil {
+	if err := DB.Model(&gorm_model.User{}).Where("plus_time between ? and ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Pluck("id", &uids).Error; err != nil {
 		zap.L().Error("GetUnreadReportsForClass() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func GetUnreadReportNumForGrade(grade int) (int, error) {
 
 	// 查询该年级的所有成员id
 	var uids []int64
-	if err := DB.Model(&gorm_model.User{}).Where("grade = ? AND plus_time between ? and ?", grade, fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Pluck("id", &uids).Error; err != nil {
+	if err := DB.Model(&gorm_model.User{}).Where("plus_time between ? and ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Pluck("id", &uids).Error; err != nil {
 		zap.L().Error("GetUnreadReportsForClass() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return -1, err
 	}
@@ -203,7 +203,7 @@ func AckUnreadReportsForGrade(reportsId int, grade int) error {
 
 	// 修改举报信息读取状态为已读
 	result := DB.Preload("User", "plus_time between ? and ?",
-		fmt.Sprintf("%s-01-01", year), fmt.Sprintf("%s-12-31", year)).
+		fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).
 		Where("article_id = ?", reportsId).
 		Updates(gorm_model.UserReportArticleRecord{IsRead: true})
 

@@ -788,3 +788,120 @@ func GetTagsByTopicService(topicId int) ([]map[string]any, error) {
 	}
 	return list, nil
 }
+
+// AdvancedArticleFilteringService 文章高级筛选
+func AdvancedArticleFilteringService(page, limit int, sortField, order, startAt, endAt, topic, keyWords, name, username string, isClass bool) (articles []model.Article, err error) {
+	if topic == "全部话题" {
+		// 是否只看本班
+		if isClass {
+			class, err := mysql.QueryClassByUsername(username)
+			if err != nil {
+				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryClassByUsername err=", zap.Error(err))
+				return nil, err
+			}
+			articles, err = mysql.QueryArticlesForClassByAdvancedFilter(page, limit, sortField, order, startAt, endAt, "", keyWords, name, class)
+			if err != nil {
+				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryClassByUsername err=", zap.Error(err))
+				return nil, err
+			}
+		} else {
+			articles, err = mysql.QueryAllArticlesByAdvancedFilter(page, limit, sortField, order, startAt, endAt, "", keyWords, name)
+			if err != nil {
+				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryAllArticlesByAdvancedFilter err=", zap.Error(err))
+				return nil, err
+			}
+		}
+	} else {
+		// 是否只看本班
+		if isClass {
+			class, err := mysql.QueryClassByUsername(username)
+			if err != nil {
+				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryClassByUsername err=", zap.Error(err))
+				return nil, err
+			}
+			articles, err = mysql.QueryArticlesForClassByAdvancedFilter(page, limit, sortField, order, startAt, endAt, topic, keyWords, name, class)
+			if err != nil {
+				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryClassByUsername err=", zap.Error(err))
+				return nil, err
+			}
+		} else {
+			articles, err = mysql.QueryAllArticlesByAdvancedFilter(page, limit, sortField, order, startAt, endAt, topic, keyWords, name)
+			if err != nil {
+				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryAllArticlesByAdvancedFilter err=", zap.Error(err))
+				return nil, err
+			}
+		}
+	}
+
+	// 遍历文章集合并判断当前用户是否点赞或收藏该文章
+	for i := 0; i < len(articles); i++ {
+		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(articles[i].ID)), username)
+		okLike, err := redis.IsUserLiked(strconv.Itoa(int(articles[i].ID)), username, 0)
+		if err != nil {
+			zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserLiked err=", zap.Error(err))
+			return nil, err
+		}
+		articles[i].IsCollect = okSelect
+		articles[i].IsLike = okLike
+
+		// 计算发布时间
+		articles[i].PostTime = timeConverter.IntervalConversion(articles[i].CreatedAt)
+	}
+
+	return articles, nil
+}
+
+// SelectGoodArticleService 评选优秀帖子
+func SelectGoodArticleService(articleId, quality int, role, username string) (err error) {
+	// 身份验证
+	switch role {
+	case "class":
+		// 查询用户所属班级
+		class, err := mysql.QueryClassByUsername(username)
+		if err != nil {
+			zap.L().Error("GetTagsByTopicService() service.article.QueryTagsByTopic err=", zap.Error(err))
+			return err
+		}
+		if quality > 1 {
+			// 权限越界
+			return myErr.OverstepCompetence
+		}
+
+		err = mysql.UpdateArticleQualityForClass(class, articleId, quality)
+		if err != nil {
+			zap.L().Error("GetTagsByTopicService() service.article.UpdateArticleQualityForClass err=", zap.Error(err))
+			return err
+		}
+
+	case "grade1":
+		if quality > 2 {
+			return myErr.OverstepCompetence
+		}
+		err = mysql.UpdateArticleQualityForGrade(1, articleId, quality)
+	case "grade2":
+		if quality > 2 {
+			return myErr.OverstepCompetence
+		}
+		err = mysql.UpdateArticleQualityForGrade(2, articleId, quality)
+	case "grade3":
+		if quality > 2 {
+			return myErr.OverstepCompetence
+		}
+		err = mysql.UpdateArticleQualityForGrade(3, articleId, quality)
+	case "grade4":
+		if quality > 2 {
+			return myErr.OverstepCompetence
+		}
+		err = mysql.UpdateArticleQualityForGrade(4, articleId, quality)
+	case "college":
+		err = mysql.UpdateArticleQualityForSuperMan(articleId, quality)
+	case "superman":
+		err = mysql.UpdateArticleQualityForSuperMan(articleId, quality)
+	}
+
+	if err != nil {
+
+	}
+
+	return nil
+}
