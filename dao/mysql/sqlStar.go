@@ -68,23 +68,29 @@ func SelHot(id int) ([]int, []int, error) {
 }
 
 // SelNStarUser 查询未公布且未推举的学号合集(年级管理员搜索表格的数据)
-func SelNStarUser() ([]string, error) {
+func SelNStarUser(data time.Time, year, page, limit int) ([]string, int64, error) {
 	var alluser []string
-	err := DB.Model(&gorm_model.Star{}).Where("type = ?", 1).Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	var number int64
+	_, username, err := SelGradeId(data, year)
+	err = DB.Model(&gorm_model.Star{}).Where("type = ?", 1).Where("session = ?", 0).Where("username IN (?)", username).Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&alluser).Error
+	err = DB.Model(&gorm_model.Star{}).Where("type = ?", 1).Where("session = ?", 0).Where("username IN (?)", username).Count(&number).Error
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return alluser, nil
+	return alluser, number, nil
 }
 
 // SelSearchGrade 查询未公布的学号合集
-func SelSearchGrade(name string) ([]string, error) {
+func SelSearchGrade(name string, data time.Time, year int, page, limit int) ([]string, int64, error) {
 	var alluser []string
-	err := DB.Model(&gorm_model.Star{}).Where("name LIKE ?", "%"+name+"%").Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	var number int64
+	_, username, err := SelGradeId(data, year)
+	err = DB.Model(&gorm_model.Star{}).Where("name LIKE ?", "%"+name+"%").Where("session = ?", 0).Where("username IN (?)", username).Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&alluser).Error
+	err = DB.Model(&gorm_model.Star{}).Where("name LIKE ?", "%"+name+"%").Where("session = ?", 0).Where("username IN (?)", username).Count(&number).Error
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return alluser, nil
+	return alluser, number, nil
 }
 
 // SelPlus 查询入学时间
@@ -98,33 +104,39 @@ func SelPlus(username string) (time.Time, error) {
 }
 
 // SelStarColl 院级查询表里学号合集
-func SelStarColl() ([]string, error) {
+func SelStarColl(page, limit int) ([]string, int64, error) {
 	var alluser []string
-	err := DB.Model(&gorm_model.Star{}).Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&alluser).Error
+	var number int64
+	err := DB.Model(&gorm_model.Star{}).Where("type = ?", 2).Where("session = ?", 0).Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&alluser).Error
+	err = DB.Model(&gorm_model.Star{}).Where("type = ?", 2).Where("session = ?", 0).Count(&number).Error
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return alluser, nil
+	return alluser, number, nil
 }
 
 // SelSearchUser 根据名字班级查找学号--班级管理员搜索
-func SelSearchUser(name string, class string) ([]string, error) {
+func SelSearchUser(name string, class string, page, limit int) ([]string, int64, error) {
 	var username []string
-	err := DB.Model(&gorm_model.User{}).Where("class = ?", class).Where("name LIKE ?", "%"+name+"%").Select("username").Scan(&username).Error
+	var number int64
+	err := DB.Model(&gorm_model.User{}).Where("class = ?", class).Where("name LIKE ?", "%"+name+"%").Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&username).Error
+	err = DB.Model(&gorm_model.User{}).Where("class = ?", class).Where("name LIKE ?", "%"+name+"%").Count(&number).Error
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return username, nil
+	return username, number, nil
 }
 
 // SelSearchColl 院级管理员搜索
-func SelSearchColl(name string) ([]string, error) {
+func SelSearchColl(name string, page, limit int) ([]string, int64, error) {
 	var usernamesli []string
-	err := DB.Model(&gorm_model.Star{}).Where("name LIKE ?", "%"+name+"%").Where("type = ?", 2).Where("session = ?", 0).Select("username").Scan(&usernamesli).Error
+	var number int64
+	err := DB.Model(&gorm_model.Star{}).Where("name LIKE ?", "%"+name+"%").Where("type = ?", 2).Where("session = ?", 0).Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&usernamesli).Error
+	err = DB.Model(&gorm_model.Star{}).Where("name LIKE ?", "%"+name+"%").Where("type = ?", 2).Where("session = ?", 0).Count(&number).Error
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return usernamesli, nil
+	return usernamesli, number, nil
 }
 
 // CreatClass 班级管理员推选班级之星

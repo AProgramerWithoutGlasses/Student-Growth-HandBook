@@ -80,15 +80,17 @@ func SelArticle(id int, date time.Time) (int64, error) {
 }
 
 // SelUsername 根据班级查询班成员的username
-func SelUsername(class string) ([]string, error) {
+func SelUsername(class string, page, limit int) ([]string, int64, error) {
 	//班级成员的id切片
 	var usernameSlice []string
-	err := DB.Model(&gorm_model.User{}).Select("username").Where("class = ?", class).Scan(&usernameSlice).Error
+	var number int64
+	err := DB.Model(&gorm_model.User{}).Select("username").Where("class = ?", class).Offset((page - 1) * limit).Limit(limit).Scan(&usernameSlice).Error
+	err = DB.Model(&gorm_model.User{}).Select("username").Where("class = ?", class).Count(&number).Error
 	// 检查并返回错误
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return usernameSlice, nil
+	return usernameSlice, number, nil
 }
 
 // SelStudent 查询所有学生人数
