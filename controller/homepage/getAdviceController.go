@@ -13,7 +13,7 @@ func GetAdviceControl(c *gin.Context) {
 	input := struct {
 		Advice string `json:"advice"`
 	}{}
-	err := c.BindJSON(&input)
+	err := c.ShouldBindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
