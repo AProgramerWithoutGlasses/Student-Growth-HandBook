@@ -281,8 +281,8 @@ func AckSystemMsgService(username string) error {
 func PublishManagerMsgService(username, content, role string) error {
 	// 权限验证
 	if role != "college" {
-		zap.L().Error("PublishManagerMsgService() service.article.likeService.role err=", zap.Error(myErr.OverstepCompetence()))
-		return myErr.OverstepCompetence()
+		zap.L().Error("PublishManagerMsgService() service.article.likeService.role err=", zap.Error(myErr.OverstepCompetence))
+		return myErr.OverstepCompetence
 	}
 	// 添加通知
 	ids, err := mysql.QueryAllUserId()
@@ -304,7 +304,7 @@ func PublishManagerMsgService(username, content, role string) error {
 func PublishSystemMsgService(content, role, username string) error {
 	// 权限验证
 	if role != "superman" {
-		return myErr.OverstepCompetence()
+		return myErr.OverstepCompetence
 	}
 	// 添加通知
 	ids, err := mysql.QueryAllUserId()

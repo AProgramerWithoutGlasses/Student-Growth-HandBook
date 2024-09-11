@@ -79,8 +79,8 @@ func QueryArticleNumByDay(topic string, startOfDay time.Time, endOfDay time.Time
 	return int(count), nil
 }
 
-// QueryArticleByAdvancedFilter 后台分页高级筛选文章结果
-func QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords string, isBan bool) (query *gorm.DB, err error) {
+// QueryArticleByAdvancedFilter 高级筛选文章结果(文章发布时间、话题、关键词、是否封禁、关键字排序)
+func QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order string, isBan bool) (query *gorm.DB, err error) {
 	// 解析时间
 	var startAt time.Time
 	if startAtString != "" {
@@ -114,18 +114,51 @@ func QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords st
 			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
 	}
 
-	return query, nil
+	// 排序
+	query.Order(fmt.Sprintf("%s %s", sort, order))
 
+	return query, nil
+}
+
+// QueryAllArticlesByAdvancedFilter 高级筛选-分页查询所有公开文章
+func QueryAllArticlesByAdvancedFilter(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string) (articles []model.Article, err error) {
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, false)
+	if err != nil {
+		zap.L().Error("QueryArticleByAdvancedFilter() service.article.QueryArticleByAdvancedFilter err=", zap.Error(err))
+		return nil, err
+	}
+
+	if err = query.InnerJoins("User").Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
+		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		zap.L().Error("QueryAllArticlesByAdvancedFilter() dao.mysql.sql_nzx.Find err=", zap.Error(err))
+		return nil, err
+	}
+	return articles, nil
+}
+
+// QueryArticlesForClassByAdvancedFilter 高级筛选-分页查询本班所有公开文章
+func QueryArticlesForClassByAdvancedFilter(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name, class string) (articles []model.Article, err error) {
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, false)
+	if err != nil {
+		zap.L().Error("QueryArticlesForClassByAdvancedFilter() service.article.QueryArticleByAdvancedFilter err=", zap.Error(err))
+		return nil, err
+	}
+	if err = query.InnerJoins("User").Where("name LIKE ? AND class = ?", fmt.Sprintf("%%%s%%", name), class).Preload("ArticleTags.Tag").
+		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		zap.L().Error("QueryArticlesForClassByAdvancedFilter() dao.mysql.sql_nzx.Find err=", zap.Error(err))
+		return nil, err
+	}
+	return articles, nil
 }
 
 // QueryArticleAndUserListByPageForClass 后台分页查询文章及用户列表并模糊查询 - 班级
 func QueryArticleAndUserListByPageForClass(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, class string) (result []model.Article, err error) {
-	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, isBan)
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
 
 	var articles []model.Article
 	if err := query.InnerJoins("User").Where("name like ? and class = ?", fmt.Sprintf("%%%s%%", name), class).Preload("ArticleTags.Tag").
-		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
-		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
+		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		zap.L().Error("QueryArticleAndUserListByPageForClass() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
 	}
 
@@ -134,11 +167,18 @@ func QueryArticleAndUserListByPageForClass(page, limit int, sort, order, startAt
 
 // QueryArticleAndUserListByPageForGrade 后台分页查询文章及用户列表并模糊查询 - 年级
 func QueryArticleAndUserListByPageForGrade(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, grade int) (result []model.Article, err error) {
-	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, isBan)
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
+
+	// 获取入学年份
+	year, err := timeConverter.GetEnrollmentYear(grade)
+	if err != nil {
+		zap.L().Error("QueryArticleAndUserListByPageForGrade() dao.mysql.sql_article.GetEnrollmentYear err=", zap.Error(err))
+		return nil, err
+	}
 
 	var articles []model.Article
-	if err := query.InnerJoins("User").Where("name like ? and grade = ?", fmt.Sprintf("%%%s%%", name), grade).Preload("ArticleTags.Tag").
-		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+	if err := query.InnerJoins("User").Where("name like ? and plus_time BETWEEN ? AND ?", fmt.Sprintf("%%%s%%", name), fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).Preload("ArticleTags.Tag").
+		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
 	}
@@ -148,11 +188,11 @@ func QueryArticleAndUserListByPageForGrade(page, limit int, sort, order, startAt
 
 // QueryArticleAndUserListByPageForSuperman 后台分页查询文章及用户列表并模糊查询 - 院级(超级)
 func QueryArticleAndUserListByPageForSuperman(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) (result []model.Article, err error) {
-	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, isBan)
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
 
 	var articles []model.Article
 	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
-		Order(fmt.Sprintf("%s %s", sort, order)).Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
+		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
 	}
@@ -203,7 +243,7 @@ func BannedArticleByIdForClass(articleId int, isBan bool, username string, db *g
 	article := model.Article{}
 	if err := DB.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
 		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
-		return myErr.OverstepCompetence()
+		return myErr.OverstepCompetence
 	}
 
 	// 修改文章状态
@@ -230,7 +270,7 @@ func BannedArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 		fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).
 		Where("id = ?", articleId).First(&article).Error; err != nil {
 		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
-		return myErr.OverstepCompetence()
+		return myErr.OverstepCompetence
 	}
 
 	// 修改文章状态
@@ -665,4 +705,50 @@ func QueryArticleNum() (int, error) {
 		return -1, err
 	}
 	return int(count), nil
+}
+
+// UpdateArticleQualityForClass 修改文章的质量等级 - 班级
+func UpdateArticleQualityForClass(class string, aid, quality int) error {
+	var uids []int
+	if err := DB.Model(&model.User{}).Where("class = ?", class).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("UpdateArticleQualityForClass() dao.mysql.sql_article.Pluck", zap.Error(err))
+		return err
+	}
+
+	if err := DB.Model(&model.Article{}).Where("user_id IN ? AND id = ?", uids, aid).Update("quality", quality).Error; err != nil {
+		zap.L().Error("UpdateArticleQualityForClass() dao.mysql.sql_article.Update", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// UpdateArticleQualityForGrade 修改文章的质量等级 - 年级
+func UpdateArticleQualityForGrade(grade, aid, quality int) error {
+	// 获取入学年份
+	year, err := timeConverter.GetEnrollmentYear(grade)
+	if err != nil {
+		zap.L().Error("UpdateArticleQualityForGrade() dao.mysql.sql_article.GetEnrollmentYear err=", zap.Error(err))
+		return err
+	}
+
+	var uids []int
+	if err := DB.Model(&model.User{}).Where("plus_time BETWEEN ? AND ?", fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("UpdateArticleQualityForGrade() dao.mysql.sql_article.Pluck", zap.Error(err))
+		return err
+	}
+
+	if err := DB.Model(&model.Article{}).Where("user_id IN ? AND aid = ?", uids, aid).Update("quality", quality).Error; err != nil {
+		zap.L().Error("UpdateArticleQualityForGrade() dao.mysql.sql_article.Update", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// UpdateArticleQualityForSuperMan 修改文章质量等级 - 超级(院级)
+func UpdateArticleQualityForSuperMan(aid, quality int) error {
+	if err := DB.Model(&model.Article{}).Where("aid = ?", aid).Update("quality", quality).Error; err != nil {
+		zap.L().Error("UpdateArticleQualityForSuperMan() dao.mysql.sql_article.Update", zap.Error(err))
+		return err
+	}
+	return nil
 }

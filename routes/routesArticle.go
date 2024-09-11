@@ -45,6 +45,10 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/class_search", article.GetArticleByClassController)
 	// 修改文章私密状态
 	at.POST("/status", token.AuthMiddleware(), article.ReviseArticleStatusController)
+	// 评选优秀帖子
+	at.POST("/select_good_article", token.AuthMiddleware(), article.SelectGoodArticleController)
+	// 帖子高级筛选
+	at.POST("/filter", article.AdvancedArticleFilteringController)
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表

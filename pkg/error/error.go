@@ -19,6 +19,7 @@ func (e *Error) Error() string {
 }
 
 var ErrNotFoundError = errors.New("record not found")
+var OverstepCompetence = errors.New("permission is out of bounds")
 
 // HasExistError 错误--数据内容重复冲突
 func HasExistError() *Error {
@@ -45,12 +46,12 @@ func DataFormatError() *Error {
 }
 
 // OverstepCompetence 权限越界
-func OverstepCompetence() *Error {
-	return &Error{
-		Code: res.UnprocessableEntity,
-		Msg:  "permission is out of bounds OR not found",
-	}
-}
+//func OverstepCompetence() *Error {
+//	return &Error{
+//		Code: res.UnprocessableEntity,
+//		Msg:  "permission is out of bounds OR not found",
+//	}
+//}
 
 // CheckErrors 一键检查错误,并返回给客户端msg
 func CheckErrors(err error, c *gin.Context) {
@@ -71,11 +72,11 @@ func CheckErrors(err error, c *gin.Context) {
 		return
 	}
 
-	if errors.Is(err, OverstepCompetence()) {
-		// 权限越界
-		res.ResponseErrorWithMsg(c, res.UnprocessableEntity, OverstepCompetence().Msg)
-		return
-	}
+	//if errors.Is(err, OverstepCompetence()) {
+	//	// 权限越界
+	//	res.ResponseErrorWithMsg(c, res.UnprocessableEntity, OverstepCompetence().Msg)
+	//	return
+	//}
 
 	if errors.Is(err, ErrNotFoundError) {
 		// 错误捕获-分页查询时找不到数据
@@ -86,6 +87,12 @@ func CheckErrors(err error, c *gin.Context) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// 错误捕获-gorm数据库找不到数据错误
 		res.ResponseSuccessWithMsg(c, ErrNotFoundError.Error(), struct{}{})
+		return
+	}
+
+	if errors.Is(err, OverstepCompetence) {
+		// 错误捕获-权限越界
+		res.ResponseSuccessWithMsg(c, OverstepCompetence.Error(), []struct{}{})
 		return
 	}
 	// 其他错误
