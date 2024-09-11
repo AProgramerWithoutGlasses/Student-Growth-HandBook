@@ -79,6 +79,8 @@ func RoutesXue(router *gin.Engine) {
 		elected.GET("/termStar", growth.StarPub)
 		//修改角色状态判断是否可以继续推选
 		elected.POST("/change_disabled", growth.ChangeStatus)
+		//展示已经推选过的成长之星
+		elected.GET("/is_elected", growth.BackName)
 	}
 	//前端侧边栏(鉴权)
 	sidebar := router.Group("sidebar")
