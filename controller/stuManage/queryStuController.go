@@ -96,7 +96,7 @@ func QueryStuContro(c *gin.Context) {
 	querySql = service.CreateQuerySql(stuMessage, queryParmaStruct)
 	querySql = querySql + ranges
 
-	querySql = querySql + " ORDER BY class ASC" // 后续将class改为username!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	querySql = querySql + " ORDER BY username ASC" // 后续将class改为username!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// 获取符合条件的所有学生，用于计算长度
 	stuInfo, err := service.GetStuMesList(querySql) // 所有学生数据
@@ -144,49 +144,3 @@ func QueryStuContro(c *gin.Context) {
 	// 响应数据
 	response.ResponseSuccess(c, responseStruct)
 }
-
-//// QueryPageStuContro 查询分页数据
-//func QueryPageStuContro(c *gin.Context) {
-//	// 接收请求数据
-//	stuMessage, err := readMessage.GetJsonvalue(c)
-//	if err != nil {
-//		fmt.Println("stuManage.QueryStuContro() readMessage.GetJsonvalue() err :", err)
-//	}
-//
-//	offsetValue, err := stuMessage.GetInt("page")
-//	if err != nil {
-//		fmt.Println("page GetInt() err", err)
-//	}
-//
-//	limitValue, err := stuMessage.GetInt("limit")
-//	if err != nil {
-//		fmt.Println("limit GetInt() err", err)
-//	}
-//
-//	// 重置sql语句中的分页部分
-//	whereSqlIndex := strings.Index(querySql, "limit")
-//	if whereSqlIndex != -1 {
-//		afterWhere := querySql[:whereSqlIndex]
-//		querySql = afterWhere
-//	}
-//
-//	// limit 分页查询语句的拼接
-//	querySql = querySql + " limit " + strconv.Itoa(limitValue) + " offset " + strconv.Itoa((offsetValue-1)*limitValue)
-//
-//	// 响应数据的获取
-//	stuPageInfo, _ := mysql.GetStuMesList(querySql) // 当页学生数据
-//	yearStructSlice := service.GetYearStructSlice()
-//	classStructSlice := service.GetClassStructSlice()
-//
-//	// 响应结构体的初始化
-//	responseStruct := jrx_model.ResponseStruct{
-//		Year:            yearStructSlice,
-//		Class:           classStructSlice,
-//		StuInfo:         stuPageInfo,
-//		AllStudentCount: queryAllStuNumber,
-//	}
-//
-//	// 响应数据
-//	response.ResponseSuccess(c, responseStruct)
-//
-//}

@@ -136,5 +136,5 @@ func AddSingleStuContro(c *gin.Context) {
 	}
 
 	// 成功响应
-	response.ResponseSuccessWithMsg(c, input.Username+" 信息添加成功！", nil)
+	response.ResponseSuccessWithMsg(c, input.Name+" 信息添加成功！", nil)
 }
