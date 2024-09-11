@@ -10,13 +10,13 @@ import (
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	"studentGrow/utils/readMessage"
 	token2 "studentGrow/utils/token"
 	"time"
 )
 
 // 添加单个学生
 func AddSingleStuContro(c *gin.Context) {
+	// 根据token拿到登陆者自己的信息
 	token := c.GetHeader("token")
 	username, err := token2.GetUsername(token)
 	if err != nil {
@@ -33,7 +33,6 @@ func AddSingleStuContro(c *gin.Context) {
 		return
 	}
 
-	// 拿到登陆者自己的class
 	class, err := mysql.GetClassById(id)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
@@ -48,40 +47,29 @@ func AddSingleStuContro(c *gin.Context) {
 		return
 	}
 
-	// 接收请求数据
-	stuMessage, err := readMessage.GetJsonvalue(c)
+	// 接收
+	input := struct {
+		Name     string `json:"name"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Class    string `json:"class"`
+		Gender   string `json:"gender"`
+	}{}
+
+	err = c.ShouldBindJSON(&input)
 	if err != nil {
-		fmt.Println("stuManage.AddSingleStuContro() readMessage.GetJsonvalue() err :", err)
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
 	}
 
-	// 获取请求信息中各个字段的值
-	nameValue, err := stuMessage.GetString("name")
-	if err != nil {
-		fmt.Println("name GetString() err : ", err)
-	}
-
-	usernameValue, err := stuMessage.GetString("username")
-	if err != nil {
-		fmt.Println("username GetString() err : ", err)
-	}
-
-	passwordValue, err := stuMessage.GetString("password")
-	if err != nil {
-		fmt.Println("password GetString() err : ", err)
-	}
-
-	classValue, err := stuMessage.GetString("class")
-	if err != nil {
-		fmt.Println("class GetString() err : ", err)
-	}
 	// 去除班级名称中的 ”班“ 字
-	if len(classValue) == 12 {
-		classValue = classValue[:len(classValue)-3]
+	if len(input.Class) == 12 {
+		input.Class = input.Class[:len(input.Class)-3]
 	}
 
 	// 使用正则表达式进行匹配
 	pattern := `^[\p{Han}]{2}\d{3}$`
-	match, _ := regexp.MatchString(pattern, classValue)
+	match, _ := regexp.MatchString(pattern, input.Class)
 	if !match {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "请输入正确的班级格式")
 		println("1111")
@@ -89,10 +77,10 @@ func AddSingleStuContro(c *gin.Context) {
 	}
 
 	// 计算出要添加的学生是大几的
-	addStuNowGrade := service.CalculateNowGradeByClass(classValue)
+	addStuNowGrade := service.CalculateNowGradeByClass(input.Class)
 
 	// 导入班级权限判断
-	if classValue != class {
+	if input.Class != class {
 		if role == addStuNowGrade || role == "college" || role == "superman" {
 
 		} else {
@@ -102,14 +90,9 @@ func AddSingleStuContro(c *gin.Context) {
 		}
 	}
 
-	genderValue, err := stuMessage.GetString("gender")
-	if err != nil {
-		fmt.Println("gender GetString() err : ", err)
-	}
-
 	// 根据班级获取入学时间
 	re := regexp.MustCompile(`^\D*(\d{2})`)
-	match1 := re.FindStringSubmatch(classValue)
+	match1 := re.FindStringSubmatch(input.Class)
 
 	yearEnd := match1[1]                   // 获取 "22"
 	yearEndInt, _ := strconv.Atoi(yearEnd) // 将 "22" 转换为整数
@@ -122,11 +105,11 @@ func AddSingleStuContro(c *gin.Context) {
 
 	// 将新增学生信息整合到结构体中
 	user := gorm_model.User{
-		Name:     nameValue,
-		Username: usernameValue,
-		Password: passwordValue,
-		Class:    classValue,
-		Gender:   genderValue,
+		Name:     input.Name,
+		Username: input.Username,
+		Password: input.Password,
+		Class:    input.Class,
+		Gender:   input.Gender,
 		Identity: "学生",
 		PlusTime: addStuPlusTime,
 		HeadShot: "https://student-grow.oss-cn-beijing.aliyuncs.com/image/user_headshot/user_headshot_5.png",
@@ -143,7 +126,7 @@ func AddSingleStuContro(c *gin.Context) {
 	// 添加学生记录
 	addUserRecord := gorm_model.UserAddRecord{
 		Username:    username,
-		AddUsername: usernameValue,
+		AddUsername: input.Username,
 	}
 	err = mysql.AddSingleStudentRecord(&addUserRecord)
 	if err != nil {
@@ -153,5 +136,5 @@ func AddSingleStuContro(c *gin.Context) {
 	}
 
 	// 成功响应
-	response.ResponseSuccessWithMsg(c, nameValue+" 信息添加成功！", nil)
+	response.ResponseSuccessWithMsg(c, input.Username+" 信息添加成功！", nil)
 }
