@@ -36,6 +36,6 @@ func GetAdviceControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, "")
+	response.ResponseSuccess(c, nil)
 
 }
