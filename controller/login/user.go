@@ -7,6 +7,7 @@ import (
 	"studentGrow/models"
 	pkg "studentGrow/pkg/response"
 	"studentGrow/service/userService"
+	"studentGrow/utils/timeConverter"
 	"studentGrow/utils/token"
 	"time"
 )
@@ -115,6 +116,10 @@ func QLogin(c *gin.Context) {
 	// 定义用户实例
 	var user = new(models.Login)
 	var role string
+	//记录班级
+	var class string
+	//记录年级
+	var grade int
 	//获取前端返回的数据
 	if err := c.BindJSON(&user); err != nil {
 		pkg.ResponseErrorWithMsg(c, 400, "Hlogin 获取数据失败")
@@ -176,6 +181,18 @@ func QLogin(c *gin.Context) {
 	}
 	//验证用户是否是老师
 	ifTeacher, err := mysql.IfTeacher(user.Username)
+	if ifTeacher {
+		class = ""
+		grade = 0
+	} else {
+		class, err = mysql.SelClass(user.Username)
+		plusTime, err := mysql.SelPlus(user.Username)
+		grade = timeConverter.GetUserGrade(plusTime)
+		if err != nil {
+			fmt.Println("Hlogin的login.ReleaseToken()")
+			return
+		}
+	}
 	//记录用户登录
 	id, err := mysql.SelId(user.Username)
 	err = mysql.CreateUser(user.Username, id)
@@ -193,6 +210,8 @@ func QLogin(c *gin.Context) {
 		"username":  user.Username,
 		"token":     tokenString,
 		"role":      role,
+		"class":     class,
+		"grade":     grade,
 		"ifTeacher": ifTeacher,
 	}
 	//发送给前端
