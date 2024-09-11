@@ -217,7 +217,6 @@ func ElectClass(c *gin.Context) {
 			return
 		}
 	}
-	stuName, err := mysql.SelStuClass(class)
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
@@ -226,14 +225,12 @@ func ElectClass(c *gin.Context) {
 
 	if Star := length + Number; Star == constant.PeopleLimitClass {
 		data := map[string]any{
-			"name": stuName,
 			"news": "No seats left",
 		}
 		response.ResponseSuccess(c, data)
 		return
 	}
 	data := map[string]any{
-		"name": stuName,
 		"news": "推选成功",
 	}
 	response.ResponseSuccess(c, data)
@@ -243,8 +240,6 @@ func ElectClass(c *gin.Context) {
 func ElectGrade(c *gin.Context) {
 	//代表年级管理员已推选的个数
 	var number int
-	//已推选的人
-	var stuName []string
 	date := time.Now()
 	//拿到角色
 	token := c.GetHeader("token")
@@ -293,28 +288,15 @@ func ElectGrade(c *gin.Context) {
 		}
 	}
 
-	//查询已经推选过的年纪之星合集
-	switch role {
-	case "grade1":
-		stuName, err = mysql.SelStuGrade(date, -1)
-	case "grade2":
-		stuName, err = mysql.SelStuGrade(date, -2)
-	case "grade3":
-		stuName, err = mysql.SelStuGrade(date, -3)
-	case "grade4":
-		stuName, err = mysql.SelStuGrade(date, -4)
-	}
 	//刚好推选够5个时
 	if Star := length + number; Star == constant.PeopleLimitGrade {
 		data := map[string]any{
-			"name": stuName,
 			"news": "No seats left",
 		}
 		response.ResponseSuccess(c, data)
 		return
 	}
 	data := map[string]any{
-		"name": stuName,
 		"news": "推选成功",
 	}
 	response.ResponseSuccess(c, data)
@@ -345,17 +327,14 @@ func ElectCollege(c *gin.Context) {
 			return
 		}
 	}
-	stuName, err := mysql.SelDataCollege()
 	if len(BefName)+len(Responsedata.ElectedArr) == constant.PeopleLimitCollege {
 		data := map[string]any{
-			"name": stuName,
 			"news": "No seats left",
 		}
 		response.ResponseSuccess(c, data)
 		return
 	}
 	data := map[string]any{
-		"name": stuName,
 		"news": "推选成功",
 	}
 	response.ResponseSuccess(c, data)
@@ -610,6 +589,20 @@ func BackTime(c *gin.Context) {
 	data := map[string]string{
 		"maxDate": maxtime,
 		"minDate": mintime,
+	}
+	response.ResponseSuccess(c, data)
+}
+
+// BackName 返回前端已经推选过的名字
+func BackName(c *gin.Context) {
+	token := c.GetHeader("token")
+	stuName, err := starService.BackNameData(token)
+	if err != nil {
+		response.ResponseError(c, 401)
+		return
+	}
+	data := map[string]any{
+		"stuName": stuName,
 	}
 	response.ResponseSuccess(c, data)
 }
