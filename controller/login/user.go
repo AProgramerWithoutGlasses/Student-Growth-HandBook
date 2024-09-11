@@ -41,7 +41,7 @@ func HLogin(c *gin.Context) {
 	//查询用户是否存在
 	ok, err := mysql.SelExit(user.Username)
 	if !ok || err != nil {
-		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+		pkg.ResponseErrorWithMsg(c, 500, "用户不存在")
 		return
 	}
 	//验证密码
@@ -51,12 +51,12 @@ func HLogin(c *gin.Context) {
 	}
 	//验证验证码
 	if ok := userService.GetCodeAnswer(user.Id, user.Code); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "验证码错误")
+		pkg.ResponseErrorWithMsg(c, 401, "验证码错误")
 		return
 	}
 	//验证用户是否为管理员
 	if ok := userService.BVerifyExit(user.Username); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "身份验证失败")
+		pkg.ResponseErrorWithMsg(c, 501, "身份验证失败")
 		return
 	}
 	//验证用户是否被封禁
@@ -124,7 +124,7 @@ func QLogin(c *gin.Context) {
 	//查询用户是否存在
 	ok, err := mysql.SelExit(user.Username)
 	if !ok || err != nil {
-		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+		pkg.ResponseErrorWithMsg(c, 500, "用户不存在")
 		return
 	}
 	//验证密码
@@ -134,7 +134,7 @@ func QLogin(c *gin.Context) {
 	}
 	//验证验证码
 	if ok := userService.GetCodeAnswer(user.Id, user.Code); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "验证码错误")
+		pkg.ResponseErrorWithMsg(c, 401, "验证码错误")
 		return
 	}
 	//验证用户是否被封禁
