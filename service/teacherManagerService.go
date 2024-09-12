@@ -245,6 +245,7 @@ func SetTeacherManagerService(username string, ManagerType string) error {
 
 func AddSingleTeacherService(addSingleTeacherReqStruct gorm_model.User) error {
 	addSingleTeacherReqStruct.Identity = "老师"
+	addSingleTeacherReqStruct.HeadShot = "https://student-grow.oss-cn-beijing.aliyuncs.com/image/user_headshot/user_headshot_5.png"
 	err := mysql.AddSingleTeacher(&addSingleTeacherReqStruct)
 	if err != nil {
 		return err
