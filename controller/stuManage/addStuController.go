@@ -1,9 +1,11 @@
 package stuManage
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"regexp"
 	"strconv"
 	"studentGrow/dao/mysql"
@@ -118,8 +120,11 @@ func AddSingleStuContro(c *gin.Context) {
 	// 在数据库中添加该学生信息
 	err = mysql.AddSingleStudent(&user)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, 500, "添加失败, 该用户已存在")
-		zap.L().Error("stuManage.AddMultipleStuControl() mysql.AddSingleStudent() failed: " + err.Error())
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			err = errors.New("添加失败, 该用户已存在")
+		}
+		response.ResponseError(c, response.ServerErrorCode)
+		zap.L().Error(err.Error())
 		return
 	}
 
