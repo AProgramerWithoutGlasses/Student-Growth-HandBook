@@ -790,55 +790,21 @@ func GetTagsByTopicService(topicId int) ([]map[string]any, error) {
 }
 
 // AdvancedArticleFilteringService 文章高级筛选
-func AdvancedArticleFilteringService(page, limit int, sortField, order, startAt, endAt, topic, keyWords, name, username string, isClass bool) (articles []model.Article, err error) {
+func AdvancedArticleFilteringService(page, limit int, sortField, order, startAt, endAt, topic, keyWords, name, username string, class []string, grade int) (articles []model.Article, err error) {
 	if topic == "全部话题" {
-		// 是否只看本班
-		if isClass {
-			class, err := mysql.QueryClassByUsername(username)
-			if err != nil {
-				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryClassByUsername err=", zap.Error(err))
-				return nil, err
-			}
-			articles, err = mysql.QueryArticlesForClassByAdvancedFilter(page, limit, sortField, order, startAt, endAt, "", keyWords, name, class)
-			if err != nil {
-				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryClassByUsername err=", zap.Error(err))
-				return nil, err
-			}
-		} else {
-			articles, err = mysql.QueryAllArticlesByAdvancedFilter(page, limit, sortField, order, startAt, endAt, "", keyWords, name)
-			if err != nil {
-				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryAllArticlesByAdvancedFilter err=", zap.Error(err))
-				return nil, err
-			}
-		}
-	} else {
-		// 是否只看本班
-		if isClass {
-			class, err := mysql.QueryClassByUsername(username)
-			if err != nil {
-				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryClassByUsername err=", zap.Error(err))
-				return nil, err
-			}
-			articles, err = mysql.QueryArticlesForClassByAdvancedFilter(page, limit, sortField, order, startAt, endAt, topic, keyWords, name, class)
-			if err != nil {
-				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryClassByUsername err=", zap.Error(err))
-				return nil, err
-			}
-		} else {
-			articles, err = mysql.QueryAllArticlesByAdvancedFilter(page, limit, sortField, order, startAt, endAt, topic, keyWords, name)
-			if err != nil {
-				zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.QueryAllArticlesByAdvancedFilter err=", zap.Error(err))
-				return nil, err
-			}
-		}
+		topic = ""
 	}
-
+	articles, err = mysql.QueryUserAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sortField, order, name, grade, class, false, page, limit)
+	if err != nil {
+		zap.L().Error("AdvancedArticleFilteringService() service.article.QueryUserAndArticleByAdvancedFilter err=", zap.Error(err))
+		return nil, err
+	}
 	// 遍历文章集合并判断当前用户是否点赞或收藏该文章
 	for i := 0; i < len(articles); i++ {
 		okSelect, err := redis.IsUserCollected(strconv.Itoa(int(articles[i].ID)), username)
 		okLike, err := redis.IsUserLiked(strconv.Itoa(int(articles[i].ID)), username, 0)
 		if err != nil {
-			zap.L().Error("SelectArticleAndUserListByPageFirstPageService() service.article.IsUserLiked err=", zap.Error(err))
+			zap.L().Error("AdvancedArticleFilteringService() service.article.IsUserLiked err=", zap.Error(err))
 			return nil, err
 		}
 		articles[i].IsCollect = okSelect
