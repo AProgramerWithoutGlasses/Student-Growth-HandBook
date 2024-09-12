@@ -63,7 +63,7 @@ func AddSingleTeacher(users *gorm_model.User) error {
 
 // 删除单个学生
 func DeleteSingleUser(id int) error {
-	err := DB.Table("users").Where("id = ?", id).Delete(nil).Error
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Delete(nil).Error
 	return err
 }
 

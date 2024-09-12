@@ -68,6 +68,7 @@ func AddMultipleTeacherControl(c *gin.Context) {
 			Password: row[2],
 			Gender:   row[3],
 			Identity: "老师",
+			HeadShot: "https://student-grow.oss-cn-beijing.aliyuncs.com/image/user_headshot/user_headshot_5.png",
 		}
 		err = mysql.AddSingleTeacher(&user)
 		if err != nil {
