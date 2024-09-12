@@ -7,6 +7,7 @@ import (
 	"studentGrow/models"
 	pkg "studentGrow/pkg/response"
 	"studentGrow/service/userService"
+	"studentGrow/utils/timeConverter"
 	"studentGrow/utils/token"
 	"time"
 )
@@ -41,7 +42,7 @@ func HLogin(c *gin.Context) {
 	//查询用户是否存在
 	ok, err := mysql.SelExit(user.Username)
 	if !ok || err != nil {
-		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+		pkg.ResponseErrorWithMsg(c, 500, "用户不存在")
 		return
 	}
 	//验证密码
@@ -51,12 +52,12 @@ func HLogin(c *gin.Context) {
 	}
 	//验证验证码
 	if ok := userService.GetCodeAnswer(user.Id, user.Code); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "验证码错误")
+		pkg.ResponseErrorWithMsg(c, 401, "验证码错误")
 		return
 	}
 	//验证用户是否为管理员
 	if ok := userService.BVerifyExit(user.Username); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "身份验证失败")
+		pkg.ResponseErrorWithMsg(c, 501, "身份验证失败")
 		return
 	}
 	//验证用户是否被封禁
@@ -115,6 +116,10 @@ func QLogin(c *gin.Context) {
 	// 定义用户实例
 	var user = new(models.Login)
 	var role string
+	//记录班级
+	var class string
+	//记录年级
+	var grade int
 	//获取前端返回的数据
 	if err := c.BindJSON(&user); err != nil {
 		pkg.ResponseErrorWithMsg(c, 400, "Hlogin 获取数据失败")
@@ -124,7 +129,7 @@ func QLogin(c *gin.Context) {
 	//查询用户是否存在
 	ok, err := mysql.SelExit(user.Username)
 	if !ok || err != nil {
-		pkg.ResponseErrorWithMsg(c, 400, "用户不存在")
+		pkg.ResponseErrorWithMsg(c, 500, "用户不存在")
 		return
 	}
 	//验证密码
@@ -134,7 +139,7 @@ func QLogin(c *gin.Context) {
 	}
 	//验证验证码
 	if ok := userService.GetCodeAnswer(user.Id, user.Code); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "验证码错误")
+		pkg.ResponseErrorWithMsg(c, 401, "验证码错误")
 		return
 	}
 	//验证用户是否被封禁
@@ -176,6 +181,19 @@ func QLogin(c *gin.Context) {
 	}
 	//验证用户是否是老师
 	ifTeacher, err := mysql.IfTeacher(user.Username)
+	ifAutor, err := mysql.IfAutor(user.Username)
+	if ifTeacher || ifAutor {
+		class = ""
+		grade = 0
+	} else {
+		class, err = mysql.SelClass(user.Username)
+		plusTime, err := mysql.SelPlus(user.Username)
+		grade = timeConverter.GetUserGrade(plusTime)
+		if err != nil {
+			fmt.Println("Hlogin的login.ReleaseToken()")
+			return
+		}
+	}
 	//记录用户登录
 	id, err := mysql.SelId(user.Username)
 	err = mysql.CreateUser(user.Username, id)
@@ -193,6 +211,8 @@ func QLogin(c *gin.Context) {
 		"username":  user.Username,
 		"token":     tokenString,
 		"role":      role,
+		"class":     class,
+		"grade":     grade,
 		"ifTeacher": ifTeacher,
 	}
 	//发送给前端
