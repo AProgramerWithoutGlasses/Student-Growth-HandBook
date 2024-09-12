@@ -91,6 +91,7 @@ func GetArticleIdController(c *gin.Context) {
 			"comment_amount":  art.CommentAmount,
 			"is_like":         art.IsLike,
 			"is_collect":      art.IsCollect,
+			"article_quality": art.Quality,
 		}
 	}
 
@@ -156,6 +157,7 @@ func GetArticleListController(c *gin.Context) {
 			"created_at":      val.CreatedAt,
 			"name":            val.User.Name,
 			"collect_amount":  val.CollectAmount,
+			"article_quality": val.Quality,
 		})
 	}
 
@@ -410,6 +412,7 @@ func GetArticleByClassController(c *gin.Context) {
 			"is_collect":      a.IsCollect,
 			"post_time":       a.PostTime,
 			"username":        a.User.Username,
+			"article_quality": a.Quality,
 		})
 	}
 	res.ResponseSuccess(c, map[string]any{
@@ -550,17 +553,18 @@ func SelectGoodArticleController(c *gin.Context) {
 // AdvancedArticleFilteringController 高级筛选文章
 func AdvancedArticleFilteringController(c *gin.Context) {
 	in := struct {
-		KeyWords     string `json:"key_words"`
-		TopicName    string `json:"topic_name"`
-		ArticleCount int    `json:"article_count"`
-		ArticlePage  int    `json:"article_page"`
-		Username     string `json:"username"`
-		Sort         string `json:"sort"`
-		Order        string `json:"order"`
-		StartAt      string `json:"start_at"`
-		EndAt        string `json:"end_at"`
-		IsClass      bool   `json:"is_class"`
-		Name         string `json:"name"`
+		KeyWords     string   `json:"key_words"`
+		TopicName    string   `json:"topic_name"`
+		ArticleCount int      `json:"article_count"`
+		ArticlePage  int      `json:"article_page"`
+		Username     string   `json:"username"`
+		Sort         string   `json:"sort"`
+		Order        string   `json:"order"`
+		StartAt      string   `json:"start_at"`
+		EndAt        string   `json:"end_at"`
+		Class        []string `json:"class"`
+		Name         string   `json:"name"`
+		Grade        int      `json:"grade"`
 	}{}
 
 	err := c.ShouldBindJSON(&in)
@@ -570,14 +574,14 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 		return
 	}
 
-	articles, err := article.AdvancedArticleFilteringService(in.ArticlePage, in.ArticleCount, in.Sort, in.Order, in.StartAt, in.EndAt, in.TopicName, in.KeyWords, in.Name, in.Username, in.IsClass)
+	articles, err := article.AdvancedArticleFilteringService(in.ArticlePage, in.ArticleCount, in.Sort, in.Order, in.StartAt, in.EndAt, in.TopicName, in.KeyWords, in.Name, in.Username, in.Class, in.Grade)
 	if err != nil {
 		zap.L().Error("AdvancedArticleFilteringController() controller.article.AdvancedArticleFilteringService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	content := make([]map[string]any, len(articles))
+	content := make([]map[string]any, 0)
 	for _, at := range articles {
 
 		var pics []string
