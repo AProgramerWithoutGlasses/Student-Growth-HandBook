@@ -11,7 +11,7 @@ import (
 
 func AddSingleTeacherControl(c *gin.Context) {
 	var addSingleTeacherReqStruct gorm_model.User
-	err := c.Bind(&addSingleTeacherReqStruct)
+	err := c.ShouldBindJSON(&addSingleTeacherReqStruct)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())

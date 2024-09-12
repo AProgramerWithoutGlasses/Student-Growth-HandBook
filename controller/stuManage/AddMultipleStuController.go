@@ -98,6 +98,7 @@ func AddMultipleStuControl(c *gin.Context) {
 			Gender:   row[4],
 			Identity: "学生",
 			PlusTime: time.Date(yearInt+2000, 9, 1, 0, 0, 0, 0, time.Now().Location()),
+			HeadShot: "https://student-grow.oss-cn-beijing.aliyuncs.com/image/user_headshot/user_headshot_1.png",
 		}
 		err = mysql.AddSingleStudent(&user)
 		if err != nil {

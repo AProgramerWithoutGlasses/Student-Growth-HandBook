@@ -112,7 +112,7 @@ func AddSingleStuContro(c *gin.Context) {
 		Gender:   input.Gender,
 		Identity: "学生",
 		PlusTime: addStuPlusTime,
-		HeadShot: "https://student-grow.oss-cn-beijing.aliyuncs.com/image/user_headshot/user_headshot_5.png",
+		HeadShot: "https://student-grow.oss-cn-beijing.aliyuncs.com/image/user_headshot/user_headshot_1.png",
 	}
 
 	// 在数据库中添加该学生信息
