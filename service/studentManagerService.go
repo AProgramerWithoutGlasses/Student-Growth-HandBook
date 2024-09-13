@@ -2,11 +2,15 @@ package service
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
+	"go.uber.org/zap"
 	"reflect"
+	"regexp"
 	"strconv"
+	"strings"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
@@ -400,4 +404,79 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 
 	return nil
 
+}
+
+func AddStuService(input struct{ gorm_model.User }, myMes jrx_model.MyTokenMes) error {
+	// 去除班级名称中的 ”班“ 字
+	if len(input.Class) == 12 {
+		input.Class = input.Class[:len(input.Class)-3]
+	}
+
+	// 使用正则表达式进行匹配
+	pattern := `^[\p{Han}]{2}\d{3}$`
+	match, _ := regexp.MatchString(pattern, input.Class)
+	if !match {
+		return errors.New("请输入正确的班级格式")
+	}
+
+	// 计算出要添加的学生是大几的
+	addStuNowGrade := CalculateNowGradeByClass(input.Class)
+
+	// 导入班级权限判断
+	if input.Class != myMes.MyClass {
+		if myMes.MyRole == addStuNowGrade || myMes.MyRole == "college" || myMes.MyRole == "superman" {
+
+		} else {
+			return errors.New("导入失败，您只能导入您所管班级的学生或所管年级的学生")
+		}
+	}
+
+	// 根据班级获取入学时间
+	re := regexp.MustCompile(`^\D*(\d{2})`)
+	match1 := re.FindStringSubmatch(input.Class)
+
+	yearEnd := match1[1]                   // 获取 "22"
+	yearEndInt, _ := strconv.Atoi(yearEnd) // 将 "22" 转换为整数
+	yearInt := yearEndInt + 2000           // 将整数转换为 "2022"
+
+	now := time.Now()
+	addStuPlusTime := time.Date(yearInt, 9, 1, 0, 0, 0, 0, now.Location())
+
+	fmt.Println("plusTime:", addStuPlusTime)
+
+	// 将新增学生信息整合到结构体中
+	user := gorm_model.User{
+		Name:     input.Name,
+		Username: input.Username,
+		Password: input.Password,
+		Class:    input.Class,
+		Gender:   input.Gender,
+		Identity: "学生",
+		PlusTime: addStuPlusTime,
+		HeadShot: "https://student-grow.oss-cn-beijing.aliyuncs.com/image/user_headshot/user_headshot_1.png",
+	}
+
+	// 在数据库中添加该学生信息
+	err := mysql.AddSingleStudent(&user)
+	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate") {
+			err = errors.New("添加失败, 该用户已存在")
+		}
+		return err
+	}
+
+	// 添加学生记录
+	// 此为非关键业务，放入协程中进而不影响主线程的效能
+	go func() {
+		addUserRecord := gorm_model.UserAddRecord{
+			Username:    myMes.MyUsername,
+			AddUsername: input.Username,
+		}
+		err = mysql.AddSingleStudentRecord(&addUserRecord)
+		if err != nil {
+			zap.L().Error(err.Error())
+		}
+	}()
+
+	return nil
 }
