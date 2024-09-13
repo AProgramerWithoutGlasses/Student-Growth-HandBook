@@ -427,6 +427,8 @@ func GetTopicPointsService(username string) (jrx_model.HomepageTopicPoint, error
 		fmt.Println(k, everyPointMap[k])
 	}
 
+	fmt.Println(everyPointMap)
+
 	//studyPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "学习成绩")
 	//fmt.Println("studyPoint", studyPoint)
 	//if studyPoint > 200 {
@@ -511,18 +513,18 @@ func GetTopicPointsService(username string) (jrx_model.HomepageTopicPoint, error
 	//	return jrx_model.HomepageTopicPoint{}, err
 	//}
 
-	totalPointFloat := 0.25*float64(everyPointMap["studyPoint"]) + 0.2*float64(everyPointMap["honorPoint"]+everyPointMap["workPoint"]) + 0.1*float64(everyPointMap["socialPoint"]+everyPointMap["volunteerPoint"]+everyPointMap["sportPoint"]) + 0.05*float64(everyPointMap["lifePoint"])
+	totalPointFloat := 0.25*float64(everyPointMap["学习成绩"]) + 0.2*float64(everyPointMap["获奖荣誉"]+everyPointMap["工作履历"]) + 0.1*float64(everyPointMap["社会实践"]+everyPointMap["志愿公益"]+everyPointMap["文体活动"]) + 0.05*float64(everyPointMap["生活日常"])
 	totalPointFloat = math.Round(totalPointFloat*10) / 10
 
 	var homepageTopicPoint jrx_model.HomepageTopicPoint
 	homepageTopicPoint = jrx_model.HomepageTopicPoint{
-		StudyPoint:     everyPointMap["studyPoint"],
-		HonorPoint:     everyPointMap["honorPoint"],
-		WorkPoint:      everyPointMap["workPoint"],
-		SocialPoint:    everyPointMap["socialPoint"],
-		VolunteerPoint: everyPointMap["volunteerPoint"],
-		SportPoint:     everyPointMap["sportPoint"],
-		LifePoint:      everyPointMap["lifePoint"],
+		StudyPoint:     everyPointMap["学习成绩"],
+		HonorPoint:     everyPointMap["获奖荣誉"],
+		WorkPoint:      everyPointMap["工作履历"],
+		SocialPoint:    everyPointMap["社会实践"],
+		VolunteerPoint: everyPointMap["志愿公益"],
+		SportPoint:     everyPointMap["文体活动"],
+		LifePoint:      everyPointMap["生活日常"],
 		TotalPoint:     totalPointFloat,
 	}
 
