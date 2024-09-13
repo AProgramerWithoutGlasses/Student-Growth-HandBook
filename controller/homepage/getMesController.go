@@ -26,6 +26,7 @@ func GetMesControl(c *gin.Context) {
 		return
 	}
 
+	// 业务
 	homepageMesStruct, err := service.GetHomepageMesService(input.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)

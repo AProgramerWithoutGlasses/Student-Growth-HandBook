@@ -67,3 +67,10 @@ type StuMesYearIntStruct struct {
 type SelectedStuMesStruct struct {
 	Selected_students []StuMesStruct `json:"selected_students"`
 }
+
+type MyTokenMes struct {
+	MyUsername string
+	MyId       int
+	MyRole     string
+	MyClass    string
+}
