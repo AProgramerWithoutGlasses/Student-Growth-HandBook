@@ -402,7 +402,7 @@ func GetHistoryByArticleDao(id int, page int, limit int) ([]jrx_model.HomepageAr
 func GetStarDao(id int, page int, limit int) ([]jrx_model.HomepageArticleHistoryStruct, error) {
 	// 获取该用户收藏的文章的id
 	var articleIds []int
-	err := DB.Table("user_collect_records").
+	err := DB.Model(&gorm_model.UserCollectRecord{}).
 		Where("user_id = ?", id).
 		Pluck("article_id", &articleIds).Error
 	if err != nil {
