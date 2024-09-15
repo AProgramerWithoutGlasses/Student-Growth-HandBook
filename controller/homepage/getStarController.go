@@ -51,9 +51,8 @@ func GetStarControl(c *gin.Context) {
 		History: homepageStarList,
 	}
 
-	if output.History == nil || len(output.History) == 0 {
-		response.ResponseSuccess(c, "")
-		return
+	if homepageStarList == nil || len(homepageStarList) == 0 {
+		output.History = []jrx_model.HomepageArticleHistoryStruct{}
 	}
 
 	response.ResponseSuccess(c, output)
