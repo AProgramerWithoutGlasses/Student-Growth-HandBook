@@ -5,7 +5,6 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	_ "gorm.io/gorm"
-	"strconv"
 	"studentGrow/models/constant"
 	model "studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
@@ -744,7 +743,7 @@ func QueryUserAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, 
 	var articles []model.Article
 	if err := query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").InnerJoins("User").
 		Where("plus_time BETWEEN ? AND ? AND class IN ? AND name LIKE ?",
-			fmt.Sprintf("%s-01-01", strconv.Itoa(year.Year())), fmt.Sprintf("%s-12-31", strconv.Itoa(year.Year())), class, fmt.Sprintf("%%%s%%", name)).
+			fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), class, fmt.Sprintf("%%%s%%", name)).
 		Offset((page - 1) * limit).
 		Find(&articles).Error; err != nil {
 		zap.L().Error("QueryUserAndArticleByAdvancedFilter() dao.mysql.sql_user_nzx err=", zap.Error(err))
