@@ -333,19 +333,20 @@ func CalculateNowGrade(birthday time.Time) (grade string) {
 }
 
 func CalculateNowGradeByClass(class string) (grade string) {
-	classNumber, err := strconv.Atoi("20" + class[6:8])
+	// 根据班级获取入学年份
+	startYear, err := strconv.Atoi("20" + class[6:8])
 	if err != nil {
 		return grade
 	}
 
-	startGrade1 := time.Date(classNumber, 8, 1, 0, 0, 0, 0, time.UTC)
-	endGrade1 := time.Date(classNumber+1, 8, 1, 0, 0, 0, 0, time.UTC)
-	startGrade2 := time.Date(classNumber+1, 8, 1, 0, 0, 0, 0, time.UTC)
-	endGrade2 := time.Date(classNumber+2, 8, 1, 0, 0, 0, 0, time.UTC)
-	startGrade3 := time.Date(classNumber+2, 8, 1, 0, 0, 0, 0, time.UTC)
-	endGrade3 := time.Date(classNumber+3, 8, 1, 0, 0, 0, 0, time.UTC)
-	startGrade4 := time.Date(classNumber+3, 8, 1, 0, 0, 0, 0, time.UTC)
-	endGrade4 := time.Date(classNumber+4, 8, 1, 0, 0, 0, 0, time.UTC)
+	startGrade1 := time.Date(startYear, 8, 1, 0, 0, 0, 0, time.UTC)
+	endGrade1 := time.Date(startYear+1, 8, 1, 0, 0, 0, 0, time.UTC)
+	startGrade2 := time.Date(startYear+1, 8, 1, 0, 0, 0, 0, time.UTC)
+	endGrade2 := time.Date(startYear+2, 8, 1, 0, 0, 0, 0, time.UTC)
+	startGrade3 := time.Date(startYear+2, 8, 1, 0, 0, 0, 0, time.UTC)
+	endGrade3 := time.Date(startYear+3, 8, 1, 0, 0, 0, 0, time.UTC)
+	startGrade4 := time.Date(startYear+3, 8, 1, 0, 0, 0, 0, time.UTC)
+	endGrade4 := time.Date(startYear+4, 8, 1, 0, 0, 0, 0, time.UTC)
 
 	now := time.Now()
 	if now.After(startGrade1) && now.Before(endGrade1) {
@@ -359,6 +360,23 @@ func CalculateNowGradeByClass(class string) (grade string) {
 	}
 
 	return grade
+}
+
+func CalculatePlusTimeYearByGrade(grade string) string {
+	var plusTimeYear string
+	switch grade {
+	case "1":
+		plusTimeYear = "2024"
+	case "2":
+		plusTimeYear = "2023"
+	case "3":
+		plusTimeYear = "2022"
+	case "4":
+		plusTimeYear = "2021"
+	}
+
+	// 计算入学年份
+	return plusTimeYear
 }
 
 func EditStuService(user jrx_model.ChangeStuMesStruct) error {

@@ -18,8 +18,19 @@ func GetClassListControl(c *gin.Context) {
 	//	return
 	//}
 
+	// 接收
+	input := struct {
+		Grade string `json:"grade"`
+	}{}
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
 	// 业务
-	classList, err := service.GetClassListService()
+	classList, err := service.GetClassListService(input.Grade)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -27,9 +38,9 @@ func GetClassListControl(c *gin.Context) {
 	}
 
 	output := struct {
-		ClassList []jrx_model.Class `json:"class_list"`
+		GradeList []jrx_model.Class `json:"grade_list"`
 	}{
-		ClassList: classList,
+		GradeList: classList,
 	}
 	response.ResponseSuccess(c, output)
 }

@@ -1,12 +1,15 @@
 package service
 
 import (
+	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/jrx_model"
 )
 
-func GetClassListService() ([]jrx_model.Class, error) {
-	classNameList, err := mysql.GetClassList()
+func GetClassListService(grade string) ([]jrx_model.Class, error) {
+	plusTimeYear := CalculatePlusTimeYearByGrade(grade)
+
+	classNameList, err := mysql.GetClassListByPlusTimeYear(plusTimeYear)
 	if err != nil {
 		return nil, err
 	}
@@ -17,8 +20,8 @@ func GetClassListService() ([]jrx_model.Class, error) {
 	for _, c := range classNameList {
 
 		classList = append(classList, jrx_model.Class{
-			ClassId:   i,
-			ClassName: c,
+			Text: strconv.Itoa(i),
+			Id:   c,
 		})
 		i++
 
