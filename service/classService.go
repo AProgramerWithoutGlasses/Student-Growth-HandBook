@@ -6,10 +6,8 @@ import (
 	"studentGrow/models/jrx_model"
 )
 
-func GetClassListService(grade string) ([]jrx_model.Class, error) {
-	plusTimeYear := CalculatePlusTimeYearByGrade(grade)
-
-	classNameList, err := mysql.GetClassListByPlusTimeYear(plusTimeYear)
+func GetClassListService() ([]jrx_model.Class, error) {
+	classNameList, err := mysql.GetClassList()
 	if err != nil {
 		return nil, err
 	}
@@ -20,6 +18,29 @@ func GetClassListService(grade string) ([]jrx_model.Class, error) {
 	for _, c := range classNameList {
 
 		classList = append(classList, jrx_model.Class{
+			ClassId:   i,
+			ClassName: c,
+		})
+		i++
+
+	}
+	return classList, nil
+}
+
+func GetClassByGradeService(grade string) ([]jrx_model.Class2, error) {
+	plusTimeYear := CalculatePlusTimeYearByGrade(grade)
+
+	classNameList, err := mysql.GetClassListByPlusTimeYear(plusTimeYear)
+	if err != nil {
+		return nil, err
+	}
+
+	// 叫上班级id
+	var classList []jrx_model.Class2
+	i := 1
+	for _, c := range classNameList {
+
+		classList = append(classList, jrx_model.Class2{
 			Text: strconv.Itoa(i),
 			Id:   c,
 		})
@@ -27,6 +48,23 @@ func GetClassListService(grade string) ([]jrx_model.Class, error) {
 
 	}
 	return classList, nil
+}
+
+func CalculatePlusTimeYearByGrade(grade string) string {
+	var plusTimeYear string
+	switch grade {
+	case "1":
+		plusTimeYear = "2024"
+	case "2":
+		plusTimeYear = "2023"
+	case "3":
+		plusTimeYear = "2022"
+	case "4":
+		plusTimeYear = "2021"
+	}
+
+	// 计算入学年份
+	return plusTimeYear
 }
 
 // 检查班级名称是否符合格式

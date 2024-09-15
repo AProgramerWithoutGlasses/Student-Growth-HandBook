@@ -8,5 +8,6 @@ import (
 func routesClass(r *gin.Engine) {
 	rc := r.Group("/class")
 
-	rc.POST("/get_class_by_grade", class.GetClassListControl)
+	rc.POST("/list", class.GetClassListControl)
+	rc.POST("/get_class_by_grade", class.GetClassByGradeControl)
 }
