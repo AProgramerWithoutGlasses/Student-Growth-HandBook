@@ -59,3 +59,11 @@ const WordLimitMax = 300
 const PeopleLimitClass = 3
 const PeopleLimitGrade = 5
 const PeopleLimitCollege = 10
+
+/*
+优秀文章各级指数
+*/
+
+const ArticleClass = 1
+const ArticleGrade = 3
+const ArticleCollege = 5

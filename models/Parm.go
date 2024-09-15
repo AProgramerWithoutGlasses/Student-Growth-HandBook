@@ -35,6 +35,7 @@ type StarBack struct {
 	User_article_total int64  `json:"user_article_total"`
 	Userfans           int64  `json:"userfans"`
 	Score              int    `json:"score"`
+	Quality            int    `json:"quality"`
 	Hot                int    `json:"hot"`
 	Status             bool   `json:"status"`
 }

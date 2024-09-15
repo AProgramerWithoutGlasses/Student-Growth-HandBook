@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
+	"studentGrow/models/constant"
 	"studentGrow/utils/timeConverter"
 	token2 "studentGrow/utils/token"
 	"time"
@@ -60,6 +61,12 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 			return nil, err
 		}
 
+		//查询文章质量
+		class, err := mysql.SelArticleQua(id, 1)
+		grade, err := mysql.SelArticleQua(id, 2)
+		college, err := mysql.SelArticleQua(id, 3)
+		quality := class*constant.ArticleClass + grade*constant.ArticleGrade + college*constant.ArticleCollege
+
 		var hot int
 		//查询热度
 		likes, collects, err := mysql.SelHot(id)
@@ -82,6 +89,7 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 			Userfans:           userFans,
 			Score:              score,
 			Hot:                hot,
+			Quality:            int(quality),
 			Status:             false,
 		}
 		starBack = append(starBack, star)
