@@ -8,8 +8,7 @@ import (
 	"studentGrow/service"
 )
 
-// 拿到所有班级的列表
-func GetClassListControl(c *gin.Context) {
+func GetClassByGradeControl(c *gin.Context) {
 	//token := c.GetHeader("token")
 	//username, err := token2.GetUsername(token)
 	//if err != nil {
@@ -18,8 +17,19 @@ func GetClassListControl(c *gin.Context) {
 	//	return
 	//}
 
+	// 接收
+	input := struct {
+		Grade string `json:"grade"`
+	}{}
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
 	// 业务
-	classList, err := service.GetClassListService()
+	classList, err := service.GetClassByGradeService(input.Grade)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
@@ -27,9 +37,9 @@ func GetClassListControl(c *gin.Context) {
 	}
 
 	output := struct {
-		ClassList []jrx_model.Class `json:"class_list"`
+		GradeList []jrx_model.Class2 `json:"grade_list"`
 	}{
-		ClassList: classList,
+		GradeList: classList,
 	}
 	response.ResponseSuccess(c, output)
 }

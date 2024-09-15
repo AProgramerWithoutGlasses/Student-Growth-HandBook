@@ -517,9 +517,9 @@ func UnbanUserDao(banId any) error {
 	return err
 }
 
-func GetClassListByPlusTimeYear(plusTimeYear string) ([]string, error) {
+func GetClassList() ([]string, error) {
 	var classes []string
-	err := DB.Model(&gorm_model.User{}).Where("LENGTH(class) = ? AND YEAR(plus_time) = ?", 9, plusTimeYear).Distinct("class").Order("class ASC").Pluck("class", &classes).Error
+	err := DB.Model(&gorm_model.User{}).Where("LENGTH(class) = 9").Distinct("class").Order("class ASC").Pluck("class", &classes).Error
 	return classes, err
 }
 
@@ -629,4 +629,10 @@ func UpdatePassword(id int, newPwd string) error {
 		return err
 	}
 	return nil
+}
+
+func GetClassListByPlusTimeYear(plusTimeYear string) ([]string, error) {
+	var classes []string
+	err := DB.Model(&gorm_model.User{}).Where("LENGTH(class) = ? AND YEAR(plus_time) = ?", 9, plusTimeYear).Distinct("class").Order("class ASC").Pluck("class", &classes).Error
+	return classes, err
 }
