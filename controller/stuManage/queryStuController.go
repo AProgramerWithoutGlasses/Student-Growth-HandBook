@@ -96,7 +96,7 @@ func QueryStuContro(c *gin.Context) {
 	querySql = service.CreateQuerySql(stuMessage, queryParmaStruct)
 	querySql = querySql + ranges
 
-	querySql = querySql + " ORDER BY username ASC" // 后续将class改为username!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	querySql = querySql + " ORDER BY username ASC"
 
 	// 获取符合条件的所有学生，用于计算长度
 	stuInfo, err := service.GetStuMesList(querySql) // 所有学生数据

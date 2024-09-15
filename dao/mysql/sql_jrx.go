@@ -45,7 +45,7 @@ func GetDiffClass() ([]string, error) {
 
 // 添加单个学生
 func AddSingleStudent(users *gorm_model.User) error {
-	err := DB.Create(users).Error
+	err := DB.Select("name", "username", "password", "class", "gender", "identity", "head_shot", "plus_time").Create(users).Error
 	return err
 }
 
@@ -57,13 +57,13 @@ func AddSingleStudentRecord(addUserRecord *gorm_model.UserAddRecord) error {
 
 // 添加单个老师
 func AddSingleTeacher(users *gorm_model.User) error {
-	err := DB.Select("name", "username", "password", "gender", "identity").Create(users).Error
+	err := DB.Select("name", "username", "password", "gender", "identity", "head_shot").Create(users).Error
 	return err
 }
 
 // 删除单个学生
 func DeleteSingleUser(id int) error {
-	err := DB.Table("users").Where("id = ?", id).Delete(nil).Error
+	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Delete(nil).Error
 	return err
 }
 

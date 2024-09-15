@@ -14,10 +14,10 @@ import (
 func GetArticleControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Page  int `json:"page"`
-		Limit int `json:"limit"`
+		Page  int `form:"page"`
+		Limit int `form:"limit"`
 	}{}
-	err := c.BindJSON(&input)
+	err := c.ShouldBindQuery(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())

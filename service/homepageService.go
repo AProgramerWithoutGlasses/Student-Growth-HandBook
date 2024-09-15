@@ -93,6 +93,9 @@ func UpdateHomepagePhoneNumberService(username string, phone_number string) erro
 }
 
 func UpdateHomepageEmailService(username string, email string) error {
+
+	// todo 前端传id
+
 	id, err := mysql.GetIdByUsername(username)
 	if err != nil {
 		return err
@@ -136,6 +139,8 @@ func GetHomepageUserDataService(username string) (*jrx_model.HomepageDataStruct,
 
 // 更新个人主页头像
 func UpdateHeadshotService(file *multipart.FileHeader, username string) (string, error) {
+
+	// todo 图片上传
 	fmt.Println("成功进入业务")
 	url, err := fileProcess.UploadFile("image", file)
 	if err != nil {
@@ -397,103 +402,129 @@ func GetTopicPointsService(username string) (jrx_model.HomepageTopicPoint, error
 	if err != nil {
 		return jrx_model.HomepageTopicPoint{}, err
 	}
+	// todo 数组
+	// 1.学习成绩 2.获奖荣誉 3.工作履历 4.社会实践 5.志愿公益 6.文体活动 7.生活日常
+	everyPointMap := make(map[string]int)
+	everyPointMap["学习成绩"] = 0
+	everyPointMap["获奖荣誉"] = 0
+	everyPointMap["工作履历"] = 0
+	everyPointMap["社会实践"] = 0
+	everyPointMap["志愿公益"] = 0
+	everyPointMap["文体活动"] = 0
+	everyPointMap["生活日常"] = 0
 
-	studyPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "学习成绩")
-	fmt.Println("studyPoint", studyPoint)
-	if studyPoint > 200 {
-		studyPoint = 200
-	}
-	if studyPoint < 0 {
-		studyPoint = 0
-	}
-	if err != nil {
-		return jrx_model.HomepageTopicPoint{}, err
-	}
-
-	honorPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "获奖荣誉")
-	fmt.Println("honorPoint", honorPoint)
-	if honorPoint > 200 {
-		honorPoint = 200
-	}
-	if honorPoint < 0 {
-		honorPoint = 0
-	}
-	if err != nil {
-		return jrx_model.HomepageTopicPoint{}, err
-	}
-
-	workPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "工作履历")
-	fmt.Println("workPoint", workPoint)
-	if workPoint > 200 {
-		workPoint = 200
-	}
-	if workPoint < 0 {
-		workPoint = 0
-	}
-	if err != nil {
-		return jrx_model.HomepageTopicPoint{}, err
+	for k, _ := range everyPointMap {
+		everyPointMap[k], err = mysql.GetTotalPointsByUserAndTopic(id, k)
+		if everyPointMap[k] > 200 {
+			everyPointMap[k] = 200
+		}
+		if everyPointMap[k] < 0 {
+			everyPointMap[k] = 0
+		}
+		if err != nil {
+			return jrx_model.HomepageTopicPoint{}, err
+		}
+		fmt.Println(k, everyPointMap[k])
 	}
 
-	socialPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "社会实践")
-	fmt.Println("socialPoint", socialPoint)
-	if socialPoint > 200 {
-		socialPoint = 200
-	}
-	if socialPoint < 0 {
-		socialPoint = 0
-	}
-	if err != nil {
-		return jrx_model.HomepageTopicPoint{}, err
-	}
+	fmt.Println(everyPointMap)
 
-	volunteerPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "志愿公益")
-	fmt.Println("volunteerPoint", volunteerPoint)
-	if volunteerPoint > 200 {
-		volunteerPoint = 200
-	}
-	if volunteerPoint < 0 {
-		volunteerPoint = 0
-	}
-	if err != nil {
-		return jrx_model.HomepageTopicPoint{}, err
-	}
+	//studyPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "学习成绩")
+	//fmt.Println("studyPoint", studyPoint)
+	//if studyPoint > 200 {
+	//	studyPoint = 200
+	//}
+	//if studyPoint < 0 {
+	//	studyPoint = 0
+	//}
+	//if err != nil {
+	//	return jrx_model.HomepageTopicPoint{}, err
+	//}
+	//
+	//honorPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "获奖荣誉")
+	//fmt.Println("honorPoint", honorPoint)
+	//if honorPoint > 200 {
+	//	honorPoint = 200
+	//}
+	//if honorPoint < 0 {
+	//	honorPoint = 0
+	//}
+	//if err != nil {
+	//	return jrx_model.HomepageTopicPoint{}, err
+	//}
+	//
+	//workPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "工作履历")
+	//fmt.Println("workPoint", workPoint)
+	//if workPoint > 200 {
+	//	workPoint = 200
+	//}
+	//if workPoint < 0 {
+	//	workPoint = 0
+	//}
+	//if err != nil {
+	//	return jrx_model.HomepageTopicPoint{}, err
+	//}
+	//
+	//socialPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "社会实践")
+	//fmt.Println("socialPoint", socialPoint)
+	//if socialPoint > 200 {
+	//	socialPoint = 200
+	//}
+	//if socialPoint < 0 {
+	//	socialPoint = 0
+	//}
+	//if err != nil {
+	//	return jrx_model.HomepageTopicPoint{}, err
+	//}
+	//
+	//volunteerPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "志愿公益")
+	//fmt.Println("volunteerPoint", volunteerPoint)
+	//if volunteerPoint > 200 {
+	//	volunteerPoint = 200
+	//}
+	//if volunteerPoint < 0 {
+	//	volunteerPoint = 0
+	//}
+	//if err != nil {
+	//	return jrx_model.HomepageTopicPoint{}, err
+	//}
+	//
+	//sportPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "文体活动")
+	//fmt.Println("sportPoint", sportPoint)
+	//if sportPoint > 200 {
+	//	sportPoint = 200
+	//}
+	//if sportPoint < 0 {
+	//	sportPoint = 0
+	//}
+	//if err != nil {
+	//	return jrx_model.HomepageTopicPoint{}, err
+	//}
+	//
+	//lifePoint, err := mysql.GetTotalPointsByUserAndTopic(id, "生活日常")
+	//fmt.Println("lifePoint", lifePoint)
+	//if lifePoint > 200 {
+	//	lifePoint = 200
+	//}
+	//if lifePoint < 0 {
+	//	lifePoint = 0
+	//}
+	//if err != nil {
+	//	return jrx_model.HomepageTopicPoint{}, err
+	//}
 
-	sportPoint, err := mysql.GetTotalPointsByUserAndTopic(id, "文体活动")
-	fmt.Println("sportPoint", sportPoint)
-	if sportPoint > 200 {
-		sportPoint = 200
-	}
-	if sportPoint < 0 {
-		sportPoint = 0
-	}
-	if err != nil {
-		return jrx_model.HomepageTopicPoint{}, err
-	}
-
-	lifePoint, err := mysql.GetTotalPointsByUserAndTopic(id, "生活日常")
-	fmt.Println("lifePoint", lifePoint)
-	if lifePoint > 200 {
-		lifePoint = 200
-	}
-	if lifePoint < 0 {
-		lifePoint = 0
-	}
-	if err != nil {
-		return jrx_model.HomepageTopicPoint{}, err
-	}
-
-	totalPointFloat := 0.25*float64(studyPoint) + 0.2*float64(honorPoint+workPoint) + 0.1*float64(socialPoint+volunteerPoint+sportPoint) + 0.05*float64(lifePoint)
+	totalPointFloat := 0.25*float64(everyPointMap["学习成绩"]) + 0.2*float64(everyPointMap["获奖荣誉"]+everyPointMap["工作履历"]) + 0.1*float64(everyPointMap["社会实践"]+everyPointMap["志愿公益"]+everyPointMap["文体活动"]) + 0.05*float64(everyPointMap["生活日常"])
 	totalPointFloat = math.Round(totalPointFloat*10) / 10
 
 	var homepageTopicPoint jrx_model.HomepageTopicPoint
 	homepageTopicPoint = jrx_model.HomepageTopicPoint{
-		StudyPoint:     studyPoint,
-		HonorPoint:     honorPoint,
-		WorkPoint:      workPoint,
-		SocialPoint:    socialPoint,
-		VolunteerPoint: volunteerPoint,
-		SportPoint:     sportPoint,
-		LifePoint:      lifePoint,
+		StudyPoint:     everyPointMap["学习成绩"],
+		HonorPoint:     everyPointMap["获奖荣誉"],
+		WorkPoint:      everyPointMap["工作履历"],
+		SocialPoint:    everyPointMap["社会实践"],
+		VolunteerPoint: everyPointMap["志愿公益"],
+		SportPoint:     everyPointMap["文体活动"],
+		LifePoint:      everyPointMap["生活日常"],
 		TotalPoint:     totalPointFloat,
 	}
 
