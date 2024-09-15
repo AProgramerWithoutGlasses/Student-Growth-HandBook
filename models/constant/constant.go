@@ -75,3 +75,11 @@ const SupserManId = 182
 */
 
 const ArticlePublishLimit = 2
+
+/*
+优秀文章各级指数
+*/
+
+const ArticleClass = 1
+const ArticleGrade = 3
+const ArticleCollege = 5

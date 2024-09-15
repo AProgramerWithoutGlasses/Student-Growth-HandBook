@@ -46,7 +46,7 @@ func SelCollegeId() ([]int, []string, error) {
 	return uidslice, usernameslice, nil
 }
 
-// SelArticleNum 根据id查询每个用户的帖子数
+// SelArticleNum 根据id查询每个用户的帖子数及各级文章个数
 func SelArticleNum(id int) (int64, error) {
 	var number int64
 	err := DB.Model(&gorm_model.Articles{}).Where("user_id = ?", id).Count(&number).Error
@@ -57,10 +57,20 @@ func SelArticleNum(id int) (int64, error) {
 	return number, nil
 }
 
+// SelArticleQua 根据id查询每个用户的帖子数及各级文章个数
+func SelArticleQua(id int, quality int) (int64, error) {
+	var number int64
+	err := DB.Model(&gorm_model.Articles{}).Where("quality = ?", quality).Where("user_id = ?", id).Count(&number).Error
+	// 检查并返回错误
+	if err != nil {
+		return 0, err
+	}
+	return number, nil
+}
+
 // SelArticle 根据id查询每个用户目标天数的贴子数
 func SelArticle(id int, date time.Time) (int64, error) {
 	var number int64
-
 	// 获取当天的开始时间（00:00:00）
 	from := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
 	nowdate := from.Add(-8 * time.Hour)
