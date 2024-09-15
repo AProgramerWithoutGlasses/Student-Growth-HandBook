@@ -67,3 +67,15 @@ const SupserManId = 182
 */
 
 const ArticlePublishLimit = 2
+
+/*
+优秀帖子等级
+*/
+
+const CommonArticle = 0
+
+const ClassArticle = 1
+
+const GradeArticle = 2
+
+const CollegeArticle = 3
