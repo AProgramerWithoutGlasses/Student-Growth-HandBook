@@ -26,7 +26,7 @@ func GetClassListService() ([]jrx_model.Class, error) {
 	return classList, nil
 }
 
-func GetClassByGradeService(grade string) ([]jrx_model.Class2, error) {
+func GetClassByGradeService(grade int) ([]string, error) {
 	plusTimeYear := CalculatePlusTimeYearByGrade(grade)
 
 	classNameList, err := mysql.GetClassListByPlusTimeYear(plusTimeYear)
@@ -34,26 +34,19 @@ func GetClassByGradeService(grade string) ([]jrx_model.Class2, error) {
 		return nil, err
 	}
 
-	//
-	var classList []jrx_model.Class2
-	for _, c := range classNameList {
-		classList = append(classList, jrx_model.Class2{
-			ClassName: c,
-		})
-	}
-	return classList, nil
+	return classNameList, nil
 }
 
-func CalculatePlusTimeYearByGrade(grade string) string {
+func CalculatePlusTimeYearByGrade(grade int) string {
 	var plusTimeYear string
 	switch grade {
-	case "1":
+	case 1:
 		plusTimeYear = "2024"
-	case "2":
+	case 2:
 		plusTimeYear = "2023"
-	case "3":
+	case 3:
 		plusTimeYear = "2022"
-	case "4":
+	case 4:
 		plusTimeYear = "2021"
 	}
 
