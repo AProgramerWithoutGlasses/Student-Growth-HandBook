@@ -108,9 +108,7 @@ func QueryArticleAndUserListByPageForGrade(page, limit int, sort, order, startAt
 	}
 
 	var articles []model.Article
-	if err := query.
-		Select("articles.id, articles.content, articles.ban, articles.like_amount, articles.comment_amount, articles.created_at, articles.collect_amount, articles.quality, users.username, users.name, users.user_headshot").
-		InnerJoins("User").Where("name like ? and plus_time BETWEEN ? AND ?", fmt.Sprintf("%%%s%%", name), fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).Preload("ArticleTags.Tag").
+	if err := query.InnerJoins("User").Where("name like ? and plus_time BETWEEN ? AND ?", fmt.Sprintf("%%%s%%", name), fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Preload("ArticleTags.Tag").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
@@ -124,9 +122,7 @@ func QueryArticleAndUserListByPageForSuperman(page, limit int, sort, order, star
 	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
 
 	var articles []model.Article
-	if err := query.
-		Select("articles.id, articles.content, articles.ban, articles.like_amount, articles.comment_amount, articles.created_at, articles.collect_amount, articles.quality, users.username, users.name, users.user_headshot").
-		InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
+	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
