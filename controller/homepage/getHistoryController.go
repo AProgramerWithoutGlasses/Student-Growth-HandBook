@@ -51,5 +51,9 @@ func GetHistoryControl(c *gin.Context) {
 		History: homepageArticleHistoryList,
 	}
 
+	if homepageArticleHistoryList == nil || len(homepageArticleHistoryList) == 0 {
+		output.History = []jrx_model.HomepageArticleHistoryStruct{}
+	}
+
 	response.ResponseSuccess(c, output)
 }
