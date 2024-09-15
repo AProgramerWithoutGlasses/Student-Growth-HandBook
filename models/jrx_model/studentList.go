@@ -41,6 +41,7 @@ type QueryParmaStruct struct {
 	IsDisable     bool   `json:"is_disable"`
 	SearchSelect  string `json:"search_select"`
 	SearchMessage string `json:"search_message"`
+	IsManager     bool   `json:"is_manager"`
 }
 
 // 修改学生信息

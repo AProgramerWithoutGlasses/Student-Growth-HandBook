@@ -143,7 +143,15 @@ func CreateQuerySql(stuMessage *jsonvalue.V, queryParmaStruct jrx_model.QueryPar
 				fmt.Println("searchSelect null")
 			} else {
 				fmt.Println("searchSelect")
-				querySql = querySql + " and " + queryParmaStruct.SearchSelect + " like '%" + queryParmaStruct.SearchMessage + "%'"
+				querySql = querySql + " and class = '" + v.String() + "'"
+			}
+
+		case "isManager":
+			if v.IsNull() || v.String() == "" {
+				fmt.Println("isManager null")
+			} else {
+				fmt.Println("isManager")
+				querySql = querySql + " and is_manager = " + v.String()
 			}
 
 		}
