@@ -25,9 +25,9 @@ func BanUserControl(c *gin.Context) {
 	}
 
 	// 响应
-	if temp == 0 {
+	if temp == 1 {
 		response.ResponseSuccessWithMsg(c, "已将用户"+name+"封禁", nil)
-	} else if temp == 1 {
+	} else if temp == 0 {
 		response.ResponseSuccessWithMsg(c, "已将用户"+name+"取消封禁", nil)
 	}
 
