@@ -1,7 +1,6 @@
 package service
 
 import (
-	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/jrx_model"
 )
@@ -35,17 +34,12 @@ func GetClassByGradeService(grade string) ([]jrx_model.Class2, error) {
 		return nil, err
 	}
 
-	// 叫上班级id
+	//
 	var classList []jrx_model.Class2
-	i := 1
 	for _, c := range classNameList {
-
 		classList = append(classList, jrx_model.Class2{
-			Text: strconv.Itoa(i),
-			Id:   c,
+			ClassName: c,
 		})
-		i++
-
 	}
 	return classList, nil
 }

@@ -6,6 +6,5 @@ type Class struct {
 }
 
 type Class2 struct {
-	Text string `json:"test"`
-	Id   string `json:"id"`
+	ClassName string `json:"class_name"`
 }
