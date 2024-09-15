@@ -49,18 +49,22 @@ func AddSingleStuContro(c *gin.Context) {
 	// 接收
 	input := struct {
 		gorm_model.User
+		Class  string `json:"class"`
+		Gender string `json:"gender"`
 	}{}
 	err = c.ShouldBindJSON(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error(err.Error())
+		return
 	}
 
 	// 业务
 	err = service.AddStuService(input, myMes)
 	if err != nil {
-		response.ResponseError(c, response.ServerErrorCode)
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error(err.Error())
+		return
 	}
 
 	// 成功响应
