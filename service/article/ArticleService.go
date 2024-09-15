@@ -874,15 +874,20 @@ func SelectGoodArticleService(articleId, quality int, role, username string) (er
 }
 
 // QueryGoodArticlesByRoleService 根据管理员身份查询对应的优秀帖子
-func QueryGoodArticlesByRoleService(role, startAt, endAt, topic, keyWords, sortField, order, name string, page, limit int) (articles []model.Article, err error) {
+func QueryGoodArticlesByRoleService(role, startAt, endAt, topic, keyWords, sortField, order, name string, page, limit int) (articles []model.Article, count int, err error) {
+	grade := -1
 	switch role {
 	case "grade1":
+		grade = 1
 		articles, err = mysql.QueryClassGoodArticles(1, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
 	case "grade2":
+		grade = 2
 		articles, err = mysql.QueryClassGoodArticles(2, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
 	case "grade3":
+		grade = 3
 		articles, err = mysql.QueryClassGoodArticles(3, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
 	case "grade4":
+		grade = 4
 		articles, err = mysql.QueryClassGoodArticles(4, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
 	case "college":
 		articles, err = mysql.QueryGradeGoodArticles(page, limit, startAt, endAt, topic, keyWords, sortField, order, name)
@@ -891,7 +896,19 @@ func QueryGoodArticlesByRoleService(role, startAt, endAt, topic, keyWords, sortF
 	}
 	if err != nil {
 		zap.L().Error("QueryGoodArticlesByRoleService() service.article.QueryGradeGoodArticles err=", zap.Error(err))
-		return nil, err
+		return nil, -1, err
 	}
-	return articles, nil
+	// 若不为年级管理员(即院级或超级)
+	if grade == -1 {
+		count, err = mysql.QueryGradeGoodArticleNum()
+	} else {
+		count, err = mysql.QueryClassGoodArticleNum(grade)
+	}
+
+	if err != nil {
+		zap.L().Error("QueryGoodArticlesByRoleService() service.article.QueryGradeGoodArticleNum err=", zap.Error(err))
+		return nil, -1, err
+	}
+
+	return articles, count, nil
 }

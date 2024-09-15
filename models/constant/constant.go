@@ -95,3 +95,4 @@ const ClassArticle = 1
 const GradeArticle = 2
 
 const CollegeArticle = 3
+

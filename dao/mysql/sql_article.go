@@ -12,6 +12,19 @@ import (
 	"time"
 )
 
+// SelectUserById 查询数据库是否存在该用户
+func SelectUserById(uid int) (err error, user *model.User) {
+	//select * from users where id = uid
+	// 查询用户
+	if err := DB.Where("id = ?", uid).First(&user).Error; err != nil {
+		zap.L().Error("SelectUserById() dao.mysql.sql_nzx.First err=", zap.Error(err))
+		return err, nil
+	}
+
+	return nil, user
+
+}
+
 // SelectUserByUsername 通过username查找uid
 func SelectUserByUsername(username string) (uid int, err error) {
 	//select id from users where username = username
@@ -22,6 +35,15 @@ func SelectUserByUsername(username string) (uid int, err error) {
 	} else {
 		return int(user.ID), nil
 	}
+}
+
+// QueryArticleIsExist 查询文章是否存在
+func QueryArticleIsExist(aid int) (bool, error) {
+	var count int64
+	if DB.Where("id = ? and ban = ? and status = ?", aid, false, true).Count(&count).RowsAffected > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 // QueryArticleById 通过id查找文章(普通用户)
@@ -736,7 +758,7 @@ func QueryUserAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, 
 	return articles, nil
 }
 
-// QueryClassGoodArticles 查询班级筛选的优秀帖子
+// QueryClassGoodArticles 分页查询班级筛选的优秀帖子
 func QueryClassGoodArticles(grade int, startAt, endAt, topic, keyWords, sort, order, name string, page, limit int) ([]model.Article, error) {
 	var articles []model.Article
 	query, err := QueryArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, order, false)
@@ -756,7 +778,7 @@ func QueryClassGoodArticles(grade int, startAt, endAt, topic, keyWords, sort, or
 	return articles, nil
 }
 
-// QueryGradeGoodArticles 查询年级优秀帖子
+// QueryGradeGoodArticles 分页查询年级优秀帖子
 func QueryGradeGoodArticles(page, limit int, startAt, endAt, topic, keyWords, sort, order, name string) ([]model.Article, error) {
 	var articles []model.Article
 	query, err := QueryArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, order, false)
@@ -773,4 +795,30 @@ func QueryGradeGoodArticles(page, limit int, startAt, endAt, topic, keyWords, so
 		return nil, err
 	}
 	return articles, nil
+}
+
+// QueryClassGoodArticleNum 查询班级优秀帖子总数-根据年级管理员身份
+func QueryClassGoodArticleNum(grade int) (int, error) {
+
+	year, err := timeConverter.GetEnrollmentYear(grade)
+	if err != nil {
+		zap.L().Error("QueryClassGoodArticleNum() dao.mysql.sql_user_nzx.Find err=", zap.Error(err))
+		return -1, err
+	}
+	var count int64
+	if err := DB.Model(&model.Article{}).Where("quality = ? AND plus_time BETWEEN ? AND ?	", constant.ClassArticle, fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Count(&count).Error; err != nil {
+		zap.L().Error("QueryClassGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+}
+
+// QueryGradeGoodArticleNum 查询年级优秀帖子总数
+func QueryGradeGoodArticleNum() (int, error) {
+	var count int64
+	if err := DB.Model(&model.Article{}).Where("quality = ?", constant.GradeArticle).Count(&count).Error; err != nil {
+		zap.L().Error("QueryGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
 }

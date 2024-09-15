@@ -642,7 +642,7 @@ func GetGoodArticlesController(c *gin.Context) {
 	}
 
 	// 查询优秀帖子
-	articles, err := article.QueryGoodArticlesByRoleService(role, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Sort, in.Order, in.Name, in.Page, in.Limit)
+	articles, count, err := article.QueryGoodArticlesByRoleService(role, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Sort, in.Order, in.Name, in.Page, in.Limit)
 	if err != nil {
 		zap.L().Error("GetGoodArticlesController() controller.article.QueryGoodArticlesByRoleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -663,5 +663,9 @@ func GetGoodArticlesController(c *gin.Context) {
 			"article_quality": at.Quality,
 		})
 	}
-	res.ResponseSuccess(c, list)
+
+	res.ResponseSuccess(c, map[string]any{
+		"list":           list,
+		"article_amount": count,
+	})
 }

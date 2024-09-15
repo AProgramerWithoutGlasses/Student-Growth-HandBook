@@ -49,6 +49,8 @@ func routesArticle(r *gin.Engine) {
 	at.POST("/select_good_article", token.AuthMiddleware(), article.SelectGoodArticleController)
 	// 帖子高级筛选
 	at.POST("/filter", article.AdvancedArticleFilteringController)
+	// 获取优秀帖子
+	at.POST("/getGoodArticles", token.AuthMiddleware(), article.GetGoodArticlesController)
 	// 取消收藏
 	//at.POST("/cancel_collect", article.CancelCollectArticleController)
 	// 查看收藏列表
