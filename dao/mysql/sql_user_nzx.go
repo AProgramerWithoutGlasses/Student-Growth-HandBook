@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	model "studentGrow/models/gorm_model"
 	"studentGrow/utils/timeConverter"
+	"time"
 )
 
 // QueryClassByUsername 通过用户名查找班级
@@ -16,6 +17,16 @@ func QueryClassByUsername(username string) (string, error) {
 		return "", err
 	}
 	return class, nil
+}
+
+// QueryPlusTimeByUsername 通过用户名查找入学时间
+func QueryPlusTimeByUsername(username string) (*time.Time, error) {
+	var user model.User
+	if err := DB.Select("plus_time").Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("QueryGradeByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
+		return nil, err
+	}
+	return &user.PlusTime, nil
 }
 
 // QueryUserByAdvancedFilter 高级筛选用户(年级、班级、姓名)

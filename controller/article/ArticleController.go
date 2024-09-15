@@ -8,6 +8,7 @@ import (
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
 	readUtil "studentGrow/utils/readMessage"
+	"studentGrow/utils/timeConverter"
 	"studentGrow/utils/token"
 )
 
@@ -616,4 +617,51 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 	res.ResponseSuccess(c, map[string]any{
 		"content": content,
 	})
+}
+
+// GetGoodArticlesController 获取优秀帖子
+func GetGoodArticlesController(c *gin.Context) {
+	in := struct {
+		Page     int    `json:"page"`
+		Limit    int    `json:"limit"`
+		Sort     string `json:"sort"`
+		Order    string `json:"order"`
+		StartAt  string `json:"start_at"`
+		EndAt    string `json:"end_at"`
+		Topic    string `json:"topic"`
+		KeyWords string `json:"key_words"`
+		Name     string `json:"name"`
+	}{}
+
+	// 获取角色身份
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetGoodArticlesController() controller.article.GetRole err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	// 查询优秀帖子
+	articles, err := article.QueryGoodArticlesByRoleService(role, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Sort, in.Order, in.Name, in.Page, in.Limit)
+	if err != nil {
+		zap.L().Error("GetGoodArticlesController() controller.article.QueryGoodArticlesByRoleService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	list := make([]map[string]any, 0)
+	for _, at := range articles {
+		list = append(list, map[string]any{
+			"article_id":      at.ID,
+			"article_content": at.Content,
+			"user_headshot":   at.User.HeadShot,
+			"upvote_amount":   at.LikeAmount,
+			"comment_amount":  at.CommentAmount,
+			"username":        at.User.Username,
+			"created_at":      timeConverter.IntervalConversion(at.CreatedAt),
+			"collect_amount":  at.CollectAmount,
+			"article_quality": at.Quality,
+		})
+	}
+	res.ResponseSuccess(c, list)
 }
