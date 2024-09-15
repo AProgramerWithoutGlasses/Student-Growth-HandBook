@@ -28,9 +28,9 @@ func BanTeacherControl(c *gin.Context) {
 	}
 
 	// 响应
-	if temp == 1 {
+	if temp == 0 {
 		response.ResponseSuccess(c, "已将用户"+name+"封禁")
-	} else if temp == 0 {
+	} else if temp == 1 {
 		response.ResponseSuccess(c, "已将用户"+name+"取消封禁")
 	}
 
