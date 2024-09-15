@@ -404,7 +404,11 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 
 }
 
-func AddStuService(input struct{ gorm_model.User }, myMes jrx_model.MyTokenMes) error {
+func AddStuService(input struct {
+	gorm_model.User
+	Class  string `json:"class"`
+	Gender string `json:"gender"`
+}, myMes jrx_model.MyTokenMes) error {
 	// 去除班级名称中的 ”班“ 字
 	if len(input.Class) == 12 {
 		input.Class = input.Class[:len(input.Class)-3]
