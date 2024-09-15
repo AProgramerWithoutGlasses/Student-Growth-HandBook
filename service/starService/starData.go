@@ -5,7 +5,6 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
 	"studentGrow/models/constant"
-	"studentGrow/utils/timeConverter"
 	token2 "studentGrow/utils/token"
 	"time"
 )
@@ -95,45 +94,6 @@ func StarGrid(usernameslice []string) ([]models.StarBack, error) {
 		starBack = append(starBack, star)
 	}
 	return starBack, nil
-}
-
-// PageQuery 实现分页查询
-func PageQuery(starback []models.StarBack, page, limit int) []models.StarBack {
-	if limit <= 0 {
-		// 返回空切片，limit 应该大于0
-		return []models.StarBack{}
-	}
-	length := len(starback)
-	left := (page - 1) * limit
-	right := left + limit
-
-	// 修正right的计算，确保不会超出slice的长度
-	if right > length {
-		right = length
-	}
-
-	// 如果left超出length，返回空切片
-	if left >= length {
-		return []models.StarBack{}
-	}
-	return starback[left:right]
-}
-
-// StarByGrade 把表中数据以年级分开
-func StarByGrade(usernamesli []string, year int) ([]string, error) {
-	var gradeusersli []string
-	for _, username := range usernamesli {
-		plus, err := mysql.SelPlus(username)
-		if err != nil {
-			fmt.Println("StarGrade SelPlus err", err)
-			return nil, err
-		}
-		grade := timeConverter.GetUserGrade(plus)
-		if grade == year {
-			gradeusersli = append(gradeusersli, username)
-		}
-	}
-	return gradeusersli, nil
 }
 
 func StarGuidGrade(year int, page, limit int) ([]string, int64, error) {

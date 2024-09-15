@@ -207,11 +207,15 @@ func QLogin(c *gin.Context) {
 		fmt.Println("HLogin SelId err")
 		return
 	}
+	//前端转化class为数组
+	str := []string{
+		class,
+	}
 	slice := map[string]any{
 		"username":  user.Username,
 		"token":     tokenString,
 		"role":      role,
-		"class":     class,
+		"class":     str,
 		"grade":     grade,
 		"ifTeacher": ifTeacher,
 	}
