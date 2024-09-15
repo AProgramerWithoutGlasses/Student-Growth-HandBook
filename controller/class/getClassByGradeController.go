@@ -3,7 +3,6 @@ package class
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
 )
@@ -19,7 +18,7 @@ func GetClassByGradeControl(c *gin.Context) {
 
 	// 接收
 	input := struct {
-		Grade string `json:"grade"`
+		Grade int `json:"grade"`
 	}{}
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
@@ -37,7 +36,7 @@ func GetClassByGradeControl(c *gin.Context) {
 	}
 
 	output := struct {
-		GradeList []jrx_model.Class2 `json:"grade_list"`
+		GradeList []string `json:"grade_list"`
 	}{
 		GradeList: classList,
 	}
