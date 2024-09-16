@@ -731,10 +731,27 @@ func QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, s
 
 // QueryUserAndArticleByAdvancedFilter 用户-文章关联表 - 高级筛选
 func QueryUserAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, order, name string, grade int, class []string, isBan bool, page, limit int) ([]model.Article, error) {
-	query, err := QueryArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, order, isBan)
-	if err != nil {
-		zap.L().Error("QueryUserAndArticleByAdvancedFilter() service.article.QueryArticleByAdvancedFilter err=", zap.Error(err))
-		return nil, err
+	// 筛选
+	var query *gorm.DB
+	if startAt != "" && endAt != "" {
+		query = DB.Where("articles.created_at between ? and ? and topic like ? and content like ? and articles.ban = ?",
+			fmt.Sprintf("%s 00:00:00", startAt), fmt.Sprintf("%s 00:00:00", endAt), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
+	} else if startAt == "" && endAt != "" {
+		query = DB.Where("articles.created_at < ? and topic like ? and content like ? and articles.ban = ?",
+			fmt.Sprintf("%s 00:00:00", endAt), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
+	} else if startAt != "" && endAt == "" {
+		query = DB.Where("articles.created_at > ? and topic like ? and content like ? and articles.ban = ?",
+			fmt.Sprintf("%s 00:00:00", startAt), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
+	} else if startAt == "" && endAt == "" {
+		query = DB.Where("topic like ? and content like ? and articles.ban = ?",
+			fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", keyWords), isBan)
+	}
+
+	// 排序
+	query.Order(fmt.Sprintf("%s %s", sort, order))
+	if query.Error != nil {
+		zap.L().Error("QueryArticleByAdvancedFilter() service.article.Error err=", zap.Error(query.Error))
+		return nil, query.Error
 	}
 
 	year, err := timeConverter.GetEnrollmentYear(grade)
