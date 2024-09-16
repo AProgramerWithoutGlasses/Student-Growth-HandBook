@@ -1,6 +1,7 @@
 package message
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
@@ -39,6 +40,7 @@ func GetUnreadReportsForService(username, role string, limit, page int) (reports
 
 // GetUnreadRoportNumForService 获取未读举报信息的数目
 func GetUnreadRoportNumForService(username, role string) (count int, err error) {
+	fmt.Println(role)
 	switch role {
 	case "class":
 		count, err = mysql.GetUnreadReportNumForClass(username)
