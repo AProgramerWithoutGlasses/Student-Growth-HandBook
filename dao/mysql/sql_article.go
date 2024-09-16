@@ -721,7 +721,7 @@ func QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, s
 	}
 
 	// 排序
-	query.Order(fmt.Sprintf("%s %s", sort, order))
+	query.Order(fmt.Sprintf("articles.%s %s", sort, order))
 	if query.Error != nil {
 		zap.L().Error("QueryArticleByAdvancedFilter() service.article.Error err=", zap.Error(err))
 		return nil, err
@@ -782,7 +782,7 @@ func QueryClassGoodArticles(grade int, startAt, endAt, topic, keyWords, sort, or
 	}
 
 	year, err := timeConverter.GetEnrollmentYear(grade)
-	if err = query.Where("articles.quality = ?", constant.ClassArticle).
+	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").Where("quality = ?", constant.ClassArticle).
 		InnerJoins("User").Where("users.plus_time BETWEEN ? AND ? AND name LIKE ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), fmt.Sprintf("%%%s%%", name)).
 		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
@@ -801,7 +801,7 @@ func QueryGradeGoodArticles(page, limit int, startAt, endAt, topic, keyWords, so
 		return nil, err
 	}
 
-	if err = query.Where("articles.quality = ?", constant.GradeArticle).
+	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").Where("quality = ?", constant.GradeArticle).
 		InnerJoins("User").Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).
 		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
@@ -820,7 +820,7 @@ func QueryClassGoodArticleNum(grade int) (int, error) {
 		return -1, err
 	}
 	var count int64
-	if err := DB.Model(&model.Article{}).Where("quality = ? AND plus_time BETWEEN ? AND ?	", constant.ClassArticle, fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Count(&count).Error; err != nil {
+	if err = DB.Model(&model.Article{}).Where("quality = ? AND plus_time BETWEEN ? AND ?	", constant.ClassArticle, fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Count(&count).Error; err != nil {
 		zap.L().Error("QueryClassGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
 		return -1, err
 	}
