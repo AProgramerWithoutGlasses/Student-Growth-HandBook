@@ -488,7 +488,9 @@ func BackStarClass(c *gin.Context) {
 			return
 		}
 	}
-
+	if starList == nil {
+		starList = []models.StarStu{}
+	}
 	data := map[string]any{
 		"starlist": starList,
 	}
@@ -525,7 +527,9 @@ func BackStarGrade(c *gin.Context) {
 			return
 		}
 	}
-
+	if starList == nil {
+		starList = []models.StarStu{}
+	}
 	data := map[string]any{
 		"starlist": starList,
 	}
@@ -561,6 +565,9 @@ func BackStarCollege(c *gin.Context) {
 			response.ResponseErrorWithMsg(c, 400, "未找到院级之星")
 			return
 		}
+	}
+	if starList == nil {
+		starList = []models.StarStu{}
 	}
 	data := map[string]any{
 		"starlist": starList,
