@@ -8,7 +8,6 @@ import (
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
 	readUtil "studentGrow/utils/readMessage"
-	"studentGrow/utils/timeConverter"
 	"studentGrow/utils/token"
 )
 
@@ -663,9 +662,10 @@ func GetGoodArticlesController(c *gin.Context) {
 			"upvote_amount":   at.LikeAmount,
 			"comment_amount":  at.CommentAmount,
 			"username":        at.User.Username,
-			"created_at":      timeConverter.IntervalConversion(at.CreatedAt),
+			"created_at":      at.CreatedAt,
 			"collect_amount":  at.CollectAmount,
 			"article_quality": at.Quality,
+			"name":            at.User.Name,
 		})
 	}
 
