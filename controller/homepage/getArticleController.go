@@ -8,14 +8,14 @@ import (
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	token2 "studentGrow/utils/token"
 )
 
 func GetArticleControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Page  int `form:"page"`
-		Limit int `form:"limit"`
+		Page     int    `form:"page"`
+		Limit    int    `form:"limit"`
+		Username string `form:"username"`
 	}{}
 	err := c.ShouldBindQuery(&input)
 	if err != nil {
@@ -24,16 +24,8 @@ func GetArticleControl(c *gin.Context) {
 		return
 	}
 
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
-		return
-	}
-
 	// 业务
-	articleList, err := service.GetArticleService(input.Page, input.Limit, username)
+	articleList, err := service.GetArticleService(input.Page, input.Limit, input.Username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 
