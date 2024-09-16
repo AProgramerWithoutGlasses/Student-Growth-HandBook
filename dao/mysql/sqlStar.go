@@ -282,7 +282,7 @@ func SelTimeStar(starTime, endTime string, starType int, page int, limit int) ([
 		page = 1 // 将页码设置为第一页
 		limit = 10
 	}
-	err = DB.Model(&gorm_model.Star{}).Where("type = ?", starType).Where("created_at BETWEEN ? AND ?", start, end).Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&username).Error
+	err = DB.Model(&gorm_model.Star{}).Where("session <> ?", 0).Where("type = ?", starType).Where("created_at BETWEEN ? AND ?", start, end).Offset((page - 1) * limit).Limit(limit).Select("username").Scan(&username).Error
 	if err != nil {
 		return nil, err
 	}
@@ -293,7 +293,7 @@ func SelTimeStar(starTime, endTime string, starType int, page int, limit int) ([
 func SelTime() (string, string, error) {
 	var maxTime time.Time
 	var minTime time.Time
-	err := DB.Model(&gorm_model.Star{}).Select("MAX(created_at)").Scan(&maxTime).Error
+	err := DB.Model(&gorm_model.Star{}).Where("session <> ?", 0).Select("MAX(created_at)").Scan(&maxTime).Error
 	err = DB.Model(&gorm_model.Star{}).Select("MIN(created_at)").Scan(&minTime).Error
 	if err != nil {
 		return "", "", err
