@@ -203,15 +203,30 @@ func GetUnreadReportNumForSuperman() (int, error) {
 
 // AckUnreadReportsForClass 确认未读举报信息 - 班级
 func AckUnreadReportsForClass(reportsId int, username string) error {
-	// 通过username获取管理员
+	// 检查权限(查看所确认文章是否是该班级的文章)
 	user, err := GetUserByUsername(username)
 	if err != nil {
+		zap.L().Error("GetUnreadReportsForClass() dao.mysql.sql_msg.GetUserByUsername err=", zap.Error(err))
+		return err
+	}
+	// 查询该班级的所有成员id
+	var uids []int64
+	if err = DB.Model(&gorm_model.User{}).Where("class = ?", user.Class).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("GetUnreadReportsForClass() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return err
+	}
+	var count int64
+	if err = DB.Model(&gorm_model.Article{}).Where("ban = ? AND user_id IN ?", false, uids).Count(&count).Error; err != nil {
+		zap.L().Error("GetUnreadReportsForClass() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
 		return err
 	}
 
+	if count <= 0 {
+		return myErr.OverstepCompetence
+	}
+
 	// 修改举报信息读取状态为已读
-	result := DB.Preload("User", "class = ?", user.Class).
-		Where("article_id = ?", reportsId).
+	result := DB.Where("article_id = ?", reportsId).
 		Updates(gorm_model.UserReportArticleRecord{IsRead: true})
 
 	if result.Error != nil {
@@ -231,10 +246,25 @@ func AckUnreadReportsForGrade(reportsId int, grade int) error {
 		return err
 	}
 
+	// 检查权限(查看所确认文章是否是该年级的文章)
+	// 查询该年级的所有成员id
+	var uids []int64
+	if err = DB.Model(&gorm_model.User{}).Where("plus_time between ? and ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("GetUnreadReportsForClass() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return err
+	}
+	var count int64
+	if err = DB.Model(&gorm_model.Article{}).Where("ban = ? AND user_id IN ?", false, uids).Count(&count).Error; err != nil {
+		zap.L().Error("GetUnreadReportsForClass() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return err
+	}
+
+	if count <= 0 {
+		return myErr.OverstepCompetence
+	}
+
 	// 修改举报信息读取状态为已读
-	result := DB.Preload("User", "plus_time between ? and ?",
-		fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).
-		Where("article_id = ?", reportsId).
+	result := DB.Where("article_id = ?", reportsId).
 		Updates(gorm_model.UserReportArticleRecord{IsRead: true})
 
 	if result.Error != nil {
@@ -248,8 +278,7 @@ func AckUnreadReportsForGrade(reportsId int, grade int) error {
 // AckUnreadReportsForSuperman 确认未读举报信息 - 超级(院级)
 func AckUnreadReportsForSuperman(reportsId int) error {
 	// 修改举报信息读取状态为已读
-	result := DB.Preload("User").
-		Where("article_id = ?", reportsId).
+	result := DB.Where("article_id = ?", reportsId).
 		Updates(gorm_model.UserReportArticleRecord{IsRead: true})
 
 	if result.Error != nil {
