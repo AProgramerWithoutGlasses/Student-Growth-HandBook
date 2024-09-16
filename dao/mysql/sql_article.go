@@ -820,7 +820,7 @@ func QueryClassGoodArticleNum(grade int) (int, error) {
 		return -1, err
 	}
 	var count int64
-	if err = DB.Model(&model.Article{}).Where("quality = ? AND plus_time BETWEEN ? AND ?	", constant.ClassArticle, fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Count(&count).Error; err != nil {
+	if err = DB.Model(&model.Article{}).Where("quality = ? AND plus_time BETWEEN ? AND ? AND ban = ?", constant.ClassArticle, fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), false).Count(&count).Error; err != nil {
 		zap.L().Error("QueryClassGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
 		return -1, err
 	}
@@ -830,7 +830,7 @@ func QueryClassGoodArticleNum(grade int) (int, error) {
 // QueryGradeGoodArticleNum 查询年级优秀帖子总数
 func QueryGradeGoodArticleNum() (int, error) {
 	var count int64
-	if err := DB.Model(&model.Article{}).Where("quality = ?", constant.GradeArticle).Count(&count).Error; err != nil {
+	if err := DB.Model(&model.Article{}).Where("quality = ? AND ban = ?", constant.GradeArticle, false).Count(&count).Error; err != nil {
 		zap.L().Error("QueryGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
 		return -1, err
 	}
