@@ -87,7 +87,6 @@ func AckUnreadReportsService(reportId int, username string, role string) (err er
 	default:
 		return myErr.DataFormatError()
 	}
-
 	if err != nil {
 		zap.L().Error("AckUnreadReportsService() service.article.GetUnreadReports err=", zap.Error(err))
 		return err
