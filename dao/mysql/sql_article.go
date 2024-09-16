@@ -743,10 +743,10 @@ func QueryUserAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, 
 		return nil, err
 	}
 	var articles []model.Article
-	if err := query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").InnerJoins("User").
+	if err = query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").InnerJoins("User").
 		Where("plus_time BETWEEN ? AND ? AND class IN ? AND name LIKE ?",
 			fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), class, fmt.Sprintf("%%%s%%", name)).
-		Offset((page - 1) * limit).
+		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
 		zap.L().Error("QueryUserAndArticleByAdvancedFilter() dao.mysql.sql_user_nzx err=", zap.Error(err))
 		return nil, err
@@ -766,7 +766,7 @@ func QueryClassGoodArticles(grade int, startAt, endAt, topic, keyWords, sort, or
 	year, err := timeConverter.GetEnrollmentYear(grade)
 	if err = query.Where("articles.quality = ?", constant.ClassArticle).
 		InnerJoins("User").Where("users.plus_time BETWEEN ? AND ? AND name LIKE ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), fmt.Sprintf("%%%s%%", name)).
-		Offset((page - 1) * limit).
+		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
 		zap.L().Error("QueryClassGoodArticles() dao.mysql.sql_user_nzx.Find err=", zap.Error(err))
 		return nil, err
@@ -785,7 +785,7 @@ func QueryGradeGoodArticles(page, limit int, startAt, endAt, topic, keyWords, so
 
 	if err = query.Where("articles.quality = ?", constant.GradeArticle).
 		InnerJoins("User").Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).
-		Offset((page - 1) * limit).
+		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
 		zap.L().Error("QueryGoodArticlesForClass() dao.mysql.sql_user_nzx.Find err=", zap.Error(err))
 		return nil, err
