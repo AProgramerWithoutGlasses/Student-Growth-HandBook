@@ -663,12 +663,12 @@ func UpdateArticleQualityForGrade(grade, aid, quality int) error {
 	}
 
 	var uids []int
-	if err := DB.Model(&model.User{}).Where("plus_time BETWEEN ? AND ?", fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).Pluck("id", &uids).Error; err != nil {
+	if err := DB.Model(&model.User{}).Where("plus_time BETWEEN ? AND ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Pluck("id", &uids).Error; err != nil {
 		zap.L().Error("UpdateArticleQualityForGrade() dao.mysql.sql_article.Pluck", zap.Error(err))
 		return err
 	}
 
-	if err := DB.Model(&model.Article{}).Where("user_id IN ? AND aid = ?", uids, aid).Update("quality", quality).Error; err != nil {
+	if err := DB.Model(&model.Article{}).Where("user_id IN ? AND id = ?", uids, aid).Update("quality", quality).Error; err != nil {
 		zap.L().Error("UpdateArticleQualityForGrade() dao.mysql.sql_article.Update", zap.Error(err))
 		return err
 	}
