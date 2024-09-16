@@ -677,7 +677,7 @@ func UpdateArticleQualityForGrade(grade, aid, quality int) error {
 
 // UpdateArticleQualityForSuperMan 修改文章质量等级 - 超级(院级)
 func UpdateArticleQualityForSuperMan(aid, quality int) error {
-	if err := DB.Model(&model.Article{}).Where("aid = ?", aid).Update("quality", quality).Error; err != nil {
+	if err := DB.Model(&model.Article{}).Where("id = ?", aid).Update("quality", quality).Error; err != nil {
 		zap.L().Error("UpdateArticleQualityForSuperMan() dao.mysql.sql_article.Update", zap.Error(err))
 		return err
 	}
