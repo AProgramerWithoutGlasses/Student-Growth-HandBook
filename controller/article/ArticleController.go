@@ -633,14 +633,19 @@ func GetGoodArticlesController(c *gin.Context) {
 		Name     string `json:"name"`
 	}{}
 
-	// 获取角色身份
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("GetGoodArticlesController() controller.article.QueryGoodArticlesByRoleService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
 	role, err := token.GetRole(c.GetHeader("token"))
 	if err != nil {
 		zap.L().Error("GetGoodArticlesController() controller.article.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
-
 	// 查询优秀帖子
 	articles, count, err := article.QueryGoodArticlesByRoleService(role, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Sort, in.Order, in.Name, in.Page, in.Limit)
 	if err != nil {
