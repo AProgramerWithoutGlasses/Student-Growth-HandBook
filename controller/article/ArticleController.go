@@ -164,6 +164,7 @@ func GetArticleListController(c *gin.Context) {
 	res.ResponseSuccess(c, map[string]any{
 		"list":           list,
 		"article_amount": articleAmount,
+		"role":           role,
 	})
 }
 
