@@ -673,5 +673,6 @@ func GetGoodArticlesController(c *gin.Context) {
 	res.ResponseSuccess(c, map[string]any{
 		"list":           list,
 		"article_amount": count,
+		"role":           role,
 	})
 }

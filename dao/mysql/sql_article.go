@@ -792,7 +792,7 @@ func QueryClassGoodArticles(grade int, startAt, endAt, topic, keyWords, sort, or
 	return articles, nil
 }
 
-// QueryGradeGoodArticles 分页查询年级及班级优秀帖子
+// QueryGradeGoodArticles 分页查询年级优秀帖子
 func QueryGradeGoodArticles(page, limit int, startAt, endAt, topic, keyWords, sort, order, name string) ([]model.Article, error) {
 	var articles []model.Article
 	query, err := QueryArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, order, false)
@@ -801,7 +801,7 @@ func QueryGradeGoodArticles(page, limit int, startAt, endAt, topic, keyWords, so
 		return nil, err
 	}
 
-	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").Where("quality <= ?", constant.GradeArticle).
+	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").Where("quality = ?", constant.GradeArticle).
 		InnerJoins("User").Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).
 		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
@@ -813,7 +813,6 @@ func QueryGradeGoodArticles(page, limit int, startAt, endAt, topic, keyWords, so
 
 // QueryClassGoodArticleNum 查询班级优秀帖子总数-根据年级管理员身份
 func QueryClassGoodArticleNum(grade int) (int, error) {
-
 	year, err := timeConverter.GetEnrollmentYear(grade)
 	if err != nil {
 		zap.L().Error("QueryClassGoodArticleNum() dao.mysql.sql_user_nzx.Find err=", zap.Error(err))
