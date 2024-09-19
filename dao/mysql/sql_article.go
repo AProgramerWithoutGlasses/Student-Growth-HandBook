@@ -799,7 +799,7 @@ func QueryGradeGoodArticles(page, limit int, startAt, endAt, topic, keyWords, so
 		return nil, err
 	}
 
-	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").Where("quality = ?", constant.GradeArticle).
+	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").Where("quality >= ?", constant.GradeArticle).
 		InnerJoins("User").Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).
 		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
@@ -827,7 +827,7 @@ func QueryClassGoodArticleNum(grade int) (int, error) {
 // QueryGradeGoodArticleNum 查询年级优秀帖子总数
 func QueryGradeGoodArticleNum() (int, error) {
 	var count int64
-	if err := DB.Model(&model.Article{}).Where("quality = ? AND ban = ?", constant.GradeArticle, false).Count(&count).Error; err != nil {
+	if err := DB.Model(&model.Article{}).Where("quality >= ? AND ban = ?", constant.GradeArticle, false).Count(&count).Error; err != nil {
 		zap.L().Error("QueryGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
 		return -1, err
 	}
