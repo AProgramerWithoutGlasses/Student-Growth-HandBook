@@ -85,9 +85,7 @@ func QueryArticleAndUserListByPageForClass(page, limit int, sort, order, startAt
 	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
 
 	var articles []model.Article
-	if err := query.
-		Select("articles.id, articles.content, articles.ban, articles.like_amount, articles.comment_amount, articles.created_at, articles.collect_amount, articles.quality, users.username, users.name, users.user_headshot").
-		InnerJoins("User").Where("name like ? and class = ?", fmt.Sprintf("%%%s%%", name), class).Preload("ArticleTags.Tag").
+	if err = query.InnerJoins("User").Where("name like ? and class = ?", fmt.Sprintf("%%%s%%", name), class).Preload("ArticleTags.Tag").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("QueryArticleAndUserListByPageForClass() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
@@ -108,7 +106,7 @@ func QueryArticleAndUserListByPageForGrade(page, limit int, sort, order, startAt
 	}
 
 	var articles []model.Article
-	if err := query.InnerJoins("User").Where("name like ? and plus_time BETWEEN ? AND ?", fmt.Sprintf("%%%s%%", name), fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Preload("ArticleTags.Tag").
+	if err = query.InnerJoins("User").Where("name like ? and plus_time BETWEEN ? AND ?", fmt.Sprintf("%%%s%%", name), fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).Preload("ArticleTags.Tag").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
@@ -122,7 +120,7 @@ func QueryArticleAndUserListByPageForSuperman(page, limit int, sort, order, star
 	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
 
 	var articles []model.Article
-	if err := query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
+	if err = query.InnerJoins("User").Where("name like ?", fmt.Sprintf("%%%s%%", name)).Preload("ArticleTags.Tag").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
 		zap.L().Error("SelectArticleAndUserListByPage() dao.mysql.sql_nzx.Find err=", zap.Error(err))
 		return nil, err
@@ -172,7 +170,7 @@ func BannedArticleByIdForClass(articleId int, isBan bool, username string, db *g
 
 	// 查询待封禁的文章;若查询不到，则返回
 	article := model.Article{}
-	if err := DB.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
+	if err := DB.InnerJoins("User").Where("class = ?", user.Class).Where("articles.id = ?", articleId).First(&article).Error; err != nil {
 		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return myErr.OverstepCompetence
 	}
@@ -197,15 +195,15 @@ func BannedArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 
 	// 获取需要被封禁的文章；若找不到则返回
 	article := model.Article{}
-	if err = DB.Preload("User", "plus_time between ? and ?",
-		fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year())).
-		Where("id = ?", articleId).First(&article).Error; err != nil {
+	if err = DB.InnerJoins("User").Where("plus_time between ? and ?",
+		fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).
+		Where("articles.id = ?", articleId).First(&article).Error; err != nil {
 		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return myErr.OverstepCompetence
 	}
 
 	// 修改文章状态
-	if err := db.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
+	if err = db.Model(&model.Article{}).Where("id = ?", articleId).Updates(model.Article{Ban: true}).Error; err != nil {
 		zap.L().Error("BannedArticleByIdForClass() dao.mysql.sql_nzx.Updates err=", zap.Error(err))
 		return err
 	}
