@@ -165,7 +165,7 @@ func DeleteCommentService(cid int, username string) error {
 				return result.Error
 			}
 			// 删除父级评论
-			if err := db.Delete(&comment).Error; err != nil {
+			if err = db.Delete(&comment).Error; err != nil {
 				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Delete err=", zap.Error(err))
 				return err
 			}
@@ -184,7 +184,7 @@ func DeleteCommentService(cid int, username string) error {
 
 		} else {
 			// 若为二级评论
-			if err := mysql.DB.Where("id = ?", comment.ID).Delete(&gorm_model.Comment{}).Error; err != nil {
+			if err = mysql.DB.Where("id = ?", comment.ID).Delete(&gorm_model.Comment{}).Error; err != nil {
 				zap.L().Error("DeleteComment() dao.mysql.nzx_sql.Delete err=", zap.Error(err))
 				return err
 			}
