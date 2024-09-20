@@ -374,23 +374,32 @@ func GetHistoryByArticleDao(id int, page int, limit int) ([]jrx_model.HomepageAr
 	// 获取该用户阅读过的文章的id
 	var articleIds []int
 	err := DB.Model(&gorm_model.UserReadRecord{}).
+		Select("article_id").
 		Where("user_id = ?", id).
+		Group("article_id").
+		Order("MAX(created_at) DESC"). // 根据你的表结构调整排序字段
 		Pluck("article_id", &articleIds).Error
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("articleIds: ", articleIds)
+
+	// 将 articleIds 转换为逗号分隔的字符串
+	articleIdsStr := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(articleIds)), ","), "[]")
+
 	// 获取这些文章id的文章信息以及文章发布者的信息  	// 多表查询
 	var homepageArticleHistoryList []jrx_model.HomepageArticleHistoryStruct
-	err = DB.Model(&gorm_model.Article{}).
-		Select("articles.id, articles.content, article_pics.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name").
-		Joins("LEFT JOIN users ON articles.user_id = users.id").
-		Joins("LEFT JOIN article_pics ON article_pics.article_id = articles.id").
-		Where("articles.id IN (?)", articleIds).
-		Order("articles.created_at DESC").
-		Offset((page - 1) * limit).
-		Limit(limit).
-		Scan(&homepageArticleHistoryList).Error
+	query := `
+    SELECT articles.id, articles.content, article_pics.pic, articles.comment_amount, articles.like_amount, users.head_shot, users.name
+    FROM articles
+    LEFT JOIN users ON articles.user_id = users.id
+    LEFT JOIN article_pics ON article_pics.article_id = articles.id
+    WHERE articles.id IN (?)
+    ORDER BY FIND_IN_SET(articles.id, ?)
+    LIMIT ? OFFSET ?
+`
+	err = DB.Raw(query, articleIds, articleIdsStr, limit, (page-1)*limit).Scan(&homepageArticleHistoryList).Error
 
 	if err != nil {
 		return nil, err
