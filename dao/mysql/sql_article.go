@@ -902,7 +902,8 @@ func QueryClassGoodArticleNum(grade int, startAt, endAt, topic, keyWords, sort, 
 	}
 
 	var count int64
-	if err = query.Model(&model.Article{}).InnerJoins("User").Where("plus_time BETWEEN ? AND ? AND name LIKE ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%%%s%%", name)).Where("quality = ? AND ban = ?", constant.ClassArticle, false).Count(&count).Error; err != nil {
+	if err = query.Model(&model.Article{}).InnerJoins("User").Where("plus_time BETWEEN ? AND ? AND name LIKE ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%%%s%%", name)).
+		Where("quality = ?", constant.ClassArticle).Count(&count).Error; err != nil {
 		zap.L().Error("QueryClassGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
 		return -1, err
 	}
@@ -919,7 +920,8 @@ func QueryGradeGoodArticleNum(startAt, endAt, topic, keyWords, sort, order, name
 	}
 
 	var count int64
-	if err = query.Model(&model.Article{}).InnerJoins("User").Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).Where("quality >= ?", constant.GradeArticle).Count(&count).Error; err != nil {
+	if err = query.Model(&model.Article{}).InnerJoins("User").Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).
+		Where("quality >= ?", constant.GradeArticle).Count(&count).Error; err != nil {
 		zap.L().Error("QueryGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
 		return -1, err
 	}
@@ -934,7 +936,8 @@ func QueryArticlesByClass(page, limit int, startAt, endAt, topic, keyWords, sort
 		return nil, err
 	}
 
-	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").Where("quality = ?", constant.CommonArticle).
+	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").
+		Where("quality = ?", constant.CommonArticle).
 		InnerJoins("User").Where("name LIKE ? AND class = ?", fmt.Sprintf("%%%s%%", name), class).
 		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
