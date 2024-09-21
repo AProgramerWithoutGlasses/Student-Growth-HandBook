@@ -115,10 +115,7 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 }
 
 // GetArticleListService 后台获取文章列表
-func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, role, username string) ([]model.Article, int, error) {
-
-	var result []model.Article
-	var err error
+func GetArticleListService(page, limit int, sortType, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, role, username string) (articles []model.Article, count int, err error) {
 	user, err := mysql.GetUserByUsername(username)
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.GetUserByUsername err=", zap.Error(err))
@@ -128,33 +125,33 @@ func GetArticleListService(page, limit int, sortType, order, startAtString, endA
 	switch role {
 	case "class":
 		// 查询该用户班级
-		result, err = mysql.QueryArticleAndUserListByPageForClass(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, user.Class)
+		articles, err = mysql.QueryArticleAndUserListByPageForClass(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, user.Class)
+		count, err = mysql.QueryArticleNumByPageForClass(sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, user.Class)
 	case "grade1":
-		result, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 1)
+		articles, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 1)
+		count, err = mysql.QueryArticleNumByPageForGrade(sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 1)
 	case "grade2":
-		result, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 2)
+		articles, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 2)
+		count, err = mysql.QueryArticleNumByPageForGrade(sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 2)
 	case "grade3":
-		result, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 3)
+		articles, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 3)
+		count, err = mysql.QueryArticleNumByPageForGrade(sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 3)
 	case "grade4":
-		result, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 4)
+		articles, err = mysql.QueryArticleAndUserListByPageForGrade(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 4)
+		count, err = mysql.QueryArticleNumByPageForGrade(sortType, order, startAtString, endAtString, topic, keyWords, name, isBan, 4)
 	case "college":
-		result, err = mysql.QueryArticleAndUserListByPageForSuperman(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
+		articles, err = mysql.QueryArticleAndUserListByPageForSuperman(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
+		count, err = mysql.QueryArticleNumByPageForSuperman(sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
 	case "superman":
-		result, err = mysql.QueryArticleAndUserListByPageForSuperman(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
+		articles, err = mysql.QueryArticleAndUserListByPageForSuperman(page, limit, sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
+		count, err = mysql.QueryArticleNumByPageForSuperman(sortType, order, startAtString, endAtString, topic, keyWords, name, isBan)
 	}
 
 	if err != nil {
 		zap.L().Error("GetArticleListService() service.article.SelectArticleAndUserListByPage err=", zap.Error(err))
 		return nil, -1, err
 	}
-
-	// 查询文章总数
-	articleAmount, err := mysql.QueryArticleNum()
-	if err != nil {
-		zap.L().Error("GetArticleListService() service.article.QueryArticleNum err=", zap.Error(err))
-		return nil, -1, err
-	}
-	return result, articleAmount, nil
+	return articles, count, nil
 }
 
 // BannedArticleService 解封或封禁文章
@@ -874,39 +871,40 @@ func SelectGoodArticleService(articleId, quality int, role, username string) (er
 }
 
 // QueryGoodArticlesByRoleService 根据管理员身份查询对应的优秀帖子
-func QueryGoodArticlesByRoleService(role, startAt, endAt, topic, keyWords, sortField, order, name string, page, limit int) (articles []model.Article, count int, err error) {
+func QueryGoodArticlesByRoleService(role, startAt, endAt, topic, keyWords, sortField, order, name, username string, page, limit int) (articles []model.Article, count int, err error) {
 	grade := -1
 	switch role {
+	case "class":
+		// 获取班级
+		var class string
+		class, err = mysql.QueryClassByUsername(username)
+		articles, err = mysql.QueryArticlesByClass(page, limit, startAt, endAt, topic, keyWords, sortField, order, name, class)
+		count, err = mysql.QueryClassCommonArticleNum(startAt, endAt, topic, keyWords, sortField, order, name, class)
 	case "grade1":
 		grade = 1
 		articles, err = mysql.QueryClassGoodArticles(1, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
+		count, err = mysql.QueryClassGoodArticleNum(grade, startAt, endAt, topic, keyWords, sortField, order, name)
 	case "grade2":
 		grade = 2
 		articles, err = mysql.QueryClassGoodArticles(2, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
+		count, err = mysql.QueryClassGoodArticleNum(grade, startAt, endAt, topic, keyWords, sortField, order, name)
 	case "grade3":
 		grade = 3
 		articles, err = mysql.QueryClassGoodArticles(3, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
+		count, err = mysql.QueryClassGoodArticleNum(grade, startAt, endAt, topic, keyWords, sortField, order, name)
 	case "grade4":
 		grade = 4
 		articles, err = mysql.QueryClassGoodArticles(4, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
+		count, err = mysql.QueryClassGoodArticleNum(grade, startAt, endAt, topic, keyWords, sortField, order, name)
 	case "college":
 		articles, err = mysql.QueryGradeGoodArticles(page, limit, startAt, endAt, topic, keyWords, sortField, order, name)
+		count, err = mysql.QueryGradeGoodArticleNum(startAt, endAt, topic, keyWords, sortField, order, name)
 	case "superman":
 		articles, err = mysql.QueryGradeGoodArticles(page, limit, startAt, endAt, topic, keyWords, sortField, order, name)
+		count, err = mysql.QueryGradeGoodArticleNum(startAt, endAt, topic, keyWords, sortField, order, name)
 	}
 	if err != nil {
 		zap.L().Error("QueryGoodArticlesByRoleService() service.article.QueryGradeGoodArticles err=", zap.Error(err))
-		return nil, -1, err
-	}
-	// 若不为年级管理员(即院级或超级)
-	if grade == -1 {
-		count, err = mysql.QueryGradeGoodArticleNum()
-	} else {
-		count, err = mysql.QueryClassGoodArticleNum(grade)
-	}
-
-	if err != nil {
-		zap.L().Error("QueryGoodArticlesByRoleService() service.article.QueryGradeGoodArticleNum err=", zap.Error(err))
 		return nil, -1, err
 	}
 

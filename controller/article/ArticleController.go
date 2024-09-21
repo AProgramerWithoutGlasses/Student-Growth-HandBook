@@ -164,6 +164,7 @@ func GetArticleListController(c *gin.Context) {
 	res.ResponseSuccess(c, map[string]any{
 		"list":           list,
 		"article_amount": articleAmount,
+		"role":           role,
 	})
 }
 
@@ -645,8 +646,15 @@ func GetGoodArticlesController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
+
+	username, err := token.GetUsername(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("GetGoodArticlesController() controller.article.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 	// 查询优秀帖子
-	articles, count, err := article.QueryGoodArticlesByRoleService(role, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Sort, in.Order, in.Name, in.Page, in.Limit)
+	articles, count, err := article.QueryGoodArticlesByRoleService(role, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Sort, in.Order, in.Name, username, in.Page, in.Limit)
 	if err != nil {
 		zap.L().Error("GetGoodArticlesController() controller.article.QueryGoodArticlesByRoleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -672,5 +680,6 @@ func GetGoodArticlesController(c *gin.Context) {
 	res.ResponseSuccess(c, map[string]any{
 		"list":           list,
 		"article_amount": count,
+		"role":           role,
 	})
 }
