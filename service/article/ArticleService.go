@@ -881,29 +881,29 @@ func QueryGoodArticlesByRoleService(role, startAt, endAt, topic, keyWords, sortF
 		var class string
 		class, err = mysql.QueryClassByUsername(username)
 		articles, err = mysql.QueryArticlesByClass(page, limit, startAt, endAt, topic, keyWords, sortField, order, name, class)
-		count, err = mysql.QueryClassCommonArticleNum(class)
+		count, err = mysql.QueryClassCommonArticleNum(startAt, endAt, topic, keyWords, sortField, order, name, class)
 	case "grade1":
 		grade = 1
 		articles, err = mysql.QueryClassGoodArticles(1, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
-		count, err = mysql.QueryClassGoodArticleNum(grade)
+		count, err = mysql.QueryClassGoodArticleNum(grade, startAt, endAt, topic, keyWords, sortField, order, name)
 	case "grade2":
 		grade = 2
 		articles, err = mysql.QueryClassGoodArticles(2, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
-		count, err = mysql.QueryClassGoodArticleNum(grade)
+		count, err = mysql.QueryClassGoodArticleNum(grade, startAt, endAt, topic, keyWords, sortField, order, name)
 	case "grade3":
 		grade = 3
 		articles, err = mysql.QueryClassGoodArticles(3, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
-		count, err = mysql.QueryClassGoodArticleNum(grade)
+		count, err = mysql.QueryClassGoodArticleNum(grade, startAt, endAt, topic, keyWords, sortField, order, name)
 	case "grade4":
 		grade = 4
 		articles, err = mysql.QueryClassGoodArticles(4, startAt, endAt, topic, keyWords, sortField, order, name, page, limit)
-		count, err = mysql.QueryClassGoodArticleNum(grade)
+		count, err = mysql.QueryClassGoodArticleNum(grade, startAt, endAt, topic, keyWords, sortField, order, name)
 	case "college":
 		articles, err = mysql.QueryGradeGoodArticles(page, limit, startAt, endAt, topic, keyWords, sortField, order, name)
-		count, err = mysql.QueryGradeGoodArticleNum()
+		count, err = mysql.QueryGradeGoodArticleNum(startAt, endAt, topic, keyWords, sortField, order, name)
 	case "superman":
 		articles, err = mysql.QueryGradeGoodArticles(page, limit, startAt, endAt, topic, keyWords, sortField, order, name)
-		count, err = mysql.QueryGradeGoodArticleNum()
+		count, err = mysql.QueryGradeGoodArticleNum(startAt, endAt, topic, keyWords, sortField, order, name)
 	}
 	if err != nil {
 		zap.L().Error("QueryGoodArticlesByRoleService() service.article.QueryGradeGoodArticles err=", zap.Error(err))
