@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"studentGrow/dao/mysql"
@@ -77,7 +78,12 @@ func ArticleDataClassRate(uidslice []int, nownumber int64) (float64, error) {
 	}
 	//计算比率
 	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(nownumber-allNumber)/float64(allNumber)), 64)
-	return rate * 100, err
+	if err != nil {
+		return 0, err
+	}
+	// 将rate乘以100并四舍五入到两位小数
+	roundedRate := math.Round(rate*100) / 100
+	return roundedRate, nil
 }
 
 // TodayVictor 查询今日访客数
@@ -98,7 +104,12 @@ func VictorRate(todayVictor int64) (float64, error) {
 		return 0, nil
 	}
 	rate, err := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(todayVictor-yesdayVictor)/float64(yesdayVictor)), 64)
-	return rate * 100, err
+	if err != nil {
+		return 0, err
+	}
+	// 将rate乘以100并四舍五入到两位小数
+	roundedRate := math.Round(rate*100) / 100
+	return roundedRate, nil
 }
 
 // LikeAmount 获取帖子总赞数
