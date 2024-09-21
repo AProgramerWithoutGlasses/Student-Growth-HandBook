@@ -833,3 +833,37 @@ func QueryGradeGoodArticleNum() (int, error) {
 	}
 	return int(count), nil
 }
+
+// QueryArticlesByClass 分页查询班级普通帖子
+func QueryArticlesByClass(page, limit int, startAt, endAt, topic, keyWords, sort, order, name, class string) (articles []model.Article, err error) {
+	query, err := QueryArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, order, false)
+	if err != nil {
+		zap.L().Error("QueryArticlesByClass() dao.mysql.sql_user_nzx.QueryArticleByAdvancedFilter err=", zap.Error(err))
+		return nil, err
+	}
+
+	if err = query.Select("articles.id, content, like_amount, comment_amount, articles.created_at, collect_amount, quality, head_shot, username, name").Where("quality = ?", constant.CommonArticle).
+		InnerJoins("User").Where("name LIKE ? AND class = ?", fmt.Sprintf("%%%s%%", name), class).
+		Offset((page - 1) * limit).Limit(limit).
+		Find(&articles).Error; err != nil {
+		zap.L().Error("QueryArticlesByClass() dao.mysql.sql_user_nzx.Find err=", zap.Error(err))
+		return nil, err
+	}
+	return articles, nil
+}
+
+// QueryClassCommonArticleNum 查询班级普通帖子总数
+func QueryClassCommonArticleNum(class string) (int, error) {
+	var count int64
+	var uids []int
+	if err := DB.Model(&model.User{}).Where("class = ?", class).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("QueryClassCommonArticleNum() dao.mysql.sql_user_nzx.Pluck err=", zap.Error(err))
+		return -1, err
+	}
+
+	if err := DB.Model(&model.Article{}).Where("quality = ? AND ban = ? AND user_id IN ?", constant.CommonArticle, false, uids).Count(&count).Error; err != nil {
+		zap.L().Error("QueryClassCommonArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
+		return -1, err
+	}
+	return int(count), nil
+}
