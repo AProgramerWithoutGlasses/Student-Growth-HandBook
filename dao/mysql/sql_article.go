@@ -83,7 +83,10 @@ func QueryArticleNumByDay(topic string, startOfDay time.Time, endOfDay time.Time
 // QueryArticleAndUserListByPageForClass 后台分页查询文章及用户列表并模糊查询 - 班级
 func QueryArticleAndUserListByPageForClass(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, class string) (result []model.Article, err error) {
 	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
-
+	if err != nil {
+		zap.L().Error("QueryArticleAndUserListByPageForClass() dao.mysql.sql_article.QueryArticleByAdvancedFilter err=", zap.Error(err))
+		return nil, err
+	}
 	var articles []model.Article
 	if err = query.InnerJoins("User").Where("name like ? and class = ?", fmt.Sprintf("%%%s%%", name), class).Preload("ArticleTags.Tag").
 		Limit(limit).Offset((page - 1) * limit).Find(&articles).Error; err != nil {
@@ -92,6 +95,29 @@ func QueryArticleAndUserListByPageForClass(page, limit int, sort, order, startAt
 	}
 
 	return articles, nil
+}
+
+// QueryArticleNumByPageForClass 后台分页查询文章及用户列表并模糊查询帖子总数 - 班级
+func QueryArticleNumByPageForClass(sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, class string) (int, error) {
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
+	if err != nil {
+		zap.L().Error("QueryArticleAndUserListByPageForClass() dao.mysql.sql_article.QueryArticleByAdvancedFilter err=", zap.Error(err))
+		return -1, err
+	}
+
+	var count int64
+	var uids []int
+	if err = DB.Model(&model.User{}).Where("class = ? AND name LIKE ?", class, fmt.Sprintf("%%%s%%", name)).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("QueryClassCommonArticleNum() dao.mysql.sql_user_nzx.Pluck err=", zap.Error(err))
+		return -1, err
+	}
+
+	if err = query.Model(&model.Article{}).Where("user_id IN ?", uids).Count(&count).Error; err != nil {
+		zap.L().Error("QueryClassCommonArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
+		return -1, err
+	}
+
+	return int(count), nil
 }
 
 // QueryArticleAndUserListByPageForGrade 后台分页查询文章及用户列表并模糊查询 - 年级
@@ -115,6 +141,35 @@ func QueryArticleAndUserListByPageForGrade(page, limit int, sort, order, startAt
 	return articles, nil
 }
 
+// QueryArticleNumByPageForGrade 后台分页查询文章及用户列表并模糊查询帖子总数 - 年级
+func QueryArticleNumByPageForGrade(sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool, grade int) (int, error) {
+	year, err := timeConverter.GetEnrollmentYear(grade)
+	if err != nil {
+		zap.L().Error("QueryClassGoodArticleNum() dao.mysql.sql_user_nzx.Find err=", zap.Error(err))
+		return -1, err
+	}
+
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
+	if err != nil {
+		zap.L().Error("QueryArticleAndUserListByPageForClass() dao.mysql.sql_article.QueryArticleByAdvancedFilter err=", zap.Error(err))
+		return -1, err
+	}
+
+	var count int64
+	var uids []int
+	if err = DB.Model(&model.User{}).Where("plus_time BETWEEN ? AND ? AND name LIKE ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), fmt.Sprintf("%%%s%%", name)).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("QueryClassCommonArticleNum() dao.mysql.sql_user_nzx.Pluck err=", zap.Error(err))
+		return -1, err
+	}
+
+	if err = query.Model(&model.Article{}).Where("user_id IN ?", uids).Count(&count).Error; err != nil {
+		zap.L().Error("QueryClassCommonArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
+		return -1, err
+	}
+
+	return int(count), nil
+}
+
 // QueryArticleAndUserListByPageForSuperman 后台分页查询文章及用户列表并模糊查询 - 院级(超级)
 func QueryArticleAndUserListByPageForSuperman(page, limit int, sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) (result []model.Article, err error) {
 	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
@@ -127,6 +182,29 @@ func QueryArticleAndUserListByPageForSuperman(page, limit int, sort, order, star
 	}
 
 	return articles, nil
+}
+
+// QueryArticleNumByPageForSuperman 后台分页查询文章及用户列表并模糊查询帖子总数 -院级(超级)
+func QueryArticleNumByPageForSuperman(sort, order, startAtString, endAtString, topic, keyWords, name string, isBan bool) (int, error) {
+	query, err := QueryArticleByAdvancedFilter(startAtString, endAtString, topic, keyWords, sort, order, isBan)
+	if err != nil {
+		zap.L().Error("QueryArticleAndUserListByPageForClass() dao.mysql.sql_article.QueryArticleByAdvancedFilter err=", zap.Error(err))
+		return -1, err
+	}
+
+	var count int64
+	var uids []int
+	if err = DB.Model(&model.User{}).Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).Pluck("id", &uids).Error; err != nil {
+		zap.L().Error("QueryClassCommonArticleNum() dao.mysql.sql_user_nzx.Pluck err=", zap.Error(err))
+		return -1, err
+	}
+
+	if err = query.Model(&model.Article{}).Where("user_id IN ?", uids).Count(&count).Error; err != nil {
+		zap.L().Error("QueryClassCommonArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
+		return -1, err
+	}
+
+	return int(count), nil
 }
 
 // QueryArticleAndUserListByPageFirstPageByTopic 前台模糊查询文章列表(根据话题查询)
