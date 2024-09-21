@@ -351,6 +351,7 @@ func SelectArticleAndUserListByPageFirstPageController(c *gin.Context) {
 			"post_time":       a.PostTime,
 			"username":        a.User.Username,
 			"article_quality": a.Quality,
+			"user_identity":   a.User.Identity,
 		})
 	}
 
@@ -612,6 +613,7 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 			"post_time":       at.PostTime,
 			"username":        at.User.Username,
 			"article_quality": at.Quality,
+			"user_identity":   at.User.Identity,
 		})
 	}
 	res.ResponseSuccess(c, map[string]any{
