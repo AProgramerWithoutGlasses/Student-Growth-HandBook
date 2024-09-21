@@ -902,7 +902,7 @@ func QueryClassGoodArticleNum(grade int, startAt, endAt, topic, keyWords, sort, 
 	}
 
 	var count int64
-	if err = query.Model(&model.Article{}).InnerJoins("User").Where("plus_time BETWEEN ? AND ? AND name LIKE ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%%%s%%", name)).
+	if err = query.Model(&model.Article{}).InnerJoins("User").Where("plus_time BETWEEN ? AND ? AND name LIKE ?", fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), fmt.Sprintf("%%%s%%", name)).
 		Where("quality = ?", constant.ClassArticle).Count(&count).Error; err != nil {
 		zap.L().Error("QueryClassGoodArticleNum() dao.mysql.sql_user_nzx.Count err=", zap.Error(err))
 		return -1, err
