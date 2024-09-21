@@ -90,11 +90,11 @@ func CheckErrors(err error, c *gin.Context) {
 		return
 	}
 
-	if errors.Is(err, OverstepCompetence) {
-		// 错误捕获-权限越界
-		res.ResponseSuccessWithMsg(c, OverstepCompetence.Error(), []struct{}{})
-		return
-	}
+	//if errors.Is(err, OverstepCompetence) {
+	//	// 错误捕获-权限越界
+	//	res.ResponseError(c, OverstepCompetence.Error(), []struct{}{})
+	//	return
+	//}
 	// 其他错误
 	res.ResponseErrorWithMsg(c, res.ServerErrorCode, err.Error())
 }
