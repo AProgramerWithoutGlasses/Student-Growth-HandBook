@@ -341,9 +341,9 @@ func DeleteArticleByIdForClass(articleId int, username string, db *gorm.DB) erro
 
 	// 查询待删除的文章
 	article := model.Article{}
-	if err := DB.Preload("User", "class = ?", user.Class).Where("id = ?", articleId).First(&article).Error; err != nil {
-		zap.L().Error("DeleteArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(err))
-		return err
+	if err := DB.InnerJoins("User").Where("class = ?", user.Class).Where("articles.id = ?", articleId).First(&article).Error; err != nil {
+		zap.L().Error("DeleteArticleByIdForClass() dao.mysql.sql_nzx.First err=", zap.Error(myErr.OverstepCompetence))
+		return myErr.OverstepCompetence
 	}
 
 	if err := db.Delete(&model.Article{}, article.ID).Error; err != nil {
@@ -365,11 +365,11 @@ func DeleteArticleByIdForGrade(articleId int, grade int, db *gorm.DB) error {
 
 	// 获取需要被删除的文章
 	article := model.Article{}
-	if err = DB.Preload("User", "plus_time between ? and ?",
+	if err = DB.InnerJoins("User").Where("plus_time between ? and ?",
 		fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year())).
-		Where("id = ?", articleId).First(&article).Error; err != nil {
-		zap.L().Error("DeleteArticleByIdForGrade() dao.mysql.sql_nzx.First err=", zap.Error(err))
-		return err
+		Where("articles.id = ?", articleId).First(&article).Error; err != nil {
+		zap.L().Error("DeleteArticleByIdForGrade() dao.mysql.sql_nzx.First err=", zap.Error(myErr.OverstepCompetence))
+		return myErr.OverstepCompetence
 	}
 
 	// 删除文章
