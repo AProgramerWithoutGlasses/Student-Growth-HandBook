@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"strings"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
@@ -34,7 +35,7 @@ func AddMultipleTeacherControl(c *gin.Context) {
 
 	// 检查数据库中是否已经存在该用户
 	for _, row := range rows[1:] { // 忽略表头行
-		err = mysql.ExistedUsername(row[2])
+		err = mysql.ExistedUsername(row[1])
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
 
@@ -72,9 +73,14 @@ func AddMultipleTeacherControl(c *gin.Context) {
 		}
 		err = mysql.AddSingleTeacher(&user)
 		if err != nil {
-			response.ResponseErrorWithMsg(c, 500, "teacherManage.AddMultipleTeacherControl() mysql.AddSingleStudent failed: "+err.Error())
-			zap.L().Error("teacherManage.AddMultipleTeacherControl() mysql.AddSingleStudent failed: " + err.Error())
-			return
+			if strings.Contains(err.Error(), "Duplicate entry") {
+				err = nil
+			} else {
+				response.ResponseErrorWithMsg(c, 500, "teacherManage.AddMultipleTeacherControl() mysql.AddSingleStudent failed: "+err.Error())
+				zap.L().Error("teacherManage.AddMultipleTeacherControl() mysql.AddSingleStudent failed: " + err.Error())
+				return
+			}
+
 		}
 	}
 
