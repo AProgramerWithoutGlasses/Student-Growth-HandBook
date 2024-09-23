@@ -7,6 +7,7 @@ import (
 	"github.com/360EntSecGroup-Skylar/excelize"
 	jsonvalue "github.com/Andrew-M-C/go.jsonvalue"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -491,4 +492,61 @@ func AddStuService(input struct {
 	}()
 
 	return nil
+}
+
+func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct) (deletedStuName string, err error) {
+	// 删除选中的用户
+	for i, _ := range selectedStudents {
+
+		id, err := mysql.GetIdByUsername(selectedStudents[i].Username)
+		if err != nil {
+			return "", err
+		}
+
+		// 删除管理员
+		isManager, err := mysql.GetIsManagerByUsername(selectedStudents[i].Username)
+		if err != nil {
+			return "", err
+		}
+
+		if isManager {
+			err := mysql.DeleteSingleUserManager(selectedStudents[i].Username)
+			if err != nil {
+				return "", err
+			}
+		}
+
+		// 删除user表
+		err = mysql.DeleteSingleUser(id)
+		if err != nil {
+			return "", err
+		}
+
+		// 创建删除学生的记录
+		deleteUserRecord := gorm_model.UserDeleteRecord{
+			Username:       username,
+			DeleteUsername: selectedStudents[i].Username,
+		}
+		err = mysql.DeleteStudentRecord(&deleteUserRecord)
+		if err != nil {
+			return "", err
+		}
+
+		// 删除成长之星
+		err = mysql.DeleteStar(selectedStudents[i].Username)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				err = nil
+			} else {
+				return "", err
+			}
+		}
+
+		// 拼接删除了的学生姓名
+		deletedStuName = deletedStuName + selectedStudents[i].Name + "、"
+		deletedStuName = deletedStuName[0 : len(deletedStuName)-1]
+
+	}
+
+	return deletedStuName, err
 }

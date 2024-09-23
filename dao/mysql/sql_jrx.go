@@ -26,7 +26,6 @@ func GetIdByUsername(username string) (int, error) {
 	var users gorm_model.User
 	err := DB.Where("username = ?", username).First(&users).Error
 	return int(users.ID), err
-
 }
 
 // 根据id获取姓名
@@ -644,4 +643,9 @@ func GetClassListByPlusTimeYear(plusTimeYear string) ([]string, error) {
 	var classes []string
 	err := DB.Model(&gorm_model.User{}).Where("LENGTH(class) = ? AND YEAR(plus_time) = ?", 9, plusTimeYear).Distinct("class").Order("class ASC").Pluck("class", &classes).Error
 	return classes, err
+}
+
+func DeleteStar(username string) error {
+	err := DB.Model(&gorm_model.Star{}).Where("username = ?", username).Delete(nil).Error
+	return err
 }
