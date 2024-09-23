@@ -3,10 +3,9 @@ package stuManage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/dao/mysql"
-	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
+	"studentGrow/service"
 	token2 "studentGrow/utils/token"
 )
 
@@ -31,54 +30,12 @@ func DeleteStuControl(c *gin.Context) {
 		return
 	}
 
-	var deletedStuName string
-
-	// 删除选中的用户
-	for i, _ := range input.Selected_students {
-
-		id, err := mysql.GetIdByUsername(input.Selected_students[i].Username)
-		if err != nil {
-			response.ResponseErrorWithMsg(c, 500, "stuManager.DeleteStuControl() mysql.GetIdByUsername() failed : "+err.Error())
-			zap.L().Error("stuManager.DeleteStuControl() mysql.GetIdByUsername() failed : ", zap.Error(err))
-			return
-		}
-
-		err = mysql.DeleteSingleUser(id)
-		if err != nil {
-			response.ResponseErrorWithMsg(c, 400, err.Error())
-			zap.L().Error("stuManager.DeleteStuControl() mysql.DeleteSingleStudent() err : ", zap.Error(err))
-			return
-		}
-
-		isManager, err := mysql.GetIsManagerByUsername(input.Selected_students[i].Username)
-		if err != nil {
-			response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
-			zap.L().Error(err.Error())
-			return
-		}
-
-		if isManager {
-			err := mysql.DeleteSingleUserManager(input.Selected_students[i].Username)
-			if err != nil {
-				return
-			}
-		}
-
-		// 删除学生记录
-		deleteUserRecord := gorm_model.UserDeleteRecord{
-			Username:       username,
-			DeleteUsername: input.Selected_students[i].Username,
-		}
-		err = mysql.DeleteStudentRecord(&deleteUserRecord)
-		if err != nil {
-			response.ResponseErrorWithMsg(c, 400, err.Error())
-			zap.L().Error("stuManager.DeleteStuControl() mysql.DeleteStudentRecord() err : ", zap.Error(err))
-			return
-		}
-
-		// 拼接删除了的学生姓名
-		deletedStuName = deletedStuName + input.Selected_students[i].Name + "、"
-		deletedStuName = deletedStuName[0 : len(deletedStuName)-1]
+	// 业务
+	deletedStuName, err := service.DeleteStuService(username, input.Selected_students)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
+		zap.L().Error(err.Error())
+		return
 	}
 
 	// 响应成功
