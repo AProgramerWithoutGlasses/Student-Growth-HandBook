@@ -1,0 +1,48 @@
+package homepage
+
+import (
+	"errors"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
+	"studentGrow/models/jrx_model"
+	"studentGrow/pkg/response"
+	"studentGrow/service"
+)
+
+func GetArticleControl(c *gin.Context) {
+	// 接收
+	input := struct {
+		Page     int    `form:"page"`
+		Limit    int    `form:"limit"`
+		Username string `form:"username"`
+	}{}
+	err := c.ShouldBindQuery(&input)
+	if err != nil {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error(err.Error())
+		return
+	}
+
+	// 业务
+	articleList, err := service.GetArticleService(input.Page, input.Limit, input.Username)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+
+		} else {
+			response.ResponseError(c, response.ServerErrorCode)
+			zap.L().Error(err.Error())
+			return
+		}
+	}
+
+	// 响应
+	output := struct {
+		Content []jrx_model.HomepageArticleHistoryStruct `json:"content"`
+	}{
+		Content: articleList,
+	}
+
+	response.ResponseSuccess(c, output)
+
+}

@@ -2,24 +2,32 @@ app:
  port: 8881
 
 log:
-  level: "debug"
-  filename: "web_app.log"
-  max_size: 200
-  max_age: 30
-  max_backups: 7
+ level: "debug"
+ filename: "web_app.log"
+ max_size: 200
+ max_age: 30
+ max_backups: 7
 
 mysql:
-  host: "192.168.22.62"
-  port: 3306
-  user: "root"
-  password: "n208966737"
-  dbname: "manage_sys"
-  max_open_conns: 200
-  max_idle_conns: 50
+ host: "8.154.36.180"
+ port: 3306
+ user: "root"
+ password: "lezhiedu@2024"
+ dbname: "student_grow"
+ max_open_conns: 200
+ max_idle_conns: 50
 
 redis:
-  host: "152.136.50.60"
-  port: 6378
-  password: "seatMarch"
+  host: "8.154.36.180"
+  port: 6379
+  password: "lezhiedu@2024"
   db: 0
   pool_size: 100
+
+aliyun:
+  oss:
+   file:
+     endpoint: "oss-cn-beijing.aliyuncs.com"
+     keyid: LTAI5t9Q4pxdmDqYGQLMPqER
+     keysecret: CfYnchTBJEb5B3FHlCgXBfjzDRuLsZ
+     bucketname: "student-grow"

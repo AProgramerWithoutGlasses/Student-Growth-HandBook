@@ -1,20 +1,21 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"golang.org/x/net/context"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"studentGrow/aliyun/oss"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
-	model "studentGrow/models/gorm_model"
 	"studentGrow/routes"
+	"studentGrow/service/article"
 	"studentGrow/settings"
 	"syscall"
 	"time"
@@ -37,14 +38,13 @@ func main() {
 
 	// 3. 初始化Mysql
 	if err := mysql.Init(); err != nil {
-		fmt.Printf("mysql.Init() rdb.Ping().Result() err : %v\n", err)
+		fmt.Printf("mysql.Init() gorm.Open() err : %v\n", err)
 		return
 	}
-	db := mysql.GetDb()
-	err := db.AutoMigrate(&model.User{}, &model.Article{}, &model.CasbinRule{}, &model.Comment{}, &model.Fan{}, &model.Follow{}, &model.Read{}, &model.Select{}, &model.Upvote{})
-	if err != nil {
-		return
-	}
+	//err := mysql.DB.AutoMigrate(&gorm_model.Advice{})
+	//if err != nil {
+	//	return
+	//}
 
 	// 4. 初始化redis
 	if err := redis.Init(); err != nil {
@@ -52,10 +52,20 @@ func main() {
 		return
 	}
 
-	// 5. 注册路由
+	// redis读写mysql
+	article.InitMyMQ()
+
+	// 5. 注册路由ss
 	r := routes.Setup()
 
-	// 6. 启动服务（优雅关机）
+	//6.初始化oss
+	err := oss.Init()
+	if err != nil {
+		zap.L().Error("main() oss.Init err=", zap.Error(err))
+		return
+	}
+
+	// 7. 启动服务（优雅关机）
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", viper.GetInt("app.port")),
 		Handler: r,
@@ -78,5 +88,4 @@ func main() {
 	}
 
 	zap.L().Info("Server exiting")
-
 }

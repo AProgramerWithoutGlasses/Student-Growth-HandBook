@@ -2,15 +2,30 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"studentGrow/controller/article"
+	_ "studentGrow/controller/article"
 	"studentGrow/logger"
+	"studentGrow/utils/middleWare"
 )
 
 func Setup() *gin.Engine {
 	r := gin.New()
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	r.Use(logger.GinLogger(), logger.GinRecovery(true), middleWare.CORSMiddleware())
+	//r.Use() // 跨域中间件
 
-	r.POST("/article/content", article.GetArticleId)
+	// 星
+	routesArticle(r)
+	routesTopic(r)
+	routesMsg(r)
+	routesComment(r)
+
+	// 勋
+	routesHomepage(r)
+	routesStudentManage(r)
+	routesTeacherManage(r)
+	routesClass(r)
+
+	// 雪
+	RoutesXue(r)
 
 	return r
 }

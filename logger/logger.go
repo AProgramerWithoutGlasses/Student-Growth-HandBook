@@ -72,7 +72,7 @@ func GinLogger() gin.HandlerFunc {
 			zap.String("path", path),
 			zap.String("query", query),
 			zap.String("ip", c.ClientIP()),
-			zap.String("user-agent", c.Request.UserAgent()),
+			zap.String("homepage-agent", c.Request.UserAgent()),
 			zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
 			zap.Duration("cost", cost),
 		)
@@ -115,8 +115,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 					)
 				} else {
 					zap.L().Error("[Recovery from panic]",
-						zap.Any("errors", err),
-						zap.String("request", string(httpRequest)),
+						zap.Any("errors", err), zap.String("request", string(httpRequest)),
 					)
 				}
 				c.AbortWithStatus(http.StatusInternalServerError)
