@@ -567,6 +567,7 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 		Class        []string `json:"class"`
 		Name         string   `json:"name"`
 		Grade        int      `json:"grade"`
+		Role         string   `json:"role"`
 	}{}
 
 	err := c.ShouldBindJSON(&in)
@@ -576,7 +577,7 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 		return
 	}
 
-	articles, err := article.AdvancedArticleFilteringService(in.ArticlePage, in.ArticleCount, in.Sort, in.Order, in.StartAt, in.EndAt, in.TopicName, in.KeyWords, in.Name, in.Username, in.Class, in.Grade)
+	articles, err := article.AdvancedArticleFilteringService(in.ArticlePage, in.ArticleCount, in.Sort, in.Order, in.StartAt, in.EndAt, in.TopicName, in.KeyWords, in.Name, in.Username, in.Class, in.Grade, in.Role)
 	if err != nil {
 		zap.L().Error("AdvancedArticleFilteringController() controller.article.AdvancedArticleFilteringService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -585,7 +586,6 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 
 	content := make([]map[string]any, 0)
 	for _, at := range articles {
-
 		var pics []string
 		var tags []string
 		for _, pic := range at.ArticlePics {
