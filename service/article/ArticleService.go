@@ -787,11 +787,15 @@ func GetTagsByTopicService(topicId int) ([]map[string]any, error) {
 }
 
 // AdvancedArticleFilteringService 文章高级筛选
-func AdvancedArticleFilteringService(page, limit int, sortField, order, startAt, endAt, topic, keyWords, name, username string, class []string, grade int) (articles []model.Article, err error) {
+func AdvancedArticleFilteringService(page, limit int, sortField, order, startAt, endAt, topic, keyWords, name, username string, class []string, grade int, role string) (articles []model.Article, err error) {
 	if topic == "全部话题" {
 		topic = ""
 	}
-	articles, err = mysql.QueryUserAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sortField, order, name, grade, class, false, page, limit)
+	if role == "老师" {
+		articles, err = mysql.QueryTeacherAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sortField, order, name, false, page, limit)
+	} else {
+		articles, err = mysql.QueryStuAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sortField, order, name, grade, class, false, page, limit)
+	}
 	if err != nil {
 		zap.L().Error("AdvancedArticleFilteringService() service.article.QueryUserAndArticleByAdvancedFilter err=", zap.Error(err))
 		return nil, err
