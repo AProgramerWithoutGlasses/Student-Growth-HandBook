@@ -36,7 +36,6 @@ func QueryArticleIsExist(aid int) (bool, error) {
 // QueryArticleByIdOfPassenger 通过id查找文章(游客)
 func QueryArticleByIdOfPassenger(aid int) (err error, article *model.Article) {
 	if err = DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
-		Select("pic").Select(" articles.ban, tag_name, articles.created_at, like_amount, collect_amount, comment_amount, article_quality").Select("head_shot, name, username, class").
 		Where("id = ? AND ban = ? AND status = ?", aid, false, true).First(&article).Error; err != nil {
 		zap.L().Error("QueryArticleByIdOfPassenger() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
@@ -47,7 +46,6 @@ func QueryArticleByIdOfPassenger(aid int) (err error, article *model.Article) {
 // QueryArticleById 通过id查找文章(普通用户)
 func QueryArticleById(aid int, uid uint) (err error, article *model.Article) {
 	if err = DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
-		Select("pic").Select(" articles.ban, tag_name, articles.created_at, like_amount, collect_amount, comment_amount, article_quality").Select("head_shot, name, username, class").
 		Where("id = ? and ban = ? and status = ?", aid, false, true).Or("user_id = ? and ban = ? and status = ?", uid, false, false).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
@@ -60,7 +58,6 @@ func QueryArticleById(aid int, uid uint) (err error, article *model.Article) {
 func QueryArticleByIdOfManager(aid int) (*model.Article, error) {
 	var article model.Article
 	if err := DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
-		Select("pic").Select(" articles.ban, tag_name, articles.created_at, like_amount, collect_amount, comment_amount, article_quality").Select("head_shot, name, username, class").
 		Where("id = ?", aid).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return nil, err
