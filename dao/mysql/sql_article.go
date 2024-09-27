@@ -812,7 +812,7 @@ func QueryTeacherAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sor
 	// 用户条件筛选
 	var articles []model.Article
 	if err := query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").InnerJoins("User").
-		Where("name LIKE ? AND role = ?", fmt.Sprintf("%%%s%%", name), "老师").
+		Where("name LIKE ? AND identity = ?", fmt.Sprintf("%%%s%%", name), "老师").
 		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
 		zap.L().Error("QueryTeacherAndArticleByAdvancedFilter() dao.mysql.sql_user_nzx err=", zap.Error(err))
