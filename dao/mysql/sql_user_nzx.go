@@ -19,6 +19,15 @@ func QueryClassByUsername(username string) (string, error) {
 	return class, nil
 }
 
+func QueryUserIdByUsername(username string) (int, error) {
+	var user model.User
+	if err := DB.Select("id").Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("QueryClassByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
+		return -1, err
+	}
+	return int(user.ID), nil
+}
+
 // QueryPlusTimeByUsername 通过用户名查找入学时间
 func QueryPlusTimeByUsername(username string) (*time.Time, error) {
 	var user model.User
