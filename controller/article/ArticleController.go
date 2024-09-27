@@ -13,23 +13,20 @@ import (
 
 // GetArticleIdController article_id	获取文章详情
 func GetArticleIdController(c *gin.Context) {
-	//将数据解析到map中
-	json, err := readUtil.GetJsonvalue(c)
+	in := struct {
+		ArticleId int    `json:"article_id"`
+		Username  string `json:"username"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		zap.L().Error("GetArticleIdController() controller.article.GetJsonvalue err=", zap.Error(err))
+		zap.L().Error("GetArticleIdController() controller.article.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	// 获取用户名
-	username, err := json.GetString("username")
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.GetString err=", zap.Error(err))
-		return
-	}
-
 	// 获取文章详情
-	art, err := article.GetArticleService(json)
+	art, err := article.GetArticleService(in.Username, in.ArticleId)
 	if err != nil {
 		zap.L().Error("GetArticleIdController() controller.article.GetArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -58,7 +55,7 @@ func GetArticleIdController(c *gin.Context) {
 	}
 
 	var data map[string]any
-	if (art.Ban == true && art.User.Username != username) || art.Status == false {
+	if (art.Ban == true && art.User.Username != in.Username) || art.Status == false {
 		data = map[string]any{
 			"ban":             art.Ban,
 			"status":          art.Status,

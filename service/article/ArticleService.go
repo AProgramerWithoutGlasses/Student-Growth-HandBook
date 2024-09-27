@@ -20,49 +20,49 @@ import (
 )
 
 // GetArticleService 获取文章详情
-func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
-	//获取文章id
-	aid, err := j.GetInt("article_id")
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.GetInt err=", zap.Error(err))
-		return nil, err
-	}
-
-	// 获取用户名
-	username, err := j.GetString("username")
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.GetString err=", zap.Error(err))
-		return nil, err
-	}
-
-	user, err := mysql.GetUserByUsername(username)
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.GetUserByUsername err=", zap.Error(err))
-		return nil, err
-	}
-
-	// 查询用户是否为管理员
-	IsManager, err := mysql.QueryUserIsManager(user.ID)
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.QueryUserIsManager err=", zap.Error(err))
-		return nil, err
-	}
-
-	//查找文章信息
-	var article *model.Article
-	if IsManager || user.Username == username {
-		// 若为管理员
-		article, err = mysql.QueryArticleByIdOfManager(aid)
+func GetArticleService(username string, aid int) (article *model.Article, err error) {
+	// 若为游客
+	if username == "passenger" {
+		err, article = mysql.QueryArticleByIdOfPassenger(aid)
 		if err != nil {
-			zap.L().Error("GetArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
+			zap.L().Error("GetArticleService() service.article.GetUserByUsername err=", zap.Error(err))
 			return nil, err
 		}
 	} else {
-		// 若为普通用户
-		err, article = mysql.QueryArticleById(aid, user.ID)
+		// 若为用户
+		uid, err := mysql.QueryUserIdByUsername(username)
 		if err != nil {
-			zap.L().Error("GetArticleService() service.article.QueryArticleById err=", zap.Error(err))
+			zap.L().Error("GetArticleService() service.article.QueryUserIdByUsername err=", zap.Error(err))
 			return nil, err
+		}
+
+		// 查询用户是否为管理员
+		IsManager, err := mysql.QueryUserIsManager(uid)
+		if err != nil {
+			zap.L().Error("GetArticleService() service.article.QueryUserIsManager err=", zap.Error(err))
+			return nil, err
+		}
+
+		// 查找文章作者username
+		user, err := mysql.QueryUserByArticleId(aid)
+		if err != nil {
+			zap.L().Error("GetArticleService() service.article.QueryUserByArticleId err=", zap.Error(err))
+			return nil, err
+		}
+		if IsManager || user.Username == username {
+			// 若为管理员
+			article, err = mysql.QueryArticleByIdOfManager(aid)
+			if err != nil {
+				zap.L().Error("GetArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
+				return nil, err
+			}
+		} else {
+			// 若为普通用户
+			err, article = mysql.QueryArticleById(aid, user.ID)
+			if err != nil {
+				zap.L().Error("GetArticleService() service.article.QueryArticleById err=", zap.Error(err))
+				return nil, err
+			}
 		}
 	}
 
@@ -82,7 +82,7 @@ func GetArticleService(j *jsonvalue.V) (*model.Article, error) {
 			}
 			article.IsCollect = selected
 
-			// 存储到浏览记录s
+			// 存储到浏览记录
 			uid, err := mysql.SelectUserByUsername(username)
 			if err != nil {
 				zap.L().Error("GetArticleService() service.article.GetIdByUsername err=", zap.Error(err))
@@ -791,7 +791,7 @@ func AdvancedArticleFilteringService(page, limit int, sortField, order, startAt,
 	if topic == "全部话题" {
 		topic = ""
 	}
-	if role == "老师" {
+	if role == "teacher" {
 		articles, err = mysql.QueryTeacherAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sortField, order, name, false, page, limit)
 	} else {
 		articles, err = mysql.QueryStuAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sortField, order, name, grade, class, false, page, limit)

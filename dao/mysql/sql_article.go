@@ -12,19 +12,6 @@ import (
 	"time"
 )
 
-// SelectUserById 查询数据库是否存在该用户
-func SelectUserById(uid int) (err error, user *model.User) {
-	//select * from users where id = uid
-	// 查询用户
-	if err := DB.Where("id = ?", uid).First(&user).Error; err != nil {
-		zap.L().Error("SelectUserById() dao.mysql.sql_nzx.First err=", zap.Error(err))
-		return err, nil
-	}
-
-	return nil, user
-
-}
-
 // SelectUserByUsername 通过username查找uid
 func SelectUserByUsername(username string) (uid int, err error) {
 	//select id from users where username = username
@@ -46,10 +33,21 @@ func QueryArticleIsExist(aid int) (bool, error) {
 	return false, nil
 }
 
+// QueryArticleByIdOfPassenger 通过id查找文章(游客)
+func QueryArticleByIdOfPassenger(aid int) (err error, article *model.Article) {
+	if err = DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
+		Select("pic").Select(" articles.ban, tag_name, articles.created_at, like_amount, collect_amount, comment_amount, article_quality").Select("user_headshot, name, username, class").
+		Where("id = ? AND ban = ? AND status = ?", aid, false, true).First(&article).Error; err != nil {
+		zap.L().Error("QueryArticleByIdOfPassenger() dao.mysql.sql_nzx.First err=", zap.Error(err))
+		return err, nil
+	}
+	return nil, article
+}
+
 // QueryArticleById 通过id查找文章(普通用户)
 func QueryArticleById(aid int, uid uint) (err error, article *model.Article) {
-	//查询用户 select * from articles where id = aid
-	if err := DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
+	if err = DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
+		Select("pic").Select(" articles.ban, tag_name, articles.created_at, like_amount, collect_amount, comment_amount, article_quality").Select("user_headshot, name, username, class").
 		Where("id = ? and ban = ? and status = ?", aid, false, true).Or("user_id = ? and ban = ? and status = ?", uid, false, false).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
@@ -62,6 +60,7 @@ func QueryArticleById(aid int, uid uint) (err error, article *model.Article) {
 func QueryArticleByIdOfManager(aid int) (*model.Article, error) {
 	var article model.Article
 	if err := DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
+		Select("pic").Select(" articles.ban, tag_name, articles.created_at, like_amount, collect_amount, comment_amount, article_quality").Select("user_headshot, name, username, class").
 		Where("id = ?", aid).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return nil, err
@@ -306,28 +305,6 @@ func QueryIsBanByArticleId(aid int) (bool, error) {
 		return false, err
 	}
 	return isBan, nil
-}
-
-// DeleteArticleReportMsg 已读举报信息
-func DeleteArticleReportMsg(aid int, db *gorm.DB) error {
-	if err := db.Model(model.UserReportArticleRecord{}).Where("article_id = ?", aid).Update("is_read", true).Error; err != nil {
-		zap.L().Error("GetUnreadReportsController() dao.mysql.sql_article err=", zap.Error(err))
-		return err
-	}
-	return nil
-}
-
-// QueryIsExistArticleIdByReportMsg 查询举报信箱中是否存在被举报的文章id
-func QueryIsExistArticleIdByReportMsg(aid int) (bool, error) {
-	var count int64
-	if err := DB.Model(&model.UserReportArticleRecord{}).Where("article_id = ?", aid).Count(&count).Error; err != nil {
-		zap.L().Error("QueryIsExistArticleIdByReportMsg() dao.mysql.sql_nzx.First err=", zap.Error(err))
-		return false, err
-	}
-	if count > 0 {
-		return true, nil
-	}
-	return false, nil
 }
 
 // DeleteArticleByIdForClass 通过文章id删除文章 - 班级
@@ -667,17 +644,22 @@ func QueryArticleIdsByUserId(uid int) ([]int, error) {
 }
 
 // QueryUserByArticleId 通过文章获取用户User
-func QueryUserByArticleId(aid int) (*model.User, error) {
+func QueryUserByArticleId(aid int) (user *model.User, err error) {
 	var article model.Article
-	if err := DB.Preload("User").Where("id = ?", aid).First(&article).Error; err != nil {
+	if err = DB.Model(&model.Article{}).Select("user_id").Where("id = ?", aid).First(&article).Error; err != nil {
 		zap.L().Error("QueryUserByArticleId() dao.mysql.sql_article", zap.Error(err))
 		return nil, err
 	}
-	return &article.User, nil
+
+	if err = DB.Model(&model.User{}).Select("id, username").Where("id = ?", article.User.ID).First(&user).Error; err != nil {
+		zap.L().Error("QueryUserByArticleId() dao.mysql.sql_article", zap.Error(err))
+		return nil, err
+	}
+	return user, nil
 }
 
 // QueryUserIsManager 查询用户是否为管理员
-func QueryUserIsManager(uid uint) (bool, error) {
+func QueryUserIsManager(uid int) (bool, error) {
 	var isManager bool
 	if err := DB.Model(&model.User{}).Select("is_manager").Where("id = ?", uid).First(&isManager).Error; err != nil {
 		zap.L().Error("QueryUserByArticleId() dao.mysql.sql_article", zap.Error(err))
