@@ -643,7 +643,7 @@ func QueryArticleIdsByUserId(uid int) ([]int, error) {
 // QueryUserByArticleId 通过文章获取用户User
 func QueryUserByArticleId(aid int) (user *model.User, err error) {
 	var article model.Article
-	if err = DB.Model(&model.Article{}).Select("user_id").Where("id = ?", aid).First(&article).Error; err != nil {
+	if err = DB.Model(&model.Article{}).Preload("User").Select("user_id").Where("id = ?", aid).First(&article).Error; err != nil {
 		zap.L().Error("QueryUserByArticleId() dao.mysql.sql_article", zap.Error(err))
 		return nil, err
 	}
