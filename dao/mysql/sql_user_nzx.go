@@ -18,6 +18,16 @@ func QueryClassByUsername(username string) (string, error) {
 	return class, nil
 }
 
+// QueryUserIdByUsername 通过username查找id
+func QueryUserIdByUsername(username string) (int, error) {
+	var user model.User
+	if err := DB.Model(&model.User{}).Select("id").Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("QueryUserIdByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
+		return -1, err
+	}
+	return int(user.ID), nil
+}
+
 // QueryUserByAdvancedFilter 高级筛选用户(年级、班级、姓名)
 func QueryUserByAdvancedFilter(grade int, class []string, name string) (*gorm.DB, error) {
 
