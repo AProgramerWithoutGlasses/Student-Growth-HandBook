@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	model "studentGrow/models/gorm_model"
 	"studentGrow/utils/timeConverter"
+	"time"
 )
 
 // QueryClassByUsername 通过用户名查找班级
@@ -18,14 +19,23 @@ func QueryClassByUsername(username string) (string, error) {
 	return class, nil
 }
 
-// QueryUserIdByUsername 通过username查找id
 func QueryUserIdByUsername(username string) (int, error) {
 	var user model.User
-	if err := DB.Model(&model.User{}).Select("id").Where("username = ?", username).First(&user).Error; err != nil {
-		zap.L().Error("QueryUserIdByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
+	if err := DB.Select("id").Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("QueryClassByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
 		return -1, err
 	}
 	return int(user.ID), nil
+}
+
+// QueryPlusTimeByUsername 通过用户名查找入学时间
+func QueryPlusTimeByUsername(username string) (*time.Time, error) {
+	var user model.User
+	if err := DB.Select("plus_time").Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("QueryGradeByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
+		return nil, err
+	}
+	return &user.PlusTime, nil
 }
 
 // QueryUserByAdvancedFilter 高级筛选用户(年级、班级、姓名)
