@@ -77,3 +77,27 @@ func UpdateRoleMenu(c *gin.Context) {
 	}
 	response.ResponseSuccess(c, "操作成功")
 }
+
+// AddRole 添加角色
+func AddRole(c *gin.Context) {
+	casbinService, err := casbinModels.NewCasbinService(mysql.DB)
+	if err != nil {
+		response.ResponseError(c, 400)
+		return
+	}
+	//1.接收前端传来角色
+	var NewRole struct {
+		Code string `json:"code"`
+		Role string `json:"role"`
+	}
+	err = c.Bind(&NewRole)
+	if err != nil {
+		return
+	}
+	_, err = casbinService.AddPolicy(NewRole.Code, NewRole.Role)
+	if err != nil {
+		response.ResponseError(c, 500)
+		return
+	}
+	response.ResponseSuccess(c, "添加成功")
+}

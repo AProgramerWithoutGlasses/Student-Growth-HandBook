@@ -104,3 +104,12 @@ func (c *CasbinService) DeleteRolePolicy(r RolePolicy) error {
 func (c *CasbinService) CanAccess(username, menuId string) (ok bool, err error) {
 	return c.Enforcer.Enforce(username, menuId)
 }
+
+// AddPolicy 添加角色
+func (c *CasbinService) AddPolicy(code, role string) (ok bool, err error) {
+	ok, err = c.Enforcer.AddRoleForUser(code, role)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
