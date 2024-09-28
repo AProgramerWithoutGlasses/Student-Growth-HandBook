@@ -54,7 +54,7 @@ func RoutesXue(router *gin.Engine) {
 	}
 	//前台展示成长之星
 	showStar := router.Group("star")
-	showStar.Use(token.AuthMiddleware())
+	//showStar.Use(token.AuthMiddleware())
 	{
 		showStar.GET("/class_star", growth.BackStarClass)
 		showStar.GET("/grade_star", growth.BackStarGrade)
@@ -114,4 +114,5 @@ func RoutesXue(router *gin.Engine) {
 		role.GET("/permission", RoleController.ShowMenu)
 		role.POST("/update", RoleController.UpdateRoleMenu)
 	}
+	router.POST("role/addRole", RoleController.AddRole)
 }
