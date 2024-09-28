@@ -1,5 +1,7 @@
 package mysql
 
+import "fmt"
+
 // SelRoleMessage 获取角色id,名称,状态码
 func SelRoleMessage(id int) (string, string, error) {
 	var role string
