@@ -1,7 +1,5 @@
 package mysql
 
-import "fmt"
-
 // SelRoleMessage 获取角色id,名称,状态码
 func SelRoleMessage(id int) (string, string, error) {
 	var role string
@@ -28,7 +26,7 @@ func SelRoleId() ([]int, error) {
 func SelMRole(role string) (bool, error) {
 	var count int64
 	err := DB.Table("casbin_rule").Where("v1 LIKE ?", role+"%").Count(&count).Error
-	fmt.Println(count)
+
 	// 检查是否有错误发生
 	if err != nil {
 		// 处理错误，例如记录日志
