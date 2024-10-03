@@ -13,23 +13,20 @@ import (
 
 // GetArticleIdController article_id	获取文章详情
 func GetArticleIdController(c *gin.Context) {
-	//将数据解析到map中
-	json, err := readUtil.GetJsonvalue(c)
+	in := struct {
+		ArticleId int    `json:"article_id"`
+		Username  string `json:"username"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		zap.L().Error("GetArticleIdController() controller.article.GetJsonvalue err=", zap.Error(err))
+		zap.L().Error("GetArticleIdController() controller.article.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
 
-	// 获取用户名
-	username, err := json.GetString("username")
-	if err != nil {
-		zap.L().Error("GetArticleService() service.article.GetString err=", zap.Error(err))
-		return
-	}
-
 	// 获取文章详情
-	art, err := article.GetArticleService(json)
+	art, err := article.GetArticleService(in.Username, in.ArticleId)
 	if err != nil {
 		zap.L().Error("GetArticleIdController() controller.article.GetArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -58,7 +55,7 @@ func GetArticleIdController(c *gin.Context) {
 	}
 
 	var data map[string]any
-	if (art.Ban == true && art.User.Username != username) || art.Status == false {
+	if (art.Ban == true && art.User.Username != in.Username) || art.Status == false {
 		data = map[string]any{
 			"ban":             art.Ban,
 			"status":          art.Status,
@@ -567,6 +564,7 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 		Class        []string `json:"class"`
 		Name         string   `json:"name"`
 		Grade        int      `json:"grade"`
+		Role         string   `json:"role"`
 	}{}
 
 	err := c.ShouldBindJSON(&in)
@@ -576,7 +574,7 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 		return
 	}
 
-	articles, err := article.AdvancedArticleFilteringService(in.ArticlePage, in.ArticleCount, in.Sort, in.Order, in.StartAt, in.EndAt, in.TopicName, in.KeyWords, in.Name, in.Username, in.Class, in.Grade)
+	articles, err := article.AdvancedArticleFilteringService(in.ArticlePage, in.ArticleCount, in.Sort, in.Order, in.StartAt, in.EndAt, in.TopicName, in.KeyWords, in.Name, in.Username, in.Class, in.Grade, in.Role)
 	if err != nil {
 		zap.L().Error("AdvancedArticleFilteringController() controller.article.AdvancedArticleFilteringService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -585,7 +583,6 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 
 	content := make([]map[string]any, 0)
 	for _, at := range articles {
-
 		var pics []string
 		var tags []string
 		for _, pic := range at.ArticlePics {

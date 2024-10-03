@@ -48,7 +48,6 @@ func Like(objId, username string, likeType int) error {
 	}
 
 	// 写入通道
-
 	switch likeType {
 	case 0:
 		ArticleLikeChan <- nzx_model.RedisLikeArticleData{Aid: id, Username: username, Operator: "like"}
