@@ -16,7 +16,6 @@ type Login struct {
 // Claims Token结构体
 type Claims struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
 	Role     string `json:"role"`
 	jwt.StandardClaims
 }
