@@ -7,7 +7,10 @@ import (
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
+	"studentGrow/models/gorm_model"
 	"studentGrow/models/nzx_model"
+	"studentGrow/pkg/sse"
+	NotificationPush "studentGrow/service/notificationPush"
 )
 
 /*
@@ -15,7 +18,7 @@ redis
 */
 
 // Like 点赞
-func Like(objId, username string, likeType int) error {
+func Like(objId, username, tarUsername string, likeType int) error {
 	// 将用户添加到点赞列表
 	err := redis.AddUserToLikeSet(objId, username, likeType)
 	if err != nil {
@@ -55,7 +58,7 @@ func Like(objId, username string, likeType int) error {
 		CommentLikeChan <- nzx_model.RedisLikeCommentData{Cid: id, Username: username, Operator: "like"}
 	}
 
-	return nil
+	return err
 }
 
 // CancelLike 取消点赞
@@ -107,7 +110,10 @@ func CancelLike(objId, username string, likeType int) error {
 }
 
 // LikeObjOrNot 检查是否点赞并点赞
-func LikeObjOrNot(objId, username string, likeType int) error {
+func LikeObjOrNot(objId, username, tarUsername string, likeType int) error {
+
+	var notification *gorm_model.Notification
+
 	//获取当前点赞文章列表
 	slice, err := redis.GetObjLikedUsers(objId, likeType)
 	if err != nil {
@@ -121,7 +127,6 @@ func LikeObjOrNot(objId, username string, likeType int) error {
 	//若存在该用户，则取消点赞
 	_, ok := likeUsers[username]
 	if len(likeUsers) > 0 && ok {
-		fmt.Println("cancel")
 		err = CancelLike(objId, username, likeType)
 		if err != nil {
 			zap.L().Error("LikeObjOrNot() service.article.likeService.CancelLike err=", zap.Error(err))
@@ -129,12 +134,19 @@ func LikeObjOrNot(objId, username string, likeType int) error {
 		}
 	} else {
 		//反之，点赞
-		err = Like(objId, username, likeType)
-		fmt.Println("like")
+		err = Like(objId, username, tarUsername, likeType)
 		if err != nil {
 			zap.L().Error("LikeObjOrNot() service.article.likeService.Like err=", zap.Error(err))
 			return err
 		}
+		id, err := strconv.Atoi(objId)
+		// 构建消息事件
+		notification, err = NotificationPush.BuildLikeNotification(username, tarUsername, id, likeType)
+		if err != nil {
+			return err
+		}
+		// 发送消息
+		sse.SendNotification(*notification)
 	}
 	return nil
 }

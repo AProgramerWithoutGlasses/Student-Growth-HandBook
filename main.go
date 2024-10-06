@@ -14,6 +14,7 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
+	"studentGrow/pkg/eventBus"
 	"studentGrow/routes"
 	"studentGrow/service/article"
 	"studentGrow/settings"
@@ -55,7 +56,7 @@ func main() {
 	// redis读写mysql
 	article.InitMyMQ()
 
-	// 5. 注册路由ss
+	// 5. 注册路由
 	r := routes.Setup()
 
 	//6.初始化oss
@@ -64,6 +65,9 @@ func main() {
 		zap.L().Error("main() oss.Init err=", zap.Error(err))
 		return
 	}
+
+	// 初始化eventBus
+	eventBus.InitEventBus()
 
 	// 7. 启动服务（优雅关机）
 	srv := &http.Server{

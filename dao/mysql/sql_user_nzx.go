@@ -39,10 +39,19 @@ func QueryUserByAdvancedFilter(grade int, class []string, name string) (*gorm.DB
 	}
 	query := DB.Model(&model.User{}).
 		Where("plus_time BETWEEN ? AND ? AND class IN ? AND name LIKE ?",
-			fmt.Sprintf("%s-01-01", year.Year()), fmt.Sprintf("%s-12-31", year.Year()), class, fmt.Sprintf("%%%s%%", name))
+			fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), class, fmt.Sprintf("%%%s%%", name))
 	if query.Error != nil {
-		zap.L().Error("QueryArticleByAdvancedFilter() service.article.Error err=", zap.Error(err))
+		zap.L().Error("QueryArticleByAdvancedFilter() dao.mysql.sql_user_nzx err=", zap.Error(err))
 		return nil, err
 	}
 	return query, nil
+}
+
+func QueryUserIdByUsername(username string) (int, error) {
+	var user model.User
+	if err := DB.Model(&model.User{}).Select("id").Where("username = ?", username).First(&user).Error; err != nil {
+		zap.L().Error("QueryUserIdByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
+		return -1, err
+	}
+	return int(user.ID), nil
 }

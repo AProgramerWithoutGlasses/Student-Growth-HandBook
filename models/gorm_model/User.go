@@ -35,4 +35,6 @@ type User struct {
 	Comments              []Comment           // 用户拥有评论
 	MsgRecords            []MsgRecord         // 用户拥有通知消息
 	UserPoints            []UserPoint         // 用户拥有积分列表
+	ReceiveNotifications  []Notification      `gorm:"foreignKey:TarUserId"` // 接收到的消息
+	SendNotifications     []Notification      `gorm:"foreignKey:OwnUserId"` // 发送的消息
 }

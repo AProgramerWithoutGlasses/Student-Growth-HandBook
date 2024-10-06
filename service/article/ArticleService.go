@@ -540,9 +540,9 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	startOfDay := time.Now().Truncate(24 * time.Hour) // 今天的开始时间
 	endOfDay := startOfDay.Add(24 * time.Hour)        // 明天的开始时间
 
-	uid, err := mysql.GetIdByUsername(username)
+	uid, err := mysql.QueryUserIdByUsername(username)
 	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.GetIdByUsername err=", zap.Error(err))
+		zap.L().Error("PublishArticleService() service.article.QueryUserIdByUsername err=", zap.Error(err))
 		return err
 	}
 
