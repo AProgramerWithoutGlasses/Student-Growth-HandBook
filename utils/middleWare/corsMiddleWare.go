@@ -9,7 +9,7 @@ import (
 
 // 定义一个允许跨域的域名列表
 var allowedOrigins = map[string]bool{
-	"https://8.154.36.180": true,
+	"http://192.168.10.7:81": true,
 	"http://192.168.10.7": true,
 	// 可以根据需要添加更多域名
 }
