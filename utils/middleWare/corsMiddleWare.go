@@ -3,17 +3,16 @@ package middleWare
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"net/http"
 	"strings"
 )
 
 // 定义一个允许跨域的域名列表
 var allowedOrigins = map[string]bool{
-	viper.GetString("origin.dev.h5"):    true,
-	viper.GetString("origin.dev.admin"): true,
-	viper.GetString("origin.pro.h5"):    true,
-	viper.GetString("origin.pro.admin"): true,
+	"http://192.168.10.7:8881": true,
+	"http://192.168.10.7:81":   true,
+	"http://8.154.36.180:8881": true,
+	"http://8.154.36.180:81":   true,
 }
 
 // 跨域
