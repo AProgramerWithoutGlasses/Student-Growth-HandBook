@@ -31,3 +31,11 @@ aliyun:
      keyid: LTAI5t9Q4pxdmDqYGQLMPqER
      keysecret: CfYnchTBJEb5B3FHlCgXBfjzDRuLsZ
      bucketname: "student-grow"
+
+origin:
+ dev:
+  h5: "http://192.168.10.7:8881"
+  admin: "http://192.168.10.7:81"
+ pro:
+  h5: "http://8.154.36.180:8881"
+  admin: "http://8.154.36.180:81"
