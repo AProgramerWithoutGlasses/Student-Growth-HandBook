@@ -1,10 +1,11 @@
 package sse
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"studentGrow/models/gorm_model"
-	res "studentGrow/pkg/response"
 	"sync"
 )
 
@@ -16,16 +17,19 @@ func AddChannel(userId int) {
 		ChannelsMap = sync.Map{}
 		isInitChannelsMap = true
 	}
-	newChannel := make(chan gorm_model.Notification)
+	newChannel := make(chan string, 10)
 	ChannelsMap.Store(userId, newChannel)
 	fmt.Println("Build SSE connection for user = ", userId)
 }
 
-func BuildNotificationChannel(userId int, c *gin.Context) {
+func BuildNotificationChannel(userId int, c *gin.Context) error {
 	AddChannel(userId)
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
 	c.Writer.Header().Set("Connection", "keep-alive")
+
+	w := c.Writer
+	flusher, _ := w.(http.Flusher)
 
 	curChan, _ := ChannelsMap.Load(userId)
 
@@ -34,25 +38,49 @@ func BuildNotificationChannel(userId int, c *gin.Context) {
 
 	go func() {
 		<-closeNotify
-		close(curChan.(chan gorm_model.Notification))
+		close(curChan.(chan string))
 		ChannelsMap.Delete(userId)
 		fmt.Println("SSE close for user = ", userId)
 		return
 	}()
 
-	for msg := range curChan.(chan gorm_model.Notification) {
-		res.ResponseSuccess(c, msg)
+	for msg := range curChan.(chan string) {
+		_, err := fmt.Fprintf(w, "data:%s\n\n", msg)
+		if err != nil {
+			return err
+		}
+		flusher.Flush()
 	}
+	return nil
 }
 
-func SendNotification(n gorm_model.Notification) {
-	fmt.Println("Send notification to user = ", n.TarUserId)
+// SendInterNotification 互动消息推送
+func SendInterNotification(n gorm_model.InterNotification) {
+	fmt.Println("Send interNotification to user = ", n.TarUserId)
+	msg, err := json.Marshal(n)
+	if err != nil {
+		return
+	}
 	ChannelsMap.Range(func(key, value any) bool {
 		k := key.(int)
 		if k == int(n.TarUserId) {
-			channel := value.(chan gorm_model.Notification)
-			channel <- n
+			channel := value.(chan string)
+			channel <- string(msg)
 		}
+		return true
+	})
+}
+
+// SendSysNotification 广播消息推送
+func SendSysNotification(n gorm_model.SysNotification) {
+	fmt.Println("Send sysNotification is user = ", n.UserID)
+	msg, err := json.Marshal(n)
+	if err != nil {
+		return
+	}
+	ChannelsMap.Range(func(key, value any) bool {
+		channel := value.(chan string)
+		channel <- string(msg)
 		return true
 	})
 }

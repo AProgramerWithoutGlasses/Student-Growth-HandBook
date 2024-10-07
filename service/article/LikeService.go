@@ -18,7 +18,7 @@ redis
 */
 
 // Like 点赞
-func Like(objId, username, tarUsername string, likeType int) error {
+func Like(objId, username string, likeType int) error {
 	// 将用户添加到点赞列表
 	err := redis.AddUserToLikeSet(objId, username, likeType)
 	if err != nil {
@@ -112,7 +112,7 @@ func CancelLike(objId, username string, likeType int) error {
 // LikeObjOrNot 检查是否点赞并点赞
 func LikeObjOrNot(objId, username, tarUsername string, likeType int) error {
 
-	var notification *gorm_model.Notification
+	var notification *gorm_model.InterNotification
 
 	//获取当前点赞文章列表
 	slice, err := redis.GetObjLikedUsers(objId, likeType)
@@ -134,7 +134,7 @@ func LikeObjOrNot(objId, username, tarUsername string, likeType int) error {
 		}
 	} else {
 		//反之，点赞
-		err = Like(objId, username, tarUsername, likeType)
+		err = Like(objId, username, likeType)
 		if err != nil {
 			zap.L().Error("LikeObjOrNot() service.article.likeService.Like err=", zap.Error(err))
 			return err
@@ -143,10 +143,11 @@ func LikeObjOrNot(objId, username, tarUsername string, likeType int) error {
 		// 构建消息事件
 		notification, err = NotificationPush.BuildLikeNotification(username, tarUsername, id, likeType)
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 		// 发送消息
-		sse.SendNotification(*notification)
+		sse.SendInterNotification(*notification)
 	}
 	return nil
 }
@@ -158,7 +159,7 @@ mysql
 // LikeToMysql 点赞
 func LikeToMysql(objId, likeType int, username string) error {
 
-	userId, err := mysql.GetIdByUsername(username)
+	userId, err := mysql.QueryUserIdByUsername(username)
 	if err != nil {
 		zap.L().Error("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", zap.Error(err))
 		return err
@@ -205,9 +206,9 @@ func LikeToMysql(objId, likeType int, username string) error {
 
 // CancelLikeToMysql 取消点赞
 func CancelLikeToMysql(objId, likeType int, username string) error {
-	userId, err := mysql.GetIdByUsername(username)
+	userId, err := mysql.QueryUserIdByUsername(username)
 	if err != nil {
-		zap.L().Error("CancelLikeToMysql() service.article.likeService.GetIdByUsername err=", zap.Error(err))
+		zap.L().Error("CancelLikeToMysql() service.article.likeService.QueryUserIdByUsername err=", zap.Error(err))
 		return err
 	}
 

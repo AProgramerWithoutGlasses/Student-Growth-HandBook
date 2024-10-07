@@ -18,10 +18,10 @@ mysql:
  max_idle_conns: 50
 
 redis:
-  host: "152.136.50.60"
-  port: 6378
-  password: "seatMarch"
-  db: 0
+  host: "192.168.10.4"
+  port: 6379
+  password: "123456"
+  db: 25
   pool_size: 100
 
 aliyun:

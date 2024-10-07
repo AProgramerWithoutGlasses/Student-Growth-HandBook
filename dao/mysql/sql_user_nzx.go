@@ -31,7 +31,6 @@ func QueryPlusTimeByUsername(username string) (*time.Time, error) {
 
 // QueryUserByAdvancedFilter 高级筛选用户(年级、班级、姓名)
 func QueryUserByAdvancedFilter(grade int, class []string, name string) (*gorm.DB, error) {
-
 	year, err := timeConverter.GetEnrollmentYear(grade)
 	if err != nil {
 		zap.L().Error("QueryClassByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))

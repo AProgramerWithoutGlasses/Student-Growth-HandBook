@@ -16,5 +16,8 @@ func SocketConnectionController(c *gin.Context) {
 		return
 	}
 
-	sse.BuildNotificationChannel(in.UserId, c)
+	err = sse.BuildNotificationChannel(in.UserId, c)
+	if err != nil {
+		return
+	}
 }

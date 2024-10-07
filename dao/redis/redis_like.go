@@ -46,6 +46,9 @@ func GetObjLikes(objId string, likeType int) (int, error) {
 	likesNumResult, err := RDB.HGet(List[likeType], objId).Result()
 	fmt.Println(List[likeType], objId)
 	fmt.Println(likesNumResult)
+	result, _ := RDB.HKeys(List[likeType]).Result()
+	fmt.Println(result)
+
 	if err != nil {
 		zap.L().Error("GetObjLikes() dao.redis.redis_like.Result err=", zap.Error(err))
 		return -1, err

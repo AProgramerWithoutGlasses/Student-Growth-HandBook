@@ -2,12 +2,13 @@ package message
 
 import (
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/nzx_model"
 	myErr "studentGrow/pkg/error"
+	"studentGrow/pkg/sse"
+	NotificationPush "studentGrow/service/notificationPush"
 	"studentGrow/utils/timeConverter"
 )
 
@@ -297,6 +298,15 @@ func PublishManagerMsgService(username, content, role string) error {
 			return err
 		}
 	}
+
+	notification, err := NotificationPush.BuildManagerNotification(username, content)
+	if err != nil {
+		zap.L().Error("PublishManagerMsgService() service.article.BuildManagerNotification.Transaction err=", zap.Error(err))
+		return err
+	}
+
+	sse.SendSysNotification(*notification)
+
 	return nil
 }
 
@@ -306,25 +316,36 @@ func PublishSystemMsgService(content, role, username string) error {
 	if role != "superman" {
 		return myErr.OverstepCompetence
 	}
+
 	// 添加通知
-	ids, err := mysql.QueryAllUserId()
+
+	//// 添加通知
+	//ids, err := mysql.QueryAllUserId()
+	//if err != nil {
+	//	zap.L().Error("PublishSystemMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
+	//	return err
+	//}
+	//err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+	//	for _, uid := range ids {
+	//		err = mysql.AddSystemMsg(content, int(uid), tx, username)
+	//		if err != nil {
+	//			zap.L().Error("PublishSystemMsgService() service.article.likeService.AddSystemMsg err=", zap.Error(err))
+	//			return err
+	//		}
+	//	}
+	//	return nil
+	//})
+	//if err != nil {
+	//	zap.L().Error("PublishSystemMsgService() service.article.likeService.Transaction err=", zap.Error(err))
+	//	return err
+	//}
+
+	notification, err := NotificationPush.BuildSystemNotification(username, content)
 	if err != nil {
-		zap.L().Error("PublishSystemMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
+		zap.L().Error("PublishSystemMsgService() service.article.BuildSystemNotification.Transaction err=", zap.Error(err))
 		return err
 	}
-	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
-		for _, uid := range ids {
-			err = mysql.AddSystemMsg(content, int(uid), tx, username)
-			if err != nil {
-				zap.L().Error("PublishSystemMsgService() service.article.likeService.AddSystemMsg err=", zap.Error(err))
-				return err
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		zap.L().Error("PublishSystemMsgService() service.article.likeService.Transaction err=", zap.Error(err))
-		return err
-	}
+
+	sse.SendSysNotification(*notification)
 	return nil
 }

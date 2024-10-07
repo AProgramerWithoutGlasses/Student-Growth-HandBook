@@ -51,7 +51,7 @@ func GetUnreadReportsController(c *gin.Context) {
 	}
 
 	// 获取未读举报数目
-	count, err := message.GetUnreadRoportNumForService(username, role)
+	count, err := message.GetUnreadReportNumForService(username, role)
 	if err != nil {
 		zap.L().Error("GetUnreadReportsController() controller.message.GetUnreadReportsForService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
