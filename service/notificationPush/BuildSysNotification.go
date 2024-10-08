@@ -13,7 +13,7 @@ func BuildSystemNotification(username, content string) (*model.SysNotification, 
 	}
 
 	sysNotification := model.SysNotification{
-		UserID:     uint(userId),
+		OwnUserId:  uint(userId),
 		NoticeType: 4,
 		Content:    content,
 		IsRead:     false,
@@ -30,7 +30,7 @@ func BuildManagerNotification(username, content string) (*model.SysNotification,
 	}
 
 	sysNotification := model.SysNotification{
-		UserID:     uint(userId),
+		OwnUserId:  uint(userId),
 		NoticeType: 3,
 		Content:    content,
 		IsRead:     false,

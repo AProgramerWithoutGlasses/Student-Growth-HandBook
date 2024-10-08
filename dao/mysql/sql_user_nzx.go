@@ -54,3 +54,14 @@ func QueryUserIdByUsername(username string) (int, error) {
 	}
 	return int(user.ID), nil
 }
+
+// QueryAllUserId 查询所有用户的id
+func QueryAllUserId() ([]uint, error) {
+	var ids []uint
+	if err := DB.Model(&model.User{}).Pluck("id", &ids).Error; err != nil {
+		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(err))
+		return nil, err
+	}
+
+	return ids, nil
+}

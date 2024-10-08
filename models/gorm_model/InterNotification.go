@@ -12,6 +12,8 @@ type InterNotification struct {
 	SuperType  int    // 父级消息类型
 	SuperId    int    // 父级消息ID
 	Content    string // 消息内容
+	OwnUser    User   `gorm:"foreignKey:OwnUserId"` // 预加载发送者用户
+	TarUser    User   `gorm:"foreignKey:TarUserId"` // 预加载接收者用户
+	Time       string `gorm:"-"`
 	IsRead     bool   `gorm:"default:false"`
-	Status     bool   `gorm:"default:true"`
 }

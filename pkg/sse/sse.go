@@ -73,7 +73,7 @@ func SendInterNotification(n gorm_model.InterNotification) {
 
 // SendSysNotification 广播消息推送
 func SendSysNotification(n gorm_model.SysNotification) {
-	fmt.Println("Send sysNotification is user = ", n.UserID)
+	fmt.Println("Send sysNotification is user = ", n.OwnUserId)
 	msg, err := json.Marshal(n)
 	if err != nil {
 		return

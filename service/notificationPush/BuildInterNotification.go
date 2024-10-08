@@ -23,7 +23,6 @@ func BuildLikeNotification(username, tarUsername string, objId, likeType int) (*
 		SuperType:  likeType,
 		SuperId:    objId,
 		IsRead:     false,
-		Status:     false,
 		Content:    "",
 	}
 
@@ -48,7 +47,6 @@ func BuildCollectNotification(username, tarUsername string, aid int) (*gorm_mode
 		SuperType:  0,
 		SuperId:    aid,
 		IsRead:     false,
-		Status:     false,
 		Content:    "",
 	}
 
@@ -73,7 +71,6 @@ func BuildCommentNotification(username, tarUsername string, objId, comType int) 
 		SuperType:  comType,
 		SuperId:    objId,
 		IsRead:     false,
-		Status:     false,
 		Content:    "",
 	}
 

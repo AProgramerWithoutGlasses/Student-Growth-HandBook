@@ -37,5 +37,6 @@ type User struct {
 	UserPoints                []UserPoint         // 用户拥有积分列表
 	ReceiveInterNotifications []InterNotification `gorm:"foreignKey:TarUserId"` // 接收到的消息
 	SendInterNotifications    []InterNotification `gorm:"foreignKey:OwnUserId"` // 发送的消息
-	SysNotifications          []SysNotification   // 用户拥有系统消息
+	ReceiveSysNotifications   []SysNotification   `gorm:"foreignKey:TarUserId"` // 接收到的消息
+	SendSysNotifications      []SysNotification   `gorm:"foreignKey:OwnUserId"` // 发送的消息
 }

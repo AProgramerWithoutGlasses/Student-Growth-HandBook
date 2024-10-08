@@ -4,8 +4,12 @@ import "gorm.io/gorm"
 
 type SysNotification struct {
 	gorm.Model
-	UserID     uint
+	OwnUserId  uint
+	TarUserId  uint
 	NoticeType int
 	Content    string
-	IsRead     bool `gorm:"default:false"`
+	OwnUser    User   `gorm:"foreignKey:OwnUserId"` // 预加载发送者用户
+	TarUser    User   `gorm:"foreignKey:TarUserId"` // 预加载接收者用户
+	Time       string `gorm:"-"`
+	IsRead     bool   `gorm:"-"`
 }

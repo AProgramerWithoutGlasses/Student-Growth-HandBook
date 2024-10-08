@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
 	time "studentGrow/utils/timeConverter"
@@ -289,49 +288,95 @@ func AckUnreadReportsForSuperman(reportsId int) error {
 	return nil
 }
 
-// QuerySystemMsg 查询系统消息
-func QuerySystemMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
-	var msg []gorm_model.MsgRecord
+//// QuerySystemMsg 查询系统消息
+//func QuerySystemMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
+//	var msg []gorm_model.MsgRecord
+//
+//	if err := DB.Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 1, uid).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
+//		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
+//		return nil, err
+//	}
+//
+//	return msg, nil
+//}
 
-	if err := DB.Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 1, uid).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
+// QuerySystemNotification 查询系统消息
+func QuerySystemNotification(page, size int) ([]gorm_model.SysNotification, error) {
+	var msgs []gorm_model.SysNotification
+
+	if err := DB.Preload("OwnUser").Where("notice_type = ?", 4).
+		Order("created_at desc").Offset((page - 1) * size).Limit(size).
+		Find(&msgs).
+		Error; err != nil {
 		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
 		return nil, err
 	}
-
-	return msg, nil
+	return msgs, nil
 }
 
-// QueryUnreadSystemMsg 查询未读系统通知条数
-func QueryUnreadSystemMsg(uid int) (int, error) {
+// QuerySystemNotificationNum 查询系统消息总数
+func QuerySystemNotificationNum() (int, error) {
 	var count int64
-	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and is_read = ? and user_id = ?", 1, false, uid).Count(&count).Error; err != nil {
-		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
+	if err := DB.Model(&gorm_model.SysNotification{}).Where("notice_type = ?", 4).Count(&count).Error; err != nil {
+		zap.L().Error("QuerySystemNotificationNum() dao.mysql.sql_msg", zap.Error(err))
 		return -1, err
 	}
 	return int(count), nil
 }
 
-// QueryManagerMsg 查询管理员消息通知
-func QueryManagerMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
-	var msg []gorm_model.MsgRecord
+//// QueryUnreadSystemMsg 查询未读系统通知条数
+//func QueryUnreadSystemMsg(uid int) (int, error) {
+//	var count int64
+//	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and is_read = ? and user_id = ?", 1, false, uid).Count(&count).Error; err != nil {
+//		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
+//		return -1, err
+//	}
+//	return int(count), nil
+//}
 
-	if err := DB.Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 2, uid).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
-		zap.L().Error("QueryManagerMsg() dao.mysql.sql_msg", zap.Error(err))
+// QueryManagerNotification 查询管理员消息
+func QueryManagerNotification(page, size int) ([]gorm_model.SysNotification, error) {
+	var msgs []gorm_model.SysNotification
+	if err := DB.Preload("OwnUser").Where("notice_type = ?", 3).
+		Order("created_at desc").Offset((page - 1) * size).Limit(size).
+		Find(&msgs).Error; err != nil {
+		zap.L().Error("QueryManagerNotification() dao.mysql.sql_msg", zap.Error(err))
 		return nil, err
 	}
-
-	return msg, nil
+	return msgs, nil
 }
 
-// QueryUnreadManagerMsg 获取未读管理员消息通知
-func QueryUnreadManagerMsg(uid int) (int, error) {
+// QueryManagerNotificationNum 查询管理员消息总数
+func QueryManagerNotificationNum() (int, error) {
 	var count int64
-	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and user_id = ? and is_read = ?", 2, uid, false).Count(&count).Error; err != nil {
-		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
+	if err := DB.Model(&gorm_model.SysNotification{}).Where("notice_type = ?", 3).Count(&count).Error; err != nil {
+		zap.L().Error("QueryManagerNotificationNum() dao.mysql.sql_msg", zap.Error(err))
 		return -1, err
 	}
 	return int(count), nil
 }
+
+//// QueryManagerMsg 查询管理员消息通知
+//func QueryManagerMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
+//	var msg []gorm_model.MsgRecord
+//
+//	if err := DB.Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 2, uid).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
+//		zap.L().Error("QueryManagerMsg() dao.mysql.sql_msg", zap.Error(err))
+//		return nil, err
+//	}
+//
+//	return msg, nil
+//}
+//
+//// QueryUnreadManagerMsg 获取未读管理员消息通知
+//func QueryUnreadManagerMsg(uid int) (int, error) {
+//	var count int64
+//	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and user_id = ? and is_read = ?", 2, uid, false).Count(&count).Error; err != nil {
+//		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
+//		return -1, err
+//	}
+//	return int(count), nil
+//}
 
 // QueryLikeRecordByUser 分页查询其文章和评论的点赞记录
 func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, error) {
@@ -524,45 +569,74 @@ func UpdateCommentRecordRead(cid int) error {
 	return nil
 }
 
-// AddManagerMsg 添加管理员通知
-func AddManagerMsg(username, content string, uid int) error {
-	managerMsg := gorm_model.MsgRecord{
-		Content:  content,
-		Username: username,
-		UserID:   uint(uid),
-		Type:     constant.ManagerMsgConstant,
+// AddManagerNotification 添加管理员通知
+func AddManagerNotification(ownId int, content string) error {
+	//managerMsg := gorm_model.MsgRecord{
+	//	Content:  content,
+	//	Username: username,
+	//	UserID:   uint(uid),
+	//	Type:     constant.ManagerMsgConstant,
+	//}
+	//
+	//if err := DB.Create(&managerMsg).Error; err != nil {
+	//	zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(err))
+	//	return err
+	//}
+
+	sysNotification := gorm_model.SysNotification{
+		OwnUserId:  uint(ownId),
+		NoticeType: 3,
+		Content:    content,
 	}
 
-	if err := DB.Create(&managerMsg).Error; err != nil {
-		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(err))
+	if err := DB.Create(&sysNotification).Error; err != nil {
+		zap.L().Error("AddManagerNotification() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
+
 	return nil
 }
 
-// AddSystemMsg 添加系统通知
-func AddSystemMsg(content string, uid int, db *gorm.DB, username string) error {
-	systemMsg := gorm_model.MsgRecord{
-		Username: username,
-		Content:  content,
-		UserID:   uint(uid),
-		Type:     constant.SystemMsgConstant,
+// AddSystemNotification 添加普通系统通知
+func AddSystemNotification(content string, ownId int) error {
+	//systemMsg := gorm_model.MsgRecord{
+	//	Username: username,
+	//	Content:  content,
+	//	UserID:   uint(uid),
+	//	Type:     constant.SystemMsgConstant,
+	//}
+	//
+	//if err := db.Create(&systemMsg).Error; err != nil {
+	//	zap.L().Error("AddSystemMsg() dao.mysql.sql_msg err=", zap.Error(err))
+	//	return err
+	//}
+
+	sysNotification := gorm_model.SysNotification{
+		OwnUserId:  uint(ownId),
+		NoticeType: 4,
+		Content:    content,
 	}
 
-	if err := db.Create(&systemMsg).Error; err != nil {
-		zap.L().Error("AddSystemMsg() dao.mysql.sql_msg err=", zap.Error(err))
+	if err := DB.Create(&sysNotification).Error; err != nil {
+		zap.L().Error("AddSystemNotification() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
+
 	return nil
 }
 
-// QueryAllUserId 查询所有用户的id
-func QueryAllUserId() ([]uint, error) {
-	var ids []uint
-	if err := DB.Model(&gorm_model.User{}).Pluck("id", &ids).Error; err != nil {
-		zap.L().Error("AddManagerMsg() dao.mysql.sql_msg err=", zap.Error(err))
-		return nil, err
+func AddBanSystemNotification(content string, ownId int, db *gorm.DB, tarId int) error {
+	sysNotification := gorm_model.SysNotification{
+		OwnUserId:  uint(ownId),
+		TarUserId:  uint(tarId),
+		NoticeType: 5,
+		Content:    content,
 	}
 
-	return ids, nil
+	if err := db.Create(&sysNotification).Error; err != nil {
+		zap.L().Error("AddBanSystemNotification() dao.mysql.sql_msg err=", zap.Error(err))
+		return err
+	}
+
+	return nil
 }
