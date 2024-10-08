@@ -19,8 +19,8 @@ func CORSMiddleware() gin.HandlerFunc {
 		var allowedOrigins = map[string]bool{
 			"http://192.168.10.7":    true,
 			"http://192.168.10.7:81": true,
-			"http://8.154.36.180":    true,
-			"http://8.154.36.180:81": true,
+			"http://8.154.36.180:8904": true,
+			"http://8.154.36.180:8905": true,
 		}
 
 		method := c.Request.Method               //请求方法
