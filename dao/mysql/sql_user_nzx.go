@@ -65,3 +65,12 @@ func QueryAllUserId() ([]uint, error) {
 
 	return ids, nil
 }
+
+func QueryUserByUserId(uid int) (*model.User, error) {
+	var user model.User
+	if err := DB.Where("id = ?", uid).First(&user).Error; err != nil {
+		zap.L().Error("QueryUserByUserId() dao.mysql.sql_msg err=", zap.Error(err))
+		return nil, err
+	}
+	return &user, nil
+}

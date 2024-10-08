@@ -14,7 +14,6 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
-	"studentGrow/models/gorm_model"
 	"studentGrow/routes"
 	"studentGrow/service/article"
 	"studentGrow/settings"
@@ -42,10 +41,10 @@ func main() {
 		fmt.Printf("mysql.Init() gorm.Open() err : %v\n", err)
 		return
 	}
-	err := mysql.DB.AutoMigrate(&gorm_model.SysNotification{}, &gorm_model.InterNotification{}, &gorm_model.User{})
-	if err != nil {
-		return
-	}
+	//err := mysql.DB.AutoMigrate(&gorm_model.NotificationConfig{})
+	//if err != nil {
+	//	return
+	//}
 
 	// 4. 初始化redis
 	if err := redis.Init(); err != nil {
@@ -60,7 +59,7 @@ func main() {
 	r := routes.Setup()
 
 	//6.初始化oss
-	err = oss.Init()
+	err := oss.Init()
 	if err != nil {
 		zap.L().Error("main() oss.Init err=", zap.Error(err))
 		return
