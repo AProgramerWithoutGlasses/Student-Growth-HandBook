@@ -93,7 +93,7 @@ func HLogin(c *gin.Context) {
 	}
 	role, err := mysql.SelRole(casbinId)
 	//获取生成的token
-	tokenString, err := token.ReleaseToken(user.Username, user.Password, role)
+	tokenString, err := token.ReleaseToken(user.Username, role)
 	if err != nil {
 		fmt.Println("Hlogin的login.ReleaseToken()")
 		return
@@ -198,7 +198,7 @@ func QLogin(c *gin.Context) {
 	id, err := mysql.SelId(user.Username)
 	err = mysql.CreateUser(user.Username, id)
 	//获取生成的token
-	tokenString, err := token.ReleaseToken(user.Username, user.Password, role)
+	tokenString, err := token.ReleaseToken(user.Username, role)
 	if err != nil {
 		fmt.Println("Hlogin的login.ReleaseToken()")
 		return

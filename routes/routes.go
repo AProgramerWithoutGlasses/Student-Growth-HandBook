@@ -9,6 +9,7 @@ import (
 
 func Setup() *gin.Engine {
 	r := gin.New()
+
 	r.Use(logger.GinLogger(), logger.GinRecovery(true), middleWare.CORSMiddleware())
 	//r.Use() // 跨域中间件
 
@@ -26,6 +27,5 @@ func Setup() *gin.Engine {
 
 	// 雪
 	RoutesXue(r)
-
 	return r
 }
