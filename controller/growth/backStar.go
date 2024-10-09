@@ -8,7 +8,6 @@ import (
 	"studentGrow/models/constant"
 	"studentGrow/pkg/response"
 	"studentGrow/service/starService"
-	token2 "studentGrow/utils/token"
 	"time"
 )
 
@@ -43,9 +42,9 @@ func Search(c *gin.Context) {
 	}
 
 	//得到登录者的角色和账号
-	token := c.GetHeader("token")
-	role, err := token2.GetRole(token)
-	username, err := token2.GetUsername(token)
+	claim, _ := c.Get("claim")
+	username := claim.(*models.Claims).Username
+	role := claim.(*models.Claims).Role
 	if err != nil {
 		zap.L().Error("Search err", zap.Error(err))
 		response.ResponseError(c, response.ServerErrorCode)
@@ -174,8 +173,8 @@ func Search(c *gin.Context) {
 // ElectClass  班级管理员推选数据
 func ElectClass(c *gin.Context) {
 	//获取管理员班级
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
+	claim, _ := c.Get("claim")
+	username := claim.(*models.Claims).Username
 	class, err := mysql.SelClass(username)
 	//查找表中存在几条已推选的数据
 	Number, err := starService.SelNumClass(class)
@@ -240,10 +239,11 @@ func ElectClass(c *gin.Context) {
 func ElectGrade(c *gin.Context) {
 	//代表年级管理员已推选的个数
 	var number int
+	var err error
 	date := time.Now()
 	//拿到角色
-	token := c.GetHeader("token")
-	role, err := token2.GetRole(token)
+	claim, _ := c.Get("claim")
+	role := claim.(*models.Claims).Role
 	//获取number的值
 	switch role {
 	case "grade1":
@@ -577,9 +577,9 @@ func BackStarCollege(c *gin.Context) {
 
 // ChangeStatus 修改是否可以再次推选
 func ChangeStatus(c *gin.Context) {
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
-	err = mysql.UpdateOne(username)
+	claim, _ := c.Get("claim")
+	username := claim.(*models.Claims).Username
+	err := mysql.UpdateOne(username)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "修改状态失败")
 		return
@@ -602,8 +602,8 @@ func BackTime(c *gin.Context) {
 
 // BackName 返回前端已经推选过的名字
 func BackName(c *gin.Context) {
-	token := c.GetHeader("token")
-	stuName, err := starService.BackNameData(token)
+	claim, _ := c.Get("claim")
+	stuName, err := starService.BackNameData(claim.(*models.Claims))
 	if err != nil {
 		response.ResponseError(c, 401)
 		return
