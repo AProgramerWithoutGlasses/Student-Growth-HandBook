@@ -214,14 +214,20 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 			return err
 		}
 
-		user, err := mysql.QueryUserByArticleId(aid)
+		tarUser, err := mysql.QueryUserByArticleId(aid)
 		if err != nil {
 			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 			return err
 		}
 
+		ownUserId, err := mysql.QueryUserIdByUsername(username)
+		if err != nil {
+			zap.L().Error("BannedArticleService() service.article.QueryUserIdByUsername err=", zap.Error(err))
+			return err
+		}
+
 		msg := fmt.Sprintf("您的内容为:<br/>%s<br/>已被封禁!", content)
-		err = mysql.AddSystemMsg(msg, int(user.ID), tx, username)
+		err = mysql.AddBanSystemNotification(msg, ownUserId, tx, int(tarUser.ID))
 		if err != nil {
 			zap.L().Error("BannedArticleService() service.article.DeleteArticleReportMsg err=", zap.Error(err))
 			return err
@@ -540,9 +546,9 @@ func PublishArticleService(username, content, topic string, wordCount int, tags 
 	startOfDay := time.Now().Truncate(24 * time.Hour) // 今天的开始时间
 	endOfDay := startOfDay.Add(24 * time.Hour)        // 明天的开始时间
 
-	uid, err := mysql.GetIdByUsername(username)
+	uid, err := mysql.QueryUserIdByUsername(username)
 	if err != nil {
-		zap.L().Error("PublishArticleService() service.article.GetIdByUsername err=", zap.Error(err))
+		zap.L().Error("PublishArticleService() service.article.QueryUserIdByUsername err=", zap.Error(err))
 		return err
 	}
 

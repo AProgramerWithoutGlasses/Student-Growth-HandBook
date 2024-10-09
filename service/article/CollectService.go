@@ -8,6 +8,8 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
 	"studentGrow/models/nzx_model"
+	"studentGrow/pkg/sse"
+	NotificationPush "studentGrow/service/notificationPush"
 )
 
 // CollectService Collect 收藏
@@ -91,7 +93,7 @@ func CancelCollectService(aid, username string) error {
 }
 
 // CollectOrNotService CollectOrNot 检查是否收藏并收藏或取消收藏
-func CollectOrNotService(aid, username string) error {
+func CollectOrNotService(aid, username, tarUsername string) error {
 	// 获取当前用户收藏列表
 	slice, err := redis.GetUserCollectionSet(username)
 	if err != nil {
@@ -116,9 +118,20 @@ func CollectOrNotService(aid, username string) error {
 		// 反之，收藏
 		err = CollectService(username, aid)
 		if err != nil {
-			fmt.Println("CollectOrNot() service.article.GetUserCollectionSet err=", err)
+			fmt.Println("CollectOrNot() service.article.CollectService err=", err)
 			return err
 		}
+		id, err := strconv.Atoi(aid)
+		if err != nil {
+			fmt.Println("CollectOrNot() service.article.Atoi err=", err)
+			return err
+		}
+		notification, err := NotificationPush.BuildCollectNotification(username, tarUsername, id)
+		if err != nil {
+			fmt.Println("CollectOrNot() service.article.Atoi err=", err)
+			return err
+		}
+		sse.SendInterNotification(*notification)
 	}
 	return nil
 }
