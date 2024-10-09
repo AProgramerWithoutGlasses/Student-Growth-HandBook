@@ -55,14 +55,14 @@ func QueryUserByAdvancedFilter(grade int, class []string, name string) (*gorm.DB
 	return query, nil
 }
 
-func QueryUserIdByUsername(username string) (int, error) {
-	var user model.User
-	if err := DB.Model(&model.User{}).Select("id").Where("username = ?", username).First(&user).Error; err != nil {
-		zap.L().Error("QueryUserIdByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
-		return -1, err
-	}
-	return int(user.ID), nil
-}
+//func QueryUserIdByUsername(username string) (int, error) {
+//	var user model.User
+//	if err := DB.Model(&model.User{}).Select("id").Where("username = ?", username).First(&user).Error; err != nil {
+//		zap.L().Error("QueryUserIdByUsername() dao.mysql.sql_user_nzx err=", zap.Error(err))
+//		return -1, err
+//	}
+//	return int(user.ID), nil
+//}
 
 // QueryAllUserId 查询所有用户的id
 func QueryAllUserId() ([]uint, error) {
