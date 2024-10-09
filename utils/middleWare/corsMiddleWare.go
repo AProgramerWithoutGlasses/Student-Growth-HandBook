@@ -22,7 +22,6 @@ func CORSMiddleware() gin.HandlerFunc {
 			"http://8.154.36.180:8904": true,
 			"http://8.154.36.180:8905": true,
 		}
-
 		method := c.Request.Method               //请求方法
 		origin := c.Request.Header.Get("Origin") //请求头部
 		var headerKeys []string                  // 声明请求头keys
@@ -38,9 +37,11 @@ func CORSMiddleware() gin.HandlerFunc {
 
 		fmt.Println("len map", len(allowedOrigins))
 		fmt.Println("map", allowedOrigins)
-
+		fmt.Println("origin-->",origin,"-->has Map",allowedOrigins[origin])
 		// 检查请求的Origin是否在允许的域名列表中
 		if allowedOrigins[origin] {
+
+			fmt.Println("设置了权限--》",origin)
 			// 如果是，则设置Access-Control-Allow-Origin为请求的Origin
 			c.Header("Access-Control-Allow-Origin", origin)
 		} else {
