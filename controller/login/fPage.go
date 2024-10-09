@@ -4,22 +4,17 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"studentGrow/dao/mysql"
+	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service/permission"
-	tokens "studentGrow/utils/token"
 	"time"
 )
 
 // FPageClass 返回前端后台首页数据--班级管理员
 func FPageClass(c *gin.Context) {
 	//查询用户账号
-	token := c.GetHeader("token")
-	username, err := tokens.GetUsername(token)
-	if err != nil {
-		fmt.Println("FPage tokens.GetUsername err", err)
-		response.ResponseError(c, 400)
-		return
-	}
+	claim, _ := c.Get("claim")
+	username := claim.(*models.Claims).Username
 	//获取班级
 	class, err := mysql.SelClass(username)
 	if err != nil {
@@ -127,12 +122,10 @@ func FPageClass(c *gin.Context) {
 // FPageGrade 返回前端后台首页数据--年级管理员
 func FPageGrade(c *gin.Context) {
 	var uidSlice []int
-	token := c.GetHeader("token")
-	role, err := tokens.GetRole(token)
-	if err != nil {
-		response.ResponseError(c, 400)
-		return
-	}
+	var err error
+	//拿到角色
+	claim, _ := c.Get("claim")
+	role := claim.(*models.Claims).Role
 	nowdata := time.Now()
 	switch role {
 	case "grade1":

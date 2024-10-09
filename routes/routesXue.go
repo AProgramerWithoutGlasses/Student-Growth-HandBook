@@ -32,7 +32,7 @@ func RoutesXue(router *gin.Engine) {
 	tokenUser := router.Group("user")
 	tokenUser.Use(token.AuthMiddleware())
 	{
-		user.POST("/register/day", login.RegisterDay)
+		tokenUser.POST("/register/day", login.RegisterDay)
 	}
 
 	//casbin鉴权

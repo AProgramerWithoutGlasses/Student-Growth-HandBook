@@ -225,12 +225,13 @@ func QLogin(c *gin.Context) {
 
 // RegisterDay 前台获取注册天数
 func RegisterDay(c *gin.Context) {
-	tokens := c.GetHeader("token")
-	username, err := token.GetUsername(tokens)
+	claim, _ := c.Get("claim")
+	username := claim.(*models.Claims).Username
+	plusTime, err := mysql.SelPlus(username)
 	if err != nil {
 		pkg.ResponseError(c, 400)
+		return
 	}
-	plusTime, err := mysql.SelPlus(username)
 	plus_time := userService.IntervalInDays(plusTime)
 	data := map[string]any{
 		"plus_time": plus_time,

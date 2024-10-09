@@ -5,7 +5,6 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
 	"studentGrow/models/constant"
-	token2 "studentGrow/utils/token"
 	"time"
 )
 
@@ -267,21 +266,16 @@ func SelTimeStar(starTime, endTime string, starType int, page int, limit int) ([
 	return starlist, nil
 }
 
-func BackNameData(token string) ([]string, error) {
+func BackNameData(claim *models.Claims) ([]string, error) {
 	date := time.Now()
 	var stuName []string
-	username, err := token2.GetUsername(token)
-	role, err := token2.GetRole(token)
-	if err != nil {
-		return nil, err
-	}
+	username := claim.Username
+	role := claim.Role
+	var err error
 	switch role {
 	case "class":
-		class, err := mysql.SelClass(username)
+		class, _ := mysql.SelClass(username)
 		stuName, err = mysql.SelStuClass(class)
-		if err != nil {
-			return nil, err
-		}
 	case "grade1":
 		stuName, err = mysql.SelStuGrade(date, -1)
 	case "grade2":
@@ -292,6 +286,9 @@ func BackNameData(token string) ([]string, error) {
 		stuName, err = mysql.SelStuGrade(date, -4)
 	case "college":
 		stuName, err = mysql.SelDataCollege()
+	}
+	if err != nil {
+		return nil, err
 	}
 	return stuName, nil
 }
