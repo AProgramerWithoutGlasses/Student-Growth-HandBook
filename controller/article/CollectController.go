@@ -7,22 +7,19 @@ import (
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
-	"studentGrow/utils/readMessage"
 	"studentGrow/utils/token"
 )
 
 // CollectArticleController 收藏文章
 func CollectArticleController(c *gin.Context) {
-	// 获取文章id
-	json, err := readMessage.GetJsonvalue(c)
+	in := struct {
+		ArticleId   int    `json:"article_id"`
+		TarUsername string `json:"tar_username"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		zap.L().Error("CollectArticleController() controller.article.CollectController.GetJsonvalue err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-	aid, err := json.GetInt("article_id")
-	if err != nil {
-		zap.L().Error("CollectArticleController() controller.article.CollectController.GetInt err=", zap.Error(err))
+		zap.L().Error("CollectArticleController() controller.article.CollectController.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -36,7 +33,7 @@ func CollectArticleController(c *gin.Context) {
 	}
 
 	// 收藏
-	err = article.CollectOrNotService(strconv.Itoa(aid), username)
+	err = article.CollectOrNotService(strconv.Itoa(in.ArticleId), username, in.TarUsername)
 	if err != nil {
 		zap.L().Error("CollectArticleController() controller.article.CollectController.CollectOrNotService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)

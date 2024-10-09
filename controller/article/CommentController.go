@@ -15,13 +15,14 @@ import (
 
 // PostCom 发布评论
 func PostCom(c *gin.Context) {
-	// 读取前端数据
-	json, err := utils.GetJsonvalue(c)
-	if err != nil {
-		zap.L().Error("PostCom() controller.article.GetJsonvalue err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
+
+	in := struct {
+		TarUsername    string `json:"tar_username"`
+		CommentType    int    `json:"comment_type"`
+		CommentContent string `json:"comment_content"`
+		Id             int    `json:"id"`
+	}{}
+
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
@@ -30,29 +31,8 @@ func PostCom(c *gin.Context) {
 		return
 	}
 
-	//获取数据
-	commentType, err := json.GetString("comment_type")
-	if err != nil {
-		zap.L().Error("PostCom() controller.article.GetString err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-	commentContent, err := json.GetString("comment_content")
-	if err != nil {
-		zap.L().Error("PostCom() controller.article.GetString err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
-	id, err := json.GetInt("id")
-	if err != nil {
-		zap.L().Error("PostCom() controller.article.GetInt err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
 	//新增评论
-	err = comment.PostComment(commentType, username, commentContent, id)
+	err = comment.PostComment(username, in.TarUsername, in.CommentContent, in.Id, in.CommentType)
 
 	if err != nil {
 		zap.L().Error("PostCom() controller.article.PostComment err=", zap.Error(err))

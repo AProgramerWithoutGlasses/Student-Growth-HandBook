@@ -10,12 +10,14 @@ import (
 	"studentGrow/dao/redis"
 	"studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
+	"studentGrow/pkg/sse"
 	"studentGrow/service/article"
+	NotificationPush "studentGrow/service/notificationPush"
 	timeUtil "studentGrow/utils/timeConverter"
 )
 
 // PostComment 发布评论
-func PostComment(commentType, username, content string, id int) error {
+func PostComment(username, tarUsername, content string, id, commentType int) error {
 	//类型comment_type:‘article’or‘comment’;id;comment_content;comment_username
 
 	//获取用户id
@@ -32,7 +34,7 @@ func PostComment(commentType, username, content string, id int) error {
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		switch commentType {
 		//给文章评论
-		case "0":
+		case 0:
 			//向数据库插入评论数据
 			cid, err = mysql.InsertIntoCommentsForArticle(content, id, uid, tx)
 			if err != nil {
@@ -40,7 +42,7 @@ func PostComment(commentType, username, content string, id int) error {
 				return err
 			}
 
-		case "1":
+		case 1:
 			//向数据库插入评论数据
 			cid, err = mysql.InsertIntoCommentsForComment(content, uid, id, tx)
 			if err != nil {
@@ -77,6 +79,13 @@ func PostComment(commentType, username, content string, id int) error {
 
 	// 将评论数据加入redis
 	redis.RDB.HSet("comment", strconv.Itoa(cid), 0)
+
+	notification, err := NotificationPush.BuildCommentNotification(username, tarUsername, id, commentType)
+	if err != nil {
+		zap.L().Error("PostComment() service.article.BuildCommentNotification err=", zap.Error(err))
+		return err
+	}
+	sse.SendInterNotification(*notification)
 
 	return nil
 }

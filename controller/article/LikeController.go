@@ -7,19 +7,23 @@ import (
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
-	utils "studentGrow/utils/readMessage"
 	"studentGrow/utils/token"
 )
 
 // LikeController 点赞
 func LikeController(c *gin.Context) {
-	//解析数据
-	json, err := utils.GetJsonvalue(c)
+
+	in := struct {
+		Id          int    `json:"id"`
+		LikeType    int    `json:"like_type"`
+		TarUsername string `json:"tar_username"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
-		zap.L().Error("Like() controller.article.GetJsonvalue err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
 		return
 	}
+
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {
@@ -27,24 +31,9 @@ func LikeController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-	// 获取被点赞id
-	id, err := json.GetInt("id")
-	if err != nil {
-		zap.L().Error("Like() controller.article.GetInt err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
-	// 获取被点赞类型
-	likeType, err := json.GetInt("like_type")
-	if err != nil {
-		zap.L().Error("Like() controller.article.GetInt err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
 
 	//点赞
-	err = article.LikeObjOrNot(strconv.Itoa(id), username, likeType)
+	err = article.LikeObjOrNot(strconv.Itoa(in.Id), username, in.TarUsername, in.LikeType)
 	if err != nil {
 		zap.L().Error("Like() controller.article.LikeObjOrNot err=", zap.Error(err))
 		myErr.CheckErrors(err, c)

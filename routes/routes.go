@@ -18,6 +18,7 @@ func Setup() *gin.Engine {
 	routesTopic(r)
 	routesMsg(r)
 	routesComment(r)
+	routesNotification(r)
 
 	// 勋
 	routesHomepage(r)

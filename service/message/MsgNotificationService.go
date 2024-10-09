@@ -38,8 +38,8 @@ func GetUnreadReportsForService(username, role string, limit, page int) (reports
 	return reports, nil
 }
 
-// GetUnreadRoportNumForService 获取未读举报信息的数目
-func GetUnreadRoportNumForService(username, role string) (count int, err error) {
+// GetUnreadReportNumForService 获取未读举报信息的数目
+func GetUnreadReportNumForService(username, role string) (count int, err error) {
 	fmt.Println(role)
 	switch role {
 	case "class":

@@ -2,68 +2,133 @@ package message
 
 import (
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"studentGrow/dao/mysql"
+	"studentGrow/dao/redis"
 	"studentGrow/models/constant"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/nzx_model"
 	myErr "studentGrow/pkg/error"
+	"studentGrow/pkg/sse"
+	NotificationPush "studentGrow/service/notificationPush"
 	"studentGrow/utils/timeConverter"
 )
 
 // GetSystemMsgService 获取系统消息通知
-func GetSystemMsgService(limit, page int, username string) ([]gorm_model.MsgRecord, int, error) {
-	// 获取uid
-	user, err := mysql.GetUserByUsername(username)
+func GetSystemMsgService(limit, page int, username string) ([]gorm_model.SysNotification, int, error) {
+	//msgs, err := mysql.QuerySystemMsg(page, limit, int(user.ID))
+	//if err != nil {
+	//	zap.L().Error("GetSystemMsgService() service.message.QuerySystemMsg", zap.Error(err))
+	//	return nil, -1, err
+	//}
+	//
+	//// 查询未读消息条数
+	//count, err := mysql.QueryUnreadSystemMsg(int(user.ID))
+	//if err != nil {
+	//	zap.L().Error("GetSystemMsgService() service.message.QueryUnreadSystemMsg", zap.Error(err))
+	//	return nil, -1, err
+	//}
+
+	uid, err := mysql.QueryUserIdByUsername(username)
 	if err != nil {
+		zap.L().Error("GetSystemMsgService() service.message.QueryUserIdByUsername", zap.Error(err))
 		return nil, 0, err
 	}
-
-	msgs, err := mysql.QuerySystemMsg(page, limit, int(user.ID))
+	// 查询系统消息列表
+	msgs, err := mysql.QuerySystemNotification(page, limit)
 	if err != nil {
-		zap.L().Error("GetSystemMsgService() service.message.QuerySystemMsg", zap.Error(err))
-		return nil, -1, err
-	}
-
-	// 查询未读消息条数
-	count, err := mysql.QueryUnreadSystemMsg(int(user.ID))
-	if err != nil {
-		zap.L().Error("GetSystemMsgService() service.message.QueryUnreadSystemMsg", zap.Error(err))
-		return nil, -1, err
+		zap.L().Error("GetSystemMsgService() service.message.QuerySystemNotification", zap.Error(err))
+		return nil, 0, err
 	}
 
 	for i := 0; i < len(msgs); i++ {
 		msgs[i].Time = timeConverter.IntervalConversion(msgs[i].CreatedAt)
+
+		isAck, err := redis.IsUserAckedSystemNotification(uid, int(msgs[i].ID))
+		if err != nil {
+			zap.L().Error("GetSystemMsgService() service.message.IsUserAckedSystemNotification", zap.Error(err))
+			return nil, 0, err
+		}
+		if isAck {
+			msgs[i].IsRead = true
+		} else {
+			msgs[i].IsRead = false
+		}
 	}
+
+	// 查询未读消息总数
+	total, err := mysql.QuerySystemNotificationNum()
+	if err != nil {
+		zap.L().Error("GetSystemMsgService() service.message.QuerySystemNotificationNum", zap.Error(err))
+		return nil, 0, err
+	}
+
+	ackNum, err := redis.GetUserAckedSystemNum(uid)
+	if err != nil {
+		zap.L().Error("GetSystemMsgService() service.message.GetUserAckedNum", zap.Error(err))
+		return nil, 0, err
+	}
+
+	count := total - ackNum
 
 	return msgs, count, nil
 }
 
 // GetManagerMsgService 获取管理员消息
-func GetManagerMsgService(limit, page int, username string) ([]gorm_model.MsgRecord, int, error) {
-	// 获取uid
-	uid, err := mysql.GetIdByUsername(username)
+func GetManagerMsgService(limit, page int, username string) ([]gorm_model.SysNotification, int, error) {
+	//msgs, err := mysql.QueryManagerMsg(page, limit, uid)
+	//if err != nil {
+	//	zap.L().Error("GetManagerMsgService() service.message.QueryManagerMsg", zap.Error(err))
+	//	return nil, -1, err
+	//}
+	//
+	//// 查询未读消息条数
+	//count, err := mysql.QueryUnreadManagerMsg(uid)
+	//if err != nil {
+	//	zap.L().Error("GetManagerMsgService() service.message.QueryUnreadManagerMsg", zap.Error(err))
+	//	return nil, -1, err
+	//}
+
+	uid, err := mysql.QueryUserIdByUsername(username)
 	if err != nil {
-		zap.L().Error("GetManagerMsgService() service.message.GetIdByUsername", zap.Error(err))
+		zap.L().Error("GetManagerMsgService() service.message.QueryUserIdByUsername", zap.Error(err))
 		return nil, 0, err
 	}
 
-	msgs, err := mysql.QueryManagerMsg(page, limit, uid)
+	// 查询管理员消息列表
+	msgs, err := mysql.QueryManagerNotification(page, limit)
 	if err != nil {
-		zap.L().Error("GetManagerMsgService() service.message.QueryManagerMsg", zap.Error(err))
-		return nil, -1, err
-	}
-
-	// 查询未读消息条数
-	count, err := mysql.QueryUnreadManagerMsg(uid)
-	if err != nil {
-		zap.L().Error("GetManagerMsgService() service.message.QueryUnreadManagerMsg", zap.Error(err))
-		return nil, -1, err
+		zap.L().Error("GetManagerMsgService() service.message.QueryManagerNotification", zap.Error(err))
+		return nil, 0, err
 	}
 
 	for i := 0; i < len(msgs); i++ {
 		msgs[i].Time = timeConverter.IntervalConversion(msgs[i].CreatedAt)
+
+		isAck, err := redis.IsUserAckedManagerNotification(uid, int(msgs[i].ID))
+		if err != nil {
+			zap.L().Error("GetSystemMsgService() service.message.IsUserAckedManagerNotification", zap.Error(err))
+			return nil, 0, err
+		}
+		if isAck {
+			msgs[i].IsRead = true
+		} else {
+			msgs[i].IsRead = false
+		}
 	}
+
+	total, err := mysql.QueryManagerNotificationNum()
+	if err != nil {
+		zap.L().Error("GetManagerMsgService() service.message.QueryManagerNotificationNum", zap.Error(err))
+		return nil, 0, err
+	}
+
+	ackNum, err := redis.GetUserAckedManagerNum(uid)
+	if err != nil {
+		zap.L().Error("GetManagerMsgService() service.message.GetUserAckedManagerNum", zap.Error(err))
+		return nil, 0, err
+	}
+
+	count := total - ackNum
 
 	return msgs, count, nil
 }
@@ -242,7 +307,7 @@ func AckInterMsgService(msgId, msgType int) error {
 }
 
 // AckManagerMsgService 确认管理员消息
-func AckManagerMsgService(username string) error {
+func AckManagerMsgService(username string, msgId int) error {
 	// 获取uid
 	uid, err := mysql.GetIdByUsername(username)
 	if err != nil {
@@ -250,17 +315,24 @@ func AckManagerMsgService(username string) error {
 		return err
 	}
 
-	// 确认管理员消息
-	err = mysql.UpdateManagerRecordRead(uid)
+	// 将消息加入用户已读消息set集合
+	err = redis.AckManagerNotification(uid, msgId)
 	if err != nil {
-		zap.L().Error("AckManagerMsgService() service.article.likeService.UpdateManagerRecordRead err=", zap.Error(err))
+		zap.L().Error("AckSystemMsgService() service.article.likeService.GetIdByUsername err=", zap.Error(err))
 		return err
 	}
+
+	//// 确认管理员消息
+	//err = mysql.UpdateManagerRecordRead(uid)
+	//if err != nil {
+	//	zap.L().Error("AckManagerMsgService() service.article.likeService.UpdateManagerRecordRead err=", zap.Error(err))
+	//	return err
+	//}
 	return nil
 }
 
 // AckSystemMsgService 确认系统消息
-func AckSystemMsgService(username string) error {
+func AckSystemMsgService(username string, msgId int) error {
 	// 获取uid
 	uid, err := mysql.GetIdByUsername(username)
 	if err != nil {
@@ -268,12 +340,19 @@ func AckSystemMsgService(username string) error {
 		return err
 	}
 
-	// 确认管理员消息
-	err = mysql.UpdateSystemRecordRead(uid)
+	// 将消息加入用户已读消息set集合
+	err = redis.AckSystemNotification(uid, msgId)
 	if err != nil {
-		zap.L().Error("AckManagerMsgService() service.article.likeService.UpdateSystemRecordRead err=", zap.Error(err))
+		zap.L().Error("AckSystemMsgService() service.article.likeService.GetIdByUsername err=", zap.Error(err))
 		return err
 	}
+
+	//// 确认管理员消息
+	//err = mysql.UpdateSystemRecordRead(uid)
+	//if err != nil {
+	//	zap.L().Error("AckManagerMsgService() service.article.likeService.UpdateSystemRecordRead err=", zap.Error(err))
+	//	return err
+	//}
 	return nil
 }
 
@@ -285,18 +364,41 @@ func PublishManagerMsgService(username, content, role string) error {
 		return myErr.OverstepCompetence
 	}
 	// 添加通知
-	ids, err := mysql.QueryAllUserId()
+	//ids, err := mysql.QueryAllUserId()
+	//if err != nil {
+	//	zap.L().Error("PublishManagerMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
+	//	return err
+	//}
+	//for _, uid := range ids {
+	//	err = mysql.AddManagerMsg(username, content, int(uid))
+	//	if err != nil {
+	//		zap.L().Error("PublishManagerMsgService() service.article.likeService.AddManagerMsg err=", zap.Error(err))
+	//		return err
+	//	}
+	//}
+
+	// 添加管理员通知
+	userId, err := mysql.QueryUserIdByUsername(username)
 	if err != nil {
-		zap.L().Error("PublishManagerMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
+		zap.L().Error("PublishManagerMsgService() service.article.QueryUserIdByUsername err=", zap.Error(err))
 		return err
 	}
-	for _, uid := range ids {
-		err = mysql.AddManagerMsg(username, content, int(uid))
-		if err != nil {
-			zap.L().Error("PublishManagerMsgService() service.article.likeService.AddManagerMsg err=", zap.Error(err))
-			return err
-		}
+
+	err = mysql.AddManagerNotification(userId, content)
+	if err != nil {
+		zap.L().Error("PublishManagerMsgService() service.article.AddManagerNotification err=", zap.Error(err))
+		return err
 	}
+
+	// 消息推送
+	notification, err := NotificationPush.BuildManagerNotification(username, content)
+	if err != nil {
+		zap.L().Error("PublishManagerMsgService() service.article.BuildManagerNotification.Transaction err=", zap.Error(err))
+		return err
+	}
+
+	sse.SendSysNotification(*notification)
+
 	return nil
 }
 
@@ -306,25 +408,48 @@ func PublishSystemMsgService(content, role, username string) error {
 	if role != "superman" {
 		return myErr.OverstepCompetence
 	}
+
+	//// 添加通知
+	//ids, err := mysql.QueryAllUserId()
+	//if err != nil {
+	//	zap.L().Error("PublishSystemMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
+	//	return err
+	//}
+	//err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+	//	for _, uid := range ids {
+	//		err = mysql.AddSystemMsg(content, int(uid), tx, username)
+	//		if err != nil {
+	//			zap.L().Error("PublishSystemMsgService() service.article.likeService.AddSystemMsg err=", zap.Error(err))
+	//			return err
+	//		}
+	//	}
+	//	return nil
+	//})
+	//if err != nil {
+	//	zap.L().Error("PublishSystemMsgService() service.article.likeService.Transaction err=", zap.Error(err))
+	//	return err
+	//}
+
 	// 添加通知
-	ids, err := mysql.QueryAllUserId()
+	userId, err := mysql.QueryUserIdByUsername(username)
 	if err != nil {
-		zap.L().Error("PublishSystemMsgService() service.article.likeService.QueryAllUserId err=", zap.Error(err))
+		zap.L().Error("PublishSystemMsgService() service.article.QueryUserIdByUsername err=", zap.Error(err))
 		return err
 	}
-	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
-		for _, uid := range ids {
-			err = mysql.AddSystemMsg(content, int(uid), tx, username)
-			if err != nil {
-				zap.L().Error("PublishSystemMsgService() service.article.likeService.AddSystemMsg err=", zap.Error(err))
-				return err
-			}
-		}
-		return nil
-	})
+
+	err = mysql.AddSystemNotification(content, userId)
 	if err != nil {
-		zap.L().Error("PublishSystemMsgService() service.article.likeService.Transaction err=", zap.Error(err))
+		zap.L().Error("PublishSystemMsgService() service.article.AddSystemNotification err=", zap.Error(err))
 		return err
 	}
+
+	// 消息推送
+	notification, err := NotificationPush.BuildSystemNotification(username, content)
+	if err != nil {
+		zap.L().Error("PublishSystemMsgService() service.article.BuildSystemNotification err=", zap.Error(err))
+		return err
+	}
+
+	sse.SendSysNotification(*notification)
 	return nil
 }

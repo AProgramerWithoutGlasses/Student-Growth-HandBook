@@ -43,7 +43,8 @@ func GetSystemMsgController(c *gin.Context) {
 			"msg_content":   msg.Content,
 			"msg_time":      msg.Time,
 			"username":      username,
-			"user_headshot": msg.User.HeadShot,
+			"user_headshot": msg.OwnUser.HeadShot,
+			"is_read":       msg.IsRead,
 		})
 	}
 
@@ -88,7 +89,8 @@ func GetManagerMsgController(c *gin.Context) {
 			"msg_content":   msg.Content,
 			"msg_time":      msg.Time,
 			"username":      username,
-			"user_headshot": msg.User.HeadShot,
+			"user_headshot": msg.OwnUser.HeadShot,
+			"is_read":       msg.IsRead,
 		})
 	}
 
@@ -236,8 +238,17 @@ func AckManagerMsgController(c *gin.Context) {
 		return
 	}
 
+	in := struct {
+		MsgId int `json:"msg_id"`
+	}{}
+	err = c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("AckManagerMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 	// 确认消息
-	err = message.AckManagerMsgService(username)
+	err = message.AckManagerMsgService(username, in.MsgId)
 	if err != nil {
 		zap.L().Error("AckManagerMsgController() controller.message.AckManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -256,7 +267,18 @@ func AckSystemMsgController(c *gin.Context) {
 		return
 	}
 
-	err = message.AckSystemMsgService(username)
+	in := struct {
+		MsgId int `json:"msg_id"`
+	}{}
+
+	err = c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("AckSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = message.AckSystemMsgService(username, in.MsgId)
 	if err != nil {
 		zap.L().Error("AckSystemMsgController() controller.message.AckSystemMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -295,6 +317,13 @@ func PublishManagerMsgController(c *gin.Context) {
 	err = message.PublishManagerMsgService(username, in.Content, role)
 	if err != nil {
 		zap.L().Error("PublishManagerMsgController() controller.message.PublishManagerMsgService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	err = message.PublishSystemMsgService(in.Content, role, username)
+	if err != nil {
+		zap.L().Error("PublishSystemMsgController() controller.message.PublishSystemMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
