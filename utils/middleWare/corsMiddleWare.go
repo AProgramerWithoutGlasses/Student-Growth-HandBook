@@ -68,6 +68,8 @@ func CORSMiddleware() gin.HandlerFunc {
 			c.Header("Access-Control-Max-Age", "172800")                                                                                                                                                           // 缓存请求信息 单位为秒
 			c.Header("Access-Control-Allow-Credentials", "false")                                                                                                                                                  //  跨域请求是否需要带cookie信息 默认设置为true
 			c.Set("content-type", "application/json")                                                                                                                                                              // 设置返回格式是json
+			c.Set("content-disposition", "inline")
+
 		}
 
 		//放行所有OPTIONS方法
