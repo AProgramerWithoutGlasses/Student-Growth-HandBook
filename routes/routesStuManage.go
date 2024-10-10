@@ -7,6 +7,7 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/models/casbinModels"
 	"studentGrow/utils/middleWare"
+	"studentGrow/utils/token"
 )
 
 // 后台学生管理路由
@@ -17,9 +18,9 @@ func routesStudentManage(r *gin.Engine) {
 		return
 	}
 	rs := r.Group("/stuManage")
+	rs.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
 
 	{
-		rs.Use(middleWare.NewCasbinAuth(casbinService))
 		// rs.POST("/queryPageStudent", stuManage.QueryPageStuContro)
 		rs.POST("/addSingleStudent", stuManage.AddSingleStuContro)
 		rs.POST("/addMultipleStudent", stuManage.AddMultipleStuControl)

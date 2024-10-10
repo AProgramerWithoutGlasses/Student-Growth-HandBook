@@ -3,18 +3,14 @@ package menuController
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/dao/mysql"
+	"studentGrow/models"
 	"studentGrow/pkg/response"
-	token2 "studentGrow/utils/token"
 )
 
 func HeadRoute(c *gin.Context) {
-	token := c.GetHeader("token")
-	role, err := token2.GetRole(token)
-	username, err := token2.GetUsername(token)
-	if err != nil {
-		response.ResponseError(c, 400)
-		return
-	}
+	claim, _ := c.Get("claim")
+	username := claim.(*models.Claims).Username
+	role := claim.(*models.Claims).Role
 	//1.查找用户姓名
 	name, err := mysql.SelName(username)
 	//2.查找用户头像

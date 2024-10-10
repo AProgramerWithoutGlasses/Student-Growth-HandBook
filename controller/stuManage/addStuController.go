@@ -4,26 +4,26 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
+	"studentGrow/models"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	token2 "studentGrow/utils/token"
 )
 
 // 添加单个学生
 func AddSingleStuContro(c *gin.Context) {
 	// 根据token拿到登陆者自己的信息
 	var myMes jrx_model.MyTokenMes
-
 	var err error
-	token := c.GetHeader("token")
-	myMes.MyUsername, err = token2.GetUsername(token)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
+
+	claim, exist := c.Get("claim")
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
+	myMes.MyUsername = claim.(*models.Claims).Username
 
 	myMes.MyId, err = mysql.GetIdByUsername(myMes.MyUsername)
 	if err != nil {
@@ -39,12 +39,8 @@ func AddSingleStuContro(c *gin.Context) {
 		return
 	}
 
-	myMes.MyRole, err = token2.GetRole(token)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
-		return
-	}
+	//myMes.MyRole, err = token2.GetRole(token)
+	myMes.MyRole = claim.(*models.Claims).Role
 
 	// 接收
 	input := struct {

@@ -1,12 +1,11 @@
 package homepage
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	token2 "studentGrow/utils/token"
 )
 
 func UpdateHeadshotControl(c *gin.Context) {
@@ -27,16 +26,14 @@ func UpdateHeadshotControl(c *gin.Context) {
 		zap.L().Error(err.Error())
 		return
 	}
-	fmt.Println("成功接收到file")
 
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
+	claim, exist := c.Get("claim")
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
-	fmt.Println("成功接收到token")
+	username := claim.(*models.Claims).Username
 
 	// 业务
 	url, err := service.UpdateHeadshotService(file, username)
@@ -45,8 +42,6 @@ func UpdateHeadshotControl(c *gin.Context) {
 		zap.L().Error(err.Error())
 		return
 	}
-
-	fmt.Println("成功执行完业务")
 
 	output := struct {
 		UserHeadshot string `json:"user_headshot"`
