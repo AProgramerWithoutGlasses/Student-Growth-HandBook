@@ -25,7 +25,7 @@ func ResponseSuccess(c *gin.Context, data any) {
 func ResponseSuccessWithMsg(c *gin.Context, msg string, data any) {
 	c.JSON(http.StatusOK, &Response{
 		Code: SuccessCode,
-		Msg:  msg, // code对应的提示信息
+		Msg:  msg, // 手动编辑的提示信息
 		Data: data,
 	})
 }
