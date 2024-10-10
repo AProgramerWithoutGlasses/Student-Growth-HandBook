@@ -9,20 +9,20 @@ import (
 	"gorm.io/gorm"
 	"strconv"
 	"studentGrow/dao/mysql"
+	"studentGrow/models"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
-	token2 "studentGrow/utils/token"
 	"time"
 )
 
 func AddMultipleStuControl(c *gin.Context) {
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token)
-	if err != nil {
-		response.ResponseError(c, response.ParamFail)
-		zap.L().Error(err.Error())
+	claim, exist := c.Get("claim")
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
+	username := claim.(*models.Claims).Username
 
 	// 获取上传的Excel文件
 	file, _, err := c.Request.FormFile("file")
