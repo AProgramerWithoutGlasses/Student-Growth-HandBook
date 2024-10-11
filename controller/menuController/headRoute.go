@@ -2,19 +2,24 @@ package menuController
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
-	"studentGrow/models"
 	"studentGrow/pkg/response"
+	token2 "studentGrow/utils/token"
 )
 
 func HeadRoute(c *gin.Context) {
-	claim, _ := c.Get("claim")
-	username := claim.(*models.Claims).Username
-	role := claim.(*models.Claims).Role
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+	}
+	role, err := token.GetRole()
 	//1.查找用户姓名
-	name, err := mysql.SelName(username)
+	name := user.Name
 	//2.查找用户头像
-	avatar, err := mysql.SelHead(username)
+	avatar, err := mysql.SelHead(user.Username)
 	//3.查找权限下按钮的所有权限标识
 	if role == "grade1" || role == "grade2" || role == "grade3" || role == "grade4" {
 		role = "grade"

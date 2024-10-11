@@ -3,28 +3,25 @@ package login
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
-	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service/permission"
+	token2 "studentGrow/utils/token"
 	"time"
 )
 
 // FPageClass 返回前端后台首页数据--班级管理员
 func FPageClass(c *gin.Context) {
 	//查询用户账号
-	claim, _ := c.Get("claim")
-	username := claim.(*models.Claims).Username
-	//获取班级
-	class, err := mysql.SelClass(username)
-	if err != nil {
-		fmt.Println("FPage  SelClass err", err)
-		response.ResponseError(c, 400)
-		return
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
 	}
-
 	//把一个班的用户id查出来
-	uidslice, err := mysql.SelUid(class)
+	uidslice, err := mysql.SelUid(user.Class)
 
 	//班级总帖数
 	article_total, err := service.ArticleData(uidslice)
@@ -124,8 +121,8 @@ func FPageGrade(c *gin.Context) {
 	var uidSlice []int
 	var err error
 	//拿到角色
-	claim, _ := c.Get("claim")
-	role := claim.(*models.Claims).Role
+	token := token2.NewToken(c)
+	role, err := token.GetRole()
 	nowdata := time.Now()
 	switch role {
 	case "grade1":

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"studentGrow/dao/mysql"
-	"studentGrow/models"
 	"studentGrow/models/casbinModels"
 	pkg "studentGrow/pkg/response"
+	token2 "studentGrow/utils/token"
 )
 
 func NewCasbinAuth(srv *casbinModels.CasbinService) gin.HandlerFunc {
@@ -19,8 +19,8 @@ func NewCasbinAuth(srv *casbinModels.CasbinService) gin.HandlerFunc {
 			return
 		}
 		//拿到角色
-		claim, _ := c.Get("claim")
-		role := claim.(*models.Claims).Role
+		token := token2.NewToken(c)
+		role, err := token.GetRole()
 		if err != nil || role == "" {
 			fmt.Println("NewCasbinAuth myToken.GetRole(token) err:")
 			return
