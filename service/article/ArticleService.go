@@ -50,7 +50,7 @@ func GetArticleService(username string, aid int) (article *model.Article, err er
 			return nil, err
 		}
 		if IsManager || user.Username == username {
-			// 若为管理员
+			// 若为管理员或者作者本人
 			article, err = mysql.QueryArticleByIdOfManager(aid)
 			if err != nil {
 				zap.L().Error("GetArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
