@@ -9,8 +9,8 @@ import (
 )
 
 type InnerInput struct {
-	Username string `json:"username"`
-	Year     string `json:"year"`
+	Username string `json:"username" binding:"required"`
+	Year     string `json:"year" binding:"required"`
 }
 
 type Input struct {

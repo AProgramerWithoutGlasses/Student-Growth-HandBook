@@ -9,7 +9,7 @@ import (
 
 func GetUsername(c *gin.Context) {
 	input := struct {
-		Username string `json:"username"`
+		Username string `json:"username" binding:"required"`
 	}{}
 	err := c.Bind(&input)
 	if err != nil {
