@@ -53,7 +53,7 @@ func GetArticleIdController(c *gin.Context) {
 		"article_text":  art.Content,
 		"article_video": art.Video,
 	}
-
+	// 若是不可被查看的文章除了文章状态，其余字段返回nil
 	var data map[string]any
 	if (art.Ban == true && art.User.Username != in.Username) || art.Status == false {
 		data = map[string]any{

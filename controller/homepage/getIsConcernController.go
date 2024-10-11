@@ -3,15 +3,15 @@ package homepage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
-	token2 "studentGrow/utils/token"
 )
 
 func GetIsConcernControl(c *gin.Context) {
 	input := struct {
 		//Username      string `json:"username"`
-		OtherUsername string `json:"other_username"`
+		OtherUsername string `json:"other_username" binding:"required"`
 	}{}
 
 	err := c.BindJSON(&input)
@@ -21,14 +21,24 @@ func GetIsConcernControl(c *gin.Context) {
 		return
 	}
 
+	// 校验
+
 	// 获取角色
-	token := c.GetHeader("token")
-	username, err := token2.GetUsername(token) // class, grade(1-4), collge, superman
-	if err != nil {
-		response.ResponseError(c, response.ServerErrorCode)
-		zap.L().Error(err.Error())
+	//token := c.GetHeader("token")
+	//username, err := token2.GetUsername(token) // class, grade(1-4), collge, superman
+	//if err != nil {
+	//	response.ResponseError(c, response.ServerErrorCode)
+	//	zap.L().Error(err.Error())
+	//	return
+	//}
+
+	claim, exist := c.Get("claim")
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
+	username := claim.(*models.Claims).Username
 
 	isConcern, err := service.GetIsConcernService(username, input.OtherUsername)
 	if err != nil {

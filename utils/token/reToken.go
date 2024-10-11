@@ -16,7 +16,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString := c.GetHeader("token")
 		//验证前端传过来的token格式，不为空，开头为Bearer
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-			response.ResponseError(c, 400)
+			response.ResponseErrorWithMsg(c, 400, "token不合法")
 			c.Abort()
 			return
 		}
@@ -26,10 +26,11 @@ func AuthMiddleware() gin.HandlerFunc {
 		token, _, err := ParseToken(tokenString)
 		//解析失败||解析后的token无效
 		if err != nil || !token.Valid {
-			response.ResponseError(c, 400)
+			response.ResponseErrorWithMsg(c, 400, "token解析失败")
 			c.Abort()
 			return
 		}
+		c.Set("claim", token.Claims)
 		c.Next()
 	}
 }
@@ -52,7 +53,6 @@ func GetUsername(tokenString string) (string, error) {
 		return "", err
 	}
 	if claims, ok := token.Claims.(*models.Claims); ok {
-		fmt.Println(claims.Username)
 		return claims.Username, nil
 	}
 	return "", nil

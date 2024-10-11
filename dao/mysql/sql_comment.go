@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	model "studentGrow/models/gorm_model"
@@ -10,6 +11,7 @@ import (
 // InsertIntoCommentsForArticle 向数据库插入评论数据(回复文章)
 func InsertIntoCommentsForArticle(content string, aid int, uid int, db *gorm.DB) (int, error) {
 	//content;id;username
+	fmt.Println("aid", aid)
 	comment := model.Comment{
 		Model:      gorm.Model{},
 		Content:    content,

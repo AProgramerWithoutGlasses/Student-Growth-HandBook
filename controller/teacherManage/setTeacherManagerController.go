@@ -9,12 +9,12 @@ import (
 
 // 设置老师管理员
 func SetTeacherManagerControl(c *gin.Context) {
-	// 响应
-	var intput struct {
-		Username    string `json:"username"`
-		ManagerType string `json:"manager_type"`
+	// 请求
+	var input struct {
+		Username    string `json:"username" binding:"required"`
+		ManagerType string `json:"manager_type" binding:"required"`
 	}
-	err := c.Bind(&intput)
+	err := c.Bind(&input)
 	if err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("teacherManage.SetTeacherManagerControl() c.Bind() failed : ", zap.Error(err))
@@ -22,7 +22,7 @@ func SetTeacherManagerControl(c *gin.Context) {
 	}
 
 	// 业务
-	err = service.SetTeacherManagerService(intput.Username, intput.ManagerType)
+	err = service.SetTeacherManagerService(input.Username, input.ManagerType)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error("teacherManage.SetTeacherManagerControl() service.SetTeacherManagerService() failed : ", zap.Error(err))
@@ -30,5 +30,5 @@ func SetTeacherManagerControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccess(c, nil)
+	response.ResponseSuccessWithMsg(c, "已将用户 "+input.Username+" 设置为 "+input.ManagerType, struct{}{})
 }
