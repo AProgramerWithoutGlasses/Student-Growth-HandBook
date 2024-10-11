@@ -3,6 +3,7 @@ package middleWare
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"net/http"
 	"strings"
 )
@@ -39,7 +40,9 @@ func CORSMiddleware() gin.HandlerFunc {
 		fmt.Println("map", allowedOrigins)
 		fmt.Println("origin-->",origin,"-->has Map",allowedOrigins[origin])
 		// 检查请求的Origin是否在允许的域名列表中
-		if allowedOrigins[origin] {
+
+		fmt.Println("mode:-->",viper.GetString("app.mode"))
+		if allowedOrigins[origin] || viper.GetString("app.mode") == "dev" {
 
 			fmt.Println("设置了权限--》",origin)
 			// 如果是，则设置Access-Control-Allow-Origin为请求的Origin
