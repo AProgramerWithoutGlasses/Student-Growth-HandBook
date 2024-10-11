@@ -11,7 +11,7 @@ import (
 func UpdateEmailControl(c *gin.Context) {
 	// 接收请求
 	input := struct {
-		UserEmail string `json:"user_email"`
+		UserEmail string `json:"user_email" binding:"required"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {

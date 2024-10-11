@@ -14,8 +14,8 @@ import (
 func GetHistoryControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Page  int `json:"page"`
-		Limit int `json:"limit"`
+		Page  int `json:"page" binding:"required"`
+		Limit int `json:"limit" binding:"required"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {

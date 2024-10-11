@@ -11,7 +11,7 @@ import (
 func GetMesControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Username string `json:"username"`
+		Username string `json:"username" binding:"required"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {

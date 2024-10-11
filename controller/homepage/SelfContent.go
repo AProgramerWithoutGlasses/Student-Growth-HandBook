@@ -11,13 +11,13 @@ import (
 
 // 用户自述
 type SelfContentStruct struct {
-	NewSelfContent string `json:"self_content"`
+	NewSelfContent string `json:"self_content" binding:"required"`
 }
 
 // GetSelfContentContro 获取前端发送的用户id, 并将其在数据库中对应的用户自述响应给前端
 func GetSelfContentContro(c *gin.Context) {
 	input := struct {
-		Username string `json:"username"`
+		Username string `json:"username" binding:"required"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {

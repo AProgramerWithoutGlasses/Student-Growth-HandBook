@@ -11,7 +11,7 @@ import (
 func UnbanUserControl(c *gin.Context) {
 	// 接收数据
 	input := struct {
-		UnbanUsername string `json:"unban_username"`
+		UnbanUsername string `json:"unban_username" binding:"required"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {
