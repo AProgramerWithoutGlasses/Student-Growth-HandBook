@@ -82,6 +82,16 @@ func (this *Token) GetRole() (string, error) {
 	return role, nil
 }
 
-func GetUsername(token string) (string, error) {
+// GetUsername 通过token获取username
+func GetUsername(tokenString string) (string, error) {
+	tokenString = tokenString[7:]
+	token, _, err := ParseToken(tokenString)
+	if err != nil {
+		fmt.Println("GetUsername  ParseToken() err:", err.Error())
+		return "", err
+	}
+	if claims, ok := token.Claims.(*models.Claims); ok {
+		return claims.User.Username, nil
+	}
 	return "", nil
 }
