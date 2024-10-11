@@ -81,3 +81,5 @@ func (this *Token) GetRole() (string, error) {
 	}
 	return role, nil
 }
+
+func GetUsername() {}
