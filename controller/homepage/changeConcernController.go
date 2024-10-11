@@ -12,7 +12,7 @@ func ChangeConcernControl(c *gin.Context) {
 	// 接收
 	input := struct {
 		//Username  string `json:"username"`
-		Othername string `json:"othername"`
+		Othername string `json:"othername" binding:"required"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {

@@ -12,8 +12,8 @@ import (
 func BanUserControl(c *gin.Context) {
 	// 接收数据
 	input := struct {
-		BanTime     int    `json:"ban_time"`
-		BanUsername string `json:"ban_username"`
+		BanTime     int    `json:"ban_time" binding:"required"`
+		BanUsername string `json:"ban_username" binding:"required"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {
