@@ -95,3 +95,22 @@ func GetUsername(tokenString string) (string, error) {
 	}
 	return "", nil
 }
+
+func GetRole(tokenString string) (string, error) {
+	tokenString = tokenString[7:]
+	token, _, err := ParseToken(tokenString)
+	if err != nil {
+		fmt.Println("GetUsername  ParseToken() err:", err.Error())
+		return "", err
+	}
+	if claims, ok := token.Claims.(*models.Claims); ok {
+		username := claims.User.Username
+		code, err := mysql.SelCasId(username)
+		role, err := mysql.SelRole(code)
+		if err != nil {
+			return "", fmt.Errorf("获取角色错误")
+		}
+		return role, nil
+	}
+	return "", nil
+}
