@@ -11,7 +11,7 @@ import (
 func GetIsConcernControl(c *gin.Context) {
 	input := struct {
 		//Username      string `json:"username"`
-		OtherUsername string `json:"other_username"`
+		OtherUsername string `json:"other_username" binding:"required"`
 	}{}
 
 	err := c.BindJSON(&input)
@@ -20,6 +20,8 @@ func GetIsConcernControl(c *gin.Context) {
 		zap.L().Error(err.Error())
 		return
 	}
+
+	// 校验
 
 	// 获取角色
 	//token := c.GetHeader("token")

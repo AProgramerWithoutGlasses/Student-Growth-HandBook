@@ -13,9 +13,9 @@ import (
 func GetArticleControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		Page     int    `form:"page"`
-		Limit    int    `form:"limit"`
-		Username string `form:"username"`
+		Page     int    `form:"page" binding:"required"`
+		Limit    int    `form:"limit" binding:"required"`
+		Username string `form:"username" binding:"required"`
 	}{}
 	err := c.ShouldBindQuery(&input)
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 func UpdateHomepageMottoControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		UserMotto string `json:"user_motto"`
+		UserMotto string `json:"user_motto" binding:"required"`
 	}{}
 	err := c.ShouldBindJSON(&input)
 	if err != nil {

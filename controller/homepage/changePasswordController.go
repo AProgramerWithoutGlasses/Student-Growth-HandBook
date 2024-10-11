@@ -11,8 +11,8 @@ import (
 func ChangePasswordControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		OldPwd string `json:"old_pwd"`
-		NewPwd string `json:"new_pwd"`
+		OldPwd string `json:"old_pwd" binding:"required"`
+		NewPwd string `json:"new_pwd" binding:"required"`
 	}{}
 
 	err := c.BindJSON(&input)

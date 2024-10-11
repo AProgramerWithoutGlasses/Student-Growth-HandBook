@@ -11,7 +11,7 @@ import (
 func UpdatePhoneNumberControl(c *gin.Context) {
 	// 接收
 	input := struct {
-		PhoneNumber string `json:"phone_number"`
+		PhoneNumber string `json:"phone_number" binding:"required,numeric,len=11"`
 	}{}
 	err := c.BindJSON(&input)
 	if err != nil {
