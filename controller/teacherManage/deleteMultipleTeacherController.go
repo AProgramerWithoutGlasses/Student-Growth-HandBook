@@ -9,7 +9,7 @@ import (
 
 type DeleteTeacherStruct struct {
 	Name            string `json:"name"`
-	Username        string `json:"username"`
+	Username        string `json:"username" binding:"required"`
 	Password        string `json:"password"`
 	UserGender      string `json:"user_gender"`
 	UserManagerType bool   `json:"user_manager_type"`

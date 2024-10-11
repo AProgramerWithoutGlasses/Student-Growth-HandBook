@@ -10,7 +10,7 @@ import (
 func BanTeacherControl(c *gin.Context) {
 	// 接收参数
 	input := struct {
-		Username string `json:"username"`
+		Username string `json:"username" binding:"required"`
 	}{}
 	err := c.Bind(&input)
 	if err != nil {

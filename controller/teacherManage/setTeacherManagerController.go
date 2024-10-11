@@ -9,10 +9,10 @@ import (
 
 // 设置老师管理员
 func SetTeacherManagerControl(c *gin.Context) {
-	// 响应
+	// 请求
 	var input struct {
-		Username    string `json:"username"`
-		ManagerType string `json:"manager_type"`
+		Username    string `json:"username" binding:"required"`
+		ManagerType string `json:"manager_type" binding:"required"`
 	}
 	err := c.Bind(&input)
 	if err != nil {
