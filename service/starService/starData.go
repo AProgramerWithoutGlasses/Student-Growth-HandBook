@@ -266,11 +266,9 @@ func SelTimeStar(starTime, endTime string, starType int, page int, limit int) ([
 	return starlist, nil
 }
 
-func BackNameData(claim *models.Claims) ([]string, error) {
+func BackNameData(username, role string) ([]string, error) {
 	date := time.Now()
 	var stuName []string
-	username := claim.Username
-	role := claim.Role
 	var err error
 	switch role {
 	case "class":

@@ -5,6 +5,7 @@ import (
 	"studentGrow/models"
 	"studentGrow/pkg/response"
 	service "studentGrow/service/permission"
+	token2 "studentGrow/utils/token"
 )
 
 func MenuSide(c *gin.Context) {
@@ -12,9 +13,8 @@ func MenuSide(c *gin.Context) {
 	var menusidar []models.Sidebar
 	var err error
 	//拿到角色
-	claim, _ := c.Get("claim")
-	role := claim.(*models.Claims).Role
-
+	token := token2.NewToken(c)
+	role, err := token.GetRole()
 	switch role {
 	case "class":
 		menusidar, err = service.MenuIdClass("class")

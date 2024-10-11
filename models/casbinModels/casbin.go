@@ -41,9 +41,6 @@ m = r.sub == p.sub && r.obj == p.obj`)
 	if err != nil {
 		return nil, err
 	}
-	//e.LoadPolicy()
-	//ok, err := e.RemovePolicy("class", "10")
-	//fmt.Println(ok, err)
 	return &CasbinService{Enforcer: e, Adapter: a}, nil
 }
 

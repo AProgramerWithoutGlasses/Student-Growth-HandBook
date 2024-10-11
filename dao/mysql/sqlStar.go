@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"database/sql"
 	"studentGrow/models/gorm_model"
 	"time"
 )
@@ -94,11 +95,11 @@ func SelSearchGrade(name string, data time.Time, year int, page, limit int) ([]s
 }
 
 // SelPlus 查询入学时间
-func SelPlus(username string) (time.Time, error) {
-	var plus time.Time
+func SelPlus(username string) (sql.NullTime, error) {
+	var plus sql.NullTime
 	err := DB.Model(&gorm_model.User{}).Select("plus_time").Where("username = ?", username).Scan(&plus).Error
 	if err != nil {
-		return time.Time{}, err
+		return sql.NullTime{}, err
 	}
 	return plus, nil
 }

@@ -3,18 +3,18 @@ package token
 import (
 	"github.com/dgrijalva/jwt-go"
 	"studentGrow/models"
+	"studentGrow/models/gorm_model"
 	"time"
 )
 
-// 定义密钥
+// JwtKey 定义密钥
 var JwtKey = []byte("xlszxjm")
 
 // ReleaseToken 生成密钥
-func ReleaseToken(username, role string) (string, error) {
+func ReleaseToken(user gorm_model.User) (string, error) {
 	expirationTime := time.Now().Add(7 * 24 * time.Hour) //token的有效期是七天
 	claims := &models.Claims{
-		Username: username,
-		Role:     role,
+		User: user,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(), //token的有效期
 			IssuedAt:  time.Now().Unix(),     //token发放的时间

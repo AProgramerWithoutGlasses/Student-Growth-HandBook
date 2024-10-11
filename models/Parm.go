@@ -15,8 +15,7 @@ type Login struct {
 
 // Claims Token结构体
 type Claims struct {
-	Username string `json:"username"`
-	Role     string `json:"role"`
+	User gorm_model.User
 	jwt.StandardClaims
 }
 

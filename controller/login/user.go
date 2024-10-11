@@ -3,12 +3,13 @@ package login
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
 	pkg "studentGrow/pkg/response"
 	"studentGrow/service/userService"
 	"studentGrow/utils/timeConverter"
-	"studentGrow/utils/token"
+	token2 "studentGrow/utils/token"
 	"time"
 )
 
@@ -85,6 +86,8 @@ func HLogin(c *gin.Context) {
 			}
 		}
 	}
+	//查询整个user
+	thisUser, err := mysql.SelUser(user.Username)
 	//查询用户角色
 	casbinId, _ := mysql.SelCasId(user.Username)
 	if casbinId == "" {
@@ -93,7 +96,7 @@ func HLogin(c *gin.Context) {
 	}
 	role, err := mysql.SelRole(casbinId)
 	//获取生成的token
-	tokenString, err := token.ReleaseToken(user.Username, role)
+	tokenString, err := token2.ReleaseToken(thisUser)
 	if err != nil {
 		fmt.Println("Hlogin的login.ReleaseToken()")
 		return
@@ -179,26 +182,26 @@ func QLogin(c *gin.Context) {
 	} else {
 		role = "user"
 	}
+	//查询整个user
+	thisUser, err := mysql.SelUser(user.Username)
 	//验证用户是否是老师
 	ifTeacher, err := mysql.IfTeacher(user.Username)
-	ifAutor, err := mysql.IfAutor(user.Username)
-	if ifTeacher || ifAutor {
-		class = ""
+	class, err = mysql.SelClass(user.Username)
+	plusTime, err := mysql.SelPlus(user.Username)
+	if !plusTime.Valid {
 		grade = 0
 	} else {
-		class, err = mysql.SelClass(user.Username)
-		plusTime, err := mysql.SelPlus(user.Username)
-		grade = timeConverter.GetUserGrade(plusTime)
-		if err != nil {
-			fmt.Println("Hlogin的login.ReleaseToken()")
-			return
-		}
+		grade = timeConverter.GetUserGrade(plusTime.Time)
+	}
+	if err != nil {
+		fmt.Println("Hlogin的login.ReleaseToken()")
+		return
 	}
 	//记录用户登录
 	id, err := mysql.SelId(user.Username)
 	err = mysql.CreateUser(user.Username, id)
 	//获取生成的token
-	tokenString, err := token.ReleaseToken(user.Username, role)
+	tokenString, err := token2.ReleaseToken(thisUser)
 	if err != nil {
 		fmt.Println("Hlogin的login.ReleaseToken()")
 		return
@@ -225,14 +228,24 @@ func QLogin(c *gin.Context) {
 
 // RegisterDay 前台获取注册天数
 func RegisterDay(c *gin.Context) {
-	claim, _ := c.Get("claim")
-	username := claim.(*models.Claims).Username
-	plusTime, err := mysql.SelPlus(username)
+	var plus_time int
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
+	if !exist {
+		pkg.ResponseError(c, pkg.TokenError)
+		zap.L().Error("token错误")
+		return
+	}
+	plusTime, err := mysql.SelPlus(user.Username)
 	if err != nil {
 		pkg.ResponseError(c, 400)
 		return
 	}
-	plus_time := userService.IntervalInDays(plusTime)
+	if !plusTime.Valid {
+		plus_time = 0
+	} else {
+		plus_time = userService.IntervalInDays(plusTime.Time)
+	}
 	data := map[string]any{
 		"plus_time": plus_time,
 	}

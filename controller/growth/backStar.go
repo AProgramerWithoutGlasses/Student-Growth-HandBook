@@ -8,6 +8,7 @@ import (
 	"studentGrow/models/constant"
 	"studentGrow/pkg/response"
 	"studentGrow/service/starService"
+	token2 "studentGrow/utils/token"
 	"time"
 )
 
@@ -42,9 +43,13 @@ func Search(c *gin.Context) {
 	}
 
 	//得到登录者的角色和账号
-	claim, _ := c.Get("claim")
-	username := claim.(*models.Claims).Username
-	role := claim.(*models.Claims).Role
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+	}
+	role, err := token.GetRole()
 	if err != nil {
 		zap.L().Error("Search err", zap.Error(err))
 		response.ResponseError(c, response.ServerErrorCode)
@@ -54,17 +59,10 @@ func Search(c *gin.Context) {
 	//根据角色分类
 	switch role {
 	case "class":
-		//查找班级
-		class, err := mysql.SelClass(username)
-		if err != nil {
-			zap.L().Error("Search SelClass err", zap.Error(err))
-			response.ResponseError(c, response.ServerErrorCode)
-			return
-		}
 		if datas.Name == "" {
-			usernamesli, total, err = mysql.SelUsername(class, datas.Page, datas.Limit)
+			usernamesli, total, err = mysql.SelUsername(user.Class, datas.Page, datas.Limit)
 		} else {
-			usernamesli, total, err = mysql.SelSearchUser(datas.Name, class, datas.Page, datas.Limit)
+			usernamesli, total, err = mysql.SelSearchUser(datas.Name, user.Class, datas.Page, datas.Limit)
 		}
 		peopleLimit = constant.PeopleLimitClass
 		if err != nil {
@@ -154,7 +152,7 @@ func Search(c *gin.Context) {
 	}
 
 	//查询状态
-	status, err := mysql.SelStatus(username)
+	status, err := mysql.SelStatus(user.Username)
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
@@ -173,11 +171,14 @@ func Search(c *gin.Context) {
 // ElectClass  班级管理员推选数据
 func ElectClass(c *gin.Context) {
 	//获取管理员班级
-	claim, _ := c.Get("claim")
-	username := claim.(*models.Claims).Username
-	class, err := mysql.SelClass(username)
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+	}
 	//查找表中存在几条已推选的数据
-	Number, err := starService.SelNumClass(class)
+	Number, err := starService.SelNumClass(user.Class)
 	if err != nil {
 		response.ResponseError(c, 400)
 		return
@@ -242,8 +243,8 @@ func ElectGrade(c *gin.Context) {
 	var err error
 	date := time.Now()
 	//拿到角色
-	claim, _ := c.Get("claim")
-	role := claim.(*models.Claims).Role
+	token := token2.NewToken(c)
+	role, err := token.GetRole()
 	//获取number的值
 	switch role {
 	case "grade1":
@@ -577,9 +578,13 @@ func BackStarCollege(c *gin.Context) {
 
 // ChangeStatus 修改是否可以再次推选
 func ChangeStatus(c *gin.Context) {
-	claim, _ := c.Get("claim")
-	username := claim.(*models.Claims).Username
-	err := mysql.UpdateOne(username)
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+	}
+	err := mysql.UpdateOne(user.Username)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 400, "修改状态失败")
 		return
@@ -602,8 +607,14 @@ func BackTime(c *gin.Context) {
 
 // BackName 返回前端已经推选过的名字
 func BackName(c *gin.Context) {
-	claim, _ := c.Get("claim")
-	stuName, err := starService.BackNameData(claim.(*models.Claims))
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+	}
+	role, err := token.GetRole()
+	stuName, err := starService.BackNameData(user.Username, role)
 	if err != nil {
 		response.ResponseError(c, 401)
 		return
