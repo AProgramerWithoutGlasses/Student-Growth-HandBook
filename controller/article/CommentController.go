@@ -23,6 +23,13 @@ func PostCom(c *gin.Context) {
 		Id             int    `json:"id"`
 	}{}
 
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("PostCom() controller.article.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
 	// 通过token获取username
 	username, err := token.GetUsername(c.GetHeader("token"))
 	if err != nil {

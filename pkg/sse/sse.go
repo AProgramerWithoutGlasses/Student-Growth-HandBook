@@ -57,13 +57,18 @@ func BuildNotificationChannel(userId int, c *gin.Context) error {
 // SendInterNotification 互动消息推送
 func SendInterNotification(n gorm_model.InterNotification) {
 	fmt.Println("Send interNotification to user = ", n.TarUserId)
+	// 若对方用户不在线，则不推送消息
+	if _, ok := ChannelsMap.Load(n.TarUserId); !ok {
+		return
+	}
+
 	msg, err := json.Marshal(n)
 	if err != nil {
 		return
 	}
 	ChannelsMap.Range(func(key, value any) bool {
-		k := key.(int)
-		if k == int(n.TarUserId) {
+		k := key.(uint)
+		if k == n.TarUserId {
 			channel := value.(chan string)
 			channel <- string(msg)
 		}
