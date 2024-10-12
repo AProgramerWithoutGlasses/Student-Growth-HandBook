@@ -8,7 +8,7 @@ import (
 // SocketConnectionController 向客户端建立sse连接
 func SocketConnectionController(c *gin.Context) {
 	in := struct {
-		UserId int `json:"user_id"`
+		Username string `json:"username"`
 	}{}
 
 	err := c.ShouldBindJSON(&in)
@@ -16,7 +16,7 @@ func SocketConnectionController(c *gin.Context) {
 		return
 	}
 
-	err = sse.BuildNotificationChannel(in.UserId, c)
+	err = sse.BuildNotificationChannel(in.Username, c)
 	if err != nil {
 		return
 	}

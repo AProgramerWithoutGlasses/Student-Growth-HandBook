@@ -23,7 +23,7 @@ func routesMsg(r *gin.Engine) {
 	gp.POST("/getlist", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.GetUnreadReportsController)
 
 	// 确认举报信息
-	gp.POST("/ack", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.AckUnreadReportsController)
+	gp.POST("/ack", token.AuthMiddleware(), message.AckUnreadReportsController)
 
 	msg := r.Group("/message")
 
@@ -57,4 +57,9 @@ func routesMsg(r *gin.Engine) {
 	// 发布系统通知
 	msg.POST("/publish_systemMsg", token.AuthMiddleware(), message.PublishSystemMsgController)
 
+	// 删除系统通知
+	msg.POST("/delete_systemMsg", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.DeleteSystemMsgController)
+
+	// 删除管理员通知
+	msg.POST("/delete_managerMsg", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.DeleteManagerMsgController)
 }
