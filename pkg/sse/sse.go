@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"sync"
 )
@@ -22,7 +23,11 @@ func AddChannel(userId int) {
 	fmt.Println("Build SSE connection for user = ", userId)
 }
 
-func BuildNotificationChannel(userId int, c *gin.Context) error {
+func BuildNotificationChannel(username string, c *gin.Context) error {
+	userId, err := mysql.QueryUserIdByUsername(username)
+	if err != nil {
+		return err
+	}
 	AddChannel(userId)
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	c.Writer.Header().Set("Cache-Control", "no-cache")

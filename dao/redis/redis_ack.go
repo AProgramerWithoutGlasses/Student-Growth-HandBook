@@ -24,10 +24,18 @@ func AckManagerNotification(userId, msgId int) error {
 
 // AckSystemNotification 用户确认广播类系统消息
 func AckSystemNotification(userId, msgId int) error {
-	_, err := RDB.SAdd(sysAck+strconv.Itoa(userId), msgId).Result()
+	res, err := RDB.SIsMember(sysAck+strconv.Itoa(userId), msgId).Result()
 	if err != nil {
-		zap.L().Error("AckSystemNotification() dao.redis.redis_ack.SAdd err=", zap.Error(err))
+		zap.L().Error("AckSystemNotification() dao.redis.redis_ack.SIsMember err=", zap.Error(err))
 		return err
+	}
+	// 若确认该消息
+	if !res {
+		_, err := RDB.SAdd(sysAck+strconv.Itoa(userId), msgId).Result()
+		if err != nil {
+			zap.L().Error("AckSystemNotification() dao.redis.redis_ack.SAdd err=", zap.Error(err))
+			return err
+		}
 	}
 	return nil
 }

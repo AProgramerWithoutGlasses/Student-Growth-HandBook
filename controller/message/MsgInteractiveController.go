@@ -238,17 +238,8 @@ func AckManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	in := struct {
-		MsgId int `json:"msg_id"`
-	}{}
-	err = c.ShouldBindJSON(&in)
-	if err != nil {
-		zap.L().Error("AckManagerMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
 	// 确认消息
-	err = message.AckManagerMsgService(username, in.MsgId)
+	err = message.AckManagerMsgService(username)
 	if err != nil {
 		zap.L().Error("AckManagerMsgController() controller.message.AckManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -267,18 +258,7 @@ func AckSystemMsgController(c *gin.Context) {
 		return
 	}
 
-	in := struct {
-		MsgId int `json:"msg_id"`
-	}{}
-
-	err = c.ShouldBindJSON(&in)
-	if err != nil {
-		zap.L().Error("AckSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
-	err = message.AckSystemMsgService(username, in.MsgId)
+	err = message.AckSystemMsgService(username)
 	if err != nil {
 		zap.L().Error("AckSystemMsgController() controller.message.AckSystemMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -360,6 +340,50 @@ func PublishSystemMsgController(c *gin.Context) {
 	err = message.PublishSystemMsgService(in.Content, role, username)
 	if err != nil {
 		zap.L().Error("PublishSystemMsgController() controller.message.PublishSystemMsgService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, struct{}{})
+}
+
+// DeleteSystemMsgController 删除系统通知
+func DeleteSystemMsgController(c *gin.Context) {
+	in := struct {
+		MsgId int `json:"msg_id"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("DeleteSystemMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	err = message.DeleteSystemMsgService(in.MsgId)
+	if err != nil {
+		zap.L().Error("DeleteSystemMsgController() controller.message.DeleteSystemMsgService err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+
+	res.ResponseSuccess(c, struct{}{})
+}
+
+// DeleteManagerMsgController 删除管理员通知
+func DeleteManagerMsgController(c *gin.Context) {
+	in := struct {
+		MsgId int `json:"msg_id"`
+	}{}
+
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("DeleteManagerMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	err = message.DeleteManagerMsgService(in.MsgId)
+	if err != nil {
+		zap.L().Error("DeleteManagerMsgController() controller.message.DeleteManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
