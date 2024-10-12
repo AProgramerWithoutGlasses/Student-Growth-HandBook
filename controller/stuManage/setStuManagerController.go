@@ -3,9 +3,9 @@ package stuManage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 type InnerInput struct {
@@ -29,16 +29,15 @@ func SetStuManagerControl(c *gin.Context) {
 		return
 	}
 
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
-		return
 	}
-	username := claim.(*models.Claims).Username
 
 	// 业务
-	err = service.SetStuManagerService(input.Student.Username, username, input.ManagerType, input.Student.Year)
+	err = service.SetStuManagerService(input.Student.Username, user.Username, input.ManagerType, input.Student.Year)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error("stuManager.SetStuManagerControl() service.SetStuManagerService() failed : ", zap.Error(err))

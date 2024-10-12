@@ -32,6 +32,8 @@ func routesStudentManage(r *gin.Engine) {
 		rs.POST("/editStudent", stuManage.EditStuControl)
 		rs.POST("/banStudent", stuManage.BanUserControl)
 		rs.POST("/outputMultipleStudent", stuManage.OutputMultipleStuControl)
+		rs.POST("/reSetPassword", stuManage.ReSetPasswordControl)
+
 	}
 
 }

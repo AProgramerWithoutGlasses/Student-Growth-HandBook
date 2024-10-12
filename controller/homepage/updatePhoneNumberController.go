@@ -3,9 +3,9 @@ package homepage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func UpdatePhoneNumberControl(c *gin.Context) {
@@ -21,16 +21,15 @@ func UpdatePhoneNumberControl(c *gin.Context) {
 	}
 
 	// 接收
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
-		response.ResponseError(c, response.TokenError)
+		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("token错误")
-		return
 	}
-	username := claim.(*models.Claims).Username
 
 	// 业务
-	err = service.UpdateHomepagePhoneNumberService(username, input.PhoneNumber)
+	err = service.UpdateHomepagePhoneNumberService(user.Username, input.PhoneNumber)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())

@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
-	"studentGrow/models"
 	"studentGrow/pkg/response"
+	token2 "studentGrow/utils/token"
 )
 
 // 用户自述
@@ -54,13 +54,12 @@ func GetSelfContentContro(c *gin.Context) {
 
 // UpdateSelfContentContro 获取前端发送的学号和newSelfContent, 并将其在数据库中的旧selfContent更新
 func UpdateSelfContentContro(c *gin.Context) {
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
-		response.ResponseError(c, response.TokenError)
+		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("token错误")
-		return
 	}
-	username := claim.(*models.Claims).Username
 
 	// 接收前端发送的学号和newSelfContent
 	var selfContentStruct SelfContentStruct
@@ -72,7 +71,7 @@ func UpdateSelfContentContro(c *gin.Context) {
 	}
 
 	// 根据学号获取id
-	id, err := mysql.GetIdByUsername(username)
+	id, err := mysql.GetIdByUsername(user.Username)
 	if err != nil {
 		fmt.Println("homepage.UpdateSelfContentContro() mysql.GetIdByUsername() err : ", err)
 	}

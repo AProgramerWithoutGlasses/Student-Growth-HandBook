@@ -4,11 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
-	"studentGrow/models"
 	"studentGrow/models/gorm_model"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 // 添加单个学生
@@ -17,13 +17,19 @@ func AddSingleStuContro(c *gin.Context) {
 	var myMes jrx_model.MyTokenMes
 	var err error
 
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+	}
+	role, err := token.GetRole()
+	if err != nil {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
 		return
 	}
-	myMes.MyUsername = claim.(*models.Claims).Username
+	myMes.MyUsername = user.Username
 
 	myMes.MyId, err = mysql.GetIdByUsername(myMes.MyUsername)
 	if err != nil {
@@ -39,14 +45,13 @@ func AddSingleStuContro(c *gin.Context) {
 		return
 	}
 
-	//myMes.MyRole, err = token2.GetRole(token)
-	myMes.MyRole = claim.(*models.Claims).Role
+	myMes.MyRole = role
 
 	// 接收
 	input := struct {
 		gorm_model.User
 		Class  string `json:"class" binding:"required, len=9"`
-		Gender string `json:"gender" binding:"required, one of=男 女"`
+		Gender string `json:"gender" binding:"required" `
 	}{}
 	err = c.ShouldBindJSON(&input)
 	if err != nil {

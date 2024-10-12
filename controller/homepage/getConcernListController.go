@@ -5,10 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"studentGrow/models"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func GetConcernListControl(c *gin.Context) {
@@ -31,16 +31,15 @@ func GetConcernListControl(c *gin.Context) {
 	//	return
 	//}
 
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
-		response.ResponseError(c, response.TokenError)
+		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("token错误")
-		return
 	}
-	tokenUsername := claim.(*models.Claims).Username
 
 	// 业务
-	userConcern, err := service.GetConcernListService(input.Username, tokenUsername)
+	userConcern, err := service.GetConcernListService(input.Username, user.Username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 

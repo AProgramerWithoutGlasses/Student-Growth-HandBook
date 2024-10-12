@@ -3,9 +3,9 @@ package homepage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func ChangePasswordControl(c *gin.Context) {
@@ -22,24 +22,15 @@ func ChangePasswordControl(c *gin.Context) {
 		return
 	}
 
-	//token := c.GetHeader("token")
-	//username, err := token2.GetUsername(token)
-	//if err != nil {
-	//	response.ResponseError(c, response.ParamFail)
-	//	zap.L().Error(err.Error())
-	//	return
-	//}
-
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
-		response.ResponseError(c, response.TokenError)
+		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("token错误")
-		return
 	}
-	username := claim.(*models.Claims).Username
 
 	// 业务
-	err = service.ChangePasswordService(username, input.OldPwd, input.NewPwd)
+	err = service.ChangePasswordService(user.Username, input.OldPwd, input.NewPwd)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error(err.Error())

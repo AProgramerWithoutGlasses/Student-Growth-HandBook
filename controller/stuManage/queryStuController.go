@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 	"studentGrow/dao/mysql"
-	"studentGrow/models"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
 	"studentGrow/utils/readMessage"
+	token2 "studentGrow/utils/token"
 )
 
 // 用于存储查询参数
@@ -22,16 +22,21 @@ var ranges string
 
 // QueryStuContro 查询学生信息
 func QueryStuContro(c *gin.Context) {
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
+	}
+
+	role, err := token.GetRole()
+	if err != nil {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error(err.Error())
 		return
 	}
-	username := claim.(*models.Claims).Username
-	role := claim.(*models.Claims).Role
 
-	id, err := mysql.GetIdByUsername(username)
+	id, err := mysql.GetIdByUsername(user.Username)
 	if err != nil {
 		zap.L().Error(err.Error())
 		response.ResponseError(c, response.ServerErrorCode)
@@ -66,6 +71,7 @@ func QueryStuContro(c *gin.Context) {
 
 	case "superman":
 
+	default:
 	}
 
 	// 接收请求数据
