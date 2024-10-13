@@ -48,7 +48,7 @@ func BuildNotificationChannel(username string, c *gin.Context) error {
 		fmt.Println("SSE close for user = ", userId)
 		return
 	}()
-
+	fmt.Fprintf(w, "data: %s\n\n", "--ping--")
 	for msg := range curChan.(chan string) {
 		_, err := fmt.Fprintf(w, "data:%s\n\n", msg)
 		if err != nil {

@@ -58,8 +58,8 @@ func routesMsg(r *gin.Engine) {
 	msg.POST("/publish_systemMsg", token.AuthMiddleware(), message.PublishSystemMsgController)
 
 	// 删除系统通知
-	msg.POST("/delete_systemMsg", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.DeleteSystemMsgController)
+	msg.POST("/delete_systemMsg", token.AuthMiddleware(), message.DeleteSystemMsgController)
 
 	// 删除管理员通知
-	msg.POST("/delete_managerMsg", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.DeleteManagerMsgController)
+	msg.POST("/delete_managerMsg", token.AuthMiddleware(), message.DeleteManagerMsgController)
 }
