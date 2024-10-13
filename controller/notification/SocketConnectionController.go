@@ -7,16 +7,9 @@ import (
 
 // SocketConnectionController 向客户端建立sse连接
 func SocketConnectionController(c *gin.Context) {
-	in := struct {
-		Username string `json:"username"`
-	}{}
+	username := c.Query("username")
 
-	err := c.ShouldBindJSON(&in)
-	if err != nil {
-		return
-	}
-
-	err = sse.BuildNotificationChannel(in.Username, c)
+	err := sse.BuildNotificationChannel(username, c)
 	if err != nil {
 		return
 	}

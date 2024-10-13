@@ -26,6 +26,7 @@ func writeToMysql() {
 		case articleLike := <-ArticleLikeChan:
 			switch articleLike.Operator {
 			case "like":
+				fmt.Println("articleLike", articleLike)
 				err := LikeToMysql(articleLike.Aid, 0, articleLike.Username)
 				if err != nil {
 					fmt.Println("writeToMysql() dao.redis.LikeToMysql err=", err)

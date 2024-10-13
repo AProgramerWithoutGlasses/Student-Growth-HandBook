@@ -64,6 +64,7 @@ func SendInterNotification(n gorm_model.InterNotification) {
 	fmt.Println("Send interNotification to user = ", n.TarUserId)
 	// 若对方用户不在线，则不推送消息
 	if _, ok := ChannelsMap.Load(n.TarUserId); !ok {
+		fmt.Println("sse", ok)
 		return
 	}
 

@@ -97,7 +97,7 @@ func CancelLike(objId, username string, likeType int) error {
 	}
 
 	id, err := strconv.Atoi(objId)
-
+	fmt.Println("username", username)
 	// 写入通道
 	switch likeType {
 	case 0:
