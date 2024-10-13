@@ -381,7 +381,14 @@ func DeleteManagerMsgController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-	err = message.DeleteManagerMsgService(in.MsgId)
+
+	role, err := token.GetRole(c.GetHeader("token"))
+	if err != nil {
+		zap.L().Error("DeleteManagerMsgController() controller.message.GetRole err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	err = message.DeleteManagerMsgService(in.MsgId, role)
 	if err != nil {
 		zap.L().Error("DeleteManagerMsgController() controller.message.DeleteManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)

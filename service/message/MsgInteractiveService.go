@@ -399,6 +399,7 @@ func PublishSystemMsgService(content, role, username string) error {
 
 // DeleteSystemMsgService 删除系统消息
 func DeleteSystemMsgService(MsgId int) error {
+
 	err := mysql.DeleteSystemNotification(MsgId, mysql.DB)
 	if err != nil {
 		zap.L().Error("DeleteSystemMsgService() service.article.DeleteSystemNotification err=", zap.Error(err))
@@ -408,7 +409,11 @@ func DeleteSystemMsgService(MsgId int) error {
 }
 
 // DeleteManagerMsgService 删除管理员消息
-func DeleteManagerMsgService(MsgId int) error {
+func DeleteManagerMsgService(MsgId int, role string) error {
+	if role != "college" {
+		return myErr.OverstepCompetence
+	}
+
 	err := mysql.DeleteManagerNotification(MsgId, mysql.DB)
 	if err != nil {
 		zap.L().Error("DeleteManagerMsgService() service.article.DeleteManagerNotification err=", zap.Error(err))
