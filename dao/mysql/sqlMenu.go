@@ -59,7 +59,7 @@ func SelPerms(role string) ([]string, error) {
 	var perms []string
 	var menuId []int
 	err := DB.Table("casbin_rule").Where("v0 = ?", role).Select("v1").Scan(&menuId).Error
-	err = DB.Model(&gorm_model.Menus{}).Where("type = ?", 2).Where("id IN (?)", menuId).Select("perm").Scan(&perms).Error
+	err = DB.Model(&gorm_model.Menus{}).Where("type = ?", 2).Where("perm IS NOT NULL").Where("id IN (?)", menuId).Select("perm").Scan(&perms).Error
 	if err != nil {
 		return nil, err
 	}
