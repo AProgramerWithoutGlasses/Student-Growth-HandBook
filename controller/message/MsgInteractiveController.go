@@ -60,6 +60,12 @@ func GetManagerMsgController(c *gin.Context) {
 		Limit int `json:"limit"`
 		Page  int `json:"page"`
 	}{}
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("GetManagerMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 
 	aToken := token.NewToken(c)
 	user, exist := aToken.GetUser()
@@ -70,13 +76,6 @@ func GetManagerMsgController(c *gin.Context) {
 	}
 
 	username := user.Username
-
-	err := c.ShouldBindJSON(&in)
-	if err != nil {
-		zap.L().Error("GetManagerMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
 
 	msgs, UnreadCount, err := message.GetManagerMsgService(in.Limit, in.Page, username)
 	if err != nil {
