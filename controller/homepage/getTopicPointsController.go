@@ -33,6 +33,7 @@ func GetTopicPointsControl(c *gin.Context) {
 	if !exist {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("token错误")
+		return
 	}
 
 	// 业务
