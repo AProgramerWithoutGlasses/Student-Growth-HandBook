@@ -30,6 +30,9 @@ func QueryStuContro(c *gin.Context) {
 	}
 
 	role, err := token.GetRole()
+	// 加上日志利于核验role
+	zap.L().Info("token解析role为：" + role)
+	fmt.Println("token解析role为：" + role)
 	if err != nil {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error(err.Error())
