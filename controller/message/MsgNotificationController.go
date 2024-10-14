@@ -14,18 +14,18 @@ import (
 // GetUnreadReportsController 获取未读举报信息
 func GetUnreadReportsController(c *gin.Context) {
 
-	// 通过token获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetUnreadReportsController() controller.article.getArticle.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	// 通过token获取管理员角色
-	role, err := token.GetRole(c.GetHeader("token"))
+	username := user.Username
+	role, err := aToken.GetRole()
 	if err != nil {
-		zap.L().Error("GetUnreadReportsController() controller.article.getArticle.GetRole err=", zap.Error(err))
+		zap.L().Error("GetUnreadReportsController() controller.message.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -89,15 +89,16 @@ func GetUnreadReportsController(c *gin.Context) {
 // AckUnreadReportsController 确认未读举报信息
 func AckUnreadReportsController(c *gin.Context) {
 	// 通过token获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("AckUnreadReportsController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	// 通过token获取管理员角色
-	role, err := token.GetRole(c.GetHeader("token"))
+	username := user.Username
+	role, err := aToken.GetRole()
 	if err != nil {
 		zap.L().Error("AckUnreadReportsController() controller.message.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)

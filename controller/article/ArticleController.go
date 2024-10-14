@@ -117,16 +117,16 @@ func GetArticleListController(c *gin.Context) {
 		return
 	}
 
-	// 通过token获取身份
-	role, err := token.GetRole(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetArticleListController() controller.article.GetRole err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	// 通过token获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
+	// 获取身份
+	role, err := aToken.GetRole()
 	if err != nil {
 		zap.L().Error("GetArticleListController() controller.article.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -134,7 +134,7 @@ func GetArticleListController(c *gin.Context) {
 	}
 
 	//查询文章列表
-	result, articleAmount, err := article.GetArticleListService(in.Page, in.Limit, in.SortType, in.Order, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Name, in.IsBan, role, username)
+	result, articleAmount, err := article.GetArticleListService(in.Page, in.Limit, in.SortType, in.Order, in.StartAt, in.EndAt, in.Topic, in.KeyWords, in.Name, in.IsBan, role, user.Username)
 	if err != nil {
 		zap.L().Error("GetArticleListController() controller.article.GetArticleListService err=", zap.Error(myErr.DataFormatError()))
 		myErr.CheckErrors(err, c)
@@ -176,16 +176,15 @@ func BannedArticleController(c *gin.Context) {
 		return
 	}
 
-	// 获取管理员username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("BannedArticleController() controller.article.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
-
-	// 获取管理员角色
-	role, err := token.GetRole(c.GetHeader("token"))
+	username := user.Username
+	role, err := aToken.GetRole()
 	if err != nil {
 		zap.L().Error("BannedArticleController() controller.article.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -208,14 +207,25 @@ func BannedArticleController(c *gin.Context) {
 // DeleteArticleController 删除文章
 func DeleteArticleController(c *gin.Context) {
 
-	// 获取权限角色
-	role, err := token.GetRole(c.GetHeader("token"))
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
+		return
+	}
 
-	// 获取管理员username
-	username, err := token.GetUsername(c.GetHeader("token"))
+	username := user.Username
+	role, err := aToken.GetRole()
+	if err != nil {
+		zap.L().Error("BannedArticleController() controller.article.GetRole err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 
-	//获取前端发送的数据
-	json, err := readUtil.GetJsonvalue(c)
+	in := struct {
+		ArticleId int `json:"article_id"`
+	}{}
 
 	if err != nil {
 		zap.L().Error("DeleteArticleController() controller.article.GetJsonvalue err=", zap.Error(err))
@@ -224,7 +234,7 @@ func DeleteArticleController(c *gin.Context) {
 	}
 
 	// 对文章进行删除操作
-	err = article.DeleteArticleService(json, role, username)
+	err = article.DeleteArticleService(in.ArticleId, role, username)
 	if err != nil {
 		zap.L().Error("DeleteArticleController() controller.article.DeleteArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -244,13 +254,15 @@ func ReportArticle(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-	// 通过token获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("ReportArticle() controller.article.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
+	username := user.Username
 
 	// 对文章进行举报并记录
 	err = article.ReportArticleService(json, username)
@@ -421,15 +433,16 @@ func GetArticleByClassController(c *gin.Context) {
 
 // PublishArticleController 发布文章
 func PublishArticleController(c *gin.Context) {
-	// 通过token获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("PublishArticleController() controller.article.getArticle.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
+	username := user.Username
 
-	err = c.Request.ParseMultipartForm(10 << 23) // 最大 80MB
+	err := c.Request.ParseMultipartForm(10 << 23) // 最大 80MB
 
 	if err != nil {
 		zap.L().Error("PublishArticleController() controller.article.getArticle.ParseMultipartForm err=", zap.Error(err))
@@ -525,19 +538,23 @@ func SelectGoodArticleController(c *gin.Context) {
 		return
 	}
 
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
+		return
+	}
+	username := user.Username
+
 	// 获取身份-token
-	role, err := token.GetRole(c.GetHeader("token"))
+	role, err := aToken.GetRole()
 	if err != nil {
 		zap.L().Error("SelectGoodArticleController() controller.article.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("SelectGoodArticleController() controller.article.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
+
 	// 修改文章优秀等级
 	err = article.SelectGoodArticleService(in.ArticleId, in.ArticleQuality, role, username)
 	if err != nil {
@@ -639,16 +656,19 @@ func GetGoodArticlesController(c *gin.Context) {
 		return
 	}
 
-	role, err := token.GetRole(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetGoodArticlesController() controller.article.GetRole err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
+	username := user.Username
 
-	username, err := token.GetUsername(c.GetHeader("token"))
+	// 获取身份-token
+	role, err := aToken.GetRole()
 	if err != nil {
-		zap.L().Error("GetGoodArticlesController() controller.article.GetUsername err=", zap.Error(err))
+		zap.L().Error("SelectGoodArticleController() controller.article.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}

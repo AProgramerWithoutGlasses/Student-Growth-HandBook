@@ -61,14 +61,17 @@ func GetManagerMsgController(c *gin.Context) {
 		Page  int `json:"page"`
 	}{}
 
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	err = c.ShouldBindJSON(&in)
+	username := user.Username
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetManagerMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -107,14 +110,17 @@ func GetLikeMsgController(c *gin.Context) {
 		Limit int `json:"limit"`
 	}{}
 
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	err = c.ShouldBindJSON(&in)
+	username := user.Username
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetLikeMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -141,14 +147,17 @@ func GetCollectMsgController(c *gin.Context) {
 		Limit int `json:"limit"`
 	}{}
 
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	err = c.ShouldBindJSON(&in)
+	username := user.Username
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetCollectMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -176,14 +185,17 @@ func GetCommentMsgController(c *gin.Context) {
 		Limit int `json:"limit"`
 	}{}
 
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	err = c.ShouldBindJSON(&in)
+	username := user.Username
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetCollectMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -231,15 +243,18 @@ func AckInterMsgController(c *gin.Context) {
 // AckManagerMsgController 确认管理员消息
 func AckManagerMsgController(c *gin.Context) {
 	// 获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("AckManagerMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
+	username := user.Username
+
 	// 确认消息
-	err = message.AckManagerMsgService(username)
+	err := message.AckManagerMsgService(username)
 	if err != nil {
 		zap.L().Error("AckManagerMsgController() controller.message.AckManagerMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -251,14 +266,17 @@ func AckManagerMsgController(c *gin.Context) {
 // AckSystemMsgController 确认系统消息
 func AckSystemMsgController(c *gin.Context) {
 	// 获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("AckSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	err = message.AckSystemMsgService(username)
+	username := user.Username
+
+	err := message.AckSystemMsgService(username)
 	if err != nil {
 		zap.L().Error("AckSystemMsgController() controller.message.AckSystemMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -278,16 +296,16 @@ func PublishManagerMsgController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("PublishManagerMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	// 获取角色
-	role, err := token.GetRole(c.GetHeader("token"))
+	username := user.Username
+	role, err := aToken.GetRole()
 	if err != nil {
 		zap.L().Error("PublishManagerMsgController() controller.message.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -322,17 +340,18 @@ func PublishSystemMsgController(c *gin.Context) {
 		myErr.CheckErrors(err, c)
 		return
 	}
-
-	role, err := token.GetRole(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("PublishSystemMsgController() controller.message.GetRole err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	username, err := token.GetUsername(c.GetHeader("token"))
+	username := user.Username
+	role, err := aToken.GetRole()
 	if err != nil {
-		zap.L().Error("PublishSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
+		zap.L().Error("PublishSystemMsgController() controller.message.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -382,7 +401,8 @@ func DeleteManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	role, err := token.GetRole(c.GetHeader("token"))
+	aToken := token.NewToken(c)
+	role, err := aToken.GetRole()
 	if err != nil {
 		zap.L().Error("DeleteManagerMsgController() controller.message.GetRole err=", zap.Error(err))
 		myErr.CheckErrors(err, c)

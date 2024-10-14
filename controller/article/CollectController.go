@@ -25,12 +25,15 @@ func CollectArticleController(c *gin.Context) {
 	}
 
 	// 通过token获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("CollectArticleController() controller.article.CollectController.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
+
+	username := user.Username
 
 	// 收藏
 	err = article.CollectOrNotService(strconv.Itoa(in.ArticleId), username, in.TarUsername)
