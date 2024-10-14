@@ -30,10 +30,17 @@ func QueryStuContro(c *gin.Context) {
 	}
 
 	role, err := token.GetRole()
+
 	// 加上日志利于核验role
 	zap.L().Info("这是一条自定义日志",
 		zap.String("custom_field", "token解析为："+role), // 添加一个名为custom_field的字符串字段
 	)
+
+	customLogger := zap.L().With(
+		zap.String("custom_field", "token解析为："+role), // 添加自定义字段
+	)
+	customLogger.Info("这也是一条包含自定义数据的日志")
+
 	fmt.Println("token解析为：" + role)
 	if err != nil {
 		response.ResponseError(c, response.TokenError)
