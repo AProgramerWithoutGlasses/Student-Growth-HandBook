@@ -15,14 +15,17 @@ func GetSystemMsgController(c *gin.Context) {
 		Limit int `json:"limit"`
 		Page  int `json:"page"`
 	}{}
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("GetSystemMsgController() controller.message.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
 
-	err = c.ShouldBindJSON(&in)
+	username := user.Username
+
+	err := c.ShouldBindJSON(&in)
 	if err != nil {
 		zap.L().Error("GetSystemMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
