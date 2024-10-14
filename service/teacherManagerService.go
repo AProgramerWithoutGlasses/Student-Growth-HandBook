@@ -209,6 +209,9 @@ func SetTeacherManagerService(username string, ManagerType string) error {
 	case "大四管理员":
 		casbinCid = "5"
 
+	case "院级管理员":
+		casbinCid = "1"
+
 	case "取消管理员":
 		if isManager {
 			err := mysql.CancelStuManager(username, casbinCid)
