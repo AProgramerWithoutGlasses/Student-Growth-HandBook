@@ -417,7 +417,7 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 
 func AddStuService(input struct {
 	gorm_model.User
-	Class  string `json:"class" binding:"required, len=9"`
+	Class  string `json:"class" binding:"required"`
 	Gender string `json:"gender" binding:"required" `
 }, myMes jrx_model.MyTokenMes) error {
 	// 去除班级名称中的 ”班“ 字
