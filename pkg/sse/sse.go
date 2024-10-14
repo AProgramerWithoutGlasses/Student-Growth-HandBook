@@ -20,7 +20,7 @@ func AddChannel(userId int) {
 	}
 	newChannel := make(chan string, 10)
 	ChannelsMap.Store(userId, newChannel)
-	fmt.Println("Build SSE connection for user = ", userId)
+	fmt.Println("Build SSE connection for user = ", userId, newChannel)
 }
 
 func BuildNotificationChannel(username string, c *gin.Context) error {
@@ -48,6 +48,7 @@ func BuildNotificationChannel(username string, c *gin.Context) error {
 		fmt.Println("SSE close for user = ", userId)
 		return
 	}()
+
 	fmt.Fprintf(w, "data: %s\n\n", "--ping--")
 	for msg := range curChan.(chan string) {
 		_, err := fmt.Fprintf(w, "data:%s\n\n", msg)
@@ -61,9 +62,10 @@ func BuildNotificationChannel(username string, c *gin.Context) error {
 
 // SendInterNotification 互动消息推送
 func SendInterNotification(n gorm_model.InterNotification) {
-	fmt.Println("Send interNotification to user = ", n.TarUserId)
+
 	// 若对方用户不在线，则不推送消息
-	if _, ok := ChannelsMap.Load(n.TarUserId); !ok {
+	if val, ok := ChannelsMap.Load(int(n.TarUserId)); !ok {
+		fmt.Println("Send interNotification to user = ", n.TarUserId, val)
 		return
 	}
 
@@ -71,9 +73,11 @@ func SendInterNotification(n gorm_model.InterNotification) {
 	if err != nil {
 		return
 	}
+
 	ChannelsMap.Range(func(key, value any) bool {
-		k := key.(uint)
-		if k == n.TarUserId {
+		k := key.(int)
+		fmt.Println("k", k)
+		if k == int(n.TarUserId) {
 			channel := value.(chan string)
 			channel <- string(msg)
 		}
