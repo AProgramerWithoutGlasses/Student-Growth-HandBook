@@ -23,24 +23,24 @@ func routesMsg(r *gin.Engine) {
 	gp.POST("/getlist", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.GetUnreadReportsController)
 
 	// 确认举报信息
-	gp.POST("/ack", token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService), message.AckUnreadReportsController)
+	gp.POST("/ack", token.AuthMiddleware(), message.AckUnreadReportsController)
 
 	msg := r.Group("/message")
 
 	// 获取系统消息
-	msg.POST("/get_system", message.GetSystemMsgController)
+	msg.POST("/get_system", token.AuthMiddleware(), message.GetSystemMsgController)
 
 	// 获取管理员消息
-	msg.POST("/get_manager", message.GetManagerMsgController)
+	msg.POST("/get_manager", token.AuthMiddleware(), message.GetManagerMsgController)
 
 	// 获取点赞消息
-	msg.POST("/get_thumbList", message.GetLikeMsgController)
+	msg.POST("/get_thumbList", token.AuthMiddleware(), message.GetLikeMsgController)
 
 	// 获取收藏消息
-	msg.POST("/get_starList", message.GetCollectMsgController)
+	msg.POST("/get_starList", token.AuthMiddleware(), message.GetCollectMsgController)
 
 	// 获取评论消息
-	msg.POST("/get_comList", message.GetCommentMsgController)
+	msg.POST("/get_comList", token.AuthMiddleware(), message.GetCommentMsgController)
 
 	// 确认互动消息
 	msg.POST("/ack_interactMsg", token.AuthMiddleware(), message.AckInterMsgController)
@@ -57,4 +57,9 @@ func routesMsg(r *gin.Engine) {
 	// 发布系统通知
 	msg.POST("/publish_systemMsg", token.AuthMiddleware(), message.PublishSystemMsgController)
 
+	// 删除系统通知
+	msg.POST("/delete_systemMsg", token.AuthMiddleware(), message.DeleteSystemMsgController)
+
+	// 删除管理员通知
+	msg.POST("/delete_managerMsg", token.AuthMiddleware(), message.DeleteManagerMsgController)
 }

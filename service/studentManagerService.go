@@ -418,7 +418,7 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 func AddStuService(input struct {
 	gorm_model.User
 	Class  string `json:"class" binding:"required, len=9"`
-	Gender string `json:"gender" binding:"required, one of=男 女"`
+	Gender string `json:"gender" binding:"required" `
 }, myMes jrx_model.MyTokenMes) error {
 	// 去除班级名称中的 ”班“ 字
 	if len(input.Class) == 12 {
@@ -549,4 +549,18 @@ func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct
 	}
 
 	return deletedStuName, err
+}
+
+func ReSetPasswordService(username string) error {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.UpdatePassword(id, "123456")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

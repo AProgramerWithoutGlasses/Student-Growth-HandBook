@@ -57,7 +57,9 @@ func SelIcon(id int) (string, error) {
 // SelPerms 查询权限标识符
 func SelPerms(role string) ([]string, error) {
 	var perms []string
-	err := DB.Model(&gorm_model.Menus{}).Where("roles LIKE ? AND type = ?  AND perm IS NOT NULL", "%"+role+"%", 2).Select("perm").Scan(&perms).Error
+	var menuId []int
+	err := DB.Table("casbin_rule").Where("v0 = ?", role).Select("v1").Scan(&menuId).Error
+	err = DB.Model(&gorm_model.Menus{}).Where("type = ?", 2).Where("perm IS NOT NULL").Where("id IN (?)", menuId).Select("perm").Scan(&perms).Error
 	if err != nil {
 		return nil, err
 	}

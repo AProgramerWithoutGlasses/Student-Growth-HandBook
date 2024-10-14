@@ -4,10 +4,18 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"strings"
+	"studentGrow/dao/mysql"
 	"studentGrow/models"
+	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	"studentGrow/service/userService"
 )
+
+type Token struct {
+	C *gin.Context
+}
 
 // AuthMiddleware 中间件检验token是否合法
 func AuthMiddleware() gin.HandlerFunc {
@@ -44,30 +52,37 @@ func ParseToken(tokenString string) (*jwt.Token, *models.Claims, error) {
 	return token, claims, err
 }
 
-// GetUsername 通过token获取username
-func GetUsername(tokenString string) (string, error) {
-	tokenString = tokenString[7:]
-	token, _, err := ParseToken(tokenString)
-	if err != nil {
-		fmt.Println("GetUsername  ParseToken() err:", err.Error())
-		return "", err
-	}
-	if claims, ok := token.Claims.(*models.Claims); ok {
-		return claims.Username, nil
-	}
-	return "", nil
+func NewToken(c *gin.Context) *Token {
+	return &Token{C: c}
 }
 
-// GetRole 通过token获取role
-func GetRole(tokenString string) (string, error) {
-	tokenString = tokenString[7:]
-	token, _, err := ParseToken(tokenString)
-	if err != nil {
-		fmt.Println("GetRole ParseToken() err:", err)
-		return "", err
+func (this *Token) GetUser() (gorm_model.User, bool) {
+	claim, exist := this.C.Get("claim")
+	if !exist {
+		return gorm_model.User{}, false
 	}
-	if claims, ok := token.Claims.(*models.Claims); ok {
-		return claims.Role, nil
+	user := claim.(*models.Claims).User
+	return user, true
+}
+
+func (this *Token) GetRole() (string, error) {
+	user, exist := this.GetUser()
+	var role string
+	if !exist {
+		response.ResponseError(this.C, response.TokenError)
+		zap.L().Error("token错误")
+		return "", fmt.Errorf("token错误")
 	}
-	return "", err
+	//验证用户是否是管理员
+	newOk := userService.BVerifyExit(user.Username)
+	if newOk {
+		cId, err := mysql.SelCasId(user.Username)
+		role, err = mysql.SelRole(cId)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		role = ""
+	}
+	return role, nil
 }

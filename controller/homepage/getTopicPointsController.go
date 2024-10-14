@@ -3,10 +3,10 @@ package homepage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
 	_ "studentGrow/utils/token"
+	token2 "studentGrow/utils/token"
 )
 
 func GetTopicPointsControl(c *gin.Context) {
@@ -28,16 +28,16 @@ func GetTopicPointsControl(c *gin.Context) {
 	//	zap.L().Error(err.Error())
 	//	return
 	//}
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
-		response.ResponseError(c, response.TokenError)
+		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("token错误")
 		return
 	}
-	username := claim.(*models.Claims).Username
 
 	// 业务
-	topicPointStruct, err := service.GetTopicPointsService(username)
+	topicPointStruct, err := service.GetTopicPointsService(user.Username)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error(err.Error())

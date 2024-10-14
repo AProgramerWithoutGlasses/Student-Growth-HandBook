@@ -288,18 +288,6 @@ func AckUnreadReportsForSuperman(reportsId int) error {
 	return nil
 }
 
-//// QuerySystemMsg 查询系统消息
-//func QuerySystemMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
-//	var msg []gorm_model.MsgRecord
-//
-//	if err := DB.Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 1, uid).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
-//		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
-//		return nil, err
-//	}
-//
-//	return msg, nil
-//}
-
 // QuerySystemNotification 查询系统消息
 func QuerySystemNotification(page, size int) ([]gorm_model.SysNotification, error) {
 	var msgs []gorm_model.SysNotification
@@ -324,15 +312,15 @@ func QuerySystemNotificationNum() (int, error) {
 	return int(count), nil
 }
 
-//// QueryUnreadSystemMsg 查询未读系统通知条数
-//func QueryUnreadSystemMsg(uid int) (int, error) {
-//	var count int64
-//	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and is_read = ? and user_id = ?", 1, false, uid).Count(&count).Error; err != nil {
-//		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
-//		return -1, err
-//	}
-//	return int(count), nil
-//}
+// QuerySystemNotificationIds 查询所有系统消息id
+func QuerySystemNotificationIds() ([]int, error) {
+	var ids []int
+	if err := DB.Model(&gorm_model.SysNotification{}).Where("notice_type = ?", 4).Pluck("id", &ids).Error; err != nil {
+		zap.L().Error("QuerySystemNotificationNum() dao.mysql.sql_msg", zap.Error(err))
+		return nil, err
+	}
+	return ids, nil
+}
 
 // QueryManagerNotification 查询管理员消息
 func QueryManagerNotification(page, size int) ([]gorm_model.SysNotification, error) {
@@ -356,27 +344,15 @@ func QueryManagerNotificationNum() (int, error) {
 	return int(count), nil
 }
 
-//// QueryManagerMsg 查询管理员消息通知
-//func QueryManagerMsg(page, limit, uid int) ([]gorm_model.MsgRecord, error) {
-//	var msg []gorm_model.MsgRecord
-//
-//	if err := DB.Preload("User", "id = ?", uid).Where("type = ? and user_id = ?", 2, uid).Order("created_at desc").Limit(limit).Offset((page - 1) * limit).Find(&msg).Error; err != nil {
-//		zap.L().Error("QueryManagerMsg() dao.mysql.sql_msg", zap.Error(err))
-//		return nil, err
-//	}
-//
-//	return msg, nil
-//}
-//
-//// QueryUnreadManagerMsg 获取未读管理员消息通知
-//func QueryUnreadManagerMsg(uid int) (int, error) {
-//	var count int64
-//	if err := DB.Model(&gorm_model.MsgRecord{}).Preload("User", "id = ?", uid).Where("type = ? and user_id = ? and is_read = ?", 2, uid, false).Count(&count).Error; err != nil {
-//		zap.L().Error("QuerySystemMsg() dao.mysql.sql_msg", zap.Error(err))
-//		return -1, err
-//	}
-//	return int(count), nil
-//}
+// QueryManagerNotificationIds 查询所有管理员消息id
+func QueryManagerNotificationIds() ([]int, error) {
+	var ids []int
+	if err := DB.Model(&gorm_model.SysNotification{}).Where("notice_type = ?", 3).Pluck("id", &ids).Error; err != nil {
+		zap.L().Error("QueryManagerNotificationIds() dao.mysql.sql_msg", zap.Error(err))
+		return nil, err
+	}
+	return ids, nil
+}
 
 // QueryLikeRecordByUser 分页查询其文章和评论的点赞记录
 func QueryLikeRecordByUser(uid, page, limit int) ([]gorm_model.UserLikeRecord, error) {
@@ -625,6 +601,7 @@ func AddSystemNotification(content string, ownId int) error {
 	return nil
 }
 
+// AddBanSystemNotification 添加文章封禁通知
 func AddBanSystemNotification(content string, ownId int, db *gorm.DB, tarId int) error {
 	sysNotification := gorm_model.SysNotification{
 		OwnUserId:  uint(ownId),
@@ -641,24 +618,20 @@ func AddBanSystemNotification(content string, ownId int, db *gorm.DB, tarId int)
 	return nil
 }
 
-// DeleteArticleReportMsg 已读举报信息
-func DeleteArticleReportMsg(aid int, db *gorm.DB) error {
-	if err := db.Model(&gorm_model.UserReportArticleRecord{}).Where("article_id = ?", aid).Update("is_read", true).Error; err != nil {
-		zap.L().Error("GetUnreadReportsController() dao.mysql.sql_article err=", zap.Error(err))
+// DeleteSystemNotification 删除系统消息
+func DeleteSystemNotification(MsgId int, db *gorm.DB) error {
+	if err := db.Model(&gorm_model.SysNotification{}).Delete("notice_type = ? AND id = ?", 4, MsgId).Error; err != nil {
+		zap.L().Error("DeleteSystemNotification() dao.mysql.sql_msg err=", zap.Error(err))
 		return err
 	}
 	return nil
 }
 
-// QueryIsExistArticleIdByReportMsg 查询举报信箱中是否存在被举报的文章id
-func QueryIsExistArticleIdByReportMsg(aid int) (bool, error) {
-	var count int64
-	if err := DB.Model(&gorm_model.UserReportArticleRecord{}).Where("article_id = ?", aid).Count(&count).Error; err != nil {
-		zap.L().Error("QueryIsExistArticleIdByReportMsg() dao.mysql.sql_nzx.First err=", zap.Error(err))
-		return false, err
+// DeleteManagerNotification 删除管理员消息
+func DeleteManagerNotification(MsgId int, db *gorm.DB) error {
+	if err := db.Model(&gorm_model.SysNotification{}).Delete("notice_type = ? AND id = ?", 3, MsgId).Error; err != nil {
+		zap.L().Error("DeleteSystemNotification() dao.mysql.sql_msg err=", zap.Error(err))
+		return err
 	}
-	if count > 0 {
-		return true, nil
-	}
-	return false, nil
+	return nil
 }

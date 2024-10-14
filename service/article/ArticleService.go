@@ -168,6 +168,11 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 		return err
 	}
 
+	// 权限验证
+	if role == "" {
+		return myErr.OverstepCompetence
+	}
+
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		switch role {
 		case "class":
@@ -282,15 +287,9 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 }
 
 // DeleteArticleService 删除文章
-func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
-	// 获取文章id
-	aid, err := j.GetInt("article_id")
-	if err != nil {
-		zap.L().Error("DeleteArticleService() service.article.GetInt err=", zap.Error(err))
-		return err
-	}
+func DeleteArticleService(aid int, role string, username string) error {
 
-	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
+	err := mysql.DB.Transaction(func(tx *gorm.DB) error {
 		/*
 			回滚分数
 		*/
@@ -319,10 +318,12 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 		/*
 			删除文章
 		*/
+
+		// 权限验证
 		// 若为本人删除
 		if article.User.Username == username {
 			err = mysql.DeleteArticleByIdForSuperman(aid, tx)
-		} else {
+		} else if article.User.Username != username && role != "" {
 			// 若为管理员删除
 			switch role {
 			case "class":
@@ -342,6 +343,8 @@ func DeleteArticleService(j *jsonvalue.V, role string, username string) error {
 			default:
 				return myErr.ErrNotFoundError
 			}
+		} else {
+			return myErr.OverstepCompetence
 		}
 
 		if err != nil {

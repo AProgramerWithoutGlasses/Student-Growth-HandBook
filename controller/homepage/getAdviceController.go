@@ -3,9 +3,9 @@ package homepage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/models"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func GetAdviceControl(c *gin.Context) {
@@ -28,16 +28,15 @@ func GetAdviceControl(c *gin.Context) {
 	//	return
 	//}
 
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
-		response.ResponseError(c, response.TokenError)
+		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("token错误")
-		return
 	}
-	username := claim.(*models.Claims).Username
 
 	// 业务
-	err = service.SaveAdviceService(username, input.Advice)
+	err = service.SaveAdviceService(user.Username, input.Advice)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error(err.Error())

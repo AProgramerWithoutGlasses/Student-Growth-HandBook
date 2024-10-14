@@ -39,10 +39,6 @@ func Like(objId, username string, likeType int) error {
 			return err
 		}
 	}
-	if err != nil {
-		zap.L().Error("Like() service.article.TxPipelined.GetObjLikes err=", zap.Error(err))
-		return err
-	}
 
 	id, err := strconv.Atoi(objId)
 	if err != nil {

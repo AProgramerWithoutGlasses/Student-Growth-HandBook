@@ -156,6 +156,9 @@ func SetStuManagerService(setUsername string, username string, ManagerType strin
 			return errors.New("该用户不为管理员")
 		}
 
+	case "院级管理员":
+		casbinCid = "1"
+
 	}
 
 	if !isManager { // 不是管理员
@@ -208,6 +211,9 @@ func SetTeacherManagerService(username string, ManagerType string) error {
 
 	case "大四管理员":
 		casbinCid = "5"
+
+	case "院级管理员":
+		casbinCid = "1"
 
 	case "取消管理员":
 		if isManager {

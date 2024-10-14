@@ -25,12 +25,15 @@ func LikeController(c *gin.Context) {
 	}
 
 	// 通过token获取username
-	username, err := token.GetUsername(c.GetHeader("token"))
-	if err != nil {
-		zap.L().Error("Like() controller.article.GetUsername err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
+	aToken := token.NewToken(c)
+	user, exist := aToken.GetUser()
+	if !exist {
+		res.ResponseError(c, res.TokenError)
+		zap.L().Error("token错误")
 		return
 	}
+
+	username := user.Username
 
 	//点赞
 	err = article.LikeObjOrNot(strconv.Itoa(in.Id), username, in.TarUsername, in.LikeType)

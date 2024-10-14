@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"fmt"
 	"studentGrow/models/gorm_model"
 	"time"
 )
@@ -29,12 +30,12 @@ func SelRole(id string) (string, error) {
 
 // SelClass 根据学号获取班级
 func SelClass(username string) (string, error) {
-	var class string
+	var class sql.NullString
 	err := DB.Model(&gorm_model.User{}).Select("class").Where("username = ?", username).Scan(&class).Error
 	if err != nil {
 		return "", err
 	}
-	return class, nil
+	return class.String, nil
 }
 
 // SelIfexit 查找用户是否是管理员
@@ -120,14 +121,12 @@ func IfTeacher(username string) (bool, error) {
 	return true, nil
 }
 
-// IfAutor 查看用户是不是老师
-func IfAutor(username string) (bool, error) {
-	var number int64
-	err := DB.Model(&gorm_model.User{}).Where("username = ?", username).Where("identity = ?", "开发").Count(&number).Error
+func SelUser(username string) (gorm_model.User, error) {
+	var user gorm_model.User
+	err := DB.First(&user, "username = ?", username).Error
 	if err != nil {
-		return false, err
-	} else if number != 1 {
-		return false, nil
+		fmt.Println(err)
+		return gorm_model.User{}, err
 	}
-	return true, nil
+	return user, nil
 }

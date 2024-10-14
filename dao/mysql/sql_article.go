@@ -983,3 +983,25 @@ func QueryClassCommonArticleNum(startAt, endAt, topic, keyWords, sort, order, na
 	}
 	return int(count), nil
 }
+
+// DeleteArticleReportMsg 已读举报信息
+func DeleteArticleReportMsg(aid int, db *gorm.DB) error {
+	if err := db.Model(model.UserReportArticleRecord{}).Where("article_id = ?", aid).Update("is_read", true).Error; err != nil {
+		zap.L().Error("GetUnreadReportsController() dao.mysql.sql_article err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// QueryIsExistArticleIdByReportMsg 查询举报信箱中是否存在被举报的文章id
+func QueryIsExistArticleIdByReportMsg(aid int) (bool, error) {
+	var count int64
+	if err := DB.Model(&model.UserReportArticleRecord{}).Where("article_id = ?", aid).Count(&count).Error; err != nil {
+		zap.L().Error("QueryIsExistArticleIdByReportMsg() dao.mysql.sql_nzx.First err=", zap.Error(err))
+		return false, err
+	}
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}

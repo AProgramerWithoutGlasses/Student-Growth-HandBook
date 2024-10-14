@@ -3,21 +3,20 @@ package stuManage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/models"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 // 删除选中用户
 func DeleteStuControl(c *gin.Context) {
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
-		return
 	}
-	username := claim.(*models.Claims).Username
 
 	// 接收请求
 	var input struct {
@@ -31,7 +30,7 @@ func DeleteStuControl(c *gin.Context) {
 	}
 
 	// 业务
-	deletedStuName, err := service.DeleteStuService(username, input.Selected_students)
+	deletedStuName, err := service.DeleteStuService(user.Username, input.Selected_students)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error(err.Error())

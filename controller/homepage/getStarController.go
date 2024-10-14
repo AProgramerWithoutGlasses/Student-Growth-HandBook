@@ -3,10 +3,10 @@ package homepage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"studentGrow/models"
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func GetStarControl(c *gin.Context) {
@@ -30,13 +30,12 @@ func GetStarControl(c *gin.Context) {
 	//	return
 	//}
 
-	claim, exist := c.Get("claim")
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
 	if !exist {
-		response.ResponseError(c, response.TokenError)
+		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("token错误")
-		return
 	}
-	username := claim.(*models.Claims).Username
 
 	// 校验
 	if input.Page <= 0 || input.Limit <= 0 {
@@ -45,7 +44,7 @@ func GetStarControl(c *gin.Context) {
 	}
 
 	// 业务
-	homepageStarList, err := service.GetStarService(input.Page, input.Limit, username)
+	homepageStarList, err := service.GetStarService(input.Page, input.Limit, user.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())
