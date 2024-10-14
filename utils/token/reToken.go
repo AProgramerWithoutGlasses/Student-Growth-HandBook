@@ -10,6 +10,7 @@ import (
 	"studentGrow/models"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	"studentGrow/service/userService"
 )
 
 type Token struct {
@@ -66,18 +67,22 @@ func (this *Token) GetUser() (gorm_model.User, bool) {
 
 func (this *Token) GetRole() (string, error) {
 	user, exist := this.GetUser()
+	var role string
 	if !exist {
 		response.ResponseError(this.C, response.TokenError)
 		zap.L().Error("token错误")
 		return "", fmt.Errorf("token错误")
 	}
-	username := user.Username
-	code, err := mysql.SelCasId(username)
-	role, err := mysql.SelRole(code)
-	if err != nil {
-		response.ResponseError(this.C, response.TokenError)
-		zap.L().Error("获取角色错误")
-		return "", fmt.Errorf("获取角色错误")
+	//验证用户是否是管理员
+	newOk := userService.BVerifyExit(user.Username)
+	if newOk {
+		cId, err := mysql.SelCasId(user.Username)
+		role, err = mysql.SelRole(cId)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		role = ""
 	}
 	return role, nil
 }
@@ -97,6 +102,7 @@ func GetUsername(tokenString string) (string, error) {
 }
 
 func GetRole(tokenString string) (string, error) {
+	var role string
 	tokenString = tokenString[7:]
 	token, _, err := ParseToken(tokenString)
 	if err != nil {
@@ -105,12 +111,17 @@ func GetRole(tokenString string) (string, error) {
 	}
 	if claims, ok := token.Claims.(*models.Claims); ok {
 		username := claims.User.Username
-		code, err := mysql.SelCasId(username)
-		role, err := mysql.SelRole(code)
-		if err != nil {
-			return "", fmt.Errorf("获取角色错误")
+		//验证用户是否是管理员
+		newOk := userService.BVerifyExit(username)
+		if newOk {
+			cId, err := mysql.SelCasId(username)
+			role, err = mysql.SelRole(cId)
+			if err != nil {
+				return "", err
+			}
+		} else {
+			role = ""
 		}
-		return role, nil
 	}
-	return "", nil
+	return role, nil
 }
