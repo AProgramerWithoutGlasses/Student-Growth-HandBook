@@ -323,13 +323,6 @@ func PublishManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	err = message.PublishSystemMsgService(in.Content, role, username)
-	if err != nil {
-		zap.L().Error("PublishSystemMsgController() controller.message.PublishSystemMsgService err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
 	res.ResponseSuccess(c, struct{}{})
 }
 
