@@ -227,8 +227,9 @@ func DeleteArticleController(c *gin.Context) {
 		ArticleId int `json:"article_id"`
 	}{}
 
+	err = c.ShouldBindJSON(&in)
 	if err != nil {
-		zap.L().Error("DeleteArticleController() controller.article.GetJsonvalue err=", zap.Error(err))
+		zap.L().Error("DeleteArticleController() controller.article.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
