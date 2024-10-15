@@ -290,7 +290,7 @@ func AckManagerMsgService(username string) error {
 		return err
 	}
 
-	// 查询当前所有通知id
+	// 查询当前所有管理员通知id
 	ids, err := mysql.QueryManagerNotificationIds()
 	if err != nil {
 		zap.L().Error("AckSystemMsgService() service.article.likeService.QueryManagerNotificationIds err=", zap.Error(err))

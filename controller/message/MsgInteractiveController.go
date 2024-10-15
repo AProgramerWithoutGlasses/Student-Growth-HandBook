@@ -48,6 +48,7 @@ func GetSystemMsgController(c *gin.Context) {
 			"username":      username,
 			"user_headshot": msg.OwnUser.HeadShot,
 			"is_read":       msg.IsRead,
+			"name":          msg.OwnUser.Name,
 		})
 	}
 
@@ -96,6 +97,7 @@ func GetManagerMsgController(c *gin.Context) {
 			"username":      username,
 			"user_headshot": msg.OwnUser.HeadShot,
 			"is_read":       msg.IsRead,
+			"name":          msg.OwnUser.Name,
 		})
 	}
 

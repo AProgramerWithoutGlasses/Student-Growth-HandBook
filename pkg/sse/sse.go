@@ -69,7 +69,16 @@ func SendInterNotification(n gorm_model.InterNotification) {
 		return
 	}
 
-	msg, err := json.Marshal(n)
+	notification := map[string]any{
+		"notice_type":   n.NoticeType,
+		"content":       n.Content,
+		"is_read":       n.IsRead,
+		"time":          n.Time,
+		"name":          n.OwnUser.Name,
+		"user_headshot": n.OwnUser.HeadShot,
+	}
+
+	msg, err := json.Marshal(notification)
 	if err != nil {
 		return
 	}
@@ -88,7 +97,16 @@ func SendInterNotification(n gorm_model.InterNotification) {
 // SendSysNotification 广播消息推送
 func SendSysNotification(n gorm_model.SysNotification) {
 	fmt.Println("Send sysNotification is user = ", n.OwnUserId)
-	msg, err := json.Marshal(n)
+	notification := map[string]any{
+		"notice_type":   n.NoticeType,
+		"content":       n.Content,
+		"is_read":       n.IsRead,
+		"time":          n.Time,
+		"name":          n.OwnUser.Name,
+		"user_headshot": n.OwnUser.HeadShot,
+	}
+
+	msg, err := json.Marshal(notification)
 	if err != nil {
 		return
 	}
