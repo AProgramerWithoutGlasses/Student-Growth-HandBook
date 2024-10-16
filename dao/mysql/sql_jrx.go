@@ -541,7 +541,7 @@ func GetFansListIsConcernDao(fansList []jrx_model.HomepageFanStruct, id int) ([]
 		// 如果列表中显示了自己的账号
 		if otherId == id {
 			fansList[i].IsConcern = ""
-			break
+			continue
 		}
 
 		isConcern, err := GetIsConcernDao(id, otherId)

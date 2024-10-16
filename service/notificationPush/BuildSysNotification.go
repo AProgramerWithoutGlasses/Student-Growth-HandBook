@@ -21,7 +21,7 @@ func BuildSystemNotification(username, content string) (*model.SysNotification, 
 
 	sysNotification := model.SysNotification{
 		OwnUserId:  uint(userId),
-		NoticeType: 4,
+		NoticeType: 3,
 		Content:    content,
 		IsRead:     false,
 		Time:       timeConverter.IntervalConversion(time.Now()),
@@ -45,7 +45,7 @@ func BuildManagerNotification(username, content string) (*model.SysNotification,
 
 	sysNotification := model.SysNotification{
 		OwnUserId:  uint(userId),
-		NoticeType: 3,
+		NoticeType: 4,
 		Content:    content,
 		IsRead:     false,
 		Time:       timeConverter.IntervalConversion(time.Now()),

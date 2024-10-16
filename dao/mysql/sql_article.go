@@ -44,9 +44,10 @@ func QueryArticleByIdOfPassenger(aid int) (err error, article *model.Article) {
 }
 
 // QueryArticleById 通过id查找文章(普通用户)
+// .Or("user_id = ? and ban = ? and status = ?", uid, false, false)
 func QueryArticleById(aid int, uid uint) (err error, article *model.Article) {
 	if err = DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
-		Where("id = ? and ban = ? and status = ?", aid, false, true).Or("user_id = ? and ban = ? and status = ?", uid, false, false).First(&article).Error; err != nil {
+		Where("id = ? and ban = ? and status = ?", aid, false, true).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
 	} else {

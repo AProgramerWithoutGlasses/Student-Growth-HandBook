@@ -82,23 +82,3 @@ func RemoveUserFromLikeSet(objId, userId string, likeType int) error {
 
 	return nil
 }
-
-//// QueryCommentLikeNum 查询评论点赞数
-//func QueryCommentLikeNum(cid int) (int, error) {
-//	num, err := GetObjLikes(strconv.Itoa(cid), 1)
-//	if err != nil {
-//		fmt.Println("QueryCommentLikeNum() dao.mysql.nzx_sql.GetObjLikes err=", err)
-//		return 0, err
-//	}
-//	return num, nil
-//}
-//
-//// UpdateCommentLikeNum 设置评论点赞数
-//func UpdateCommentLikeNum(cid, num int) error {
-//	err := SetObjLikes(strconv.Itoa(cid), num, 1)
-//	if err != nil {
-//		fmt.Println("UpdateCommentLikeNum() dao.mysql.nzx_sql.SetObjLikes err=", err)
-//		return err
-//	}
-//	return nil
-//}

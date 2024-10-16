@@ -27,6 +27,7 @@ type ClassStruct struct {
 
 // ResponseStruct 返回查询结果给前端
 type ResponseStruct struct {
+	Role            string         `json:"role"`
 	Year            []YearStruct   `json:"year"`
 	Class           []ClassStruct  `json:"class"`
 	StuInfo         []StuMesStruct `json:"stuInfo"`
@@ -49,7 +50,6 @@ type ChangeStuMesStruct struct {
 	Username     string `json:"username"`
 	Class        string `json:"class"`
 	Phone_number string `json:"telephone"`
-	Password     string `json:"password"`
 }
 
 // 学生信息表（为贴合apifox的字段，备用）(year int)

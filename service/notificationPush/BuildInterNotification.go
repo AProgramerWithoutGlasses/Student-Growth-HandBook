@@ -16,6 +16,11 @@ func BuildLikeNotification(username, tarUsername string, objId, likeType int) (*
 		return nil, err
 	}
 
+	user, err := mysql.QueryUserByUserId(ownUserId)
+	if err != nil {
+		return nil, err
+	}
+
 	notification := gorm_model.InterNotification{
 		TarUserId:  uint(tarUserId),
 		OwnUserId:  uint(ownUserId),
@@ -24,6 +29,7 @@ func BuildLikeNotification(username, tarUsername string, objId, likeType int) (*
 		SuperId:    objId,
 		IsRead:     false,
 		Content:    "",
+		OwnUser:    *user,
 	}
 
 	return &notification, nil
@@ -40,6 +46,11 @@ func BuildCollectNotification(username, tarUsername string, aid int) (*gorm_mode
 		return nil, err
 	}
 
+	user, err := mysql.QueryUserByUserId(ownUserId)
+	if err != nil {
+		return nil, err
+	}
+
 	notification := gorm_model.InterNotification{
 		TarUserId:  uint(tarUserId),
 		OwnUserId:  uint(ownUserId),
@@ -48,6 +59,7 @@ func BuildCollectNotification(username, tarUsername string, aid int) (*gorm_mode
 		SuperId:    aid,
 		IsRead:     false,
 		Content:    "",
+		OwnUser:    *user,
 	}
 
 	return &notification, nil
@@ -64,6 +76,11 @@ func BuildCommentNotification(username, tarUsername string, objId, comType int) 
 		return nil, err
 	}
 
+	user, err := mysql.QueryUserByUserId(ownUserId)
+	if err != nil {
+		return nil, err
+	}
+
 	notification := gorm_model.InterNotification{
 		TarUserId:  uint(tarUserId),
 		OwnUserId:  uint(ownUserId),
@@ -72,6 +89,7 @@ func BuildCommentNotification(username, tarUsername string, objId, comType int) 
 		SuperId:    objId,
 		IsRead:     false,
 		Content:    "",
+		OwnUser:    *user,
 	}
 
 	return &notification, nil

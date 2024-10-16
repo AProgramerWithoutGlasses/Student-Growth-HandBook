@@ -48,6 +48,7 @@ func GetSystemMsgController(c *gin.Context) {
 			"username":      username,
 			"user_headshot": msg.OwnUser.HeadShot,
 			"is_read":       msg.IsRead,
+			"name":          msg.OwnUser.Name,
 		})
 	}
 
@@ -96,6 +97,7 @@ func GetManagerMsgController(c *gin.Context) {
 			"username":      username,
 			"user_headshot": msg.OwnUser.HeadShot,
 			"is_read":       msg.IsRead,
+			"name":          msg.OwnUser.Name,
 		})
 	}
 
@@ -317,13 +319,6 @@ func PublishManagerMsgController(c *gin.Context) {
 	err = message.PublishManagerMsgService(username, in.Content, role)
 	if err != nil {
 		zap.L().Error("PublishManagerMsgController() controller.message.PublishManagerMsgService err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
-	err = message.PublishSystemMsgService(in.Content, role, username)
-	if err != nil {
-		zap.L().Error("PublishSystemMsgController() controller.message.PublishSystemMsgService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}

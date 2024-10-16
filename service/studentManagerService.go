@@ -280,6 +280,7 @@ func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 	if err != nil {
 		return nil, err
 	}
+	zap.L().Info(fmt.Sprintf("GetStuMesList: %s", querySql))
 
 	// 从user表中获取数据到stuMesSlice中
 	stuMesSlice := make([]jrx_model.StuMesStruct, len(userSlice))
@@ -370,7 +371,7 @@ func CalculateNowGradeByClass(class string) (grade string) {
 	return grade
 }
 
-func EditStuService(user jrx_model.ChangeStuMesStruct) error {
+func EditStuService(user jrx_model.ChangeStuMesStruct, username string) error {
 	id, err := mysql.GetIdByUsername(user.Username)
 	if err != nil {
 		return err
@@ -399,10 +400,8 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 		userEditRecord.NewPhoneNumber = user.Phone_number
 	}
 
-	if oldUser.Password != user.Password {
-		userEditRecord.OldPassword = oldUser.Password
-		userEditRecord.NewPassword = user.Password
-	}
+	userEditRecord.EditedUsername = user.Username
+	userEditRecord.Username = username
 
 	fmt.Println("userEditRecordStruct ： ", userEditRecord)
 
@@ -412,7 +411,6 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 	}
 
 	return nil
-
 }
 
 func AddStuService(input struct {

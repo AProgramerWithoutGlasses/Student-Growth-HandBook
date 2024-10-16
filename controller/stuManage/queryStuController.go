@@ -15,13 +15,16 @@ import (
 )
 
 // 用于存储查询参数
-var queryParmaStruct jrx_model.QueryParmaStruct
-var querySql string
-var queryAllStuNumber int
-var ranges string
 
 // QueryStuContro 查询学生信息
 func QueryStuContro(c *gin.Context) {
+	var (
+		queryParmaStruct  jrx_model.QueryParmaStruct
+		querySql          string
+		queryAllStuNumber int
+		ranges            string
+	)
+
 	token := token2.NewToken(c)
 	user, exist := token.GetUser()
 	if !exist {
@@ -142,6 +145,7 @@ func QueryStuContro(c *gin.Context) {
 
 	// 响应结构体的初始化
 	responseStruct := jrx_model.ResponseStruct{
+		Role:            role,
 		Year:            yearStructSlice,
 		Class:           classStructSlice,
 		StuInfo:         stuPageInfo,
