@@ -12,5 +12,5 @@ type SysNotification struct {
 	TarUser    User   `gorm:"foreignKey:TarUserId"` // 预加载接收者用户
 	Status     bool   `gorm:"default:false"`
 	Time       string `gorm:"-"`
-	IsRead     bool   `gorm:"default:false"`
+	IsRead     bool   `gorm:"-"`
 }
