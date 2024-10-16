@@ -142,6 +142,7 @@ func QueryStuContro(c *gin.Context) {
 
 	// 响应结构体的初始化
 	responseStruct := jrx_model.ResponseStruct{
+		Role:            role,
 		Year:            yearStructSlice,
 		Class:           classStructSlice,
 		StuInfo:         stuPageInfo,

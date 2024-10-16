@@ -27,6 +27,7 @@ type ClassStruct struct {
 
 // ResponseStruct 返回查询结果给前端
 type ResponseStruct struct {
+	Role            string         `json:"role"`
 	Year            []YearStruct   `json:"year"`
 	Class           []ClassStruct  `json:"class"`
 	StuInfo         []StuMesStruct `json:"stuInfo"`
