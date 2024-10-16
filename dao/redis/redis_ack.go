@@ -11,6 +11,8 @@ import (
 
 const mgrAck = "manager_ack" // set存储用户已读消息列表
 const sysAck = "system_ack"
+const mgrHash = "msg_hash"
+const msgTable = "msg_table"
 
 // AckManagerNotification 用户确认管理员消息
 func AckManagerNotification(userId, msgId int) error {
@@ -79,3 +81,72 @@ func GetUserAckedManagerNum(userId int) (int, error) {
 	}
 	return int(result), nil
 }
+
+// RemoveManagerNotificationInUserAcked 在用户已读管理员消息列表中移除指定消息
+func RemoveManagerNotificationInUserAcked(msgId, userId int) error {
+	_, err := RDB.SRem(mgrAck+strconv.Itoa(userId), msgId).Result()
+	if err != nil {
+		zap.L().Error("GetUserAckedManagerNum() dao.redis.redis_ack.SCard err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// AddUserToNotificationSet 将用户添加到消息set
+func AddUserToNotificationSet(userId, msgId int) error {
+	_, err := RDB.SAdd(msgTable+strconv.Itoa(msgId), userId).Result()
+	if err != nil {
+		zap.L().Error("AddUserToNotificationSet() dao.redis.redis_ack.SCard err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// GetUserIdsByNotificationSet 查询消息set中的所有用户id
+func GetUserIdsByNotificationSet(msgId int) ([]int, error) {
+	result, err := RDB.SMembers(msgTable + strconv.Itoa(msgId)).Result()
+	if err != nil {
+		zap.L().Error("GetUserIdsByNotificationSet() dao.redis.redis_ack.SCard err=", zap.Error(err))
+		return nil, err
+	}
+	ids := make([]int, len(result))
+	for i, s := range result {
+		ids[i], _ = strconv.Atoi(s)
+	}
+	return ids, nil
+}
+
+// RemoveManagerNotification 移除消息set
+func RemoveManagerNotification(msgId int) error {
+	_, err := RDB.Del(msgTable + strconv.Itoa(msgId)).Result()
+	if err != nil {
+		zap.L().Error("GetUserIdsByNotificationSet() dao.redis.redis_ack.SCard err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+//// ModifyUserAckedManagerNum 修改用户已读管理员消息数量
+//func ModifyUserAckedManagerNum(userId, num int) error {
+//	_, err := RDB.HIncrBy(mgrHash, strconv.Itoa(userId), int64(num)).Result()
+//	if err != nil {
+//		zap.L().Error("GetUserAckedManagerNum() dao.redis.redis_ack.SCard err=", zap.Error(err))
+//		return err
+//	}
+//	return nil
+//}
+//
+//// GetUserAckedManagerNum 获取用户已读管理员消息数量
+//func GetUserAckedManagerNum(userId int) (int, error) {
+//	result, err := RDB.HGet(mgrHash, strconv.Itoa(userId)).Result()
+//	if err != nil {
+//		zap.L().Error("GetUserAckedManagerNum() dao.redis.redis_ack.SCard err=", zap.Error(err))
+//		return -1, err
+//	}
+//	num, err := strconv.Atoi(result)
+//	if err != nil {
+//		zap.L().Error("GetUserAckedManagerNum() dao.redis.redis_ack.SCard err=", zap.Error(err))
+//		return -1, err
+//	}
+//	return num, nil
+//}

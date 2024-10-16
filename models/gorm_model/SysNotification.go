@@ -10,6 +10,7 @@ type SysNotification struct {
 	Content    string
 	OwnUser    User   `gorm:"foreignKey:OwnUserId"` // 预加载发送者用户
 	TarUser    User   `gorm:"foreignKey:TarUserId"` // 预加载接收者用户
+	Status     bool   `gorm:"default:false"`
 	Time       string `gorm:"-"`
-	IsRead     bool   `gorm:"-"`
+	IsRead     bool   `gorm:"default:false"`
 }
