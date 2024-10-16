@@ -6,6 +6,7 @@ import (
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func EditStuControl(c *gin.Context) {
@@ -18,8 +19,16 @@ func EditStuControl(c *gin.Context) {
 		return
 	}
 
+	token := token2.NewToken(c)
+	tokenUser, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.ParamFail)
+		zap.L().Error("token错误")
+		return
+	}
+
 	// 业务处理
-	err := service.EditStuService(user)
+	err := service.EditStuService(user, tokenUser.Username)
 	if err != nil {
 		response.ResponseError(c, response.ServerErrorCode)
 		zap.L().Error(err.Error())

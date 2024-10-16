@@ -50,7 +50,6 @@ type ChangeStuMesStruct struct {
 	Username     string `json:"username"`
 	Class        string `json:"class"`
 	Phone_number string `json:"telephone"`
-	Password     string `json:"password"`
 }
 
 // 学生信息表（为贴合apifox的字段，备用）(year int)
