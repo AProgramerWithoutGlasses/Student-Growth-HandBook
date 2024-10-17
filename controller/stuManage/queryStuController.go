@@ -30,6 +30,7 @@ func QueryStuContro(c *gin.Context) {
 	if !exist {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
+		return
 	}
 
 	role, err := token.GetRole()
