@@ -280,6 +280,7 @@ func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 	if err != nil {
 		return nil, err
 	}
+	zap.L().Info(fmt.Sprintf("GetStuMesList: %s", querySql))
 
 	// 从user表中获取数据到stuMesSlice中
 	stuMesSlice := make([]jrx_model.StuMesStruct, len(userSlice))

@@ -15,18 +15,22 @@ import (
 )
 
 // 用于存储查询参数
-var queryParmaStruct jrx_model.QueryParmaStruct
-var querySql string
-var queryAllStuNumber int
-var ranges string
 
 // QueryStuContro 查询学生信息
 func QueryStuContro(c *gin.Context) {
+	var (
+		queryParmaStruct  jrx_model.QueryParmaStruct
+		querySql          string
+		queryAllStuNumber int
+		ranges            string
+	)
+
 	token := token2.NewToken(c)
 	user, exist := token.GetUser()
 	if !exist {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
+		return
 	}
 
 	role, err := token.GetRole()
