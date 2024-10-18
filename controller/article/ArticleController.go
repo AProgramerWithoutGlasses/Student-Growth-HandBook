@@ -33,12 +33,6 @@ func GetArticleIdController(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		zap.L().Error("GetArticleIdController() controller.article.GetArticleService err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
 	var tags []string
 	for _, tag := range art.ArticleTags {
 		tags = append(tags, tag.Tag.TagName)
