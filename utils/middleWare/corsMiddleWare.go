@@ -38,13 +38,13 @@ func CORSMiddleware() gin.HandlerFunc {
 
 		fmt.Println("len map", len(allowedOrigins))
 		fmt.Println("map", allowedOrigins)
-		fmt.Println("origin-->",origin,"-->has Map",allowedOrigins[origin])
+		fmt.Println("origin-->", origin, "-->has Map", allowedOrigins[origin])
 		// 检查请求的Origin是否在允许的域名列表中
 
-		fmt.Println("mode:-->",viper.GetString("app.mode"))
+		fmt.Println("mode:-->", viper.GetString("app.mode"))
 		if allowedOrigins[origin] || viper.GetString("app.mode") == "dev" {
 
-			fmt.Println("设置了权限--》",origin)
+			fmt.Println("设置了权限--》", origin)
 			// 如果是，则设置Access-Control-Allow-Origin为请求的Origin
 			c.Header("Access-Control-Allow-Origin", origin)
 		} else {
