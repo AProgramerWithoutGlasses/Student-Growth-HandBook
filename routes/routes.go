@@ -28,5 +28,6 @@ func Setup() *gin.Engine {
 	// 雪
 	RoutesXue(r)
 
+	RoutsJoinAudit(r)
 	return r
 }

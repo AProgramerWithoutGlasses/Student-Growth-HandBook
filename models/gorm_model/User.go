@@ -21,6 +21,8 @@ type User struct {
 	SelfContent               string              `gorm:"size:1000"json:"self_content"`
 	Motto                     string              `gorm:"size:50"json:"user_motto"`
 	Exper                     int                 `gorm:"default:0"json:"user_exper"`
+	JobClass                  string              `json:"job_class" gorm:"size10"`     //角色分类
+	JobStuUnion               string              `json:"job_stu_union" gorm:"size10"` //学生会身份
 	Ban                       bool                `gorm:"type:boolean;default:false"json:"user_ban"`
 	UserBanEndTime            time.Time           `gorm:"type:date"json:"user_ban_end_time"`
 	IsManager                 bool                `gorm:"default:false"json:"user_is_manager"`
