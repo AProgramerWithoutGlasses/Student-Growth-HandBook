@@ -7,34 +7,35 @@ import (
 	"time"
 )
 
+type Pagination struct {
+	Page  int    `form:"page"`
+	Limit int    `form:"limit"`
+	Sort  string `form:"sort"`
+}
+
 // OpenActivityMsg 查询活动的开放信息
-func OpenActivityMsg() (isOpen bool, Msg string, ActivityMsg gorm_model.JoinAuditDuty) {
-	isOpen = false
+func OpenActivityMsg() (bool, string, gorm_model.JoinAuditDuty) {
 	var count int64
+	var ActivityMsg gorm_model.JoinAuditDuty
+	var FailActivityMsg gorm_model.JoinAuditDuty
 	DB.Where("is_show = ?", true).Find(&ActivityMsg).Count(&count)
 	if count < 1 {
-		Msg = "不存在开放活动"
-		return
+		return false, "不存在开放活动", FailActivityMsg
 	}
 	if count > 1 {
-		Msg = "开放活动数量异常"
-		return
+		return false, "开放活动数量异常", FailActivityMsg
 	}
 	format := "2006-01-02 15:04:05"
 	now := time.Now().Format(format)
 	startTime := ActivityMsg.StartTime.Format(format)
 	stopTime := ActivityMsg.StopTime.Format(format)
 	if now <= startTime {
-		Msg = "活动未到开放时间"
-		return
+		return false, "活动未到开放时间", ActivityMsg
 	}
 	if now >= stopTime {
-		Msg = "活动已结束"
-		return
+		return false, "活动已结束", ActivityMsg
 	}
-	isOpen = true
-	Msg = "活动已开放"
-	return
+	return true, "活动已开放", ActivityMsg
 }
 
 // StuFormMsg 查询提交过的信息
@@ -47,6 +48,14 @@ func StuFormMsg(username string, activityID uint) (isExist bool, stuMsg gorm_mod
 	isExist = true
 	return
 }
+
+// 分页查询
+//func ComList[T any](model T, pagMsg Pagination) (list []T) {
+//	if pagMsg.Sort == "" || pagMsg.Sort == "desc" {
+//		pagMsg.Sort = "created_at desc"
+//	}
+//
+//}
 
 //申请人信息保存
 
