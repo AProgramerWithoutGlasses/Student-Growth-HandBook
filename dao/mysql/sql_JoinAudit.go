@@ -2,33 +2,36 @@ package mysql
 
 import (
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
+	"time"
 )
 
 // OpenActivityMsg 查询活动的开放信息
 func OpenActivityMsg() (isOpen bool, Msg string, ActivityMsg gorm_model.JoinAuditDuty) {
-	count := DB.Select("is_show = ?", true).RowsAffected
+	isOpen = false
+	var count int64
+	DB.Where("is_show = ?", true).Find(&ActivityMsg).Count(&count)
 	if count < 1 {
-		isOpen = false
 		Msg = "不存在开放活动"
 		return
 	}
 	if count > 1 {
-		isOpen = false
 		Msg = "开放活动数量异常"
 		return
 	}
-	//currentTime := time.Now()
-	count = DB.Where("is_show = ?", true).Find(&ActivityMsg).RowsAffected
-	if count != 1 {
-		isOpen = false
-		Msg = "活动信息查询异常"
+	format := "2006-01-02 15:04:05"
+	now := time.Now().Format(format)
+	startTime := ActivityMsg.StartTime.Format(format)
+	stopTime := ActivityMsg.StopTime.Format(format)
+	if now <= startTime {
+		Msg = "活动未到开放时间"
 		return
 	}
-	fmt.Println(ActivityMsg.StartTime)
-	fmt.Println(ActivityMsg.StopTime)
+	if now >= stopTime {
+		Msg = "活动已结束"
+		return
+	}
 	isOpen = true
 	Msg = "活动已开放"
 	return
@@ -45,7 +48,7 @@ func StuFormMsg(username string, activityID uint) (isExist bool, stuMsg gorm_mod
 	return
 }
 
-// 申请人信息保存
+//申请人信息保存
 
 //查询纪权部所需信息
 
