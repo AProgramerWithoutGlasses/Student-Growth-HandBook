@@ -39,7 +39,7 @@ func GetStuFile(c *gin.Context) {
 	var stuFromMsg gorm_model.JoinAudit
 	mysql.DB.Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Take(&stuFromMsg)
 	if stuFromMsg.ClassIsPass != "pass" {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "班级审核通过")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "班级审核未通过")
 		return
 	}
 	if stuFromMsg.RulerIsPass == "fail" {
@@ -53,7 +53,7 @@ func GetStuFile(c *gin.Context) {
 	var fileList []gorm_model.JoinAuditFile
 	mysql.DB.Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Find(&fileList)
 	if len(fileList) == 0 {
-		response.ResponseErrorWithMsg(c, response.SuccessCode, "用户文件不存在")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "用户文件不存在")
 		return
 	}
 	for _, file := range fileList {
@@ -76,6 +76,11 @@ func SaveStuFile(c *gin.Context) {
 		zap.L().Error("token错误")
 		return
 	}
+	ActivityIsOpen, Msg, ActivityMsg := mysql.OpenActivityMsg()
+	if !ActivityIsOpen {
+		response.ResponseErrorWithMsg(c, response.ParamFail, Msg)
+		return
+	}
 	form, err := c.MultipartForm()
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
@@ -86,19 +91,19 @@ func SaveStuFile(c *gin.Context) {
 	fileList, ok := form.File["material"]
 	if ok {
 		for _, file := range fileList {
-			resMsg := JoinAudit.FileUpload(file, user, "material")
+			resMsg := JoinAudit.FileUpload(file, user, ActivityMsg, "material")
 			resList = append(resList, resMsg)
 		}
 	}
 	fileList, ok = form.File["application"]
 	if ok {
 		for _, file := range fileList {
-			resMsg := JoinAudit.FileUpload(file, user, "application")
+			resMsg := JoinAudit.FileUpload(file, user, ActivityMsg, "application")
 			resList = append(resList, resMsg)
 		}
 	}
 	if len(resList) == 0 {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "文件获取失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "没有需要处理的文件")
 		return
 	}
 	response.ResponseSuccess(c, resList)

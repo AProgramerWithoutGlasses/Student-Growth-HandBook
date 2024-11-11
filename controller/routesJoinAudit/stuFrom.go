@@ -31,17 +31,23 @@ func GetStudForm(c *gin.Context) {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
 	}
+
+	ActivityIsOpen, Msg, ActivityMsg := mysql.OpenActivityMsg()
+	if !ActivityIsOpen {
+		response.ResponseErrorWithMsg(c, response.ParamFail, Msg)
+		return
+	}
+
 	var resStuMsg StuMsg
-	_, _, activity := mysql.OpenActivityMsg()
 	//获取用户表单信息
-	isExist, stuMsg := mysql.StuFormMsg(user.Username, activity.ID)
+	isExist, stuMsg := mysql.StuFormMsg(user.Username, ActivityMsg.ID)
 	//初次进入未提交过表单状态
 	if !isExist {
 		resStuMsg = StuMsg{
 			Username:                user.Username,
 			Name:                    user.Name,
 			UserClass:               user.Class,
-			ActivityName:            activity.ActivityName,
+			ActivityName:            ActivityMsg.ActivityName,
 			ClassIsPass:             stuMsg.ClassIsPass,
 			RulerIsPass:             stuMsg.RulerIsPass,
 			OrganizerMaterialIsPass: stuMsg.OrganizerMaterialIsPass,
@@ -49,10 +55,7 @@ func GetStudForm(c *gin.Context) {
 		response.ResponseSuccess(c, resStuMsg)
 		return
 	}
-	if stuMsg.ClassIsPass == "pass" {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "班级审核已通过")
-		return
-	}
+
 	resStuMsg = StuMsg{
 		Username:                stuMsg.Username,
 		UserClass:               stuMsg.UserClass,
@@ -80,32 +83,41 @@ func SaveStudForm(c *gin.Context) {
 	var cr StuMsg
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "json解析失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析失败")
 		return
 	}
-	_, _, activity := mysql.OpenActivityMsg()
-	isExist, stuMsg := mysql.StuFormMsg(user.Username, activity.ID)
+	ActivityIsOpen, Msg, ActivityMsg := mysql.OpenActivityMsg()
+	if !ActivityIsOpen {
+		response.ResponseErrorWithMsg(c, response.ParamFail, Msg)
+		return
+	}
+
+	isExist, stuMsg := mysql.StuFormMsg(user.Username, ActivityMsg.ID)
 	stuMsg.Name = cr.Name
 	stuMsg.Major = cr.Major
 	stuMsg.UserClass = cr.UserClass
 	stuMsg.MoralCoin = cr.MoralCoin
 	stuMsg.ComprehensiveScore = cr.ComprehensiveScore
-	stuMsg.JoinAuditDuty = activity
+	stuMsg.JoinAuditDuty = ActivityMsg
 	if isExist {
 		err = mysql.DB.Model(&stuMsg).Updates(&stuMsg).Error
 		if err != nil {
-			response.ResponseErrorWithMsg(c, response.ServerErrorCode, "信息更新失败")
+			response.ResponseErrorWithMsg(c, response.ParamFail, "信息更新失败")
 			return
 		}
-		response.ResponseErrorWithMsg(c, response.SuccessCode, "信息更新成功")
+		if stuMsg.ClassIsPass == "pass" {
+			response.ResponseErrorWithMsg(c, response.ParamFail, "班级审核已通过信息不可进行修改")
+			return
+		}
+		response.ResponseSuccessWithMsg(c, "信息更新成功", struct{}{})
 		return
 	} else {
 		stuMsg.Username = user.Username
 		err = mysql.DB.Create(&stuMsg).Error
 		if err != nil {
-			response.ResponseErrorWithMsg(c, response.ServerErrorCode, "信息创建失败")
+			response.ResponseErrorWithMsg(c, response.ParamFail, "信息创建失败")
 			return
 		}
-		response.ResponseErrorWithMsg(c, response.SuccessCode, "信息创建成功")
+		response.ResponseSuccessWithMsg(c, "信息创建成功", struct{}{})
 	}
 }

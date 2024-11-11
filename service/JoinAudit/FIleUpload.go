@@ -36,7 +36,7 @@ var (
 	}
 )
 
-func FileUpload(file *multipart.FileHeader, user gorm_model.User, note string) (res StuFileUpload) {
+func FileUpload(file *multipart.FileHeader, user gorm_model.User, ActivityMsg gorm_model.JoinAuditDuty, note string) (res StuFileUpload) {
 	fileName := file.Filename
 	res.FileName = fileName
 	res.IsSuccess = false
@@ -72,11 +72,6 @@ func FileUpload(file *multipart.FileHeader, user gorm_model.User, note string) (
 	//根据hash值判断照片是否存在于库中
 	var FileMsg gorm_model.JoinAuditFile
 	//查询当前开启活动的信息
-	ActivityIsOpen, Msg, ActivityMsg := mysql.OpenActivityMsg()
-	if ActivityIsOpen {
-		res.Msg = Msg
-		return
-	}
 
 	err = mysql.DB.Take(&FileMsg, "file_hash = ? AND join_audit_duty_id = ? AND  username = ?", imageHash, ActivityMsg.ID, user.Username).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
