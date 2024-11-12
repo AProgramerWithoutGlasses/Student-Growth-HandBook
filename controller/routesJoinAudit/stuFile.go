@@ -53,7 +53,7 @@ func GetStuFile(c *gin.Context) {
 	var fileList []gorm_model.JoinAuditFile
 	mysql.DB.Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Find(&fileList)
 	if len(fileList) == 0 {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "用户文件不存在")
+		response.ResponseSuccessWithMsg(c, "用户文件不存在", resList)
 		return
 	}
 	for _, file := range fileList {
@@ -67,7 +67,7 @@ func GetStuFile(c *gin.Context) {
 	return
 }
 
-// SaveStuFile 获取和保存提交文件
+// SaveStuFile 保存提交文件
 func SaveStuFile(c *gin.Context) {
 	token := token2.NewToken(c)
 	user, exist := token.GetUser()
@@ -85,11 +85,16 @@ func SaveStuFile(c *gin.Context) {
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 	}
-
 	var resList []JoinAudit.StuFileUpload
+
 	//获取传入的文件
 	fileList, ok := form.File["material"]
 	if ok {
+		err = mysql.DB.Delete(&gorm_model.JoinAuditFile{}, "username = ? AND join_audit_duty_id = ? AND note = ?", user.Username, ActivityMsg.ID, "material").Error
+		if err != nil {
+			response.ResponseErrorWithMsg(c, response.ParamFail, "material 旧文件删除失败")
+			return
+		}
 		for _, file := range fileList {
 			resMsg := JoinAudit.FileUpload(file, user, ActivityMsg, "material")
 			resList = append(resList, resMsg)
@@ -97,17 +102,24 @@ func SaveStuFile(c *gin.Context) {
 	}
 	fileList, ok = form.File["application"]
 	if ok {
+		err = mysql.DB.Delete(&gorm_model.JoinAuditFile{}, "username = ? AND join_audit_duty_id = ? AND note = ?", user.Username, ActivityMsg.ID, "application").Error
+		if err != nil {
+			response.ResponseErrorWithMsg(c, response.ParamFail, "application 旧文件删除失败")
+			return
+		}
 		for _, file := range fileList {
 			resMsg := JoinAudit.FileUpload(file, user, ActivityMsg, "application")
 			resList = append(resList, resMsg)
 		}
 	}
 	if len(resList) == 0 {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "没有需要处理的文件")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "文件获取失败")
 		return
 	}
 	response.ResponseSuccess(c, resList)
 }
+
+// 文件删除
 func DelStuFile(c *gin.Context) {
 	type DelFileList struct {
 		ID []int
