@@ -1,10 +1,8 @@
 package JoinAudit
 
 import (
-	"errors"
 	"fmt"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"io"
 	"mime/multipart"
 	"studentGrow/dao/mysql"
@@ -38,8 +36,10 @@ var (
 
 func FileUpload(file *multipart.FileHeader, user gorm_model.User, ActivityMsg gorm_model.JoinAuditDuty, note string) (res StuFileUpload) {
 	fileName := file.Filename
+	res.FilePath = ""
 	res.FileName = fileName
 	res.IsSuccess = false
+	res.Note = note
 	//判断文件是否在白名单内
 	if !fileIsInList.FileIsInList(fileName, WhiteImageList) {
 		zap.L().Info("文件格式不合法")
@@ -71,25 +71,23 @@ func FileUpload(file *multipart.FileHeader, user gorm_model.User, ActivityMsg go
 	imageHash := hashMd5.HashMd5(byteData)
 	//根据hash值判断照片是否存在于库中
 	var FileMsg gorm_model.JoinAuditFile
-	//查询当前开启活动的信息
-
-	err = mysql.DB.Take(&FileMsg, "file_hash = ? AND join_audit_duty_id = ? AND  username = ?", imageHash, ActivityMsg.ID, user.Username).Error
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		//当前活动中用户存在该照片，重复上传
-		res.ID = FileMsg.ID
-		res.FileName = FileMsg.FileName
-		res.IsSuccess = true
-		res.FilePath = FileMsg.FilePath
-		res.Note = FileMsg.Note
-		res.Msg = "用户照片存在，重复上传"
-		return
-	}
+	////查询当前开启活动的信息
+	//
+	//err = mysql.DB.Take(&FileMsg, "file_hash = ? AND join_audit_duty_id = ? AND  username = ?", imageHash, ActivityMsg.ID, user.Username).Error
+	//if !errors.Is(err, gorm.ErrRecordNotFound) {
+	//	//当前活动中用户存在该照片，重复上传
+	//	res.ID = FileMsg.ID
+	//	res.FileName = FileMsg.FileName
+	//	res.IsSuccess = true
+	//	res.FilePath = FileMsg.FilePath
+	//	res.Note = FileMsg.Note
+	//	res.Msg = "用户照片存在，重复上传"
+	//	return
+	//}
 
 	//上传阿里云
 	imagePath, err := fileProcess.UploadFile("image", file)
 	if err != nil {
-		res.IsSuccess = false
-		res.FilePath = ""
 		res.Msg = "阿里云上传出错"
 		zap.L().Info(err.Error())
 		return
@@ -106,9 +104,7 @@ func FileUpload(file *multipart.FileHeader, user gorm_model.User, ActivityMsg go
 	err = mysql.DB.Create(&FileMsg).Error
 	if err != nil {
 		res.ID = FileMsg.ID
-		res.IsSuccess = false
 		res.FilePath = imagePath
-		res.Note = note
 		res.Msg = "文件链接入库出现错误"
 		return
 	}

@@ -50,12 +50,20 @@ func StuFormMsg(username string, activityID uint) (isExist bool, stuMsg gorm_mod
 }
 
 // 分页查询
-//func ComList[T any](model T, pagMsg Pagination) (list []T) {
-//	if pagMsg.Sort == "" || pagMsg.Sort == "desc" {
-//		pagMsg.Sort = "created_at desc"
-//	}
-//
-//}
+func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err error) {
+	if pagMsg.Sort == "asc" {
+		pagMsg.Sort = "created_at asc"
+	} else {
+		pagMsg.Sort = "created_at desc"
+	}
+	count = DB.Select("id").Find(&list).RowsAffected
+	offset := (pagMsg.Page - 1) * pagMsg.Limit
+	if offset < 0 {
+		offset = 0
+	}
+	err = DB.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Error
+	return
+}
 
 //申请人信息保存
 

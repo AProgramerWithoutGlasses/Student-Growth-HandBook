@@ -9,7 +9,12 @@ import (
 	token2 "studentGrow/utils/token"
 )
 
-func getActivityMsg(c *gin.Context) {
+type ListResponse struct {
+	List  any   `json:"list"`
+	Count int64 `json:"count"`
+}
+
+func GetActivityMsg(c *gin.Context) {
 	token := token2.NewToken(c)
 	_, exist := token.GetUser()
 	if !exist {
@@ -17,6 +22,18 @@ func getActivityMsg(c *gin.Context) {
 		zap.L().Error("token错误")
 		return
 	}
-	mysql.DB.Select("id").Find(&gorm_model.JoinAuditFile{})
-
+	var pagMsg mysql.Pagination
+	err := c.ShouldBindQuery(&pagMsg)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "Query解析失败")
+	}
+	ActivityMsgList, count, err := mysql.ComList(gorm_model.JoinAuditDuty{}, pagMsg)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "查询列表出现错误")
+		return
+	}
+	response.ResponseSuccess(c, ListResponse{
+		ActivityMsgList,
+		count,
+	})
 }
