@@ -15,5 +15,7 @@ func RoutsJoinAudit(router *gin.Engine) {
 	r.GET("/StudFile", routesJoinAudit.GetStuFile)
 	r.POST("/StudFile", routesJoinAudit.SaveStuFile)
 	r.POST("/DelStudFile", routesJoinAudit.DelStuFile)
-	r.GET("activityManage", routesJoinAudit.GetActivityMsg)
+	r.GET("/activityManage", routesJoinAudit.GetActivityList)
+	r.POST("/activityManage", routesJoinAudit.SaveActivityMsg)
+	r.POST("/delActivity", routesJoinAudit.DelActivityMsg)
 }
