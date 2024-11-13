@@ -86,15 +86,31 @@ func SaveStuFile(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 	}
 	var resList []JoinAudit.StuFileUpload
-
-	//获取传入的文件
-	fileList, ok := form.File["material"]
-	if ok {
-		err = mysql.DB.Delete(&gorm_model.JoinAuditFile{}, "username = ? AND join_audit_duty_id = ? AND note = ?", user.Username, ActivityMsg.ID, "material").Error
+	if form.File["material"] == nil || form.File["application"] == nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "无文件需要处理")
+		return
+	}
+	//删除之前存在的文件
+	var imageList []gorm_model.JoinAuditFile
+	count := mysql.DB.Find(&imageList, "username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).RowsAffected
+	if count != 0 {
+		//for _, file := range imageList {
+		//	err, getHeader := fileProcess.DelOssFile(file.FilePath)
+		//	if err != nil {
+		//		response.ResponseErrorWithMsg(c, response.ParamFail, "阿里云文件删除失败")
+		//		return
+		//	}
+		//	fmt.Println(getHeader)
+		//}
+		err = mysql.DB.Delete(&imageList).Error
 		if err != nil {
 			response.ResponseErrorWithMsg(c, response.ParamFail, "material 旧文件删除失败")
 			return
 		}
+	}
+	//获取传入的文件
+	fileList, ok := form.File["material"]
+	if ok {
 		for _, file := range fileList {
 			resMsg := JoinAudit.FileUpload(file, user, ActivityMsg, "material")
 			resList = append(resList, resMsg)
@@ -102,11 +118,6 @@ func SaveStuFile(c *gin.Context) {
 	}
 	fileList, ok = form.File["application"]
 	if ok {
-		err = mysql.DB.Delete(&gorm_model.JoinAuditFile{}, "username = ? AND join_audit_duty_id = ? AND note = ?", user.Username, ActivityMsg.ID, "application").Error
-		if err != nil {
-			response.ResponseErrorWithMsg(c, response.ParamFail, "application 旧文件删除失败")
-			return
-		}
 		for _, file := range fileList {
 			resMsg := JoinAudit.FileUpload(file, user, ActivityMsg, "application")
 			resList = append(resList, resMsg)
@@ -116,6 +127,7 @@ func SaveStuFile(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "文件获取失败")
 		return
 	}
+
 	response.ResponseSuccess(c, resList)
 }
 

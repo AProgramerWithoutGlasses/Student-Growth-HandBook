@@ -49,7 +49,7 @@ func StuFormMsg(username string, activityID uint) (isExist bool, stuMsg gorm_mod
 	return
 }
 
-// 分页查询
+// ComList分页查询
 func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err error) {
 	if pagMsg.Sort == "asc" {
 		pagMsg.Sort = "created_at asc"

@@ -1,6 +1,8 @@
 package gorm_model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type JoinAuditFile struct {
 	gorm.Model
@@ -12,3 +14,14 @@ type JoinAuditFile struct {
 	JoinAuditDuty   JoinAuditDuty `gorm:"foreignKey:JoinAuditDutyID"`
 	Note            string        `json:"image_note"` //备注
 }
+
+//func (j JoinAuditFile) BeforeDelete(tx *gorm.DB) (err error) {
+//	err, getHeader := fileProcess.DelOssFile(j.FilePath)
+//	if err != nil {
+//		fmt.Println(err)
+//		return err
+//	}
+//	fmt.Println(getHeader)
+//	fmt.Println("删除钩子使用成功")
+//	return nil
+//}
