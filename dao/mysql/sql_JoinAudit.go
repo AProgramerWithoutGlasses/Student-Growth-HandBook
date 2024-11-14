@@ -9,6 +9,7 @@ import (
 
 type Pagination struct {
 	Page  int    `form:"page"`
+	Key   string `form:"key"`
 	Limit int    `form:"limit"`
 	Sort  string `form:"sort"`
 }
@@ -62,6 +63,48 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 		offset = 0
 	}
 	err = DB.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Error
+	return
+}
+
+func ActivityClassList[T any](model T, pagMsg Pagination) (list []T, count int64, err error) {
+	if pagMsg.Sort == "asc" {
+		pagMsg.Sort = "created_at asc"
+	} else {
+		pagMsg.Sort = "created_at desc"
+	}
+	offset := (pagMsg.Page - 1) * pagMsg.Limit
+	if offset < 0 {
+		offset = 0
+	}
+	err = DB.Preload("JoinAuditDuty").Where("user_class = ?", pagMsg.Key).Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Count(&count).Error
+	return
+}
+
+func ActivityRulerList[T any](model T, pagMsg Pagination) (list []T, count int64, err error) {
+	if pagMsg.Sort == "asc" {
+		pagMsg.Sort = "created_at asc"
+	} else {
+		pagMsg.Sort = "created_at desc"
+	}
+	offset := (pagMsg.Page - 1) * pagMsg.Limit
+	if offset < 0 {
+		offset = 0
+	}
+	err = DB.Preload("JoinAuditDuty").Where("class_is_pass = ?", "pass").Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Count(&count).Error
+	return
+}
+
+func ActivityOrganizerTrainList[T any](model T, pagMsg Pagination) (list []T, count int64, err error) {
+	if pagMsg.Sort == "asc" {
+		pagMsg.Sort = "created_at asc"
+	} else {
+		pagMsg.Sort = "created_at desc"
+	}
+	offset := (pagMsg.Page - 1) * pagMsg.Limit
+	if offset < 0 {
+		offset = 0
+	}
+	err = DB.Preload("JoinAuditDuty").Where("class_is_pass = ? AND ruler_is_pass = ? AND organizer_material_is_pass = ?", "pass", "pass", "pass").Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Count(&count).Error
 	return
 }
 

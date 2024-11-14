@@ -99,6 +99,7 @@ func SaveStudForm(c *gin.Context) {
 	stuMsg.MoralCoin = cr.MoralCoin
 	stuMsg.ComprehensiveScore = cr.ComprehensiveScore
 	stuMsg.JoinAuditDuty = ActivityMsg
+	stuMsg.ClassIsPass = ""
 	if isExist {
 		err = mysql.DB.Model(&stuMsg).Updates(&stuMsg).Error
 		if err != nil {

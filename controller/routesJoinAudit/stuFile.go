@@ -127,11 +127,11 @@ func SaveStuFile(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "文件获取失败")
 		return
 	}
-
+	mysql.DB.Model(&gorm_model.JoinAudit{}).Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Update("organizer_material_is_pass", "")
 	response.ResponseSuccess(c, resList)
 }
 
-// 文件删除
+// DelStuFile 文件删除
 func DelStuFile(c *gin.Context) {
 	type DelFileList struct {
 		ID []int
