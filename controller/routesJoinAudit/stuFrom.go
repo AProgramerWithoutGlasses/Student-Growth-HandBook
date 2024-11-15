@@ -93,6 +93,7 @@ func SaveStudForm(c *gin.Context) {
 	}
 
 	isExist, stuMsg := mysql.StuFormMsg(user.Username, ActivityMsg.ID)
+	stuMsg.Gender = user.Gender
 	stuMsg.Name = cr.Name
 	stuMsg.Major = cr.Major
 	stuMsg.UserClass = cr.UserClass
