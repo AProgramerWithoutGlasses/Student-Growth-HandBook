@@ -28,9 +28,15 @@ func ClassApplicationList(c *gin.Context) {
 		zap.L().Error("token错误")
 		return
 	}
-	var pagMsg mysql.Pagination
-	err := c.ShouldBindQuery(&pagMsg)
-	msgList, count, err := mysql.ActivityClassList(gorm_model.JoinAudit{}, pagMsg)
+	var cr mysql.Pagination
+	err := c.ShouldBindJSON(&cr)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析出错")
+	}
+	cr.Label = "ClassApplicationList"
+	//cr.UserClass = user.Class
+	cr.UserClass = "计科211"
+	msgList, count, err := mysql.ComList(gorm_model.JoinAudit{}, cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "列表查询出错")
 		return

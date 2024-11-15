@@ -9,6 +9,7 @@ import (
 	token2 "studentGrow/utils/token"
 )
 
+// 组织部材料审核
 func ActivityOrganizerMaterialManager(c *gin.Context) {
 	token := token2.NewToken(c)
 	_, exist := token.GetUser()
@@ -49,6 +50,7 @@ func ActivityOrganizerMaterialManager(c *gin.Context) {
 	response.ResponseSuccess(c, resList)
 }
 
+// 组织部获取成绩列表
 func ActivityOrganizerTrainList(c *gin.Context) {
 	token := token2.NewToken(c)
 	_, exist := token.GetUser()
@@ -58,13 +60,13 @@ func ActivityOrganizerTrainList(c *gin.Context) {
 		return
 	}
 	var cr mysql.Pagination
-	err := c.ShouldBindQuery(&cr)
+	err := c.ShouldBindJSON(&cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "query数据解析失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
-
-	list, count, err := mysql.ActivityOrganizerTrainList(gorm_model.JoinAudit{}, cr)
+	cr.Label = "ActivityOrganizerTrainList"
+	list, count, err := mysql.ComList(gorm_model.JoinAudit{}, cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "列表查询失败")
 		return
@@ -76,6 +78,7 @@ func ActivityOrganizerTrainList(c *gin.Context) {
 	})
 }
 
+// 组织部考核成绩审核
 func ActivityOrganizerTrainManager(c *gin.Context) {
 	token := token2.NewToken(c)
 	_, exist := token.GetUser()
@@ -115,6 +118,8 @@ func ActivityOrganizerTrainManager(c *gin.Context) {
 	}
 	response.ResponseSuccess(c, resList)
 }
+
+// 组织部更新分数
 func SaveTrainScore(c *gin.Context) {
 	token := token2.NewToken(c)
 	_, exist := token.GetUser()

@@ -50,6 +50,7 @@ func GetActivityList(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "Query解析失败")
 		return
 	}
+	pagMsg.Label = "ActivityList"
 	ActivityMsgList, count, err := mysql.ComList(gorm_model.JoinAuditDuty{}, pagMsg)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "查询列表出现错误")

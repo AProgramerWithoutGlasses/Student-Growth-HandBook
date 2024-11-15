@@ -18,12 +18,13 @@ func ActivityRulerList(c *gin.Context) {
 		return
 	}
 	var cr mysql.Pagination
-	err := c.ShouldBindQuery(&cr)
+	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "query解析失败")
 		return
 	}
-	list, count, err := mysql.ActivityRulerList(gorm_model.JoinAudit{}, cr)
+	cr.Label = "ActivityRulerList"
+	list, count, err := mysql.ComList(gorm_model.JoinAudit{}, cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "列表查询出错")
 		return
