@@ -24,18 +24,15 @@ type ListResponse struct {
 	Count int64 `json:"count"`
 }
 type ReceiveActivityMsg struct {
-	ID                        uint   `json:"ID"`
-	ActivityName              string `json:"activity_name"`
-	StartTime                 string `json:"start_time"`
-	StopTime                  string `json:"stop_time"`
-	RulerName                 string `json:"ruler_name"`
-	RulerUsername             string `json:"ruler_username"`
-	OrganizerMaterialName     string `json:"organizer_material_name"`
-	OrganizerMaterialUsername string `json:"organizer_material_username"`
-	OrganizerTrainName        string `json:"organizer_train_name"`
-	OrganizerTrainUsername    string `json:"organizer_train_username"`
-	IsShow                    bool   `json:"is_show"`
-	Note                      string `json:"note"`
+	ID                    uint   `json:"ID"`
+	ActivityName          string `json:"activity_name"`
+	StartTime             string `json:"start_time"`
+	StopTime              string `json:"stop_time"`
+	RulerName             string `json:"ruler_name"`
+	OrganizerMaterialName string `json:"organizer_material_name"`
+	OrganizerTrainName    string `json:"organizer_train_name"`
+	IsShow                bool   `json:"is_show"`
+	Note                  string `json:"note"`
 }
 
 func GetActivityList(c *gin.Context) {
@@ -47,9 +44,11 @@ func GetActivityList(c *gin.Context) {
 		return
 	}
 	var pagMsg mysql.Pagination
-	err := c.ShouldBindQuery(&pagMsg)
+	err := c.ShouldBindJSON(&pagMsg)
+	fmt.Println(pagMsg)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "Query解析失败")
+		return
 	}
 	ActivityMsgList, count, err := mysql.ComList(gorm_model.JoinAuditDuty{}, pagMsg)
 	if err != nil {
@@ -89,17 +88,14 @@ func SaveActivityMsg(c *gin.Context) {
 	}
 	if cr.ID == 0 {
 		err = mysql.DB.Create(&gorm_model.JoinAuditDuty{
-			ActivityName:              cr.ActivityName,
-			StartTime:                 startTime,
-			StopTime:                  stopTime,
-			RulerName:                 cr.RulerName,
-			RulerUsername:             cr.RulerUsername,
-			OrganizerMaterialName:     cr.OrganizerMaterialName,
-			OrganizerMaterialUsername: cr.OrganizerMaterialUsername,
-			OrganizerTrainName:        cr.OrganizerTrainName,
-			OrganizerTrainUsername:    cr.OrganizerTrainUsername,
-			IsShow:                    false,
-			Note:                      cr.Note,
+			ActivityName:          cr.ActivityName,
+			StartTime:             startTime,
+			StopTime:              stopTime,
+			RulerName:             cr.RulerName,
+			OrganizerMaterialName: cr.OrganizerMaterialName,
+			OrganizerTrainName:    cr.OrganizerTrainName,
+			IsShow:                false,
+			Note:                  cr.Note,
 		}).Error
 		if err != nil {
 			fmt.Println(err.Error())
@@ -117,17 +113,14 @@ func SaveActivityMsg(c *gin.Context) {
 		return
 	}
 	err = mysql.DB.Where("id =? ", cr.ID).Updates(&gorm_model.JoinAuditDuty{
-		ActivityName:              cr.ActivityName,
-		StartTime:                 startTime,
-		StopTime:                  stopTime,
-		RulerName:                 cr.RulerName,
-		RulerUsername:             cr.RulerUsername,
-		OrganizerMaterialName:     cr.OrganizerMaterialName,
-		OrganizerMaterialUsername: cr.OrganizerMaterialUsername,
-		OrganizerTrainName:        cr.OrganizerTrainName,
-		OrganizerTrainUsername:    cr.OrganizerTrainUsername,
-		IsShow:                    false,
-		Note:                      cr.Note,
+		ActivityName:          cr.ActivityName,
+		StartTime:             startTime,
+		StopTime:              stopTime,
+		RulerName:             cr.RulerName,
+		OrganizerMaterialName: cr.OrganizerMaterialName,
+		OrganizerTrainName:    cr.OrganizerTrainName,
+		IsShow:                false,
+		Note:                  cr.Note,
 	}).Error
 	if err != nil {
 		fmt.Println(err.Error())

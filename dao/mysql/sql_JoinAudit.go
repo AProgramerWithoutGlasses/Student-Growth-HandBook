@@ -8,10 +8,15 @@ import (
 )
 
 type Pagination struct {
-	Page  int    `form:"page"`
-	Key   string `form:"key"`
-	Limit int    `form:"limit"`
-	Sort  string `form:"sort"`
+	Page           int    `json:"page"`
+	Key            string `json:"key"`
+	Limit          int    `json:"limit"`
+	Sort           string `json:"sort"`
+	PersonInCharge string `json:"person_in_charge"`
+	ActivityName   string `json:"activity_name"`
+	IsShow         bool   `json:"is_show"`
+	StartTime      string `json:"start_time"`
+	StopTime       string `json:"stop_time"`
 }
 
 // OpenActivityMsg 查询活动的开放信息
@@ -57,12 +62,36 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 	} else {
 		pagMsg.Sort = "created_at desc"
 	}
-	count = DB.Select("id").Find(&list).RowsAffected
+	db := DB
+	db = db.Where("is_show = ? ", pagMsg.IsShow)
+
+	if pagMsg.StartTime != "" && pagMsg.StopTime != "" {
+		db = db.Where("start_time >= ? AND stop_time <= ?", pagMsg.StartTime, pagMsg.StopTime)
+	} else if pagMsg.StartTime != "" && pagMsg.StopTime == "" {
+		db = db.Where("start_time >= ?", pagMsg.StartTime)
+	} else if pagMsg.StartTime == "" && pagMsg.StopTime != "" {
+		db = db.Where("stop_time <= ?", pagMsg.StartTime, pagMsg.StopTime)
+	}
+
+	if pagMsg.PersonInCharge != "" {
+		db = db.Where("person_in_charge = ? ")
+	}
+
+	if pagMsg.ActivityName != "" {
+		db = db.Where("activity_name like", "%"+pagMsg.ActivityName+"%")
+	}
+
+	if pagMsg.PersonInCharge != "" {
+		db = db.Where("person_in_charge like", "%"+pagMsg.PersonInCharge+"%")
+	}
+
+	//count = db.Select("id").Find(&list).RowsAffected
 	offset := (pagMsg.Page - 1) * pagMsg.Limit
 	if offset < 0 {
 		offset = 0
 	}
-	err = DB.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Error
+	//err = DB.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Error
+	err = db.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Count(&count).Error
 	return
 }
 
