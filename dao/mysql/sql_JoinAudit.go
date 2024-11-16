@@ -139,7 +139,10 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 	if offset < 0 {
 		offset = 0
 	}
-	err = db.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Count(&count).Error
+
+	count = db.Select("id").Find(&list).RowsAffected
+
+	err = db.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Error
 	return
 }
 
