@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	"time"
@@ -83,13 +84,26 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 		if pagMsg.PersonInCharge != "" {
 			db = db.Where("person_in_charge like ?", "%"+pagMsg.PersonInCharge+"%")
 		}
+
 		//判断时间区间
+		var startTime, stopTime time.Time
+
+		if pagMsg.StartTime != "" || pagMsg.StopTime != "" {
+			compareTimeStr := "2006-01-02T15:04:05.000Z"
+			startTime, err = time.Parse(compareTimeStr, pagMsg.StartTime)
+			stopTime, err = time.Parse(compareTimeStr, pagMsg.StopTime)
+			fmt.Println(err)
+			if err != nil {
+				return nil, 0, err
+			}
+		}
 		if pagMsg.StartTime != "" && pagMsg.StopTime != "" {
-			db = db.Where("start_time >= ? AND stop_time <= ?", pagMsg.StartTime, pagMsg.StopTime)
+			db = db.Where("stop_time <= ?", stopTime)
+			db = db.Where("start_time >= ?", startTime)
 		} else if pagMsg.StartTime != "" && pagMsg.StopTime == "" {
-			db = db.Where("start_time >= ?", pagMsg.StartTime)
+			db = db.Where("start_time >= ?", startTime)
 		} else if pagMsg.StartTime == "" && pagMsg.StopTime != "" {
-			db = db.Where("stop_time <= ?", pagMsg.StartTime, pagMsg.StopTime)
+			db = db.Where("stop_time <= ?", stopTime)
 		}
 	case "ClassApplicationList":
 		db = db.Preload("JoinAuditDuty")
@@ -139,9 +153,9 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 	if offset < 0 {
 		offset = 0
 	}
-
-	count = db.Select("id").Find(&list).RowsAffected
-
+	//符合条件的总数
+	count = db.Find(&list).RowsAffected
+	//分页查询
 	err = db.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Error
 	return
 }
