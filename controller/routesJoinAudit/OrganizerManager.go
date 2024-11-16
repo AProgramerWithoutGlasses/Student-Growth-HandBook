@@ -29,7 +29,7 @@ func ActivityOrganizerMaterialManager(c *gin.Context) {
 		for _, id := range cr.Pass {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_material_is_pass", "pass")
+			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_material_is_pass", "true")
 			var updatedJoinAudit gorm_model.JoinAudit
 			mysql.DB.Select("organizer_material_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
 			resMsg.NowStatus = updatedJoinAudit.OrganizerMaterialIsPass
@@ -40,7 +40,7 @@ func ActivityOrganizerMaterialManager(c *gin.Context) {
 		for _, id := range cr.Fail {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_material_is_pass", "fail")
+			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_material_is_pass", "false")
 			var updatedJoinAudit gorm_model.JoinAudit
 			mysql.DB.Select("organizer_material_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
 			resMsg.NowStatus = updatedJoinAudit.OrganizerMaterialIsPass
@@ -98,7 +98,7 @@ func ActivityOrganizerTrainManager(c *gin.Context) {
 		for _, id := range cr.Pass {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_train_is_pass", "pass")
+			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_train_is_pass", "true")
 			var updatedJoinAudit gorm_model.JoinAudit
 			mysql.DB.Select("organizer_train_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
 			resMsg.NowStatus = updatedJoinAudit.OrganizerTrainIsPass
@@ -109,7 +109,7 @@ func ActivityOrganizerTrainManager(c *gin.Context) {
 		for _, id := range cr.Fail {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_train_is_pass", "fail")
+			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_train_is_pass", "true")
 			var updatedJoinAudit gorm_model.JoinAudit
 			mysql.DB.Select("organizer_train_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
 			resMsg.NowStatus = updatedJoinAudit.OrganizerTrainIsPass

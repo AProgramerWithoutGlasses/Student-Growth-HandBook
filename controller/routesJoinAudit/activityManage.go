@@ -31,7 +31,7 @@ type ReceiveActivityMsg struct {
 	RulerName             string `json:"ruler_name"`
 	OrganizerMaterialName string `json:"organizer_material_name"`
 	OrganizerTrainName    string `json:"organizer_train_name"`
-	IsShow                bool   `json:"is_show"`
+	IsShow                string `json:"is_show"`
 	Note                  string `json:"note"`
 }
 
@@ -47,7 +47,7 @@ func GetActivityList(c *gin.Context) {
 	err := c.ShouldBindJSON(&pagMsg)
 	fmt.Println(pagMsg)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "Query解析失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析失败")
 		return
 	}
 	pagMsg.Label = "ActivityList"
@@ -95,7 +95,7 @@ func SaveActivityMsg(c *gin.Context) {
 			RulerName:             cr.RulerName,
 			OrganizerMaterialName: cr.OrganizerMaterialName,
 			OrganizerTrainName:    cr.OrganizerTrainName,
-			IsShow:                false,
+			IsShow:                "false",
 			Note:                  cr.Note,
 		}).Error
 		if err != nil {
@@ -113,6 +113,7 @@ func SaveActivityMsg(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "查询活动异常")
 		return
 	}
+	//存在记录时更新数据
 	err = mysql.DB.Where("id =? ", cr.ID).Updates(&gorm_model.JoinAuditDuty{
 		ActivityName:          cr.ActivityName,
 		StartTime:             startTime,
@@ -120,7 +121,7 @@ func SaveActivityMsg(c *gin.Context) {
 		RulerName:             cr.RulerName,
 		OrganizerMaterialName: cr.OrganizerMaterialName,
 		OrganizerTrainName:    cr.OrganizerTrainName,
-		IsShow:                false,
+		IsShow:                cr.IsShow,
 		Note:                  cr.Note,
 	}).Error
 	if err != nil {

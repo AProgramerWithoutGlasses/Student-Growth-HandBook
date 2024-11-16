@@ -7,6 +7,7 @@ import (
 )
 
 func RoutsJoinAudit(router *gin.Engine) {
+
 	r := router.Group("/routesJoinAudit")
 	r.Use(token.AuthMiddleware())
 	r.POST("/isOpen", routesJoinAudit.OpenMsg)

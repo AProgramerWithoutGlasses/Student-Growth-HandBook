@@ -38,11 +38,11 @@ func GetStuFile(c *gin.Context) {
 	}
 	var stuFromMsg gorm_model.JoinAudit
 	mysql.DB.Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Take(&stuFromMsg)
-	if stuFromMsg.ClassIsPass != "pass" {
+	if stuFromMsg.ClassIsPass != "true" {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "班级审核未通过")
 		return
 	}
-	if stuFromMsg.RulerIsPass == "fail" {
+	if stuFromMsg.RulerIsPass == "false" {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "综测成绩审核未通过")
 		return
 	}
@@ -127,7 +127,7 @@ func SaveStuFile(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "文件获取失败")
 		return
 	}
-	mysql.DB.Model(&gorm_model.JoinAudit{}).Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Update("organizer_material_is_pass", "")
+	mysql.DB.Model(&gorm_model.JoinAudit{}).Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Update("organizer_material_is_pass", "null")
 	response.ResponseSuccess(c, resList)
 }
 

@@ -11,8 +11,8 @@ import (
 )
 
 type RecList struct {
-	Pass []int `form:"pass"`
-	Fail []int `form:"fail"`
+	Pass []int `form:"true"`
+	Fail []int `form:"false"`
 }
 type ResList struct {
 	ID        int
@@ -67,7 +67,7 @@ func ClassApplicationManager(c *gin.Context) {
 		for _, id := range cr.Pass {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("class_is_pass", "pass")
+			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("class_is_pass", "true")
 			var updatedJoinAudit gorm_model.JoinAudit
 			mysql.DB.Select("class_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
 			resMsg.NowStatus = updatedJoinAudit.ClassIsPass
@@ -78,7 +78,7 @@ func ClassApplicationManager(c *gin.Context) {
 		for _, id := range cr.Fail {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("class_is_pass", "fail")
+			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("class_is_pass", "false")
 			var updatedJoinAudit gorm_model.JoinAudit
 			mysql.DB.Select("class_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
 			resMsg.NowStatus = updatedJoinAudit.ClassIsPass

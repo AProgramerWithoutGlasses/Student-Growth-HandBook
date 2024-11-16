@@ -100,14 +100,14 @@ func SaveStudForm(c *gin.Context) {
 	stuMsg.MoralCoin = cr.MoralCoin
 	stuMsg.ComprehensiveScore = cr.ComprehensiveScore
 	stuMsg.JoinAuditDuty = ActivityMsg
-	stuMsg.ClassIsPass = ""
+	stuMsg.ClassIsPass = "null"
 	if isExist {
 		err = mysql.DB.Model(&stuMsg).Updates(&stuMsg).Error
 		if err != nil {
 			response.ResponseErrorWithMsg(c, response.ParamFail, "信息更新失败")
 			return
 		}
-		if stuMsg.ClassIsPass == "pass" {
+		if stuMsg.ClassIsPass == "true" {
 			response.ResponseErrorWithMsg(c, response.ParamFail, "班级审核已通过信息不可进行修改")
 			return
 		}

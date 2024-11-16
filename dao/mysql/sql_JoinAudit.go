@@ -14,7 +14,7 @@ type Pagination struct {
 	Sort                    string `json:"sort"`
 	PersonInCharge          string `json:"person_in_charge"`
 	ActivityName            string `json:"activity_name"`
-	IsShow                  bool   `json:"is_show"`
+	IsShow                  string `json:"is_show"`
 	StartTime               string `json:"start_time"`
 	StopTime                string `json:"stop_time"`
 	UserClass               string `json:"user_class"`
@@ -32,7 +32,7 @@ func OpenActivityMsg() (bool, string, gorm_model.JoinAuditDuty) {
 	var count int64
 	var ActivityMsg gorm_model.JoinAuditDuty
 	var FailActivityMsg gorm_model.JoinAuditDuty
-	DB.Where("is_show = ?", true).Find(&ActivityMsg).Count(&count)
+	DB.Where("is_show = ?", "true").Find(&ActivityMsg).Count(&count)
 	if count < 1 {
 		return false, "不存在开放活动", FailActivityMsg
 	}
@@ -74,7 +74,9 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 	//判断来源，匹配特殊的选项
 	switch pagMsg.Label {
 	case "ActivityList":
-		db = db.Where("is_show = ?", pagMsg.IsShow)
+		if pagMsg.IsShow != "" {
+			db = db.Where("is_show = ?", pagMsg.IsShow)
+		}
 		if pagMsg.ActivityName != "" {
 			db = db.Where("activity_name like ?", "%"+pagMsg.ActivityName+"%")
 		}
@@ -101,7 +103,7 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 			db.Where("class_is_pass", pagMsg.ClassIsPass)
 		}
 	case "ActivityRulerList":
-		db = db.Preload("JoinAuditDuty").Where("class_is_pass = ?", "pass")
+		db = db.Preload("JoinAuditDuty").Where("class_is_pass = ?", "true")
 		if pagMsg.RulerIsPass != "" {
 			if pagMsg.RulerIsPass == "wait" {
 				pagMsg.RulerIsPass = ""
@@ -115,7 +117,7 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 			db.Where("ruler_is_pass", pagMsg.OrganizerMaterialIsPass)
 		}
 	case "ActivityOrganizerTrainList":
-		db = db.Preload("JoinAuditDuty").Where("class_is_pass = ? AND ruler_is_pass = ? AND organizer_material_is_pass = ?", "pass", "pass", "pass")
+		db = db.Preload("JoinAuditDuty").Where("class_is_pass = ? AND ruler_is_pass = ? AND organizer_material_is_pass = ?", "true", "true", "true")
 		if pagMsg.OrganizerTrainIsPass != "" {
 			if pagMsg.OrganizerTrainIsPass == "wait" {
 				pagMsg.OrganizerTrainIsPass = ""

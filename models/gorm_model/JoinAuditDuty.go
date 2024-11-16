@@ -15,7 +15,7 @@ type JoinAuditDuty struct {
 	RulerName             string          `json:"ruler_name"`                                   //纪权部综测审核人
 	OrganizerMaterialName string          `json:"organizer_material_name"`                      //组织部材料审核人
 	OrganizerTrainName    string          `json:"organizer_train_name"`                         //组织部培训审核人
-	IsShow                bool            `json:"is_show" gorm:"default:false"`                 //是否展示
+	IsShow                string          `json:"is_show"`                                      //是否展示
 	JoinAudit             []JoinAudit     `json:"join_audit" gorm:"foreignKey:JoinAuditDutyID"` //学生提交的表单信息
 	JoinAuditFIle         []JoinAuditFile `json:"images" gorm:"foreignKey:JoinAuditDutyID"`     //每一期对应的照片
 	Note                  string          `json:"note"`                                         //备注
