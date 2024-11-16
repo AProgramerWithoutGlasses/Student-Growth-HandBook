@@ -7,7 +7,6 @@ import (
 )
 
 func RoutsJoinAudit(router *gin.Engine) {
-
 	r := router.Group("/routesJoinAudit")
 	r.Use(token.AuthMiddleware())
 	r.POST("/isOpen", routesJoinAudit.OpenMsg)
@@ -16,15 +15,26 @@ func RoutsJoinAudit(router *gin.Engine) {
 	r.GET("/StudFile", routesJoinAudit.GetStuFile)
 	r.POST("/StudFile", routesJoinAudit.SaveStuFile)
 	r.POST("/DelStudFile", routesJoinAudit.DelStuFile)
-	r.GET("/activity", routesJoinAudit.GetActivityList)
-	r.POST("/activity", routesJoinAudit.SaveActivityMsg)
-	r.POST("/delActivity", routesJoinAudit.DelActivityMsg)
-	r.GET("/activityClass", routesJoinAudit.ClassApplicationList)
-	r.POST("/activityClass", routesJoinAudit.ClassApplicationManager)
-	r.GET("/activityRuler", routesJoinAudit.ActivityRulerList)
-	r.POST("/activityRuler", routesJoinAudit.ActivityRulerManager)
-	r.POST("/activityMaterial", routesJoinAudit.ActivityOrganizerMaterialManager)
-	r.GET("/activityTrain", routesJoinAudit.ActivityOrganizerTrainList)
-	r.POST("/activityTrain", routesJoinAudit.ActivityOrganizerTrainManager)
+	r.POST("/activity", routesJoinAudit.GetActivityList)
+	r.POST("/activityCreat", routesJoinAudit.SaveActivityMsg)
+	r.POST("/activityDel", routesJoinAudit.DelActivityMsg)
+	r.POST("/activityClass", routesJoinAudit.ClassApplicationList)
+	r.POST("/activityClassAudit", routesJoinAudit.ClassApplicationManager)
+	r.POST("/activityRuler", routesJoinAudit.ActivityRulerList)
+	r.POST("/activityRulerAudit", routesJoinAudit.ActivityRulerManager)
+	r.POST("/activityMaterialAudit", routesJoinAudit.ActivityOrganizerMaterialManager)
+	r.POST("/activityTrain", routesJoinAudit.ActivityOrganizerTrainList)
+	r.POST("/activityTrainAudit", routesJoinAudit.ActivityOrganizerTrainManager)
 	r.POST("/saveTrainScore", routesJoinAudit.SaveTrainScore)
 }
+
+//func RoutsJoinAuditManager(router *gin.Engine) {
+//	r := router.Group("/routesJoinAudit")
+//	casbinService, err := casbinModels.NewCasbinService(mysql.DB)
+//	if err != nil {
+//		zap.L().Error("routesArticle() routes.routesArticle.NewCasbinService err=", zap.Error(err))
+//		return
+//	}
+//	r.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
+//
+//}

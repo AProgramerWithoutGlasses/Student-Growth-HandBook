@@ -29,5 +29,6 @@ func Setup() *gin.Engine {
 	RoutesXue(r)
 
 	RoutsJoinAudit(r)
+	//RoutsJoinAuditManager(r)
 	return r
 }
