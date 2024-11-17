@@ -102,20 +102,16 @@ func SaveStudForm(c *gin.Context) {
 	stuMsg.JoinAuditDuty = ActivityMsg
 	stuMsg.ClassIsPass = "null"
 	if isExist {
-		err = mysql.DB.Model(&stuMsg).Updates(&stuMsg).Error
+		err = mysql.UpdateStuForm(stuMsg)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, response.ParamFail, "信息更新失败")
-			return
-		}
-		if stuMsg.ClassIsPass == "true" {
-			response.ResponseErrorWithMsg(c, response.ParamFail, "班级审核已通过信息不可进行修改")
 			return
 		}
 		response.ResponseSuccessWithMsg(c, "信息更新成功", struct{}{})
 		return
 	} else {
 		stuMsg.Username = user.Username
-		err = mysql.DB.Create(&stuMsg).Error
+		err = mysql.CreateStuForm(stuMsg)
 		if err != nil {
 			response.ResponseErrorWithMsg(c, response.ParamFail, "信息创建失败")
 			return

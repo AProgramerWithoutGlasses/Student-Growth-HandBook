@@ -9,6 +9,62 @@ import (
 	token2 "studentGrow/utils/token"
 )
 
+// 组织部获取列表
+func ActivityOrganizerList(c *gin.Context) {
+	token := token2.NewToken(c)
+	_, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+		return
+	}
+	var cr mysql.Pagination
+	err := c.ShouldBindJSON(&cr)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "query解析失败")
+		return
+	}
+	cr.Label = "ActivityRulerList"
+	list, count, err := mysql.ComList(gorm_model.JoinAudit{}, cr)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "列表查询出错")
+		return
+	}
+	type file struct {
+		ID       uint
+		Username string `json:"username"`
+		FilePath string `json:"file_path"`
+		FileNote string `json:"file_note"`
+	}
+	var resList []struct {
+		List gorm_model.JoinAudit `json:"msg"`
+		File []file               `json:"file_list"`
+	}
+
+	for _, v := range list {
+		fileList, _ := mysql.FilesList(v.Username, v.JoinAuditDutyID)
+		var files file
+		var filesList []file
+		filesList = make([]file, 0)
+		for _, val := range fileList {
+			files.ID = val.ID
+			files.Username = v.Username
+			files.FilePath = val.FilePath
+			files.FileNote = val.Note
+			filesList = append(filesList, files)
+		}
+		resList = append(resList, struct {
+			List gorm_model.JoinAudit `json:"msg"`
+			File []file               `json:"file_list"`
+		}{List: v, File: filesList})
+	}
+
+	response.ResponseSuccess(c, ListResponse{
+		resList,
+		count,
+	})
+}
+
 // 组织部材料审核
 func ActivityOrganizerMaterialManager(c *gin.Context) {
 	token := token2.NewToken(c)
@@ -29,9 +85,7 @@ func ActivityOrganizerMaterialManager(c *gin.Context) {
 		for _, id := range cr.Pass {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_material_is_pass", "true")
-			var updatedJoinAudit gorm_model.JoinAudit
-			mysql.DB.Select("organizer_material_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
+			updatedJoinAudit := mysql.IsPass(id, "organizer_material_is_pass", "true")
 			resMsg.NowStatus = updatedJoinAudit.OrganizerMaterialIsPass
 			resList = append(resList, resMsg)
 		}
@@ -40,9 +94,7 @@ func ActivityOrganizerMaterialManager(c *gin.Context) {
 		for _, id := range cr.Fail {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_material_is_pass", "false")
-			var updatedJoinAudit gorm_model.JoinAudit
-			mysql.DB.Select("organizer_material_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
+			updatedJoinAudit := mysql.IsPass(id, "organizer_material_is_pass", "false")
 			resMsg.NowStatus = updatedJoinAudit.OrganizerMaterialIsPass
 			resList = append(resList, resMsg)
 		}
@@ -98,9 +150,8 @@ func ActivityOrganizerTrainManager(c *gin.Context) {
 		for _, id := range cr.Pass {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_train_is_pass", "true")
-			var updatedJoinAudit gorm_model.JoinAudit
-			mysql.DB.Select("organizer_train_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
+			updatedJoinAudit := mysql.IsPass(id, "organizer_train_is_pass", "true")
+
 			resMsg.NowStatus = updatedJoinAudit.OrganizerTrainIsPass
 			resList = append(resList, resMsg)
 		}
@@ -109,9 +160,7 @@ func ActivityOrganizerTrainManager(c *gin.Context) {
 		for _, id := range cr.Fail {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("organizer_train_is_pass", "true")
-			var updatedJoinAudit gorm_model.JoinAudit
-			mysql.DB.Select("organizer_train_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
+			updatedJoinAudit := mysql.IsPass(id, "organizer_train_is_pass", "false")
 			resMsg.NowStatus = updatedJoinAudit.OrganizerTrainIsPass
 			resList = append(resList, resMsg)
 		}

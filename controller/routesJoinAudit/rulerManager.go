@@ -53,9 +53,7 @@ func ActivityRulerManager(c *gin.Context) {
 		for _, id := range cr.Pass {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("ruler_is_pass", "true")
-			var updatedJoinAudit gorm_model.JoinAudit
-			mysql.DB.Select("ruler_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
+			updatedJoinAudit := mysql.IsPass(id, "ruler_is_pass", "true")
 			resMsg.NowStatus = updatedJoinAudit.RulerIsPass
 			resList = append(resList, resMsg)
 		}
@@ -64,9 +62,7 @@ func ActivityRulerManager(c *gin.Context) {
 		for _, id := range cr.Fail {
 			var resMsg ResList
 			resMsg.ID = id
-			mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("ruler_is_pass", "false")
-			var updatedJoinAudit gorm_model.JoinAudit
-			mysql.DB.Select("ruler_is_pass").Where("id = ?", id).First(&updatedJoinAudit)
+			updatedJoinAudit := mysql.IsPass(id, "ruler_is_pass", "false")
 			resMsg.NowStatus = updatedJoinAudit.RulerIsPass
 			resList = append(resList, resMsg)
 		}

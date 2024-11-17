@@ -36,20 +36,14 @@ func GetStuFile(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, Msg)
 		return
 	}
-	var stuFromMsg gorm_model.JoinAudit
-	mysql.DB.Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Take(&stuFromMsg)
-	if stuFromMsg.ClassIsPass != "true" {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "班级审核未通过")
+
+	// 判断上传或更新材料的前置条件是否符合
+	stuFromMsg, _ := mysql.GetStuFromMsg(user.Username, ActivityMsg.ID)
+	if stuFromMsg.ClassIsPass != "true" || stuFromMsg.RulerIsPass == "false" || stuFromMsg.OrganizerMaterialIsPass == "true" {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "前置条件不符合或者审核已通过")
 		return
 	}
-	if stuFromMsg.RulerIsPass == "false" {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "综测成绩审核未通过")
-		return
-	}
-	if stuFromMsg.OrganizerMaterialIsPass == "pass" {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "材料审核已通过")
-		return
-	}
+
 	var fileList []gorm_model.JoinAuditFile
 	mysql.DB.Where("username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).Find(&fileList)
 	if len(fileList) == 0 {
@@ -91,23 +85,13 @@ func SaveStuFile(c *gin.Context) {
 		return
 	}
 	//删除之前存在的文件
-	var imageList []gorm_model.JoinAuditFile
-	count := mysql.DB.Find(&imageList, "username = ? AND join_audit_duty_id = ?", user.Username, ActivityMsg.ID).RowsAffected
-	if count != 0 {
-		//for _, file := range imageList {
-		//	err, getHeader := fileProcess.DelOssFile(file.FilePath)
-		//	if err != nil {
-		//		response.ResponseErrorWithMsg(c, response.ParamFail, "阿里云文件删除失败")
-		//		return
-		//	}
-		//	fmt.Println(getHeader)
-		//}
-		err = mysql.DB.Delete(&imageList).Error
-		if err != nil {
-			response.ResponseErrorWithMsg(c, response.ParamFail, "material 旧文件删除失败")
-			return
-		}
+
+	err = mysql.DelUserFile(user.Username, ActivityMsg.ID)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "material 旧文件删除失败")
+		return
 	}
+
 	//获取传入的文件
 	fileList, ok := form.File["material"]
 	if ok {
@@ -137,7 +121,7 @@ func DelStuFile(c *gin.Context) {
 		ID []int
 	}
 	token := token2.NewToken(c)
-	user, exist := token.GetUser()
+	_, exist := token.GetUser()
 	if !exist {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
@@ -149,7 +133,7 @@ func DelStuFile(c *gin.Context) {
 		return
 	}
 	//判断删除时间是否合法
-	ActivityIsOpen, Msg, ActivityMsg := mysql.OpenActivityMsg()
+	ActivityIsOpen, Msg, _ := mysql.OpenActivityMsg()
 	if !ActivityIsOpen {
 		response.ResponseErrorWithMsg(c, response.ParamFail, Msg)
 		return
@@ -158,7 +142,7 @@ func DelStuFile(c *gin.Context) {
 	for _, fileID := range cr.ID {
 		var FileDelMsg StuFileDelMsg
 		FileDelMsg.ID = fileID
-		count := mysql.DB.Delete(&gorm_model.JoinAuditFile{}, "id = ? AND username = ? AND join_audit_duty_id = ?", fileID, user.Username, ActivityMsg.ID).RowsAffected
+		count := mysql.DelFileWithID(fileID)
 		if count != 1 {
 			FileDelMsg.IsSuccess = false
 			resFileDelMsgList = append(resFileDelMsgList, FileDelMsg)

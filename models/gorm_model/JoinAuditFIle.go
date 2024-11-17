@@ -12,7 +12,9 @@ type JoinAuditFile struct {
 	FilePath        string        `json:"path"` //路径
 	JoinAuditDutyID uint          `json:"join_audit_duty_id"`
 	JoinAuditDuty   JoinAuditDuty `gorm:"foreignKey:JoinAuditDutyID"`
-	Note            string        `json:"image_note"` //备注
+	//JoinAuditID     uint          `json:"join_audit_id"`
+	//JoinAudit       JoinAudit     `gorm:"foreignKey:JoinAuditID"`
+	Note string `json:"image_note"` //备注
 }
 
 //func (j JoinAuditFile) BeforeDelete(tx *gorm.DB) (err error) {

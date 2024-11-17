@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	"time"
@@ -64,7 +63,7 @@ func StuFormMsg(username string, activityID uint) (isExist bool, stuMsg gorm_mod
 	return
 }
 
-// ComList分页查询
+// ComList 分页查询
 func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err error) {
 	if pagMsg.Sort == "asc" {
 		pagMsg.Sort = "created_at asc"
@@ -86,24 +85,13 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 		}
 
 		//判断时间区间
-		var startTime, stopTime time.Time
-
-		if pagMsg.StartTime != "" || pagMsg.StopTime != "" {
-			compareTimeStr := "2006-01-02T15:04:05.000Z"
-			startTime, err = time.Parse(compareTimeStr, pagMsg.StartTime)
-			stopTime, err = time.Parse(compareTimeStr, pagMsg.StopTime)
-			fmt.Println(err)
-			if err != nil {
-				return nil, 0, err
-			}
-		}
 		if pagMsg.StartTime != "" && pagMsg.StopTime != "" {
-			db = db.Where("stop_time <= ?", stopTime)
-			db = db.Where("start_time >= ?", startTime)
+			db = db.Where("stop_time <= ?", pagMsg.StopTime)
+			db = db.Where("start_time >= ?", pagMsg.StartTime)
 		} else if pagMsg.StartTime != "" && pagMsg.StopTime == "" {
-			db = db.Where("start_time >= ?", startTime)
+			db = db.Where("start_time >= ?", pagMsg.StartTime)
 		} else if pagMsg.StartTime == "" && pagMsg.StopTime != "" {
-			db = db.Where("stop_time <= ?", stopTime)
+			db = db.Where("stop_time <= ?", pagMsg.StopTime)
 		}
 	case "ClassApplicationList":
 		db = db.Preload("JoinAuditDuty")
@@ -160,10 +148,49 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 	return
 }
 
-//申请人信息保存
+// 申请人信息保存和更新
+func UpdateStuForm(model gorm_model.JoinAudit) (err error) {
+	err = DB.Model(&model).Updates(&model).Error
+	return
+}
 
-//查询纪权部所需信息
+// 申请人信息保存
+func CreateStuForm(model gorm_model.JoinAudit) (err error) {
+	err = DB.Create(&model).Error
+	return
+}
 
-//查询组织部所需信息
+// 根据用户学号和活动ID获取学生入团表单信息
+func GetStuFromMsg(username string, activityMsgID uint) (stuFromMsg gorm_model.JoinAudit, err error) {
+	err = DB.Where("username = ? AND join_audit_duty_id = ?", username, activityMsgID).Take(&stuFromMsg).Error
+	return
+}
 
-//查询各期负责人
+// 根据活动ID跟username查找
+func FilesList(username string, joinAuditDutyID uint) (fileList []gorm_model.JoinAuditFile, err error) {
+	err = DB.Where("username = ? and join_audit_duty_id = ?", username, joinAuditDutyID).Find(&fileList).Error
+	return
+}
+
+// 根据username和活动ID删除对应文件
+func DelUserFile(username string, activityMsgID uint) (err error) {
+	var imageList []gorm_model.JoinAuditFile
+	count := DB.Find(&imageList, "username = ? AND join_audit_duty_id = ?", username, activityMsgID).RowsAffected
+	if count != 0 {
+		err = DB.Delete(&imageList).Error
+	}
+	return
+}
+
+// 根据文件id和删除文件
+func DelFileWithID(id int) (count int64) {
+	count = DB.Delete(&gorm_model.JoinAuditFile{}, "id = ? ", id).RowsAffected
+	return
+}
+
+// 更改审核结果,返回更新后的数据
+func IsPass(id int, column string, isPass string) (updatedJoinAudit gorm_model.JoinAudit) {
+	DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update(column, isPass)
+	DB.Select(column).Where("id = ?", id).First(&updatedJoinAudit)
+	return
+}

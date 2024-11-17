@@ -28,6 +28,7 @@ func RoutsJoinAudit(router *gin.Engine) {
 	r.POST("/activityClassAudit", routesJoinAudit.ClassApplicationManager)
 	r.POST("/activityRuler", routesJoinAudit.ActivityRulerList)
 	r.POST("/activityRulerAudit", routesJoinAudit.ActivityRulerManager)
+	r.POST("/activityMaterial", routesJoinAudit.ActivityOrganizerList)
 	r.POST("/activityMaterialAudit", routesJoinAudit.ActivityOrganizerMaterialManager)
 	r.POST("/activityTrain", routesJoinAudit.ActivityOrganizerTrainList)
 	r.POST("/activityTrainAudit", routesJoinAudit.ActivityOrganizerTrainManager)
