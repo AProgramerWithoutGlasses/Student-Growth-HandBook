@@ -78,6 +78,7 @@ func SaveActivityMsg(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析失败")
 		return
 	}
+	//转化时间
 	startTime, err := time.Parse("2006-01-02 15:04:05", cr.StartTime)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "开始时间解析失败")
@@ -88,18 +89,21 @@ func SaveActivityMsg(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "结束时间解析失败")
 		return
 	}
+	var activityMsg = gorm_model.JoinAuditDuty{
+		ActivityName:          cr.ActivityName,
+		StartTime:             startTime,
+		StopTime:              stopTime,
+		PersonInCharge:        cr.PersonInCharge,
+		RulerName:             cr.RulerName,
+		OrganizerMaterialName: cr.OrganizerMaterialName,
+		OrganizerTrainName:    cr.OrganizerTrainName,
+		IsShow:                "false",
+		Note:                  cr.Note,
+	}
+
+	//ID为0时创建新的活动
 	if cr.ID == 0 {
-		err = mysql.DB.Create(&gorm_model.JoinAuditDuty{
-			ActivityName:          cr.ActivityName,
-			StartTime:             startTime,
-			StopTime:              stopTime,
-			PersonInCharge:        cr.PersonInCharge,
-			RulerName:             cr.RulerName,
-			OrganizerMaterialName: cr.OrganizerMaterialName,
-			OrganizerTrainName:    cr.OrganizerTrainName,
-			IsShow:                "false",
-			Note:                  cr.Note,
-		}).Error
+		err = mysql.CreatActivity(activityMsg)
 		if err != nil {
 			fmt.Println(err.Error())
 			response.ResponseErrorWithMsg(c, response.ParamFail, "活动创建失败")
@@ -109,23 +113,14 @@ func SaveActivityMsg(c *gin.Context) {
 			return
 		}
 	}
-	var count int64
-	mysql.DB.Model(&gorm_model.JoinAuditDuty{}).Where("id = ?", cr.ID).Count(&count)
+	//根据查询到的活动数量判断活动是否存在
+	count := mysql.GetActivityNumberWithID(int(cr.ID))
 	if count != 1 {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "查询活动异常")
 		return
 	}
 	//存在记录时更新数据
-	err = mysql.DB.Where("id =? ", cr.ID).Updates(&gorm_model.JoinAuditDuty{
-		ActivityName:          cr.ActivityName,
-		StartTime:             startTime,
-		StopTime:              stopTime,
-		RulerName:             cr.RulerName,
-		OrganizerMaterialName: cr.OrganizerMaterialName,
-		OrganizerTrainName:    cr.OrganizerTrainName,
-		IsShow:                cr.IsShow,
-		Note:                  cr.Note,
-	}).Error
+	err = mysql.UpdateActivityWithID(activityMsg, cr.ID)
 	if err != nil {
 		fmt.Println(err.Error())
 		response.ResponseErrorWithMsg(c, response.ParamFail, "活动更新失败")
@@ -157,14 +152,15 @@ func DelActivityMsg(c *gin.Context) {
 	for _, ActivityID := range cr.ID {
 		resDelMsg.IsSuccess = false
 		resDelMsg.ID = ActivityID
-		var count int64
-		mysql.DB.Model(&gorm_model.JoinAuditDuty{}).Where("id = ?", ActivityID).Count(&count)
+		//判断活动是否存在
+		count := mysql.GetActivityNumberWithID(ActivityID)
 		if count != 1 {
 			resDelMsg.Msg = "活动查询异常"
 			resList = append(resList, resDelMsg)
 			continue
 		}
-		err = mysql.DB.Delete(&gorm_model.JoinAuditDuty{}, "id =? ", ActivityID).Error
+		//删除活动
+		err = mysql.DelActivityWithID(ActivityID)
 		if err != nil {
 			resDelMsg.Msg = "活动删除失败"
 			resList = append(resList, resDelMsg)

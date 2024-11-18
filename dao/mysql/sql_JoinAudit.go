@@ -194,3 +194,27 @@ func IsPass(id int, column string, isPass string) (updatedJoinAudit gorm_model.J
 	DB.Select(column).Where("id = ?", id).First(&updatedJoinAudit)
 	return
 }
+
+// 根据ID删除活动信息
+func DelActivityWithID(id int) (err error) {
+	err = DB.Delete(&gorm_model.JoinAuditDuty{}, "id =? ", id).Error
+	return
+}
+
+// 根据ID查询活动是否存在
+func GetActivityNumberWithID(id int) (count int64) {
+	DB.Model(&gorm_model.JoinAuditDuty{}).Where("id = ?", id).Count(&count)
+	return
+}
+
+// 创建活动
+func CreatActivity(activityMsg gorm_model.JoinAuditDuty) (err error) {
+	err = DB.Create(&activityMsg).Error
+	return
+}
+
+// 根据id更新活动
+func UpdateActivityWithID(activityMsg gorm_model.JoinAuditDuty, id uint) (err error) {
+	err = DB.Where("id =? ", id).Updates(&activityMsg).Error
+	return
+}
