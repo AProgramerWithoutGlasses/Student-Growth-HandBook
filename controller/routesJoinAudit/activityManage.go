@@ -128,6 +128,13 @@ func SaveActivityMsg(c *gin.Context) {
 	}
 	//存在记录时更新数据
 	activityMsg.IsShow = cr.IsShow
+	if cr.IsShow == "true" {
+		err = mysql.CloseAllActivity()
+		if err != nil {
+			response.ResponseErrorWithMsg(c, response.ParamFail, "关闭其他活动异常")
+			return
+		}
+	}
 	err = mysql.UpdateActivityWithID(activityMsg, cr.ID)
 	if err != nil {
 		fmt.Println(err.Error())

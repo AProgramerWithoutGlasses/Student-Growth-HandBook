@@ -218,3 +218,9 @@ func UpdateActivityWithID(activityMsg gorm_model.JoinAuditDuty, id uint) (err er
 	err = DB.Where("id =? ", id).Updates(&activityMsg).Error
 	return
 }
+
+// 更新活动状态前关闭所有活动
+func CloseAllActivity() (err error) {
+	err = DB.Model(&gorm_model.JoinAuditDuty{}).Where("is_show = ?", "true").Update("is_show", "false").Error
+	return
+}
