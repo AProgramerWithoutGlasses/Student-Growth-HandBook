@@ -79,16 +79,23 @@ func SaveActivityMsg(c *gin.Context) {
 		return
 	}
 	//转化时间
-	startTime, err := time.Parse("2006-01-02T15:04:05.000Z07:00", cr.StartTime)
+	startTime, err := time.Parse("2006-01-02T15:04:05.00-07:00", cr.StartTime)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "开始时间解析失败")
 		return
 	}
-	stopTime, err := time.Parse("2006-01-02T15:04:05.000Z07:00", cr.StopTime)
+	stopTime, err := time.Parse("2006-01-02T15:04:05.00-07:00", cr.StopTime)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "结束时间解析失败")
 		return
 	}
+	if cr.StartTime != "" && cr.StopTime != "" {
+		if stopTime.Before(startTime) {
+			response.ResponseErrorWithMsg(c, response.ParamFail, "结束时间早于开始时间")
+			return
+		}
+	}
+
 	var activityMsg = gorm_model.JoinAuditDuty{
 		ActivityName:          cr.ActivityName,
 		StartTime:             startTime,
@@ -120,6 +127,7 @@ func SaveActivityMsg(c *gin.Context) {
 		return
 	}
 	//存在记录时更新数据
+	activityMsg.IsShow = cr.IsShow
 	err = mysql.UpdateActivityWithID(activityMsg, cr.ID)
 	if err != nil {
 		fmt.Println(err.Error())
