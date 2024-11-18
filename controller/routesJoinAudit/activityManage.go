@@ -141,9 +141,9 @@ func DelActivityMsg(c *gin.Context) {
 		return
 	}
 	var cr DelActivityIDList
-	err := c.ShouldBindQuery(&cr)
+	err := c.ShouldBindJSON(&cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "query数据解析失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
 	if len(cr.ID) == 0 {

@@ -75,14 +75,14 @@ func ActivityOrganizerMaterialManager(c *gin.Context) {
 		return
 	}
 	var cr RecList
-	err := c.ShouldBindQuery(&cr)
+	err := c.ShouldBindJSON(&cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "query数据解析失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
 	var resList []ResList
-	if len(cr.Pass) != 0 {
-		for _, id := range cr.Pass {
+	if len(cr.True) != 0 {
+		for _, id := range cr.True {
 			var resMsg ResList
 			resMsg.ID = id
 			updatedJoinAudit := mysql.IsPass(id, "organizer_material_is_pass", "true")
@@ -90,8 +90,8 @@ func ActivityOrganizerMaterialManager(c *gin.Context) {
 			resList = append(resList, resMsg)
 		}
 	}
-	if len(cr.Fail) != 0 {
-		for _, id := range cr.Fail {
+	if len(cr.False) != 0 {
+		for _, id := range cr.False {
 			var resMsg ResList
 			resMsg.ID = id
 			updatedJoinAudit := mysql.IsPass(id, "organizer_material_is_pass", "false")
@@ -140,14 +140,14 @@ func ActivityOrganizerTrainManager(c *gin.Context) {
 		return
 	}
 	var cr RecList
-	err := c.ShouldBindQuery(&cr)
+	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "query数据解析失败")
 		return
 	}
 	var resList []ResList
-	if len(cr.Pass) != 0 {
-		for _, id := range cr.Pass {
+	if len(cr.True) != 0 {
+		for _, id := range cr.True {
 			var resMsg ResList
 			resMsg.ID = id
 			updatedJoinAudit := mysql.IsPass(id, "organizer_train_is_pass", "true")
@@ -156,8 +156,8 @@ func ActivityOrganizerTrainManager(c *gin.Context) {
 			resList = append(resList, resMsg)
 		}
 	}
-	if len(cr.Fail) != 0 {
-		for _, id := range cr.Fail {
+	if len(cr.False) != 0 {
+		for _, id := range cr.False {
 			var resMsg ResList
 			resMsg.ID = id
 			updatedJoinAudit := mysql.IsPass(id, "organizer_train_is_pass", "false")
