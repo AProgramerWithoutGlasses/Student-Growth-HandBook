@@ -28,6 +28,7 @@ type ReceiveActivityMsg struct {
 	ActivityName          string `json:"activity_name"`
 	StartTime             string `json:"start_time"`
 	StopTime              string `json:"stop_time"`
+	PersonInCharge        string `json:"person_in_charge"`
 	RulerName             string `json:"ruler_name"`
 	OrganizerMaterialName string `json:"organizer_material_name"`
 	OrganizerTrainName    string `json:"organizer_train_name"`
@@ -92,6 +93,7 @@ func SaveActivityMsg(c *gin.Context) {
 			ActivityName:          cr.ActivityName,
 			StartTime:             startTime,
 			StopTime:              stopTime,
+			PersonInCharge:        cr.PersonInCharge,
 			RulerName:             cr.RulerName,
 			OrganizerMaterialName: cr.OrganizerMaterialName,
 			OrganizerTrainName:    cr.OrganizerTrainName,
