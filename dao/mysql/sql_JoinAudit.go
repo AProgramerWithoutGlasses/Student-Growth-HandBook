@@ -100,9 +100,6 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 			db = db.Where("gender = ? ", pagMsg.Gender)
 		}
 		if pagMsg.ClassIsPass != "" {
-			if pagMsg.ClassIsPass == "null" {
-				pagMsg.ClassIsPass = ""
-			}
 			db = db.Where("class_is_pass", pagMsg.ClassIsPass)
 		}
 	case "ActivityRulerList":

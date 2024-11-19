@@ -72,6 +72,7 @@ func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.Joi
 			Major:                   val.Major,
 			MoralCoin:               val.MoralCoin,
 			ComprehensiveScore:      val.ComprehensiveScore,
+			ClassIsPass:             val.ClassIsPass,
 			TrainScore:              val.TrainScore,
 			RulerIsPass:             val.RulerIsPass,
 			OrganizerMaterialIsPass: val.OrganizerMaterialIsPass,
