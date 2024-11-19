@@ -78,7 +78,7 @@ func ActivityOrganizerTrainList(c *gin.Context) {
 	response.ResponseSuccess(c, ResAllMsgList)
 }
 
-// 组织部考核成绩审核
+// ActivityOrganizerTrainManager 组织部考核成绩审核
 func ActivityOrganizerTrainManager(c *gin.Context) {
 	token := token2.NewToken(c)
 	_, exist := token.GetUser()

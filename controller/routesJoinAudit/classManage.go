@@ -9,7 +9,7 @@ import (
 	token2 "studentGrow/utils/token"
 )
 
-// 班长获取对应的申请列表
+// ClassApplicationList 班长获取对应的申请列表
 func ClassApplicationList(c *gin.Context) {
 	token := token2.NewToken(c)
 	_, exist := token.GetUser()
