@@ -25,6 +25,8 @@ type Pagination struct {
 	RulerIsPass             string `json:"ruler_is_pass" `              //纪权部综测成绩审核结果
 	OrganizerMaterialIsPass string `json:"organizer_material_is_pass" ` //组织部材料审核结果
 	OrganizerTrainIsPass    string `json:"organizer_train_is_pass" `    //组织部培训审核结果
+	All                     bool   `json:"all"`
+	ActivityID              uint   `json:"activity_id"`
 }
 
 // OpenActivityMsg 查询活动的开放信息
@@ -95,25 +97,27 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 		}
 	case "ClassApplicationList":
 		db = db.Preload("JoinAuditDuty")
+		db = db.Where("join_audit_duty_id = ?", pagMsg.ActivityID)
 		if pagMsg.Gender != "" {
-			db.Where("gender = ? ", pagMsg.Gender)
+			db = db.Where("gender = ? ", pagMsg.Gender)
 		}
 		if pagMsg.ClassIsPass != "" {
-			if pagMsg.ClassIsPass == "wait" {
+			if pagMsg.ClassIsPass == "null" {
 				pagMsg.ClassIsPass = ""
 			}
-			db.Where("class_is_pass", pagMsg.ClassIsPass)
+			db = db.Where("class_is_pass", pagMsg.ClassIsPass)
 		}
+
 	case "ActivityRulerList":
 		db = db.Preload("JoinAuditDuty").Where("class_is_pass = ?", "true")
 		if pagMsg.RulerIsPass != "" {
-			if pagMsg.RulerIsPass == "wait" {
+			if pagMsg.RulerIsPass == "null" {
 				pagMsg.RulerIsPass = ""
 			}
 			db.Where("ruler_is_pass", pagMsg.RulerIsPass)
 		}
 		if pagMsg.OrganizerMaterialIsPass != "" {
-			if pagMsg.OrganizerMaterialIsPass == "wait" {
+			if pagMsg.OrganizerMaterialIsPass == "null" {
 				pagMsg.OrganizerMaterialIsPass = ""
 			}
 			db.Where("ruler_is_pass", pagMsg.OrganizerMaterialIsPass)
@@ -144,6 +148,10 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 	//符合条件的总数
 	count = db.Find(&list).RowsAffected
 	//分页查询
+	if pagMsg.All {
+		err = db.Order(pagMsg.Sort).Find(&list).Error
+		return
+	}
 	err = db.Limit(pagMsg.Limit).Offset(offset).Order(pagMsg.Sort).Find(&list).Error
 	return
 }
@@ -222,5 +230,11 @@ func UpdateActivityWithID(activityMsg gorm_model.JoinAuditDuty, id uint) (err er
 // 更新活动状态前关闭所有活动
 func CloseAllActivity() (err error) {
 	err = DB.Model(&gorm_model.JoinAuditDuty{}).Where("is_show = ?", "true").Update("is_show", "false").Error
+	return
+}
+
+// 查询所有活动的的活动信息
+func AllActivity() (activityList []gorm_model.JoinAuditDuty, err error) {
+	err = DB.Find(&activityList).Error
 	return
 }

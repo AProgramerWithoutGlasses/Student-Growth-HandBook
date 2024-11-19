@@ -48,10 +48,10 @@ func ActivityRulerManager(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
-	var resList []ResList
+	var resList []ResListWithIsPass
 	if len(cr.True) != 0 {
 		for _, id := range cr.True {
-			var resMsg ResList
+			var resMsg ResListWithIsPass
 			resMsg.ID = id
 			updatedJoinAudit := mysql.IsPass(id, "ruler_is_pass", "true")
 			resMsg.NowStatus = updatedJoinAudit.RulerIsPass
@@ -60,7 +60,7 @@ func ActivityRulerManager(c *gin.Context) {
 	}
 	if len(cr.False) != 0 {
 		for _, id := range cr.False {
-			var resMsg ResList
+			var resMsg ResListWithIsPass
 			resMsg.ID = id
 			updatedJoinAudit := mysql.IsPass(id, "ruler_is_pass", "false")
 			resMsg.NowStatus = updatedJoinAudit.RulerIsPass

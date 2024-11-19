@@ -1,12 +1,11 @@
 package routesJoinAudit
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
-	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	"studentGrow/service/JoinAudit"
 	token2 "studentGrow/utils/token"
 )
 
@@ -14,7 +13,7 @@ type RecList struct {
 	True  []int `form:"true"`
 	False []int `form:"false"`
 }
-type ResList struct {
+type ResListWithIsPass struct {
 	ID        int
 	NowStatus string
 }
@@ -36,16 +35,13 @@ func ClassApplicationList(c *gin.Context) {
 	cr.Label = "ClassApplicationList"
 	//cr.UserClass = user.Class
 	cr.UserClass = "计科211"
-	msgList, count, err := mysql.ComList(gorm_model.JoinAudit{}, cr)
+	//判断返回全部还是只有开启的活动
+	var ResAllMsgList = make([]JoinAudit.ResList, 0)
+	ResAllMsgList, err = JoinAudit.ResListWithJSON(cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "列表查询出错")
-		return
+		response.ResponseErrorWithMsg(c, response.ParamFail, err.Error())
 	}
-	fmt.Println(count)
-	response.ResponseSuccess(c, ListResponse{
-		msgList,
-		count,
-	})
+	response.ResponseSuccess(c, ResAllMsgList)
 }
 
 func ClassApplicationManager(c *gin.Context) {
@@ -62,10 +58,10 @@ func ClassApplicationManager(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
-	var resList []ResList
+	var resList []ResListWithIsPass
 	if len(cr.True) != 0 {
 		for _, id := range cr.True {
-			var resMsg ResList
+			var resMsg ResListWithIsPass
 			resMsg.ID = id
 			updatedJoinAudit := mysql.IsPass(id, "class_is_pass", "true")
 			resMsg.NowStatus = updatedJoinAudit.ClassIsPass
@@ -74,7 +70,7 @@ func ClassApplicationManager(c *gin.Context) {
 	}
 	if len(cr.False) != 0 {
 		for _, id := range cr.False {
-			var resMsg ResList
+			var resMsg ResListWithIsPass
 			resMsg.ID = id
 			updatedJoinAudit := mysql.IsPass(id, "class_is_pass", "false")
 			resMsg.NowStatus = updatedJoinAudit.ClassIsPass
