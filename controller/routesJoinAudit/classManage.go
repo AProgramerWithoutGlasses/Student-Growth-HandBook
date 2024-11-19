@@ -30,7 +30,7 @@ func ClassApplicationList(c *gin.Context) {
 	var ResAllMsgList = make([]JoinAudit.ResList, 0)
 	ResAllMsgList, err = JoinAudit.ResListWithJSON(cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, err.Error())
+		response.ResponseSuccessWithMsg(c, err.Error(), []struct{}{})
 		return
 	}
 	response.ResponseSuccess(c, ResAllMsgList)

@@ -127,7 +127,6 @@ func ResListWithJSON(cr mysql.Pagination) (ResAllMsgList []ResList, err error) {
 		}
 		if len(activityList) == 0 {
 			err = errors.New("活动信息不存在")
-
 			return nil, err
 		}
 		for _, v := range activityList {
