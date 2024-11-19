@@ -48,7 +48,7 @@ type File struct {
 	FileNote string `json:"file_note"`
 }
 
-func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.JoinAuditDuty, count int64) (ResAllMsgList []ResList) {
+func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.JoinAuditDuty, count int64) (resListWithAll ResList) {
 	var ResListWithStuMsg []ResStuMsg
 	ResListWithStuMsg = make([]ResStuMsg, 0)
 	for _, val := range msgList {
@@ -91,12 +91,11 @@ func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.Joi
 		OrganizerTrainName:    ActivityMsg.OrganizerTrainName,
 		IsShow:                ActivityMsg.IsShow,
 	}
-	resListWithAll := ResList{
+	resListWithAll = ResList{
 		List:     ResListWithStuMsg,
 		Count:    count,
 		Activity: ResListWithActivityMsg,
 	}
-	ResAllMsgList = append(ResAllMsgList, resListWithAll)
 	return
 }
 
@@ -113,7 +112,7 @@ func ResListWithJSON(cr mysql.Pagination) (ResAllMsgList []ResList, err error) {
 				err = errors.New("列表查询出错")
 				return nil, err
 			}
-			ResAllMsgList = resListWithClass(msgList, openActivityMsg, count)
+			ResAllMsgList = append(ResAllMsgList, resListWithClass(msgList, openActivityMsg, count))
 		} else {
 			err = errors.New("无活动开放")
 			return nil, err
@@ -136,7 +135,7 @@ func ResListWithJSON(cr mysql.Pagination) (ResAllMsgList []ResList, err error) {
 				err = errors.New("列表查询出错")
 				return nil, err
 			}
-			ResAllMsgList = resListWithClass(msgList, v, count)
+			ResAllMsgList = append(ResAllMsgList, resListWithClass(msgList, v, count))
 		}
 	}
 	return
