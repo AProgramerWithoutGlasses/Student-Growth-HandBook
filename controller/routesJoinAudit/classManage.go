@@ -9,15 +9,6 @@ import (
 	token2 "studentGrow/utils/token"
 )
 
-type RecList struct {
-	True  []int `form:"true"`
-	False []int `form:"false"`
-}
-type ResListWithIsPass struct {
-	ID        int
-	NowStatus string
-}
-
 // 班长获取对应的申请列表
 func ClassApplicationList(c *gin.Context) {
 	token := token2.NewToken(c)
@@ -40,6 +31,7 @@ func ClassApplicationList(c *gin.Context) {
 	ResAllMsgList, err = JoinAudit.ResListWithJSON(cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, err.Error())
+		return
 	}
 	response.ResponseSuccess(c, ResAllMsgList)
 }
@@ -52,30 +44,12 @@ func ClassApplicationManager(c *gin.Context) {
 		zap.L().Error("token错误")
 		return
 	}
-	var cr RecList
+	var cr JoinAudit.RecList
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
-	var resList []ResListWithIsPass
-	if len(cr.True) != 0 {
-		for _, id := range cr.True {
-			var resMsg ResListWithIsPass
-			resMsg.ID = id
-			updatedJoinAudit := mysql.IsPass(id, "class_is_pass", "true")
-			resMsg.NowStatus = updatedJoinAudit.ClassIsPass
-			resList = append(resList, resMsg)
-		}
-	}
-	if len(cr.False) != 0 {
-		for _, id := range cr.False {
-			var resMsg ResListWithIsPass
-			resMsg.ID = id
-			updatedJoinAudit := mysql.IsPass(id, "class_is_pass", "false")
-			resMsg.NowStatus = updatedJoinAudit.ClassIsPass
-			resList = append(resList, resMsg)
-		}
-	}
+	resList := JoinAudit.IsPassWithJSON(cr, "class_is_pass")
 	response.ResponseSuccess(c, resList)
 }

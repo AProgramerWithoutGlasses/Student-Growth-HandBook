@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
-	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	"studentGrow/service/JoinAudit"
 	token2 "studentGrow/utils/token"
 )
 
@@ -24,15 +24,13 @@ func ActivityRulerList(c *gin.Context) {
 		return
 	}
 	cr.Label = "ActivityRulerList"
-	list, count, err := mysql.ComList(gorm_model.JoinAudit{}, cr)
+	var ResAllMsgList = make([]JoinAudit.ResList, 0)
+	ResAllMsgList, err = JoinAudit.ResListWithJSON(cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "列表查询出错")
+		response.ResponseErrorWithMsg(c, response.ParamFail, err.Error())
 		return
 	}
-	response.ResponseSuccess(c, ListResponse{
-		list,
-		count,
-	})
+	response.ResponseSuccess(c, ResAllMsgList)
 }
 func ActivityRulerManager(c *gin.Context) {
 	token := token2.NewToken(c)
@@ -42,30 +40,12 @@ func ActivityRulerManager(c *gin.Context) {
 		zap.L().Error("token错误")
 		return
 	}
-	var cr RecList
+	var cr JoinAudit.RecList
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
-	var resList []ResListWithIsPass
-	if len(cr.True) != 0 {
-		for _, id := range cr.True {
-			var resMsg ResListWithIsPass
-			resMsg.ID = id
-			updatedJoinAudit := mysql.IsPass(id, "ruler_is_pass", "true")
-			resMsg.NowStatus = updatedJoinAudit.RulerIsPass
-			resList = append(resList, resMsg)
-		}
-	}
-	if len(cr.False) != 0 {
-		for _, id := range cr.False {
-			var resMsg ResListWithIsPass
-			resMsg.ID = id
-			updatedJoinAudit := mysql.IsPass(id, "ruler_is_pass", "false")
-			resMsg.NowStatus = updatedJoinAudit.RulerIsPass
-			resList = append(resList, resMsg)
-		}
-	}
+	resList := JoinAudit.IsPassWithJSON(cr, "ruler_is_pass")
 	response.ResponseSuccess(c, resList)
 }

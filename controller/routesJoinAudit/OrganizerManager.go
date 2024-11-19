@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"studentGrow/dao/mysql"
-	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	"studentGrow/service/JoinAudit"
 	token2 "studentGrow/utils/token"
 )
 
@@ -25,44 +25,13 @@ func ActivityOrganizerList(c *gin.Context) {
 		return
 	}
 	cr.Label = "ActivityRulerList"
-	list, count, err := mysql.ComList(gorm_model.JoinAudit{}, cr)
+	var ResAllMsgList = make([]JoinAudit.ResList, 0)
+	ResAllMsgList, err = JoinAudit.ResListWithJSON(cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "列表查询出错")
+		response.ResponseErrorWithMsg(c, response.ParamFail, err.Error())
 		return
 	}
-	type file struct {
-		ID       uint
-		Username string `json:"username"`
-		FilePath string `json:"file_path"`
-		FileNote string `json:"file_note"`
-	}
-	var resList []struct {
-		List gorm_model.JoinAudit `json:"msg"`
-		File []file               `json:"file_list"`
-	}
-
-	for _, v := range list {
-		fileList, _ := mysql.FilesList(v.Username, v.JoinAuditDutyID)
-		var files file
-		var filesList []file
-		filesList = make([]file, 0)
-		for _, val := range fileList {
-			files.ID = val.ID
-			files.Username = v.Username
-			files.FilePath = val.FilePath
-			files.FileNote = val.Note
-			filesList = append(filesList, files)
-		}
-		resList = append(resList, struct {
-			List gorm_model.JoinAudit `json:"msg"`
-			File []file               `json:"file_list"`
-		}{List: v, File: filesList})
-	}
-
-	response.ResponseSuccess(c, ListResponse{
-		resList,
-		count,
-	})
+	response.ResponseSuccess(c, ResAllMsgList)
 }
 
 // 组织部材料审核
@@ -74,31 +43,13 @@ func ActivityOrganizerMaterialManager(c *gin.Context) {
 		zap.L().Error("token错误")
 		return
 	}
-	var cr RecList
+	var cr JoinAudit.RecList
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
-	var resList []ResListWithIsPass
-	if len(cr.True) != 0 {
-		for _, id := range cr.True {
-			var resMsg ResListWithIsPass
-			resMsg.ID = id
-			updatedJoinAudit := mysql.IsPass(id, "organizer_material_is_pass", "true")
-			resMsg.NowStatus = updatedJoinAudit.OrganizerMaterialIsPass
-			resList = append(resList, resMsg)
-		}
-	}
-	if len(cr.False) != 0 {
-		for _, id := range cr.False {
-			var resMsg ResListWithIsPass
-			resMsg.ID = id
-			updatedJoinAudit := mysql.IsPass(id, "organizer_material_is_pass", "false")
-			resMsg.NowStatus = updatedJoinAudit.OrganizerMaterialIsPass
-			resList = append(resList, resMsg)
-		}
-	}
+	resList := JoinAudit.IsPassWithJSON(cr, "organizer_material_is_pass")
 	response.ResponseSuccess(c, resList)
 }
 
@@ -118,16 +69,13 @@ func ActivityOrganizerTrainList(c *gin.Context) {
 		return
 	}
 	cr.Label = "ActivityOrganizerTrainList"
-	list, count, err := mysql.ComList(gorm_model.JoinAudit{}, cr)
+	var ResAllMsgList = make([]JoinAudit.ResList, 0)
+	ResAllMsgList, err = JoinAudit.ResListWithJSON(cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "列表查询失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, err.Error())
 		return
 	}
-
-	response.ResponseSuccess(c, ListResponse{
-		list,
-		count,
-	})
+	response.ResponseSuccess(c, ResAllMsgList)
 }
 
 // 组织部考核成绩审核
@@ -139,32 +87,13 @@ func ActivityOrganizerTrainManager(c *gin.Context) {
 		zap.L().Error("token错误")
 		return
 	}
-	var cr RecList
+	var cr JoinAudit.RecList
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "query数据解析失败")
 		return
 	}
-	var resList []ResListWithIsPass
-	if len(cr.True) != 0 {
-		for _, id := range cr.True {
-			var resMsg ResListWithIsPass
-			resMsg.ID = id
-			updatedJoinAudit := mysql.IsPass(id, "organizer_train_is_pass", "true")
-
-			resMsg.NowStatus = updatedJoinAudit.OrganizerTrainIsPass
-			resList = append(resList, resMsg)
-		}
-	}
-	if len(cr.False) != 0 {
-		for _, id := range cr.False {
-			var resMsg ResListWithIsPass
-			resMsg.ID = id
-			updatedJoinAudit := mysql.IsPass(id, "organizer_train_is_pass", "false")
-			resMsg.NowStatus = updatedJoinAudit.OrganizerTrainIsPass
-			resList = append(resList, resMsg)
-		}
-	}
+	resList := JoinAudit.IsPassWithJSON(cr, "organizer_train_is_pass")
 	response.ResponseSuccess(c, resList)
 }
 
@@ -178,30 +107,16 @@ func SaveTrainScore(c *gin.Context) {
 		return
 	}
 
-	type score struct {
-		ID    int
-		Score float64 `json:"score"`
-	}
-
-	var cr []score
+	var cr []JoinAudit.Score
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
 		return
 	}
-	type scoreMsg struct {
-		ID       int
-		NowScore int
-	}
-	var resList []scoreMsg
-	for _, v := range cr {
-		var resMsg scoreMsg
-		resMsg.ID = v.ID
-		var trainScore gorm_model.JoinAudit
-		mysql.DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", v.ID).Update("train_score", v.Score)
-		mysql.DB.Select("train_score").Find(&trainScore)
-		resMsg.NowScore = trainScore.TrainScore
-		resList = append(resList, resMsg)
+	resList, err := JoinAudit.UpdateScore(cr)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, err.Error())
+		return
 	}
 	response.ResponseSuccess(c, resList)
 }

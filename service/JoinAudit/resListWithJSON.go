@@ -22,6 +22,7 @@ type ResStuMsg struct {
 	RulerIsPass             string  `json:"ruler_is_pass" `              //纪权部综测成绩审核结果
 	OrganizerMaterialIsPass string  `json:"organizer_material_is_pass" ` //组织部材料审核结果
 	OrganizerTrainIsPass    string  `json:"organizer_train_is_pass" `    //组织部培训审核结果
+	Files                   []File  `json:"files"`                       //用户对应的文件
 }
 type ResActivityMsg struct {
 	ID                    uint
@@ -40,10 +41,28 @@ type ResList struct {
 	Activity ResActivityMsg `json:"activity"`
 }
 
+type File struct {
+	ID       uint
+	Username string `json:"username"`
+	FilePath string `json:"file_path"`
+	FileNote string `json:"file_note"`
+}
+
 func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.JoinAuditDuty, count int64) (ResAllMsgList []ResList) {
 	var ResListWithStuMsg []ResStuMsg
 	ResListWithStuMsg = make([]ResStuMsg, 0)
 	for _, val := range msgList {
+		fileList, _ := mysql.FilesList(val.Username, val.JoinAuditDutyID)
+		var files File
+		var filesList []File
+		filesList = make([]File, 0)
+		for _, val := range fileList {
+			files.ID = val.ID
+			files.Username = val.Username
+			files.FilePath = val.FilePath
+			files.FileNote = val.Note
+			filesList = append(filesList, files)
+		}
 		StuMsg := ResStuMsg{
 			ID:                      val.ID,
 			Username:                val.Username,
@@ -57,6 +76,7 @@ func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.Joi
 			RulerIsPass:             val.RulerIsPass,
 			OrganizerMaterialIsPass: val.OrganizerMaterialIsPass,
 			OrganizerTrainIsPass:    val.OrganizerTrainIsPass,
+			Files:                   filesList,
 		}
 		ResListWithStuMsg = append(ResListWithStuMsg, StuMsg)
 	}

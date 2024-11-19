@@ -85,7 +85,6 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 		if pagMsg.PersonInCharge != "" {
 			db = db.Where("person_in_charge like ?", "%"+pagMsg.PersonInCharge+"%")
 		}
-
 		//判断时间区间
 		if pagMsg.StartTime != "" && pagMsg.StopTime != "" {
 			db = db.Where("stop_time <= ?", pagMsg.StopTime)
@@ -96,8 +95,6 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 			db = db.Where("stop_time <= ?", pagMsg.StopTime)
 		}
 	case "ClassApplicationList":
-		db = db.Preload("JoinAuditDuty")
-		db = db.Where("join_audit_duty_id = ?", pagMsg.ActivityID)
 		if pagMsg.Gender != "" {
 			db = db.Where("gender = ? ", pagMsg.Gender)
 		}
@@ -107,30 +104,21 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 			}
 			db = db.Where("class_is_pass", pagMsg.ClassIsPass)
 		}
-
 	case "ActivityRulerList":
-		db = db.Preload("JoinAuditDuty").Where("class_is_pass = ?", "true")
+		db = db.Where("class_is_pass = ?", "true")
 		if pagMsg.RulerIsPass != "" {
-			if pagMsg.RulerIsPass == "null" {
-				pagMsg.RulerIsPass = ""
-			}
 			db.Where("ruler_is_pass", pagMsg.RulerIsPass)
 		}
 		if pagMsg.OrganizerMaterialIsPass != "" {
-			if pagMsg.OrganizerMaterialIsPass == "null" {
-				pagMsg.OrganizerMaterialIsPass = ""
-			}
 			db.Where("ruler_is_pass", pagMsg.OrganizerMaterialIsPass)
 		}
 	case "ActivityOrganizerTrainList":
-		db = db.Preload("JoinAuditDuty").Where("class_is_pass = ? AND ruler_is_pass = ? AND organizer_material_is_pass = ?", "true", "true", "true")
+		db = db.Where("class_is_pass = ? AND ruler_is_pass = ? AND organizer_material_is_pass = ?", "true", "true", "true")
 		if pagMsg.OrganizerTrainIsPass != "" {
-			if pagMsg.OrganizerTrainIsPass == "wait" {
-				pagMsg.OrganizerTrainIsPass = ""
-			}
 			db.Where("class_is_pass = ?", pagMsg.OrganizerTrainIsPass)
 		}
 	}
+	db = db.Where("join_audit_duty_id = ?", pagMsg.ActivityID)
 	//模糊搜索名字条件
 	if pagMsg.Name != "" {
 		db.Where("name like ?", "%"+pagMsg.Name+"%")
@@ -236,5 +224,17 @@ func CloseAllActivity() (err error) {
 // 查询所有活动的的活动信息
 func AllActivity() (activityList []gorm_model.JoinAuditDuty, err error) {
 	err = DB.Find(&activityList).Error
+	return
+}
+
+// 根据id修改分数
+func UpdateTrainScoreWithID(id int, score float64) (err error) {
+	err = DB.Model(&gorm_model.JoinAudit{}).Where("id = ?", id).Update("train_score", score).Error
+	return
+}
+
+// 根据id查分数
+func GetTrainScoreWithID(id int) (trainScore gorm_model.JoinAudit, err error) {
+	err = DB.Select("train_score").Where("id= ?", id).Find(&trainScore).Error
 	return
 }
