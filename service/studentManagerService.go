@@ -540,6 +540,9 @@ func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct
 			}
 		}
 
+		// 删除他发布过的文章
+		mysql.GetArticleDao(id, 1, 1000)
+
 		// 拼接删除了的学生姓名
 		deletedStuName = deletedStuName + selectedStudents[i].Name + "、"
 		deletedStuName = deletedStuName[0 : len(deletedStuName)-1]
