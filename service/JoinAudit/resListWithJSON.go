@@ -105,19 +105,14 @@ func ResListWithJSON(cr mysql.Pagination) (ResAllMsgList []ResList, err error) {
 	var msgList []gorm_model.JoinAudit
 	var count int64
 	if !cr.All {
-		isOpen, _, openActivityMsg := mysql.OpenActivityMsg()
-		if isOpen {
-			cr.ActivityID = openActivityMsg.ID
-			msgList, count, err = mysql.ComList(gorm_model.JoinAudit{}, cr)
-			if err != nil {
-				err = errors.New("列表查询出错")
-				return nil, err
-			}
-			ResAllMsgList = append(ResAllMsgList, resListWithClass(msgList, openActivityMsg, count))
-		} else {
-			err = errors.New("无活动开放")
+		_, _, openActivityMsg := mysql.OpenActivityStates()
+		cr.ActivityID = openActivityMsg.ID
+		msgList, count, err = mysql.ComList(gorm_model.JoinAudit{}, cr)
+		if err != nil {
+			err = errors.New("列表查询出错")
 			return nil, err
 		}
+		ResAllMsgList = append(ResAllMsgList, resListWithClass(msgList, openActivityMsg, count))
 	}
 	if cr.All {
 		activityList, err := mysql.AllActivity()
