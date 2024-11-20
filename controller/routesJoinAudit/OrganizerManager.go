@@ -31,6 +31,11 @@ func ActivityOrganizerList(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, err.Error())
 		return
 	}
+	if !cr.All {
+		_, msg, _ := mysql.OpenActivityStates()
+		response.ResponseSuccessWithMsg(c, msg, ResAllMsgList)
+		return
+	}
 	response.ResponseSuccess(c, ResAllMsgList)
 }
 
@@ -73,6 +78,11 @@ func ActivityOrganizerTrainList(c *gin.Context) {
 	ResAllMsgList, err = JoinAudit.ResListWithJSON(cr)
 	if err != nil {
 		response.ResponseSuccessWithMsg(c, err.Error(), []struct{}{})
+		return
+	}
+	if !cr.All {
+		_, msg, _ := mysql.OpenActivityStates()
+		response.ResponseSuccessWithMsg(c, msg, ResAllMsgList)
 		return
 	}
 	response.ResponseSuccess(c, ResAllMsgList)

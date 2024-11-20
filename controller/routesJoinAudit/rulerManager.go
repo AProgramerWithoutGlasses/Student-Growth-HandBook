@@ -30,6 +30,11 @@ func ActivityRulerList(c *gin.Context) {
 		response.ResponseSuccessWithMsg(c, err.Error(), []struct{}{})
 		return
 	}
+	if !cr.All {
+		_, msg, _ := mysql.OpenActivityStates()
+		response.ResponseSuccessWithMsg(c, msg, ResAllMsgList)
+		return
+	}
 	response.ResponseSuccess(c, ResAllMsgList)
 }
 func ActivityRulerManager(c *gin.Context) {
