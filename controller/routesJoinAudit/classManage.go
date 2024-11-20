@@ -27,10 +27,16 @@ func ClassApplicationList(c *gin.Context) {
 	//cr.UserClass = user.Class
 	cr.UserClass = "计科211"
 	//判断返回全部还是只有开启的活动
+
 	var ResAllMsgList = make([]JoinAudit.ResList, 0)
 	ResAllMsgList, err = JoinAudit.ResListWithJSON(cr)
 	if err != nil {
 		response.ResponseSuccessWithMsg(c, err.Error(), []struct{}{})
+		return
+	}
+	if !cr.All {
+		_, msg, _ := mysql.OpenActivityStates()
+		response.ResponseSuccessWithMsg(c, msg, ResAllMsgList)
 		return
 	}
 	response.ResponseSuccess(c, ResAllMsgList)
