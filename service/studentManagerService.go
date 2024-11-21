@@ -411,12 +411,13 @@ func EditStuService(user jrx_model.ChangeStuMesStruct, username string) error {
 	}
 
 	return nil
+
 }
 
 func AddStuService(input struct {
 	gorm_model.User
-	Class  string `json:"class" binding:"required"`
-	Gender string `json:"gender" binding:"required" `
+	Class  string `json:"class"`
+	Gender string `json:"gender"`
 }, myMes jrx_model.MyTokenMes) error {
 	// 去除班级名称中的 ”班“ 字
 	if len(input.Class) == 12 {
@@ -539,6 +540,9 @@ func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct
 				return "", err
 			}
 		}
+
+		// 删除他发布过的文章
+		mysql.GetArticleDao(id, 1, 1000)
 
 		// 拼接删除了的学生姓名
 		deletedStuName = deletedStuName + selectedStudents[i].Name + "、"

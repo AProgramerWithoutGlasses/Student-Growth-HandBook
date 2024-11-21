@@ -10,3 +10,8 @@ type CasbinService struct {
 	Enforcer *casbin.Enforcer
 	Adapter  *gormadapter.Adapter
 }
+
+type CasbinJoinAuditService struct {
+	Enforcer *casbin.Enforcer
+	Adapter  *gormadapter.Adapter
+}
