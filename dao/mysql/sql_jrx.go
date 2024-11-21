@@ -44,7 +44,7 @@ func GetDiffClass() ([]string, error) {
 
 // 添加单个学生
 func AddSingleStudent(users *gorm_model.User) error {
-	err := DB.Select("name", "username", "password", "class", "gender", "identity", "head_shot", "plus_time").Create(users).Error
+	err := DB.Model(&gorm_model.User{}).Select("name", "username", "password", "class", "gender", "identity", "head_shot", "plus_time").Create(users).Error
 	return err
 }
 
