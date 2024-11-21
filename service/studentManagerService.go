@@ -552,3 +552,17 @@ func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct
 
 	return deletedStuName, err
 }
+
+func ReSetPasswordService(username string) error {
+	id, err := mysql.GetIdByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	err = mysql.UpdatePassword(id, "123456")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
