@@ -166,6 +166,12 @@ func AddMultipleStuControl(c *gin.Context) {
 	//}
 
 	//addStuNumber := strconv.Itoa(len(rows[1:]))
-	response.ResponseSuccessWithMsg(c, fmt.Sprintf("已导入%d条学生信息，剩余%d条未导入，因为其已存在"), nil)
+	var resStr string
+	if existedNum == 0 {
+		resStr = fmt.Sprintf("已成功导入%d条学生信息", unExistedNum)
+	} else {
+		resStr = fmt.Sprintf("已成功导入%d条学生信息，剩余%d条未导入，因为其已存在", unExistedNum, existedNum)
+	}
+	response.ResponseSuccessWithMsg(c, resStr, nil)
 
 }
