@@ -493,7 +493,8 @@ func AddStuService(input struct {
 	return nil
 }
 
-func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct) (deletedStuName string, err error) {
+func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct) (string, error) {
+	var deletedStuName string
 	// 删除选中的用户
 	for i, _ := range selectedStudents {
 
@@ -546,11 +547,10 @@ func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct
 
 		// 拼接删除了的学生姓名
 		deletedStuName = deletedStuName + selectedStudents[i].Name + "、"
-		deletedStuName = deletedStuName[0 : len(deletedStuName)-1]
-
+		deletedStuName = deletedStuName[0 : len(deletedStuName)-3]
 	}
 
-	return deletedStuName, err
+	return deletedStuName, nil
 }
 
 func ReSetPasswordService(username string) error {
