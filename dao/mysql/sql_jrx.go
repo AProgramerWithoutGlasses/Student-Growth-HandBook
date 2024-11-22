@@ -75,7 +75,7 @@ func DeleteStudentRecord(deleteUserRecord *gorm_model.UserDeleteRecord) error {
 
 // 删除单个学生的管理员信息
 func DeleteSingleUserManager(username string) error {
-	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("cusername = ?", username).Delete(nil).Error
+	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).Delete(nil).Error
 	return err
 }
 
