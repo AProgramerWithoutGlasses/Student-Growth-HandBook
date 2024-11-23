@@ -125,16 +125,16 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 			db = db.Where("gender = ? ", pagMsg.Gender)
 		}
 		if pagMsg.ClassIsPass != "" {
-			db = db.Where("class_is_pass", pagMsg.ClassIsPass)
+			db = db.Where("class_is_pass = ?", pagMsg.ClassIsPass)
 		}
 	case "ActivityRulerList":
 		db = db.Where("join_audit_duty_id = ?", pagMsg.ActivityID)
 		db = db.Where("class_is_pass = ?", "true")
 		if pagMsg.RulerIsPass != "" {
-			db.Where("ruler_is_pass", pagMsg.RulerIsPass)
+			db.Where("ruler_is_pass = ?", pagMsg.RulerIsPass)
 		}
 		if pagMsg.OrganizerMaterialIsPass != "" {
-			db.Where("ruler_is_pass", pagMsg.OrganizerMaterialIsPass)
+			db.Where("ruler_is_pass= ?", pagMsg.OrganizerMaterialIsPass)
 		}
 	case "ActivityOrganizerTrainList":
 		db = db.Where("join_audit_duty_id = ?", pagMsg.ActivityID)

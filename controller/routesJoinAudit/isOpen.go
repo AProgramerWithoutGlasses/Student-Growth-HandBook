@@ -17,7 +17,7 @@ type ResOpenActivityMsg struct {
 
 // OpenMsg 判断当前入团申请是否开放
 func OpenMsg(c *gin.Context) {
-	ActivityIsOpen, Msg, ActivityMsg := mysql.OpenActivityMsg()
+	ActivityIsOpen, Msg, ActivityMsg := mysql.OpenActivityStates()
 	Response := ResOpenActivityMsg{
 		IsOpen:       ActivityIsOpen,
 		ID:           ActivityMsg.ID,
