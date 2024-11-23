@@ -11,6 +11,7 @@ import (
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
 	"studentGrow/pkg/response"
+	"studentGrow/utils/studentUtils"
 	token2 "studentGrow/utils/token"
 	"time"
 )
@@ -66,9 +67,18 @@ func AddMultipleStuControl(c *gin.Context) {
 					return
 				}
 
+				// 去除班级中的“班”字
 				if len(row[0]) > 9 {
 					row[0] = row[0][0:9]
 				}
+
+				// 去除所有字段中的空格
+				row[0] = studentUtils.RemoveBlank(row[0])
+				row[1] = studentUtils.RemoveBlank(row[1])
+				row[2] = studentUtils.RemoveBlank(row[2])
+				row[3] = studentUtils.RemoveBlank(row[3])
+				row[4] = studentUtils.RemoveBlank(row[4])
+
 				user1 := gorm_model.User{
 					Class:    row[0],
 					Name:     row[1],
