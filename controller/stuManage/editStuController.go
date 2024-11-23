@@ -13,7 +13,7 @@ func EditStuControl(c *gin.Context) {
 	var user jrx_model.ChangeStuMesStruct
 
 	// 接收数据
-	if err := c.Bind(&user); err != nil {
+	if err := c.ShouldBindJSON(&user); err != nil {
 		response.ResponseError(c, response.ParamFail)
 		zap.L().Error("stuManage.EditStuControl() c.Bind() err : ", zap.Error(err))
 		return
