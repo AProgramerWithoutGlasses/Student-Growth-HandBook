@@ -131,28 +131,28 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 		db = db.Where("join_audit_duty_id = ?", pagMsg.ActivityID)
 		db = db.Where("class_is_pass = ?", "true")
 		if pagMsg.RulerIsPass != "" {
-			db.Where("ruler_is_pass = ?", pagMsg.RulerIsPass)
+			db = db.Where("ruler_is_pass = ?", pagMsg.RulerIsPass)
 		}
 		if pagMsg.OrganizerMaterialIsPass != "" {
-			db.Where("ruler_is_pass= ?", pagMsg.OrganizerMaterialIsPass)
+			db = db.Where("organizer_material_is_pass= ?", pagMsg.OrganizerMaterialIsPass)
 		}
 	case "ActivityOrganizerTrainList":
 		db = db.Where("join_audit_duty_id = ?", pagMsg.ActivityID)
 		db = db.Where("class_is_pass = ? AND ruler_is_pass = ? AND organizer_material_is_pass = ?", "true", "true", "true")
 		if pagMsg.OrganizerTrainIsPass != "" {
-			db.Where("class_is_pass = ?", pagMsg.OrganizerTrainIsPass)
+			db.Where("organizer_train_is_pass = ?", pagMsg.OrganizerTrainIsPass)
 		}
 	}
 
 	//模糊搜索名字条件
 	if pagMsg.Name != "" {
-		db.Where("name like ?", "%"+pagMsg.Name+"%")
+		db = db.Where("name like ?", "%"+pagMsg.Name+"%")
 	}
 	if pagMsg.Username != "" {
-		db.Where("username like ?", "%"+pagMsg.Username+"%")
+		db = db.Where("username like ?", "%"+pagMsg.Username+"%")
 	}
 	if pagMsg.UserClass != "" {
-		db.Where("user_class like ?", "%"+pagMsg.UserClass+"%")
+		db = db.Where("user_class like ?", "%"+pagMsg.UserClass+"%")
 	}
 	offset := (pagMsg.Page - 1) * pagMsg.Limit
 	if offset < 0 {
