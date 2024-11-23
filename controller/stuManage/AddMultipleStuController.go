@@ -60,17 +60,6 @@ func AddMultipleStuControl(c *gin.Context) {
 				unExistedNum++
 
 				// 导入
-				yearInt, err := strconv.Atoi(row[0][6:8])
-				if err != nil {
-					response.ResponseError(c, response.ServerErrorCode)
-					zap.L().Error(err.Error())
-					return
-				}
-
-				// 去除班级中的“班”字
-				if len(row[0]) > 9 {
-					row[0] = row[0][0:9]
-				}
 
 				// 去除所有字段中的空格
 				row[0] = studentUtils.RemoveBlank(row[0])
@@ -78,6 +67,18 @@ func AddMultipleStuControl(c *gin.Context) {
 				row[2] = studentUtils.RemoveBlank(row[2])
 				row[3] = studentUtils.RemoveBlank(row[3])
 				row[4] = studentUtils.RemoveBlank(row[4])
+
+				// 去除班级中的“班”字
+				if len(row[0]) > 9 {
+					row[0] = row[0][0:9]
+				}
+
+				yearInt, err := strconv.Atoi(row[0][6:8])
+				if err != nil {
+					response.ResponseError(c, response.ServerErrorCode)
+					zap.L().Error(err.Error())
+					return
+				}
 
 				user1 := gorm_model.User{
 					Class:    row[0],
