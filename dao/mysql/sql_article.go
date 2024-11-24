@@ -812,7 +812,7 @@ func QueryTeacherAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sor
 
 	// 用户条件筛选
 	var articles []model.Article
-	if err := query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").Preload("ArticlePics.Pic").InnerJoins("User").
+	if err := query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").Preload("ArticlePics").InnerJoins("User").
 		Where("name LIKE ? AND identity = ?", fmt.Sprintf("%%%s%%", name), "老师").
 		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
@@ -853,7 +853,7 @@ func QueryStuAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, o
 		return nil, err
 	}
 	var articles []model.Article
-	if err = query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").Preload("ArticlePics.Pic").InnerJoins("User").
+	if err = query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").Preload("ArticlePics").InnerJoins("User").
 		Where("plus_time BETWEEN ? AND ? AND class IN ? AND name LIKE ?",
 			fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), class, fmt.Sprintf("%%%s%%", name)).
 		Offset((page - 1) * limit).Limit(limit).
