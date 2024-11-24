@@ -24,6 +24,7 @@ type ResStuMsg struct {
 	OrganizerTrainIsPass    string  `json:"organizer_train_is_pass" `    //组织部培训审核结果
 	Files                   []File  `json:"files"`                       //用户对应的文件
 }
+
 type ResActivityMsg struct {
 	ID                    uint
 	ActivityName          string    `json:"activity_name"`           //期数
@@ -42,10 +43,13 @@ type ResList struct {
 }
 
 type File struct {
+	FileNote string     `json:"file_note"`
+	List     []FileList `json:"list"`
+}
+type FileList struct {
 	ID       uint
-	Username string `json:"username"`
+	FileName string `json:"file_name"`
 	FilePath string `json:"file_path"`
-	FileNote string `json:"file_note"`
 }
 
 func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.JoinAuditDuty, count int64) (resListWithAll ResList) {
@@ -53,16 +57,33 @@ func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.Joi
 	ResListWithStuMsg = make([]ResStuMsg, 0)
 	for _, val := range msgList {
 		fileList, _ := mysql.FilesList(val.Username, val.JoinAuditDutyID)
-		var files File
-		var filesList []File
-		filesList = make([]File, 0)
+		filesList := make([]File, 0)
+		applicationList := make([]FileList, 0)
+		materialList := make([]FileList, 0)
+		var resFile FileList
 		for _, val := range fileList {
-			files.ID = val.ID
-			files.Username = val.Username
-			files.FilePath = val.FilePath
-			files.FileNote = val.Note
-			filesList = append(filesList, files)
+			switch val.Note {
+			case "application":
+				resFile.FilePath = val.FilePath
+				resFile.FileName = val.FileName
+				resFile.ID = val.ID
+				applicationList = append(applicationList, resFile)
+			case "material":
+				resFile.FilePath = val.FilePath
+				resFile.FileName = val.FileName
+				resFile.ID = val.ID
+				materialList = append(materialList, resFile)
+			}
 		}
+		filesList = append(filesList, File{
+			"application",
+			applicationList,
+		})
+		filesList = append(filesList, File{
+			"material",
+			materialList,
+		})
+
 		StuMsg := ResStuMsg{
 			ID:                      val.ID,
 			Username:                val.Username,

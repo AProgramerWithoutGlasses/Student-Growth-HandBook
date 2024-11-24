@@ -52,7 +52,7 @@ const ManagerMsgConstant = 2
 文章字数限制
 */
 
-const WordLimitMin = 10
+const WordLimitMin = 0
 
 const WordLimitMax = 300
 
@@ -74,7 +74,7 @@ const SupserManId = 182
 一天对多发的话题数
 */
 
-const ArticlePublishLimit = 2
+const ArticlePublishLimit = 10000
 
 /*
 优秀文章各级指数
@@ -96,3 +96,8 @@ const GradeArticle = 2
 
 const CollegeArticle = 3
 
+/*
+文章上传，文件大小限制
+*/
+
+const MemoryLimit = 83886080
