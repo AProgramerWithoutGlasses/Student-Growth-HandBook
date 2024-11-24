@@ -414,3 +414,25 @@ func DeleteManagerMsgController(c *gin.Context) {
 
 	res.ResponseSuccess(c, struct{}{})
 }
+
+// AckAllInterMsgController 一键已读互动消息
+func AckAllInterMsgController(c *gin.Context) {
+	in := struct {
+		MsgType int `json:"msg_type"`
+	}{}
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("AckAllInterMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	aToken := token.NewToken(c)
+	user, _ := aToken.GetUser()
+	err = message.AckAllInterMsgService(int(user.ID), in.MsgType)
+	if err != nil {
+		zap.L().Error("AckAllInterMsgService() controller.message.AckAllInterMsgController err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	res.ResponseSuccess(c, struct{}{})
+}

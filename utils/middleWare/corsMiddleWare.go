@@ -22,6 +22,7 @@ func CORSMiddleware() gin.HandlerFunc {
 			"http://192.168.10.7:81":   true,
 			"http://8.154.36.180:8904": true,
 			"http://8.154.36.180:8905": true,
+			"http://127.0.0.1:8881":    true,
 		}
 		method := c.Request.Method               //请求方法
 		origin := c.Request.Header.Get("Origin") //请求头部

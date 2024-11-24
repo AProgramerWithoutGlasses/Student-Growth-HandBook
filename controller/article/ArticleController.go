@@ -1,6 +1,7 @@
 package article
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"strconv"
@@ -604,7 +605,7 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 		for _, tag := range at.ArticleTags {
 			tags = append(tags, tag.Tag.TagName)
 		}
-
+		fmt.Println(pics)
 		content = append(content, map[string]any{
 			"user_headshot":   at.User.HeadShot,
 			"user_class":      at.User.Class,
