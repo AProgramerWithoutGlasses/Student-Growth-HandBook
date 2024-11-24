@@ -74,7 +74,7 @@ const SupserManId = 182
 一天对多发的话题数
 */
 
-const ArticlePublishLimit = 2
+const ArticlePublishLimit = 10000
 
 /*
 优秀文章各级指数
@@ -95,4 +95,3 @@ const ClassArticle = 1
 const GradeArticle = 2
 
 const CollegeArticle = 3
-
