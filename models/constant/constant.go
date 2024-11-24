@@ -52,7 +52,7 @@ const ManagerMsgConstant = 2
 文章字数限制
 */
 
-const WordLimitMin = 10
+const WordLimitMin = 0
 
 const WordLimitMax = 300
 
