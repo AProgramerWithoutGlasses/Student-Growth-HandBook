@@ -654,3 +654,53 @@ func DeleteManagerNotification(MsgId int, db *gorm.DB) error {
 	}
 	return nil
 }
+
+// AckUserAllLikeId 确认用户所有未读的被点赞消息id
+func AckUserAllLikeId(uid int) error {
+	if err := DB.Model(&gorm_model.UserLikeRecord{}).Where("is_read = ? AND (article_id IN (SELECT id FROM articles WHERE user_id = ? AND ban = ? AND status = ? AND deleted_at IS NULL) OR comment_id IN (SELECT id FROM comments WHERE user_id = ? AND deleted_at IS NULL))", false, uid, false, true, uid).Update("is_read", true).Error; err != nil {
+		zap.L().Error("QueryLikeRecordNumByUserArticle() dao.mysql.sql_msg.Count err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// AckUserAllCommentId 确认用户所有未读的被评论消息id
+func AckUserAllCommentId(uid int) error {
+	var commentIDs []int
+
+	if err := DB.Model(&gorm_model.Comment{}).Where("user_id = ? AND pid = ?", uid, 0).Pluck("id", &commentIDs).Error; err != nil {
+		zap.L().Error("QueryUserAllCommentId() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return err
+	}
+
+	var articleIDs []int
+	if err := DB.Model(&gorm_model.Article{}).Where("user_id = ? AND ban = ? AND status = ?", uid, false, true).Pluck("id", &articleIDs).Error; err != nil {
+		zap.L().Error("QueryCommentRecordByUserArticles() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return err
+	}
+
+	if err := DB.Model(&gorm_model.Comments{}).
+		Where("pid IN ? AND is_read = ?", commentIDs, false).Or("article_id IN ? AND pid = ? AND is_read = ?", articleIDs, 0, false).
+		Update("is_read", true).Error; err != nil {
+		zap.L().Error("QueryUserAllCommentId() dao.mysql.sql_msg.Pluck err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// AckUserAllCollectId 确认用户所有未读的收藏消息id
+func AckUserAllCollectId(uid int) error {
+	// 获取该用户文章列表
+	aids, err := QueryArticleIdsByUserId(uid)
+	if err != nil {
+		zap.L().Error("QueryUserAllCollectId() dao.mysql.sql_msg.QueryArticleIdsByUserId err=", zap.Error(err))
+		return err
+	}
+
+	if err := DB.Model(&gorm_model.UserCollectRecord{}).Where("article_id IN ? and is_read = ?", aids, false).Update("is_read", true).Error; err != nil {
+		zap.L().Error("QueryUserAllCollectId() dao.mysql.sql_msg.Count err=", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
