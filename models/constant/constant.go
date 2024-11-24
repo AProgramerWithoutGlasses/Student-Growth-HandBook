@@ -95,3 +95,9 @@ const ClassArticle = 1
 const GradeArticle = 2
 
 const CollegeArticle = 3
+
+/*
+文章上传，文件大小限制
+*/
+
+const MemoryLimit = 83886080
