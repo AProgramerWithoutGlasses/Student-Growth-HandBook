@@ -372,10 +372,17 @@ func CalculateNowGradeByClass(class string) (grade string) {
 }
 
 func EditStuService(user jrx_model.ChangeStuMesStruct, username string) error {
-	id, err := mysql.GetIdByUsername(user.Username)
+	id, err := mysql.GetIdByUsername(user.OldUsername)
 	if err != nil {
 		return err
 	}
+
+	// 将 year 字段转换为匹配数据库的 plus_time
+	yearData, err := strconv.Atoi(user.Year)
+	if err != nil {
+		return err
+	}
+	user.PlusTime = time.Date(yearData, 9, 1, 0, 0, 0, 0, time.Now().Location())
 
 	oldUser, err := mysql.GetUser(id)
 	if err != nil {
@@ -390,20 +397,43 @@ func EditStuService(user jrx_model.ChangeStuMesStruct, username string) error {
 	// 记录更改
 	var userEditRecord gorm_model.UserEditRecord
 
+	if oldUser.Name != user.Name {
+		userEditRecord.OldName = oldUser.Name
+		userEditRecord.NewName = user.Name
+	}
+
+	if oldUser.Username != user.Username {
+		userEditRecord.OldUsername = oldUser.Username
+		userEditRecord.NewUsername = user.Username
+	}
+
+	if oldUser.Password != user.Password {
+		userEditRecord.OldPassword = oldUser.Password
+		userEditRecord.NewPassword = user.Password
+	}
+
+	if oldUser.Gender != user.Gender {
+		userEditRecord.OldGender = oldUser.Gender
+		userEditRecord.NewGender = user.Gender
+	}
+
 	if oldUser.Class != user.Class {
 		userEditRecord.OldClass = oldUser.Class
 		userEditRecord.NewClass = user.Class
 	}
 
-	if oldUser.PhoneNumber != user.Phone_number {
+	if oldUser.PhoneNumber != user.PhoneNumber {
 		userEditRecord.OldPhoneNumber = oldUser.PhoneNumber
-		userEditRecord.NewPhoneNumber = user.Phone_number
+		userEditRecord.NewPhoneNumber = user.PhoneNumber
 	}
 
-	userEditRecord.EditedUsername = user.Username
-	userEditRecord.Username = username
+	if oldUser.PlusTime != user.PlusTime {
+		userEditRecord.OldPlustime = strconv.Itoa(oldUser.PlusTime.Year())
+		userEditRecord.NewPlustime = strconv.Itoa(user.PlusTime.Year())
+	}
 
-	fmt.Println("userEditRecordStruct ： ", userEditRecord)
+	userEditRecord.EditUsername = user.OldUsername
+	userEditRecord.Username = username
 
 	err = mysql.EditUserRecord(userEditRecord)
 	if err != nil {
