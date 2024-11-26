@@ -57,9 +57,9 @@ func GetStudForm(c *gin.Context) {
 	}
 
 	resStuMsg = StuMsg{
-		Username:                stuMsg.Username,
-		UserClass:               stuMsg.UserClass,
-		ActivityName:            stuMsg.ActivityName,
+		Username:                user.Username,
+		UserClass:               user.Class,
+		ActivityName:            ActivityMsg.ActivityName,
 		Name:                    stuMsg.Name,
 		Major:                   stuMsg.Major,
 		MoralCoin:               stuMsg.MoralCoin,

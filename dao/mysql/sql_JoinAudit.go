@@ -55,28 +55,28 @@ func OpenActivityMsg() (bool, string, gorm_model.JoinAuditDuty) {
 }
 
 // 活动信息根据开放状态返回信息，不受时间限制
-func OpenActivityStates() (bool, string, gorm_model.JoinAuditDuty) {
+func OpenActivityStates() (string, string, gorm_model.JoinAuditDuty) {
 	var count int64
 	var ActivityMsg gorm_model.JoinAuditDuty
 	var FailActivityMsg gorm_model.JoinAuditDuty
 	DB.Where("is_show = ?", "true").Find(&ActivityMsg).Count(&count)
 	if count < 1 {
-		return false, "不存在开放活动", FailActivityMsg
+		return "false", "不存在开放活动", FailActivityMsg
 	}
 	if count > 1 {
-		return false, "开放活动数量异常", FailActivityMsg
+		return "false", "开放活动数量异常", FailActivityMsg
 	}
 	format := "2006-01-02 15:04:05"
 	now := time.Now().Format(format)
 	startTime := ActivityMsg.StartTime.Format(format)
 	stopTime := ActivityMsg.StopTime.Format(format)
 	if now <= startTime {
-		return true, "活动未到开放时间", ActivityMsg
+		return "true", "活动未到开放时间", ActivityMsg
 	}
 	if now >= stopTime {
-		return true, "活动已结束", ActivityMsg
+		return "true", "活动已结束", ActivityMsg
 	}
-	return true, "活动已开放", ActivityMsg
+	return "true", "活动已开放", ActivityMsg
 }
 
 // StuFormMsg 查询提交过的信息
