@@ -263,3 +263,14 @@ func GetTrainScoreWithID(id int) (trainScore gorm_model.JoinAudit, err error) {
 	err = DB.Select("train_score").Where("id= ?", id).Find(&trainScore).Error
 	return
 }
+
+// 根据活动ID查询班级信息
+type userClass struct {
+	UserClass string
+}
+
+func GetUserClassMsgWithActivityID(JoinAuditDutyID uint) (classList []userClass, err error) {
+	classList = make([]userClass, 0)
+	err = DB.Model(&gorm_model.JoinAudit{}).Distinct("user_class").Where("join_audit_duty_id=?", JoinAuditDutyID).Scan(&classList).Error
+	return
+}
