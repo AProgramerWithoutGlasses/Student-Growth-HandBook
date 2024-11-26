@@ -296,6 +296,25 @@ func AckInterMsgService(msgId, msgType int) error {
 	return nil
 }
 
+// AckAllInterMsgService 一键已读互动消息
+func AckAllInterMsgService(uid, msgType int) (err error) {
+	switch msgType {
+	case constant.LikeMsgConstant:
+		err = mysql.AckUserAllLikeId(uid)
+	case constant.CommentMsgConstant:
+		err = mysql.AckUserAllCommentId(uid)
+	case constant.CollectMsgConstant:
+		err = mysql.AckUserAllCollectId(uid)
+	default:
+		return myErr.DataFormatError()
+	}
+	if err != nil {
+		zap.L().Error("AckAllInterMsgService() service.article.likeService.AckAllInterMsgService err=", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
 // AckManagerMsgService 确认管理员消息
 func AckManagerMsgService(username string) error {
 	// 获取uid
