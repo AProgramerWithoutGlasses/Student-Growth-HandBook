@@ -8,7 +8,7 @@ import (
 )
 
 type ResOpenActivityMsg struct {
-	IsOpen       bool `json:"is_open"`
+	IsShow       string `json:"is_show"`
 	ID           uint
 	ActivityName string    `json:"activity_name"`
 	StartTime    time.Time `json:"start_time"`
@@ -17,9 +17,9 @@ type ResOpenActivityMsg struct {
 
 // OpenMsg 判断当前入团申请是否开放
 func OpenMsg(c *gin.Context) {
-	ActivityIsOpen, Msg, ActivityMsg := mysql.OpenActivityStates()
+	_, Msg, ActivityMsg := mysql.OpenActivityStates()
 	Response := ResOpenActivityMsg{
-		IsOpen:       ActivityIsOpen,
+		IsShow:       ActivityMsg.IsShow,
 		ID:           ActivityMsg.ID,
 		ActivityName: ActivityMsg.ActivityName,
 		StartTime:    ActivityMsg.StartTime,
