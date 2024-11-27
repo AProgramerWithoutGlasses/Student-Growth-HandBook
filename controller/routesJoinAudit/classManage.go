@@ -12,7 +12,7 @@ import (
 // ClassApplicationList 班长获取对应的申请列表
 func ClassApplicationList(c *gin.Context) {
 	token := token2.NewToken(c)
-	_, exist := token.GetUser()
+	user, exist := token.GetUser()
 	if !exist {
 		response.ResponseError(c, response.TokenError)
 		zap.L().Error("token错误")
@@ -24,8 +24,8 @@ func ClassApplicationList(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析出错")
 	}
 	cr.Label = "ClassApplicationList"
-	//cr.UserClass = user.Class
-	cr.UserClass = "计科211"
+	cr.UserClass = user.Class
+	//cr.UserClass = "计科211"
 	//判断返回全部还是只有开启的活动
 
 	var ResAllMsgList = make([]JoinAudit.ResList, 0)

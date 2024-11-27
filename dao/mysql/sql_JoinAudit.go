@@ -274,3 +274,23 @@ func GetUserClassMsgWithActivityID(JoinAuditDutyID uint) (classList []userClass,
 	err = DB.Model(&gorm_model.JoinAudit{}).Distinct("user_class").Where("join_audit_duty_id=?", JoinAuditDutyID).Scan(&classList).Error
 	return
 }
+
+// 查询能否导出信息
+
+func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string]interface{}) {
+	userMsg = make([]map[string]interface{}, 0)
+	var rulerNullCount int64
+	var organizerNullCount int64
+	switch curMenu {
+	case "organizer":
+		DB.Model(gorm_model.JoinAudit{}).Where("join_audit_duty_id = ? and ruler_is_pass = ?", activityID, "null").Count(&rulerNullCount)
+		DB.Model(gorm_model.JoinAudit{}).Where("join_audit_duty_id = ? and organizer_material_is_pass = ?", activityID, "null").Count(&organizerNullCount)
+	case "organizerFinish":
+		DB.Model(gorm_model.JoinAudit{}).Where("join_audit_duty_id = ? and organizer_train_is_pass = ?", activityID, "null").Count(&organizerNullCount)
+	}
+	if rulerNullCount > 0 || organizerNullCount > 0 {
+		return userMsg
+	}
+	DB.Model(gorm_model.JoinAudit{}).Select("username", "name", "user_class").Where("join_audit_duty_id = ? and class_is_pass = ?", activityID, "true").Scan(&userMsg)
+	return userMsg
+}

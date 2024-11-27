@@ -33,4 +33,5 @@ func RoutsJoinAudit(router *gin.Engine) {
 	r.POST("/activityTrain", routesJoinAudit.ActivityOrganizerTrainList)
 	r.POST("/activityTrainAudit", routesJoinAudit.ActivityOrganizerTrainManager)
 	r.POST("/saveTrainScore", routesJoinAudit.SaveTrainScore)
+	r.POST("/exportFormMsg", routesJoinAudit.ExportFormMsg)
 }
