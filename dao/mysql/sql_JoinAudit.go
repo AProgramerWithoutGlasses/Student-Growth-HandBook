@@ -283,10 +283,10 @@ func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string
 	var organizerNullCount int64
 	switch curMenu {
 	case "organizer":
-		DB.Model(gorm_model.JoinAudit{}).Where("join_audit_duty_id = ? and ruler_is_pass = ?", activityID, "null").Count(&rulerNullCount)
-		DB.Model(gorm_model.JoinAudit{}).Where("join_audit_duty_id = ? and organizer_material_is_pass = ?", activityID, "null").Count(&organizerNullCount)
+		DB.Model(gorm_model.JoinAudit{}).Where("class_is_pass = ? and join_audit_duty_id = ? and ruler_is_pass = ?", "true", activityID, "null").Count(&rulerNullCount)
+		DB.Model(gorm_model.JoinAudit{}).Where(" class_is_pass = ? and join_audit_duty_id = ? and organizer_material_is_pass = ?", "true", activityID, "null").Count(&organizerNullCount)
 	case "organizerFinish":
-		DB.Model(gorm_model.JoinAudit{}).Where("join_audit_duty_id = ? and organizer_train_is_pass = ?", activityID, "null").Count(&organizerNullCount)
+		DB.Model(gorm_model.JoinAudit{}).Where("class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ? join_audit_duty_id = ? and organizer_train_is_pass = ?", "true", "true", "true", activityID, "null").Count(&organizerNullCount)
 	}
 	if rulerNullCount > 0 || organizerNullCount > 0 {
 		return userMsg
