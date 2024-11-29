@@ -20,7 +20,7 @@ func ActivityRulerList(c *gin.Context) {
 	var cr mysql.Pagination
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "query解析失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析失败")
 		return
 	}
 	cr.Label = "ActivityRulerList"

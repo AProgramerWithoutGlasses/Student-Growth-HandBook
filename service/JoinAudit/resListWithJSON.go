@@ -4,6 +4,7 @@ import (
 	"errors"
 	"studentGrow/dao/mysql"
 	"studentGrow/models/gorm_model"
+	"studentGrow/utils"
 	"time"
 )
 
@@ -37,9 +38,10 @@ type ResActivityMsg struct {
 	IsShow                string    `json:"is_show"`
 }
 type ResList struct {
-	List     []ResStuMsg    `json:"list"`
-	Count    int64          `json:"count"`
-	Activity ResActivityMsg `json:"activity"`
+	List      []ResStuMsg    `json:"list"`
+	Count     int64          `json:"count"`
+	ClassList []string       `json:"class_list"`
+	Activity  ResActivityMsg `json:"activity"`
 }
 
 type File struct {
@@ -51,10 +53,19 @@ type FileList struct {
 	FileName string `json:"file_name"`
 	FilePath string `json:"file_path"`
 }
+type userClass struct {
+	UserClass string
+}
 
+// 根据活动id和username查询用户文件
 func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.JoinAuditDuty, count int64) (resListWithAll ResList) {
 	var ResListWithStuMsg []ResStuMsg
 	ResListWithStuMsg = make([]ResStuMsg, 0)
+	classList := make([]string, 0)
+	userClassList, _ := mysql.GetUserClassMsgWithActivityID(ActivityMsg.ID)
+	for _, v := range userClassList {
+		classList = append(classList, v.UserClass)
+	}
 	for _, val := range msgList {
 		fileList, _ := mysql.FilesList(val.Username, val.JoinAuditDutyID)
 		filesList := make([]File, 0)
@@ -83,7 +94,6 @@ func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.Joi
 			"material",
 			materialList,
 		})
-
 		StuMsg := ResStuMsg{
 			ID:                      val.ID,
 			Username:                val.Username,
@@ -113,10 +123,13 @@ func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.Joi
 		OrganizerTrainName:    ActivityMsg.OrganizerTrainName,
 		IsShow:                ActivityMsg.IsShow,
 	}
+	//班级切片去重
+	classList = utils.SliceUnique(classList)
 	resListWithAll = ResList{
-		List:     ResListWithStuMsg,
-		Count:    count,
-		Activity: ResListWithActivityMsg,
+		List:      ResListWithStuMsg,
+		Count:     count,
+		ClassList: classList,
+		Activity:  ResListWithActivityMsg,
 	}
 	return
 }
