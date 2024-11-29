@@ -57,7 +57,7 @@ type ChangeStuMesStruct struct {
 	PhoneNumber string    `json:"telephone"`
 	Year        string    `json:"year"`      // 入学年份,负责接收请求参数，然后转换后赋值给下方 PlusTime
 	PlusTime    time.Time `json:"plus_time"` // 实际对应数据库的入学年份
-	OldUsername string    `json:"old_username"`
+	OldUsername string    `json:"oldUsername"`
 }
 
 // 学生信息表（为贴合apifox的字段，备用）(year int)
