@@ -55,28 +55,28 @@ func OpenActivityMsg() (bool, string, gorm_model.JoinAuditDuty) {
 }
 
 // 活动信息根据开放状态返回信息，不受时间限制
-func OpenActivityStates() (bool, string, gorm_model.JoinAuditDuty) {
+func OpenActivityStates() (string, string, gorm_model.JoinAuditDuty) {
 	var count int64
 	var ActivityMsg gorm_model.JoinAuditDuty
 	var FailActivityMsg gorm_model.JoinAuditDuty
 	DB.Where("is_show = ?", "true").Find(&ActivityMsg).Count(&count)
 	if count < 1 {
-		return false, "不存在开放活动", FailActivityMsg
+		return "false", "不存在开放活动", FailActivityMsg
 	}
 	if count > 1 {
-		return false, "开放活动数量异常", FailActivityMsg
+		return "false", "开放活动数量异常", FailActivityMsg
 	}
 	format := "2006-01-02 15:04:05"
 	now := time.Now().Format(format)
 	startTime := ActivityMsg.StartTime.Format(format)
 	stopTime := ActivityMsg.StopTime.Format(format)
 	if now <= startTime {
-		return true, "活动未到开放时间", ActivityMsg
+		return "true", "活动未到开放时间", ActivityMsg
 	}
 	if now >= stopTime {
-		return true, "活动已结束", ActivityMsg
+		return "true", "活动已结束", ActivityMsg
 	}
-	return true, "活动已开放", ActivityMsg
+	return "true", "活动已开放", ActivityMsg
 }
 
 // StuFormMsg 查询提交过的信息
@@ -262,4 +262,40 @@ func UpdateTrainScoreWithID(id int, score float64) (err error) {
 func GetTrainScoreWithID(id int) (trainScore gorm_model.JoinAudit, err error) {
 	err = DB.Select("train_score").Where("id= ?", id).Find(&trainScore).Error
 	return
+}
+
+// 根据活动ID查询班级信息
+type userClass struct {
+	UserClass string
+}
+
+func GetUserClassMsgWithActivityID(JoinAuditDutyID uint) (classList []userClass, err error) {
+	classList = make([]userClass, 0)
+	err = DB.Model(&gorm_model.JoinAudit{}).Distinct("user_class").Where("join_audit_duty_id=?", JoinAuditDutyID).Scan(&classList).Error
+	return
+}
+
+// 查询能否导出信息
+
+func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string]interface{}) {
+	userMsg = make([]map[string]interface{}, 0)
+	var rulerNullCount int64
+	var organizerNullCount int64
+	switch curMenu {
+	case "organizer":
+		DB.Model(gorm_model.JoinAudit{}).Where("class_is_pass = ? and join_audit_duty_id = ? and ruler_is_pass = ?", "true", activityID, "null").Count(&rulerNullCount)
+		DB.Model(gorm_model.JoinAudit{}).Where(" class_is_pass = ? and join_audit_duty_id = ? and organizer_material_is_pass = ?", "true", activityID, "null").Count(&organizerNullCount)
+	case "organizerFinish":
+		DB.Model(gorm_model.JoinAudit{}).Where("class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ? and join_audit_duty_id = ? and organizer_train_is_pass = ?", "true", "true", "true", activityID, "null").Count(&organizerNullCount)
+	}
+	if rulerNullCount > 0 || organizerNullCount > 0 {
+		return userMsg
+	}
+	switch curMenu {
+	case "organizer":
+		DB.Model(gorm_model.JoinAudit{}).Select("username", "name", "user_class").Where("join_audit_duty_id = ? and class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ?", activityID, "true", "true", "true").Scan(&userMsg)
+	case "organizerFinish":
+		DB.Model(gorm_model.JoinAudit{}).Select("username", "name", "user_class").Where("join_audit_duty_id = ? and class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ? and organizer_train_is_pass = ?", activityID, "true", "true", "true", "true").Scan(&userMsg)
+	}
+	return userMsg
 }
