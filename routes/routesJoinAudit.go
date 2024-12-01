@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"studentGrow/controller/routesJoinAudit"
+	"studentGrow/utils/middleWare"
 	"studentGrow/utils/token"
 )
 
@@ -20,7 +21,8 @@ func RoutsJoinAudit(router *gin.Engine) {
 	r.GET("/StudFile", routesJoinAudit.GetStuFile)
 	r.POST("/StudFile", routesJoinAudit.SaveStuFile)
 	r.POST("/DelStudFile", routesJoinAudit.DelStuFile)
-	//r.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
+	//使用如图申请权限判断中间件
+	r.Use(token.AuthMiddleware(), middleWare.JoinAuditMiddle())
 	r.POST("/activity", routesJoinAudit.GetActivityList)
 	r.POST("/activityCreat", routesJoinAudit.SaveActivityMsg)
 	r.POST("/activityDel", routesJoinAudit.DelActivityMsg)
