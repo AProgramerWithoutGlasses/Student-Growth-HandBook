@@ -40,6 +40,18 @@ func MenuSide(c *gin.Context) {
 			response.ResponseError(c, 400)
 			return
 		}
+	case "monitor":
+		menusidar, err = service.MenuIdClass("monitor")
+		if err != nil {
+			response.ResponseError(c, 400)
+			return
+		}
+	case "studentUnion":
+		menusidar, err = service.MenuIdClass("studentUnion")
+		if err != nil {
+			response.ResponseError(c, 400)
+			return
+		}
 	}
 	response.ResponseSuccess(c, menusidar)
 }

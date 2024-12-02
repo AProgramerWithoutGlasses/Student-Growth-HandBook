@@ -9,9 +9,9 @@ import (
 func GetUserJoinAuditRoel(c *gin.Context) bool {
 	token := token2.NewToken(c)
 	user, _ := token.GetUser()
-	if user.JobClass == "" && user.JobStuUnion == "" {
-		return false
-	} else {
+	if user.JobClass == "班长" && user.JobStuUnion == "学生会" {
 		return true
+	} else {
+		return false
 	}
 }
