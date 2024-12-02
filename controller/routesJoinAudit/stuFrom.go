@@ -48,9 +48,9 @@ func GetStudForm(c *gin.Context) {
 			Name:                    user.Name,
 			UserClass:               user.Class,
 			ActivityName:            ActivityMsg.ActivityName,
-			ClassIsPass:             stuMsg.ClassIsPass,
-			RulerIsPass:             stuMsg.RulerIsPass,
-			OrganizerMaterialIsPass: stuMsg.OrganizerMaterialIsPass,
+			ClassIsPass:             "null",
+			RulerIsPass:             "null",
+			OrganizerMaterialIsPass: "null",
 		}
 		response.ResponseSuccess(c, resStuMsg)
 		return
@@ -101,6 +101,9 @@ func SaveStudForm(c *gin.Context) {
 	stuMsg.ComprehensiveScore = cr.ComprehensiveScore
 	stuMsg.JoinAuditDuty = ActivityMsg
 	stuMsg.ClassIsPass = "null"
+	stuMsg.RulerIsPass = "null"
+	stuMsg.OrganizerTrainIsPass = "null"
+	stuMsg.OrganizerMaterialIsPass = "null"
 	if isExist {
 		err = mysql.UpdateStuForm(stuMsg)
 		if err != nil {
