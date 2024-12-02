@@ -8,11 +8,6 @@ import (
 )
 
 func RoutsJoinAudit(router *gin.Engine) {
-	//casbinService, err := casbinModels.NewCasbinService(mysql.DB)
-	//if err != nil {
-	//	zap.L().Error("routesArticle() routes.routesArticle.NewCasbinService err=", zap.Error(err))
-	//	return
-	//}
 	r := router.Group("/routesJoinAudit")
 	r.Use(token.AuthMiddleware())
 	r.POST("/isOpen", routesJoinAudit.OpenMsg)
@@ -21,7 +16,6 @@ func RoutsJoinAudit(router *gin.Engine) {
 	r.GET("/StudFile", routesJoinAudit.GetStuFile)
 	r.POST("/StudFile", routesJoinAudit.SaveStuFile)
 	r.POST("/DelStudFile", routesJoinAudit.DelStuFile)
-	//使用如图申请权限判断中间件
 	r.Use(token.AuthMiddleware(), middleWare.JoinAuditMiddle())
 	r.POST("/activity", routesJoinAudit.GetActivityList)
 	r.POST("/activityCreat", routesJoinAudit.SaveActivityMsg)
