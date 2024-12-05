@@ -133,7 +133,7 @@ func responseDOCX(dynamicList []map[string]interface{}, c *gin.Context, title st
 	// 读取模板文件
 	r, err := docx.ReadDocxFile("template.docx")
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "")
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "文件打开失败")
 		zap.L().Error(err.Error())
 		return
 	}
