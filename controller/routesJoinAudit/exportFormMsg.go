@@ -22,6 +22,9 @@ type rec struct {
 	CurMenu    string `json:"cur_menu"`
 }
 
+var userMsgList []map[string]interface{}
+var classList []string
+
 func ExportFormMsg(c *gin.Context) {
 	token := token2.NewToken(c)
 	_, exist := token.GetUser()
@@ -36,32 +39,40 @@ func ExportFormMsg(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析失败")
 		return
 	}
-	_, _, activityMsg := mysql.OpenActivityStates()
-	userMsgList, classList := mysql.UserListWithOrganizer(cr.ActivityID, cr.CurMenu)
+	userMsgList, classList = mysql.UserListWithOrganizer(cr.ActivityID, cr.CurMenu)
 	var isFinish = true
 	if len(userMsgList) == 0 {
 		isFinish = false
 	}
+
+	response.ResponseSuccess(c, resList{
+		ListName: cr.CurMenu,
+		IsFinish: isFinish,
+	})
+}
+func ExportFormFile(c *gin.Context) {
+	token := token2.NewToken(c)
+	_, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+		return
+	}
+	_, _, activityMsg := mysql.OpenActivityStates()
 	title := activityMsg.ActivityName
 	if title == "" {
 		title = "通过名单"
 	}
 	rewriteTemplate(userMsgList)
 	filePath := UseWordTemplateMakeDocx(title, userMsgList, classList)
-	response.ResponseSuccess(c, resList{
-		ListName: cr.CurMenu,
-		IsFinish: isFinish,
-	})
 	c.FileAttachment(filePath, title+".docx")
-	fmt.Println(filePath)
 }
 func UseWordTemplateMakeDocx(title string, List []map[string]interface{}, classList []string) (filePath string) {
-	classified, replaceNameList := rewriteTemplate(List)
-	fmt.Println(classified)
-	fmt.Println(replaceNameList)
+	classified := rewriteTemplate(List)
+
 	r, err := docx.ReadDocxFile("controller/routesJoinAudit/word/rewriteTemplate.docx")
 	if err != nil {
-		panic(err)
+		zap.L().Error(err.Error())
 	}
 	defer r.Close()
 	docx1 := r.Editable()
@@ -73,7 +84,7 @@ func UseWordTemplateMakeDocx(title string, List []map[string]interface{}, classL
 		nameStr = "{{" + nameStr + strconv.Itoa(k) + "}}"
 		err = docx1.Replace(classStr, v+":", -1)
 		if err != nil {
-			panic(err)
+			zap.L().Error(err.Error())
 		}
 		classNameList = make([]string, 0)
 		for _, value := range classified[v] {
@@ -83,12 +94,12 @@ func UseWordTemplateMakeDocx(title string, List []map[string]interface{}, classL
 		rewriteList := strings.Join(classNameList, "\t")
 		err = docx1.Replace(nameStr, rewriteList, -1)
 		if err != nil {
-			panic(err)
+			zap.L().Error(err.Error())
 		}
 	}
 	err = docx1.Replace("{{Title}}", title, -1)
 	if err != nil {
-		panic(err)
+		zap.L().Error(err.Error())
 	}
 	filePath = "controller/routesJoinAudit/word/" + fmt.Sprintf("%s", title) + ".docx"
 	err = docx1.WriteToFile(filePath)
@@ -98,7 +109,7 @@ func UseWordTemplateMakeDocx(title string, List []map[string]interface{}, classL
 	return
 }
 
-func rewriteTemplate(dynamicList []map[string]interface{}) (classified map[string][]map[string]interface{}, replaceNameList []string) {
+func rewriteTemplate(dynamicList []map[string]interface{}) (classified map[string][]map[string]interface{}) {
 	classified = make(map[string][]map[string]interface{})
 	for _, v := range dynamicList {
 		userClass, _ := v["user_class"].(string)
@@ -106,7 +117,7 @@ func rewriteTemplate(dynamicList []map[string]interface{}) (classified map[strin
 	}
 
 	n := len(classified)
-	replaceNameList = make([]string, 0)
+	replaceNameList := make([]string, 0)
 	for i := 0; i < n; i++ {
 		classStr := "CLASS"
 		nameStr := "NAME"
@@ -119,7 +130,7 @@ func rewriteTemplate(dynamicList []map[string]interface{}) (classified map[strin
 	// 读取模板文件
 	r, err := docx.ReadDocxFile("controller/routesJoinAudit/word/template.docx")
 	if err != nil {
-		panic(err)
+		zap.L().Error(err.Error())
 	}
 	defer r.Close()
 
@@ -128,12 +139,12 @@ func rewriteTemplate(dynamicList []map[string]interface{}) (classified map[strin
 	// 替换模板中的占位符
 	err = docx1.Replace("{{LIST}}", rewriteList, -1)
 	if err != nil {
-		panic(err)
+		zap.L().Error(err.Error())
 	}
 	// 将修改后的文档写入新文件
 	err = docx1.WriteToFile("controller/routesJoinAudit/word/rewriteTemplate.docx")
 	if err != nil {
-		panic(err)
+		zap.L().Error(err.Error())
 	}
 	return
 }

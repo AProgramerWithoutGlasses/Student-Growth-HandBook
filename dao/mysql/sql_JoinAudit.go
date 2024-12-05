@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	"time"
@@ -301,7 +300,5 @@ func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string
 		DB.Model(gorm_model.JoinAudit{}).Select("username", "name", "user_class").Where("join_audit_duty_id = ? and class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ? and organizer_train_is_pass = ?", activityID, "true", "true", "true", "true").Scan(&userMsg)
 		DB.Model(gorm_model.JoinAudit{}).Distinct("user_class").Where("join_audit_duty_id = ? and class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ? and organizer_train_is_pass = ?", activityID, "true", "true", "true", "true").Scan(&classList)
 	}
-
-	fmt.Println(classList)
 	return userMsg, classList
 }
