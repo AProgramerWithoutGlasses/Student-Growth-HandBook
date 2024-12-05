@@ -48,17 +48,17 @@ func ExportFormMsg(c *gin.Context) {
 	})
 }
 func ExportFormFile(c *gin.Context) {
-	token := token2.NewToken(c)
-	_, exist := token.GetUser()
-	if !exist {
-		response.ResponseError(c, response.TokenError)
-		zap.L().Error("token错误")
-		return
-	}
+	//token := token2.NewToken(c)
+	//_, exist := token.GetUser()
+	//if !exist {
+	//	response.ResponseError(c, response.TokenError)
+	//	zap.L().Error("token错误")
+	//	return
+	//}
 	var cr rec
-	err := c.ShouldBindQuery(&cr)
+	err := c.ShouldBindJSON(&cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "query解析失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析失败")
 		return
 	}
 	_, _, activityMsg := mysql.OpenActivityStates()
