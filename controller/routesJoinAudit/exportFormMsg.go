@@ -13,15 +13,13 @@ import (
 )
 
 type resList struct {
-	ListName string                   `json:"list_name"`
-	IsFinish bool                     `json:"is_finish"`
-	List     []map[string]interface{} `json:"list"`
+	ListName string `json:"list_name"`
+	IsFinish bool   `json:"is_finish"`
 }
 
 type rec struct {
 	ActivityID int    `json:"activity_id"`
 	CurMenu    string `json:"cur_menu"`
-	Title      string `json:"title"`
 }
 
 func ExportFormMsg(c *gin.Context) {
@@ -38,21 +36,23 @@ func ExportFormMsg(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析失败")
 		return
 	}
+	_, _, activityMsg := mysql.OpenActivityStates()
 	userMsgList, classList := mysql.UserListWithOrganizer(cr.ActivityID, cr.CurMenu)
 	var isFinish = true
 	if len(userMsgList) == 0 {
 		isFinish = false
 	}
-	if cr.Title == "" {
-		cr.Title = "通过名单"
+	title := activityMsg.ActivityName
+	if title == "" {
+		title = "通过名单"
 	}
 	rewriteTemplate(userMsgList)
-	filePath := UseWordTemplateMakeDocx(cr.Title, userMsgList, classList)
+	filePath := UseWordTemplateMakeDocx(title, userMsgList, classList)
 	response.ResponseSuccess(c, resList{
 		ListName: cr.CurMenu,
 		IsFinish: isFinish,
 	})
-	c.FileAttachment(filePath, cr.Title+".docx")
+	c.FileAttachment(filePath, title+".docx")
 	fmt.Println(filePath)
 }
 func UseWordTemplateMakeDocx(title string, List []map[string]interface{}, classList []string) (filePath string) {
@@ -112,7 +112,7 @@ func rewriteTemplate(dynamicList []map[string]interface{}) (classified map[strin
 		nameStr := "NAME"
 		classStr = "{{" + classStr + strconv.Itoa(i) + "}}"
 		nameStr = "{{" + nameStr + strconv.Itoa(i) + "}}"
-		replaceNameList = append(replaceNameList, classStr)
+		replaceNameList = append(replaceNameList, "\n"+classStr)
 		replaceNameList = append(replaceNameList, nameStr)
 	}
 	rewriteList := strings.Join(replaceNameList, "\n")
@@ -125,7 +125,6 @@ func rewriteTemplate(dynamicList []map[string]interface{}) (classified map[strin
 
 	// 使文档可编辑
 	docx1 := r.Editable()
-
 	// 替换模板中的占位符
 	err = docx1.Replace("{{LIST}}", rewriteList, -1)
 	if err != nil {
