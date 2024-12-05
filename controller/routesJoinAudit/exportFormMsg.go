@@ -56,9 +56,9 @@ func ExportFormFile(c *gin.Context) {
 		return
 	}
 	var cr rec
-	err := c.ShouldBindJSON(&cr)
+	err := c.ShouldBindQuery(&cr)
 	if err != nil {
-		response.ResponseErrorWithMsg(c, response.ParamFail, "json解析失败")
+		response.ResponseErrorWithMsg(c, response.ParamFail, "query解析失败")
 		return
 	}
 	_, _, activityMsg := mysql.OpenActivityStates()
