@@ -48,13 +48,13 @@ func ExportFormMsg(c *gin.Context) {
 	})
 }
 func ExportFormFile(c *gin.Context) {
-	//token := token2.NewToken(c)
-	//_, exist := token.GetUser()
-	//if !exist {
-	//	response.ResponseError(c, response.TokenError)
-	//	zap.L().Error("token错误")
-	//	return
-	//}
+	token := token2.NewToken(c)
+	_, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+		return
+	}
 	var cr rec
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
@@ -131,9 +131,11 @@ func responseDOCX(dynamicList []map[string]interface{}, c *gin.Context, title st
 	}
 	rewriteList := strings.Join(replaceNameList, "\n")
 	// 读取模板文件
-	r, err := docx.ReadDocxFile("controller/routesJoinAudit/word/template.docx")
+	r, err := docx.ReadDocxFile("template.docx")
 	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "")
 		zap.L().Error(err.Error())
+		return
 	}
 	defer r.Close()
 	// 使文档可编辑
