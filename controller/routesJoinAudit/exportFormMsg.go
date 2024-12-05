@@ -1,17 +1,24 @@
 package routesJoinAudit
 
 import (
+	"embed"
+	_ "embed"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/nguyenthenguyen/docx"
 	"go.uber.org/zap"
+	"io"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"studentGrow/dao/mysql"
 	"studentGrow/pkg/response"
 	token2 "studentGrow/utils/token"
 )
+
+//go:embed template.docx
+var data embed.FS
 
 type resList struct {
 	ListName string `json:"list_name"`
@@ -46,6 +53,7 @@ func ExportFormMsg(c *gin.Context) {
 		ListName: cr.CurMenu,
 		IsFinish: isFinish,
 	})
+
 }
 func ExportFormFile(c *gin.Context) {
 	token := token2.NewToken(c)
@@ -131,7 +139,24 @@ func responseDOCX(dynamicList []map[string]interface{}, c *gin.Context, title st
 	}
 	rewriteList := strings.Join(replaceNameList, "\n")
 	// 读取模板文件
-	r, err := docx.ReadDocxFile("template.docx")
+	//读取文件夹dir
+	templateFile, _ := data.Open("template.docx")
+	defer templateFile.Close()
+	// 创建新文件
+	newFile, err := os.Create("./template.docx")
+	if err != nil {
+		zap.L().Error(err.Error())
+	}
+	defer newFile.Close()
+
+	// 将嵌入文件的内容复制到新文件中
+	_, err = io.Copy(newFile, templateFile)
+	if err != nil {
+		zap.L().Error(err.Error())
+	}
+	//entry为遍历dir文件夹中的每个文件
+
+	r, err := docx.ReadDocxFile("./template.docx")
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "文件打开失败")
 		zap.L().Error(err.Error())
@@ -181,7 +206,7 @@ func responseDOCX(dynamicList []map[string]interface{}, c *gin.Context, title st
 	return
 }
 
-//func Demo(c *gin.Context) {
+// func Demo(c *gin.Context) {
 //
 //	r, err := docx.ReadDocxFile("controller/routesJoinAudit/word/template.docx")
 //	if err != nil {
@@ -207,4 +232,4 @@ func responseDOCX(dynamicList []map[string]interface{}, c *gin.Context, title st
 //		log.Printf("Write Err %v", err)
 //	}
 //
-//}
+// }
