@@ -71,14 +71,6 @@ func ExportFormFile(c *gin.Context) {
 	}
 	_, _, activityMsg := mysql.OpenActivityStates()
 	title := activityMsg.ActivityName
-	switch cr.CurMenu {
-	case "organizer":
-		title = title + "积极分子审查表"
-	case "organizerFinish":
-		title = title + "积极分子培训考试成绩审查表"
-	default:
-		title = "入团积极分子审查表"
-	}
 	userMsgList, classList := mysql.UserListWithOrganizer(cr.ActivityID, cr.CurMenu)
 	responseDOCX(userMsgList, c, title, classList)
 	return
