@@ -11,16 +11,18 @@ import (
 
 // StuMsg 学生表单信息
 type StuMsg struct {
-	ActivityName            string  `json:"activity_name"`
-	Username                string  `json:"username" `
-	UserClass               string  `json:"user_class"`
-	Name                    string  `json:"name"`
-	Major                   string  `json:"major"`
-	MoralCoin               float64 `json:"moral_coin"`          //道德币
-	ComprehensiveScore      float64 `json:"comprehensive_score"` //综测成绩
-	ClassIsPass             string  `json:"class_is_pass"`
-	RulerIsPass             string  `json:"ruler_is_pass" `              //纪权部综测成绩审核结果
-	OrganizerMaterialIsPass string  `json:"organizer_material_is_pass" ` //组织部材料审核结果
+	ActivityName            string   `json:"activity_name"`
+	Username                string   `json:"username" `
+	UserClass               string   `json:"user_class"`
+	FromUserClass           string   `json:"from_user_class"`
+	Name                    string   `json:"name"`
+	Major                   string   `json:"major"`
+	MoralCoin               float64  `json:"moral_coin"` //道德币
+	ClassList               []string `json:"class_list"`
+	ComprehensiveScore      float64  `json:"comprehensive_score"` //综测成绩
+	ClassIsPass             string   `json:"class_is_pass"`
+	RulerIsPass             string   `json:"ruler_is_pass" `              //纪权部综测成绩审核结果
+	OrganizerMaterialIsPass string   `json:"organizer_material_is_pass" ` //组织部材料审核结果
 }
 
 // GetStudForm 获取用户的输入
@@ -37,7 +39,7 @@ func GetStudForm(c *gin.Context) {
 		response.ResponseErrorWithMsg(c, response.ParamFail, Msg)
 		return
 	}
-
+	classList := mysql.AllClassList()
 	var resStuMsg StuMsg
 	//获取用户表单信息
 	isExist, stuMsg := mysql.StuFormMsg(user.Username, ActivityMsg.ID)
@@ -47,6 +49,8 @@ func GetStudForm(c *gin.Context) {
 			Username:                user.Username,
 			Name:                    user.Name,
 			UserClass:               user.Class,
+			FromUserClass:           "",
+			ClassList:               classList,
 			ActivityName:            ActivityMsg.ActivityName,
 			ClassIsPass:             "null",
 			RulerIsPass:             "null",
@@ -58,7 +62,9 @@ func GetStudForm(c *gin.Context) {
 
 	resStuMsg = StuMsg{
 		Username:                user.Username,
-		UserClass:               user.Class,
+		UserClass:               stuMsg.UserClass,
+		FromUserClass:           stuMsg.UserClass,
+		ClassList:               classList,
 		ActivityName:            ActivityMsg.ActivityName,
 		Name:                    stuMsg.Name,
 		Major:                   stuMsg.Major,

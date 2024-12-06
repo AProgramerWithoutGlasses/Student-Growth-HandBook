@@ -302,3 +302,10 @@ func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string
 	}
 	return userMsg, classList
 }
+
+// 查询班级列表
+func AllClassList() (classList []string) {
+	classList = make([]string, 0)
+	DB.Model(&gorm_model.User{}).Distinct("class").Find(&classList)
+	return
+}
