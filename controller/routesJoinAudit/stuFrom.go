@@ -14,7 +14,7 @@ type StuMsg struct {
 	ActivityName            string   `json:"activity_name"`
 	Username                string   `json:"username" `
 	UserClass               string   `json:"user_class"`
-	FromUserClass           string   `json:"from_user_class"`
+	FromStuClass            string   `json:"from_stu_class"`
 	Name                    string   `json:"name"`
 	MoralCoin               float64  `json:"moral_coin"` //道德币
 	ClassList               []string `json:"class_list"`
@@ -47,8 +47,8 @@ func GetStudForm(c *gin.Context) {
 		resStuMsg = StuMsg{
 			Username:                user.Username,
 			Name:                    user.Name,
-			UserClass:               user.Class,
-			FromUserClass:           "",
+			UserClass:               "",         //需要填写的
+			FromStuClass:            user.Class, //学生表中的
 			ClassList:               classList,
 			ActivityName:            ActivityMsg.ActivityName,
 			ClassIsPass:             "null",
@@ -62,7 +62,7 @@ func GetStudForm(c *gin.Context) {
 	resStuMsg = StuMsg{
 		Username:                user.Username,
 		UserClass:               stuMsg.UserClass,
-		FromUserClass:           stuMsg.UserClass,
+		FromStuClass:            user.Class,
 		ClassList:               classList,
 		ActivityName:            ActivityMsg.ActivityName,
 		Name:                    stuMsg.Name,
