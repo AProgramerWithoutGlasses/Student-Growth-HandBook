@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	"time"
@@ -306,6 +307,7 @@ func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string
 // 查询班级列表
 func AllClassList() (classList []string) {
 	classList = make([]string, 0)
-	DB.Model(&gorm_model.User{}).Distinct("class").Find(&classList)
+	DB.Model(&gorm_model.User{}).Distinct("class").Where("class <> ?", "").Find(&classList)
+	fmt.Println(classList)
 	return
 }
