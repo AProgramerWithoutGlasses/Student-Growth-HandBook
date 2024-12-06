@@ -13,7 +13,6 @@ type JoinAudit struct {
 	UserClass               string        `json:"user_class"`
 	Name                    string        `json:"name"`
 	Gender                  string        `json:"gender"`
-	Major                   string        `json:"major"`
 	MoralCoin               float64       `json:"moral_coin" gorm:"default:0"`                    //道德币
 	ComprehensiveScore      float64       `json:"comprehensive_score" gorm:"default:0"`           //综测成绩
 	TrainScore              int           `json:"training_score" gorm:"default:0"`                //培训测试成绩

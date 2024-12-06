@@ -16,7 +16,6 @@ type StuMsg struct {
 	UserClass               string   `json:"user_class"`
 	FromUserClass           string   `json:"from_user_class"`
 	Name                    string   `json:"name"`
-	Major                   string   `json:"major"`
 	MoralCoin               float64  `json:"moral_coin"` //道德币
 	ClassList               []string `json:"class_list"`
 	ComprehensiveScore      float64  `json:"comprehensive_score"` //综测成绩
@@ -67,7 +66,6 @@ func GetStudForm(c *gin.Context) {
 		ClassList:               classList,
 		ActivityName:            ActivityMsg.ActivityName,
 		Name:                    stuMsg.Name,
-		Major:                   stuMsg.Major,
 		MoralCoin:               stuMsg.MoralCoin,
 		ComprehensiveScore:      stuMsg.ComprehensiveScore,
 		ClassIsPass:             stuMsg.ClassIsPass,
@@ -101,7 +99,6 @@ func SaveStudForm(c *gin.Context) {
 	isExist, stuMsg := mysql.StuFormMsg(user.Username, ActivityMsg.ID)
 	stuMsg.Gender = user.Gender
 	stuMsg.Name = cr.Name
-	stuMsg.Major = cr.Major
 	stuMsg.UserClass = cr.UserClass
 	stuMsg.MoralCoin = cr.MoralCoin
 	stuMsg.ComprehensiveScore = cr.ComprehensiveScore
