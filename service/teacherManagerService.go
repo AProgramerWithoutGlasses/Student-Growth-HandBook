@@ -84,7 +84,7 @@ func GetQueryTeacherSql(queryTeacherParama jrx_model.QueryTeacherParamStruct) st
 }
 
 func GetManagerType(username string) (string, error) {
-	CId, err := mysql.GetManagerCId(username)
+	casbinUser, err := mysql.GetManager(username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			fmt.Println("recored not founf recoery")
@@ -96,7 +96,7 @@ func GetManagerType(username string) (string, error) {
 
 	var managerType string
 
-	switch CId {
+	switch casbinUser.CasbinCid {
 	case "2", "3", "4", "5":
 		managerType = "年级管理员"
 	case "6":
@@ -105,6 +105,8 @@ func GetManagerType(username string) (string, error) {
 		managerType = "院级管理员"
 	case "0":
 		managerType = "超级管理员"
+	case "7":
+		managerType = "学生会成员"
 	default:
 		managerType = "无"
 	}
@@ -164,6 +166,7 @@ func SetStuManagerService(setUsername string, username string, ManagerType strin
 
 	default:
 		return errors.New("非法的管理员类型，请检查请求参数")
+
 	}
 
 	if !isManager { // 不是管理员
@@ -173,7 +176,8 @@ func SetStuManagerService(setUsername string, username string, ManagerType strin
 		}
 
 	} else { // 是管理员
-		existedCasbinCid, err := mysql.GetManagerCId(setUsername)
+		casbinUser, err := mysql.GetManager(setUsername)
+		existedCasbinCid := casbinUser.CasbinCid
 		if err != nil {
 			return err
 		}
@@ -242,7 +246,8 @@ func SetTeacherManagerService(username string, ManagerType string) error {
 		}
 
 	} else { // 是管理员
-		existedCasbinCid, err := mysql.GetManagerCId(username)
+		casbinUser, err := mysql.GetManager(username)
+		existedCasbinCid := casbinUser.CasbinCid
 		if err != nil {
 			return err
 		}
