@@ -148,6 +148,12 @@ func SetStuManagerService(setUsername string, username string, ManagerType strin
 			casbinCid = "5"
 		}
 
+	case "院级管理员":
+		casbinCid = "1"
+
+	case "学生会成员":
+		casbinCid = "7"
+
 	case "取消管理员":
 		if isManager {
 			err := mysql.CancelStuManager(setUsername, casbinCid)
@@ -156,9 +162,8 @@ func SetStuManagerService(setUsername string, username string, ManagerType strin
 			return errors.New("该用户不为管理员")
 		}
 
-	case "院级管理员":
-		casbinCid = "1"
-
+	default:
+		return errors.New("非法的管理员类型，请检查请求参数")
 	}
 
 	if !isManager { // 不是管理员
@@ -215,6 +220,9 @@ func SetTeacherManagerService(username string, ManagerType string) error {
 	case "院级管理员":
 		casbinCid = "1"
 
+	case "学生会成员":
+		casbinCid = "7"
+
 	case "取消管理员":
 		if isManager {
 			err := mysql.CancelStuManager(username, casbinCid)
@@ -222,6 +230,9 @@ func SetTeacherManagerService(username string, ManagerType string) error {
 		} else {
 			return errors.New("该用户不为管理员")
 		}
+
+	default:
+		return errors.New("非法的管理员类型，请检查请求参数")
 	}
 
 	if !isManager { // 不是管理员

@@ -9,19 +9,19 @@ log:
  max_backups: 7
 
 mysql:
- host: "192.168.10.4"
- port: 3310
+ host: "8.154.36.180"
+ port: 8901
  user: "root"
- password: "123456"
+ password: "lezhiedu@2024"
  dbname: "student_grow"
  max_open_conns: 200
  max_idle_conns: 50
 
 redis:
- host: "192.168.10.4"
- port: 6379
- password: "123456"
- db: 25
+ host: "8.154.36.180"
+ port: 8902
+ password: "lezhiedu@2024"
+ db: 0
  pool_size: 100
 
 aliyun:
@@ -31,3 +31,4 @@ aliyun:
    keyid: LTAI5t9Q4pxdmDqYGQLMPqER
    keysecret: CfYnchTBJEb5B3FHlCgXBfjzDRuLsZ
    bucketname: "student-grow"
+
