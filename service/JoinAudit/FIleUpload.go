@@ -49,7 +49,7 @@ func FileUpload(file *multipart.FileHeader, user gorm_model.User, ActivityMsg go
 	}
 
 	//设置上传文件最大大小，判断文件大小是否合法
-	const maxSize = float64(5)
+	const maxSize = float64(50)
 	fileSize := float64(file.Size) / float64(1024*1024) //计算文件大小
 	if fileSize > maxSize {
 		zap.L().Info("文件不合法")

@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"studentGrow/models/gorm_model"
 	"time"
@@ -277,8 +278,9 @@ func GetUserClassMsgWithActivityID(JoinAuditDutyID uint) (classList []userClass,
 
 // 查询能否导出信息
 
-func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string]interface{}) {
+func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string]interface{}, classList []string) {
 	userMsg = make([]map[string]interface{}, 0)
+	classList = make([]string, 0)
 	var rulerNullCount int64
 	var organizerNullCount int64
 	switch curMenu {
@@ -289,13 +291,23 @@ func UserListWithOrganizer(activityID int, curMenu string) (userMsg []map[string
 		DB.Model(gorm_model.JoinAudit{}).Where("class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ? and join_audit_duty_id = ? and organizer_train_is_pass = ?", "true", "true", "true", activityID, "null").Count(&organizerNullCount)
 	}
 	if rulerNullCount > 0 || organizerNullCount > 0 {
-		return userMsg
+		return userMsg, classList
 	}
 	switch curMenu {
 	case "organizer":
 		DB.Model(gorm_model.JoinAudit{}).Select("username", "name", "user_class").Where("join_audit_duty_id = ? and class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ?", activityID, "true", "true", "true").Scan(&userMsg)
+		DB.Model(gorm_model.JoinAudit{}).Distinct("user_class").Where("join_audit_duty_id = ? and class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ?", activityID, "true", "true", "true").Scan(&classList)
 	case "organizerFinish":
 		DB.Model(gorm_model.JoinAudit{}).Select("username", "name", "user_class").Where("join_audit_duty_id = ? and class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ? and organizer_train_is_pass = ?", activityID, "true", "true", "true", "true").Scan(&userMsg)
+		DB.Model(gorm_model.JoinAudit{}).Distinct("user_class").Where("join_audit_duty_id = ? and class_is_pass = ? and ruler_is_pass = ? and organizer_material_is_pass = ? and organizer_train_is_pass = ?", activityID, "true", "true", "true", "true").Scan(&classList)
 	}
-	return userMsg
+	return userMsg, classList
+}
+
+// 查询班级列表
+func AllClassList() (classList []string) {
+	classList = make([]string, 0)
+	DB.Model(&gorm_model.User{}).Distinct("class").Where("class <> ?", "").Find(&classList)
+	fmt.Println(classList)
+	return
 }

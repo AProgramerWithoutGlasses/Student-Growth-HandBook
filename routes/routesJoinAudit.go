@@ -7,11 +7,6 @@ import (
 )
 
 func RoutsJoinAudit(router *gin.Engine) {
-	//casbinService, err := casbinModels.NewCasbinService(mysql.DB)
-	//if err != nil {
-	//	zap.L().Error("routesArticle() routes.routesArticle.NewCasbinService err=", zap.Error(err))
-	//	return
-	//}
 	r := router.Group("/routesJoinAudit")
 	r.Use(token.AuthMiddleware())
 	r.POST("/isOpen", routesJoinAudit.OpenMsg)
@@ -20,7 +15,7 @@ func RoutsJoinAudit(router *gin.Engine) {
 	r.GET("/StudFile", routesJoinAudit.GetStuFile)
 	r.POST("/StudFile", routesJoinAudit.SaveStuFile)
 	r.POST("/DelStudFile", routesJoinAudit.DelStuFile)
-	//r.Use(token.AuthMiddleware(), middleWare.NewCasbinAuth(casbinService))
+	//r.Use(token.AuthMiddleware(), middleWare.JoinAuditMiddle())
 	r.POST("/activity", routesJoinAudit.GetActivityList)
 	r.POST("/activityCreat", routesJoinAudit.SaveActivityMsg)
 	r.POST("/activityDel", routesJoinAudit.DelActivityMsg)
@@ -34,4 +29,5 @@ func RoutsJoinAudit(router *gin.Engine) {
 	r.POST("/activityTrainAudit", routesJoinAudit.ActivityOrganizerTrainManager)
 	r.POST("/saveTrainScore", routesJoinAudit.SaveTrainScore)
 	r.POST("/exportFormMsg", routesJoinAudit.ExportFormMsg)
+	r.POST("/exportFormFile", routesJoinAudit.ExportFormFile)
 }
