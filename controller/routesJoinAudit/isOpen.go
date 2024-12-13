@@ -8,22 +8,24 @@ import (
 )
 
 type ResOpenActivityMsg struct {
-	IsShow       string `json:"is_show"`
-	ID           uint
-	ActivityName string    `json:"activity_name"`
-	StartTime    time.Time `json:"start_time"`
-	StopTime     time.Time `json:"stop_time"`
+	IsShow          string `json:"is_show"`
+	ID              uint
+	ActivityName    string    `json:"activity_name"`
+	StartTime       time.Time `json:"start_time"`
+	StopTime        time.Time `json:"stop_time"`
+	SubmitInfoJudge string    `json:"submit_info_judge"`
 }
 
 // OpenMsg 判断当前入团申请是否开放
 func OpenMsg(c *gin.Context) {
 	isShow, Msg, ActivityMsg := mysql.OpenActivityStates()
 	Response := ResOpenActivityMsg{
-		IsShow:       isShow,
-		ID:           ActivityMsg.ID,
-		ActivityName: ActivityMsg.ActivityName,
-		StartTime:    ActivityMsg.StartTime,
-		StopTime:     ActivityMsg.StopTime,
+		IsShow:          isShow,
+		ID:              ActivityMsg.ID,
+		ActivityName:    ActivityMsg.ActivityName,
+		StartTime:       ActivityMsg.StartTime,
+		StopTime:        ActivityMsg.StopTime,
+		SubmitInfoJudge: ActivityMsg.SubmitInfoJudge,
 	}
 	res.ResponseSuccessWithMsg(c, Msg, Response)
 	return

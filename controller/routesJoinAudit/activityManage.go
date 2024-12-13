@@ -97,15 +97,12 @@ func SaveActivityMsg(c *gin.Context) {
 	}
 
 	var activityMsg = gorm_model.JoinAuditDuty{
-		ActivityName:          cr.ActivityName,
-		StartTime:             startTime,
-		StopTime:              stopTime,
-		PersonInCharge:        cr.PersonInCharge,
-		RulerName:             cr.RulerName,
-		OrganizerMaterialName: cr.OrganizerMaterialName,
-		OrganizerTrainName:    cr.OrganizerTrainName,
-		IsShow:                "false",
-		Note:                  cr.Note,
+		ActivityName:   cr.ActivityName,
+		StartTime:      startTime,
+		StopTime:       stopTime,
+		PersonInCharge: cr.PersonInCharge,
+		IsShow:         "false",
+		Note:           cr.Note,
 	}
 
 	//ID为0时创建新的活动
@@ -187,4 +184,31 @@ func DelActivityMsg(c *gin.Context) {
 	}
 	response.ResponseSuccess(c, resList)
 	return
+}
+
+func ActivityStage(c *gin.Context) {
+	token := token2.NewToken(c)
+	_, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+		return
+	}
+	type rec struct {
+		ID              int    `json:"id"`
+		SubmitInfoJudge string `json:"submit_info_judge"`
+	}
+	var cr rec
+	err := c.ShouldBindJSON(&cr)
+	if err != nil {
+		response.ResponseErrorWithMsg(c, response.ParamFail, "json数据解析失败")
+		return
+	}
+
+	err = mysql.DB.Model(&gorm_model.JoinAuditDuty{}).Where("id = ?", cr.ID).Update("submit_info_judge", cr.SubmitInfoJudge).Error
+	if err != nil {
+		response.ResponseSuccessWithMsg(c, "状态更改失败", struct{}{})
+		return
+	}
+	response.ResponseSuccess(c, struct{}{})
 }
