@@ -24,16 +24,13 @@ type ListResponse struct {
 	Count int64 `json:"count"`
 }
 type ReceiveActivityMsg struct {
-	ID                    uint   `json:"ID"`
-	ActivityName          string `json:"activity_name"`
-	StartTime             string `json:"start_time"`
-	StopTime              string `json:"stop_time"`
-	PersonInCharge        string `json:"person_in_charge"`
-	RulerName             string `json:"ruler_name"`
-	OrganizerMaterialName string `json:"organizer_material_name"`
-	OrganizerTrainName    string `json:"organizer_train_name"`
-	IsShow                string `json:"is_show"`
-	Note                  string `json:"note"`
+	ID             uint   `json:"ID"`
+	ActivityName   string `json:"activity_name"`
+	StartTime      string `json:"start_time"`
+	StopTime       string `json:"stop_time"`
+	PersonInCharge string `json:"person_in_charge"`
+	IsShow         string `json:"is_show"`
+	Note           string `json:"note"`
 }
 
 func GetActivityList(c *gin.Context) {
