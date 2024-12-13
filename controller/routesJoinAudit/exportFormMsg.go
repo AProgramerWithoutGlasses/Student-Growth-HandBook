@@ -78,15 +78,8 @@ func ExportFormFile(c *gin.Context) {
 
 func responseDOCX(dynamicList []map[string]interface{}, c *gin.Context, title string, classList []string) {
 	rewriteList, classified := classifyWordListWithClass(dynamicList)
-	// 读取模板文件
-	templateFile, _ := data.Open("template.docx")
-	defer func() {
-		_ = templateFile.Close()
-	}()
-	//复制文件到当前目录下
-	copyFileToPath(templateFile, "./template.docx")
 	//读取模版
-	r, err := docx.ReadDocxFile("./template.docx")
+	r, err := docx.ReadDocxFromFS("template.docx", data)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, "文件打开失败")
 		zap.L().Error(err.Error())

@@ -8,13 +8,11 @@ type JoinAuditFile struct {
 	gorm.Model
 	Username        string        `json:"username"` //照片归属
 	FileName        string        `json:"name"`
-	FileHash        string        `json:"hash"` //照片hash值
-	FilePath        string        `json:"path"` //路径
-	JoinAuditDutyID uint          `json:"join_audit_duty_id"`
+	FileHash        string        `json:"hash"`               //照片hash值
+	FilePath        string        `json:"path"`               //路径
+	JoinAuditDutyID uint          `json:"join_audit_duty_id"` //照片归属活动ID
 	JoinAuditDuty   JoinAuditDuty `gorm:"foreignKey:JoinAuditDutyID"`
-	//JoinAuditID     uint          `json:"join_audit_id"`
-	//JoinAudit       JoinAudit     `gorm:"foreignKey:JoinAuditID"`
-	Note string `json:"image_note"` //备注
+	Note            string        `json:"image_note"` //备注
 }
 
 //func (j JoinAuditFile) BeforeDelete(tx *gorm.DB) (err error) {

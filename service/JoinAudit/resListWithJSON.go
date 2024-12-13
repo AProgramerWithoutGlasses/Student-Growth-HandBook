@@ -112,15 +112,12 @@ func resListWithClass(msgList []gorm_model.JoinAudit, ActivityMsg gorm_model.Joi
 		ResListWithStuMsg = append(ResListWithStuMsg, StuMsg)
 	}
 	ResListWithActivityMsg := ResActivityMsg{
-		ID:                    ActivityMsg.ID,
-		ActivityName:          ActivityMsg.ActivityName,
-		StartTime:             ActivityMsg.StartTime,
-		StopTime:              ActivityMsg.StopTime,
-		PersonInCharge:        ActivityMsg.PersonInCharge,
-		RulerName:             ActivityMsg.RulerName,
-		OrganizerMaterialName: ActivityMsg.OrganizerMaterialName,
-		OrganizerTrainName:    ActivityMsg.OrganizerTrainName,
-		IsShow:                ActivityMsg.IsShow,
+		ID:             ActivityMsg.ID,
+		ActivityName:   ActivityMsg.ActivityName,
+		StartTime:      ActivityMsg.StartTime,
+		StopTime:       ActivityMsg.StopTime,
+		PersonInCharge: ActivityMsg.PersonInCharge,
+		IsShow:         ActivityMsg.IsShow,
 	}
 	//班级切片去重
 	classList = utils.SliceUnique(classList)

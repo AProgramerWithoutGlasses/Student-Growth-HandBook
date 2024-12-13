@@ -121,7 +121,7 @@ func ComList[T any](model T, pagMsg Pagination) (list []T, count int64, err erro
 			db = db.Where("stop_time <= ?", pagMsg.StopTime)
 		}
 	case "ClassApplicationList":
-		db = db.Where("join_audit_duty_id = ?", pagMsg.ActivityID)
+		db = db.Where("join_audit_duty_id = ? and  submit_info_judge =?", pagMsg.ActivityID, "info")
 		if pagMsg.Gender != "" {
 			db = db.Where("gender = ? ", pagMsg.Gender)
 		}
