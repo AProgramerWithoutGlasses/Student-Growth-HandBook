@@ -47,6 +47,7 @@ func RoutesXue(router *gin.Engine) {
 		userLoginAfter.POST("/fpage/college", login.FPageCollege)
 		//超级管理员首页
 		userLoginAfter.POST("/fpage/superman", login.FPageCollege)
+		userLoginAfter.POST("fpage/studentUnion", login.FPageCollege)
 		//首页柱状图
 		userLoginAfter.GET("/fpage/pillar", login.Pillar)
 		//获取登陆者的全部信息
