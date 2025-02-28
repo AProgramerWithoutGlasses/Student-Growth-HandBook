@@ -16,7 +16,7 @@ func OutputMultipleTeacherControl(c *gin.Context) {
 	var input struct {
 		SelectedTeachers []jrx_model.QueryTeacherStruct `json:"selected_teachers"`
 	}
-	err := c.Bind(&input)
+	err := c.ShouldBindJSON(&input)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, 500, "teacherManager.OutputMultipleTeacherControl() c.Bind() failed : "+err.Error())
 		zap.L().Error("teacherManager.OutputMultipleTeacherControl() c.Bind() failed : ", zap.Error(err))

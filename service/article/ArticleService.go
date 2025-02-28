@@ -256,7 +256,7 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 			return err
 		}
 
-		// 封禁文章且文章状态为公开,则减去分数
+		// 文章且文章状态为公开,则减去分数
 		if isBan && article.Status {
 			curPoint = -curPoint
 			err = UpdatePointByUsernamePointAid(username, curPoint, aid, tx)
@@ -289,23 +289,29 @@ func BannedArticleService(j *jsonvalue.V, role string, username string) error {
 // DeleteArticleService 删除文章
 func DeleteArticleService(aid int, role string, username string) error {
 
-	err := mysql.DB.Transaction(func(tx *gorm.DB) error {
+	article, err := mysql.QueryArticleByIdOfManager(aid)
+	if err != nil {
+		zap.L().Error("DeleteArticleService() service.article.QueryArticleByIdOfManager err=", zap.Error(err))
+		return err
+	}
+
+	curPoint, err := mysql.QueryArticlePoint(aid)
+	if err != nil {
+		zap.L().Error("DeleteArticleService() service.article.QueryArticlePoint err=", zap.Error(err))
+		return err
+	}
+
+	// 权限验证
+	if role == "" && article.User.Username != username {
+		return myErr.OverstepCompetence
+	}
+
+	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		/*
 			回滚分数
 		*/
 
-		// 条件: 删除文章且文章状态为公开且未被封禁
-
-		article, err := mysql.QueryArticleByIdOfManager(aid)
-		if err != nil {
-			return err
-		}
-
-		curPoint, err := mysql.QueryArticlePoint(aid)
-		if err != nil {
-			zap.L().Error("DeleteArticleService() service.article.GetInt err=", zap.Error(err))
-			return err
-		}
+		// 条件: 删除文章且文章状态为公开且未被www
 
 		if !article.Ban && article.Status {
 			err = UpdatePointByUsernamePointAid(username, -curPoint, aid, tx)
@@ -319,11 +325,10 @@ func DeleteArticleService(aid int, role string, username string) error {
 			删除文章
 		*/
 
-		// 权限验证
 		// 若为本人删除
 		if article.User.Username == username {
 			err = mysql.DeleteArticleByIdForSuperman(aid, tx)
-		} else if article.User.Username != username && role != "" {
+		} else {
 			// 若为管理员删除
 			switch role {
 			case "class":
@@ -343,8 +348,6 @@ func DeleteArticleService(aid int, role string, username string) error {
 			default:
 				return myErr.ErrNotFoundError
 			}
-		} else {
-			return myErr.OverstepCompetence
 		}
 
 		if err != nil {

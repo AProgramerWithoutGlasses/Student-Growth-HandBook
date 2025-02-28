@@ -280,6 +280,7 @@ func GetStuMesList(querySql string) ([]jrx_model.StuMesStruct, error) {
 	if err != nil {
 		return nil, err
 	}
+	zap.L().Info(fmt.Sprintf("GetStuMesList: %s", querySql))
 
 	// 从user表中获取数据到stuMesSlice中
 	stuMesSlice := make([]jrx_model.StuMesStruct, len(userSlice))
@@ -370,11 +371,18 @@ func CalculateNowGradeByClass(class string) (grade string) {
 	return grade
 }
 
-func EditStuService(user jrx_model.ChangeStuMesStruct) error {
-	id, err := mysql.GetIdByUsername(user.Username)
+func EditStuService(user jrx_model.ChangeStuMesStruct, username string) error {
+	id, err := mysql.GetIdByUsername(user.OldUsername)
 	if err != nil {
 		return err
 	}
+
+	// 将 year 字段转换为匹配数据库的 plus_time
+	yearData, err := strconv.Atoi(user.Year)
+	if err != nil {
+		return err
+	}
+	user.PlusTime = time.Date(yearData, 9, 1, 0, 0, 0, 0, time.Now().Location())
 
 	oldUser, err := mysql.GetUser(id)
 	if err != nil {
@@ -389,14 +397,14 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 	// 记录更改
 	var userEditRecord gorm_model.UserEditRecord
 
-	if oldUser.Class != user.Class {
-		userEditRecord.OldClass = oldUser.Class
-		userEditRecord.NewClass = user.Class
+	if oldUser.Name != user.Name {
+		userEditRecord.OldName = oldUser.Name
+		userEditRecord.NewName = user.Name
 	}
 
-	if oldUser.PhoneNumber != user.Phone_number {
-		userEditRecord.OldPhoneNumber = oldUser.PhoneNumber
-		userEditRecord.NewPhoneNumber = user.Phone_number
+	if oldUser.Username != user.Username {
+		userEditRecord.OldUsername = oldUser.Username
+		userEditRecord.NewUsername = user.Username
 	}
 
 	if oldUser.Password != user.Password {
@@ -404,7 +412,28 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 		userEditRecord.NewPassword = user.Password
 	}
 
-	fmt.Println("userEditRecordStruct ： ", userEditRecord)
+	if oldUser.Gender != user.Gender {
+		userEditRecord.OldGender = oldUser.Gender
+		userEditRecord.NewGender = user.Gender
+	}
+
+	if oldUser.Class != user.Class {
+		userEditRecord.OldClass = oldUser.Class
+		userEditRecord.NewClass = user.Class
+	}
+
+	if oldUser.PhoneNumber != user.PhoneNumber {
+		userEditRecord.OldPhoneNumber = oldUser.PhoneNumber
+		userEditRecord.NewPhoneNumber = user.PhoneNumber
+	}
+
+	if oldUser.PlusTime != user.PlusTime {
+		userEditRecord.OldPlustime = strconv.Itoa(oldUser.PlusTime.Year())
+		userEditRecord.NewPlustime = strconv.Itoa(user.PlusTime.Year())
+	}
+
+	userEditRecord.EditUsername = user.OldUsername
+	userEditRecord.Username = username
 
 	err = mysql.EditUserRecord(userEditRecord)
 	if err != nil {
@@ -417,8 +446,8 @@ func EditStuService(user jrx_model.ChangeStuMesStruct) error {
 
 func AddStuService(input struct {
 	gorm_model.User
-	Class  string `json:"class" binding:"required, len=9"`
-	Gender string `json:"gender" binding:"required" `
+	Class  string `json:"class"`
+	Gender string `json:"gender"`
 }, myMes jrx_model.MyTokenMes) error {
 	// 去除班级名称中的 ”班“ 字
 	if len(input.Class) == 12 {
@@ -494,7 +523,8 @@ func AddStuService(input struct {
 	return nil
 }
 
-func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct) (deletedStuName string, err error) {
+func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct) (string, error) {
+	var deletedStuName string
 	// 删除选中的用户
 	for i, _ := range selectedStudents {
 
@@ -542,13 +572,15 @@ func DeleteStuService(username string, selectedStudents []jrx_model.StuMesStruct
 			}
 		}
 
+		// 删除他发布过的文章
+		mysql.GetArticleDao(id, 1, 1000)
+
 		// 拼接删除了的学生姓名
 		deletedStuName = deletedStuName + selectedStudents[i].Name + "、"
-		deletedStuName = deletedStuName[0 : len(deletedStuName)-1]
-
+		deletedStuName = deletedStuName[0 : len(deletedStuName)-3]
 	}
 
-	return deletedStuName, err
+	return deletedStuName, nil
 }
 
 func ReSetPasswordService(username string) error {

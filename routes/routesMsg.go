@@ -62,4 +62,7 @@ func routesMsg(r *gin.Engine) {
 
 	// 删除管理员通知
 	msg.POST("/delete_managerMsg", token.AuthMiddleware(), message.DeleteManagerMsgController)
+
+	// 一键已读互动消息
+	msg.POST("/ack_interactAllMsg", token.AuthMiddleware(), message.AckAllInterMsgController)
 }

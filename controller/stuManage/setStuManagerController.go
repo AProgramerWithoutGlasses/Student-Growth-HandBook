@@ -3,6 +3,7 @@ package stuManage
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
 	token2 "studentGrow/utils/token"
@@ -21,8 +22,8 @@ type Input struct {
 // 设置用户为管理员
 func SetStuManagerControl(c *gin.Context) {
 	// 接收
-	var input Input
-	err := c.Bind(&input)
+	var setStuManagerModel jrx_model.SetStuManagerModel
+	err := c.Bind(&setStuManagerModel)
 	if err != nil {
 		zap.L().Error("stuManage.SetStuManagerControl() c.Bind() failed", zap.Error(err))
 		response.ResponseError(c, response.ParamFail)
@@ -37,7 +38,7 @@ func SetStuManagerControl(c *gin.Context) {
 	}
 
 	// 业务
-	err = service.SetStuManagerService(input.Student.Username, user.Username, input.ManagerType, input.Student.Year)
+	err = service.SetStuManagerService(setStuManagerModel.Student.Username, user.Username, setStuManagerModel.ManagerType, setStuManagerModel.Student.Year)
 	if err != nil {
 		response.ResponseErrorWithMsg(c, response.ServerErrorCode, err.Error())
 		zap.L().Error("stuManager.SetStuManagerControl() service.SetStuManagerService() failed : ", zap.Error(err))
@@ -45,6 +46,6 @@ func SetStuManagerControl(c *gin.Context) {
 	}
 
 	// 响应
-	response.ResponseSuccessWithMsg(c, "已将用户 "+input.Student.Username+" 设置为 "+input.ManagerType, "")
+	response.ResponseSuccessWithMsg(c, "已将用户 "+setStuManagerModel.Student.Username+" 设置为 "+setStuManagerModel.ManagerType, "")
 
 }

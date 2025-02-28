@@ -50,8 +50,8 @@ func AddSingleStuContro(c *gin.Context) {
 	// 接收
 	input := struct {
 		gorm_model.User
-		Class  string `json:"class" binding:"required, len=9"`
-		Gender string `json:"gender" binding:"required" `
+		Class  string `json:"class"`
+		Gender string `json:"gender"`
 	}{}
 	err = c.ShouldBindJSON(&input)
 	if err != nil {

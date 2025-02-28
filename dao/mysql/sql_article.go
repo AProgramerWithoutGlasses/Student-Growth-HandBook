@@ -44,9 +44,10 @@ func QueryArticleByIdOfPassenger(aid int) (err error, article *model.Article) {
 }
 
 // QueryArticleById 通过id查找文章(普通用户)
+// .Or("user_id = ? and ban = ? and status = ?", uid, false, false)
 func QueryArticleById(aid int, uid uint) (err error, article *model.Article) {
 	if err = DB.Preload("ArticlePics").Preload("ArticleTags.Tag").Preload("User").
-		Where("id = ? and ban = ? and status = ?", aid, false, true).Or("user_id = ? and ban = ? and status = ?", uid, false, false).First(&article).Error; err != nil {
+		Where("id = ?", aid).First(&article).Error; err != nil {
 		zap.L().Error("SelectArticleById() dao.mysql.sql_nzx.First err=", zap.Error(err))
 		return err, nil
 	} else {
@@ -811,7 +812,7 @@ func QueryTeacherAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sor
 
 	// 用户条件筛选
 	var articles []model.Article
-	if err := query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").InnerJoins("User").
+	if err := query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").Preload("ArticlePics").InnerJoins("User").
 		Where("name LIKE ? AND identity = ?", fmt.Sprintf("%%%s%%", name), "老师").
 		Offset((page - 1) * limit).Limit(limit).
 		Find(&articles).Error; err != nil {
@@ -852,7 +853,7 @@ func QueryStuAndArticleByAdvancedFilter(startAt, endAt, topic, keyWords, sort, o
 		return nil, err
 	}
 	var articles []model.Article
-	if err = query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").InnerJoins("User").
+	if err = query.Where("articles.status = ?", true).Preload("ArticleTags.Tag").Preload("ArticlePics").InnerJoins("User").
 		Where("plus_time BETWEEN ? AND ? AND class IN ? AND name LIKE ?",
 			fmt.Sprintf("%d-01-01", year.Year()), fmt.Sprintf("%d-12-31", year.Year()), class, fmt.Sprintf("%%%s%%", name)).
 		Offset((page - 1) * limit).Limit(limit).

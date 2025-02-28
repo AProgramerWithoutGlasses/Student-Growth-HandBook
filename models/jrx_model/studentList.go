@@ -1,5 +1,7 @@
 package jrx_model
 
+import "time"
+
 // 学生信息表（为贴合apifox的字段，备用）en
 type StuMesStruct struct {
 	Name        string `json:"name"`
@@ -27,6 +29,7 @@ type ClassStruct struct {
 
 // ResponseStruct 返回查询结果给前端
 type ResponseStruct struct {
+	Role            string         `json:"role"`
 	Year            []YearStruct   `json:"year"`
 	Class           []ClassStruct  `json:"class"`
 	StuInfo         []StuMesStruct `json:"stuInfo"`
@@ -46,10 +49,15 @@ type QueryParmaStruct struct {
 
 // 修改学生信息
 type ChangeStuMesStruct struct {
-	Username     string `json:"username"`
-	Class        string `json:"class"`
-	Phone_number string `json:"telephone"`
-	Password     string `json:"password"`
+	Name        string    `json:"name"`
+	Username    string    `json:"username"`
+	Password    string    `json:"password"`
+	Gender      string    `json:"gender"`
+	Class       string    `json:"class"`
+	PhoneNumber string    `json:"telephone"`
+	Year        string    `json:"year"`      // 入学年份,负责接收请求参数，然后转换后赋值给下方 PlusTime
+	PlusTime    time.Time `json:"plus_time"` // 实际对应数据库的入学年份
+	OldUsername string    `json:"oldUsername"`
 }
 
 // 学生信息表（为贴合apifox的字段，备用）(year int)
@@ -74,4 +82,14 @@ type MyTokenMes struct {
 	MyId       int
 	MyRole     string
 	MyClass    string
+}
+
+type SetStuManagerModel struct {
+	Student     SetStuManagerInnerModel `json:"student"`
+	ManagerType string                  `json:"managerType"`
+}
+
+type SetStuManagerInnerModel struct {
+	Username string `json:"username" binding:"required"`
+	Year     string `json:"year" binding:"required"`
 }

@@ -8,6 +8,7 @@ import (
 	"studentGrow/models/jrx_model"
 	"studentGrow/pkg/response"
 	"studentGrow/service"
+	token2 "studentGrow/utils/token"
 )
 
 func GetArticleControl(c *gin.Context) {
@@ -24,8 +25,16 @@ func GetArticleControl(c *gin.Context) {
 		return
 	}
 
+	token := token2.NewToken(c)
+	user, exist := token.GetUser()
+	if !exist {
+		response.ResponseError(c, response.TokenError)
+		zap.L().Error("token错误")
+		return
+	}
+
 	// 业务
-	articleList, err := service.GetArticleService(input.Page, input.Limit, input.Username)
+	articleList, err := service.GetArticleService(input.Page, input.Limit, input.Username, user.Username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 

@@ -38,7 +38,7 @@ func GetNameById(id int) (string, error) {
 // 获取不同的班级
 func GetDiffClass() ([]string, error) {
 	var diffClassSlice []string
-	err := DB.Table("users").Select("class").Distinct("class").Where("LENGTH(class) = 9").Order("class ASC").Scan(&diffClassSlice).Error
+	err := DB.Model(&gorm_model.User{}).Select("class").Distinct("class").Where("LENGTH(class) = 9").Order("class ASC").Scan(&diffClassSlice).Error
 	return diffClassSlice, err
 }
 
@@ -46,6 +46,7 @@ func GetDiffClass() ([]string, error) {
 func AddSingleStudent(users *gorm_model.User) error {
 	err := DB.Select("name", "username", "password", "class", "gender", "identity", "head_shot", "plus_time").Create(users).Error
 	return err
+
 }
 
 // 添加单个学生记录
@@ -62,7 +63,7 @@ func AddSingleTeacher(users *gorm_model.User) error {
 
 // 删除单个学生
 func DeleteSingleUser(id int) error {
-	err := DB.Model(&gorm_model.User{}).Where("id = ?", id).Delete(nil).Error
+	err := DB.Exec("DELETE FROM users WHERE id = ?", id).Error
 	return err
 }
 
@@ -74,7 +75,7 @@ func DeleteStudentRecord(deleteUserRecord *gorm_model.UserDeleteRecord) error {
 
 // 删除单个学生的管理员信息
 func DeleteSingleUserManager(username string) error {
-	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("username = ?", username).Delete(nil).Error
+	err := DB.Unscoped().Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).Delete(nil).Error
 	return err
 }
 
@@ -224,10 +225,10 @@ func GetTeacherList(querySql string) ([]jrx_model.QueryTeacherStruct, error) {
 	return userSlice, nil
 }
 
-func GetManagerCId(username string) (string, error) {
+func GetManager(username string) (gorm_model.UserCasbinRules, error) {
 	var casbinUser gorm_model.UserCasbinRules
 	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).First(&casbinUser).Error
-	return casbinUser.CasbinCid, err
+	return casbinUser, err
 }
 
 func GetUserListBySql(querySql string) ([]gorm_model.User, error) {
@@ -541,7 +542,7 @@ func GetFansListIsConcernDao(fansList []jrx_model.HomepageFanStruct, id int) ([]
 		// 如果列表中显示了自己的账号
 		if otherId == id {
 			fansList[i].IsConcern = ""
-			break
+			continue
 		}
 
 		isConcern, err := GetIsConcernDao(id, otherId)

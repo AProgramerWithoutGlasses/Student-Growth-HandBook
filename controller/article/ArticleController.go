@@ -1,9 +1,11 @@
 package article
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"strconv"
+	"studentGrow/models/constant"
 	myErr "studentGrow/pkg/error"
 	res "studentGrow/pkg/response"
 	"studentGrow/service/article"
@@ -27,12 +29,6 @@ func GetArticleIdController(c *gin.Context) {
 
 	// 获取文章详情
 	art, err := article.GetArticleService(in.Username, in.ArticleId)
-	if err != nil {
-		zap.L().Error("GetArticleIdController() controller.article.GetArticleService err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
 	if err != nil {
 		zap.L().Error("GetArticleIdController() controller.article.GetArticleService err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
@@ -227,8 +223,9 @@ func DeleteArticleController(c *gin.Context) {
 		ArticleId int `json:"article_id"`
 	}{}
 
+	err = c.ShouldBindJSON(&in)
 	if err != nil {
-		zap.L().Error("DeleteArticleController() controller.article.GetJsonvalue err=", zap.Error(err))
+		zap.L().Error("DeleteArticleController() controller.article.ShouldBindJSON err=", zap.Error(err))
 		myErr.CheckErrors(err, c)
 		return
 	}
@@ -442,7 +439,7 @@ func PublishArticleController(c *gin.Context) {
 	}
 	username := user.Username
 
-	err := c.Request.ParseMultipartForm(10 << 23) // 最大 80MB
+	err := c.Request.ParseMultipartForm(constant.MemoryLimit) // 最大 80MB
 
 	if err != nil {
 		zap.L().Error("PublishArticleController() controller.article.getArticle.ParseMultipartForm err=", zap.Error(err))
@@ -608,7 +605,7 @@ func AdvancedArticleFilteringController(c *gin.Context) {
 		for _, tag := range at.ArticleTags {
 			tags = append(tags, tag.Tag.TagName)
 		}
-
+		fmt.Println(pics)
 		content = append(content, map[string]any{
 			"user_headshot":   at.User.HeadShot,
 			"user_class":      at.User.Class,

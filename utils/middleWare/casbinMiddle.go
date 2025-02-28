@@ -32,6 +32,7 @@ func NewCasbinAuth(srv *casbinModels.CasbinService) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		fmt.Println(menuId, err)
 		ok, err := srv.Enforcer.Enforce(role, menuId)
 		if err != nil {
 			c.JSON(400, gin.H{"code": 400, "msg": "出错"})

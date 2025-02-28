@@ -48,6 +48,7 @@ func GetSystemMsgController(c *gin.Context) {
 			"username":      username,
 			"user_headshot": msg.OwnUser.HeadShot,
 			"is_read":       msg.IsRead,
+			"name":          msg.OwnUser.Name,
 		})
 	}
 
@@ -96,6 +97,7 @@ func GetManagerMsgController(c *gin.Context) {
 			"username":      username,
 			"user_headshot": msg.OwnUser.HeadShot,
 			"is_read":       msg.IsRead,
+			"name":          msg.OwnUser.Name,
 		})
 	}
 
@@ -321,13 +323,6 @@ func PublishManagerMsgController(c *gin.Context) {
 		return
 	}
 
-	err = message.PublishSystemMsgService(in.Content, role, username)
-	if err != nil {
-		zap.L().Error("PublishSystemMsgController() controller.message.PublishSystemMsgService err=", zap.Error(err))
-		myErr.CheckErrors(err, c)
-		return
-	}
-
 	res.ResponseSuccess(c, struct{}{})
 }
 
@@ -417,5 +412,27 @@ func DeleteManagerMsgController(c *gin.Context) {
 		return
 	}
 
+	res.ResponseSuccess(c, struct{}{})
+}
+
+// AckAllInterMsgController 一键已读互动消息
+func AckAllInterMsgController(c *gin.Context) {
+	in := struct {
+		MsgType int `json:"msg_type"`
+	}{}
+	err := c.ShouldBindJSON(&in)
+	if err != nil {
+		zap.L().Error("AckAllInterMsgController() controller.message.ShouldBindJSON err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
+	aToken := token.NewToken(c)
+	user, _ := aToken.GetUser()
+	err = message.AckAllInterMsgService(int(user.ID), in.MsgType)
+	if err != nil {
+		zap.L().Error("AckAllInterMsgService() controller.message.AckAllInterMsgController err=", zap.Error(err))
+		myErr.CheckErrors(err, c)
+		return
+	}
 	res.ResponseSuccess(c, struct{}{})
 }
