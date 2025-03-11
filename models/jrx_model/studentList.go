@@ -83,3 +83,13 @@ type MyTokenMes struct {
 	MyRole     string
 	MyClass    string
 }
+
+type SetStuManagerModel struct {
+	Student     SetStuManagerInnerModel `json:"student"`
+	ManagerType string                  `json:"managerType"`
+}
+
+type SetStuManagerInnerModel struct {
+	Username string `json:"username" binding:"required"`
+	Year     string `json:"year" binding:"required"`
+}

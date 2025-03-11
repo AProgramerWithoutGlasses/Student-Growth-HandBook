@@ -225,10 +225,10 @@ func GetTeacherList(querySql string) ([]jrx_model.QueryTeacherStruct, error) {
 	return userSlice, nil
 }
 
-func GetManagerCId(username string) (string, error) {
+func GetManager(username string) (gorm_model.UserCasbinRules, error) {
 	var casbinUser gorm_model.UserCasbinRules
 	err := DB.Model(&gorm_model.UserCasbinRules{}).Where("c_username = ?", username).First(&casbinUser).Error
-	return casbinUser.CasbinCid, err
+	return casbinUser, err
 }
 
 func GetUserListBySql(querySql string) ([]gorm_model.User, error) {
