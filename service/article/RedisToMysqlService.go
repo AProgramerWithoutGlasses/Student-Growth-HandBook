@@ -64,7 +64,7 @@ func writeToMysql() {
 					fmt.Println("writeToMysql() dao.redis.CancelCollectToMysql err=", err)
 				}
 			}
-		default:
+		// default:
 			//fmt.Println("等待redis数据传入...")
 		}
 	}
