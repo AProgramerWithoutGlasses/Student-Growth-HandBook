@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"studentGrow/dao/mysql"
 	"studentGrow/dao/redis"
+	"studentGrow/dao/redis/articleHeat"
 	"studentGrow/models/constant"
 	model "studentGrow/models/gorm_model"
 	myErr "studentGrow/pkg/error"
@@ -415,30 +416,35 @@ func ReportArticleService(j *jsonvalue.V, username string) error {
 
 // SearchHotArticlesOfDayService 获取今日十条热帖
 func SearchHotArticlesOfDayService(j *jsonvalue.V) (model.Articles, error) {
-
 	// 获取热帖条数
 	count, err := j.GetInt("article_count")
 	if err != nil {
 		zap.L().Error("AddTopicsService() service.article.ArticleService.GetInt err=", zap.Error(err))
 		return nil, err
 	}
-	// 计算今日的始末时间
-	startOfDay := time.Now().Truncate(24 * time.Hour) // 今天的开始时间
-	endOfDay := startOfDay.Add(24 * time.Hour)        // 明天的开始时间
+	// 获取listName
+	listName := getListName(timeConverter.GetCurDay())
 
-	articles, err := mysql.SearchHotArticlesOfDay(startOfDay, endOfDay)
+	redisList, err := articleHeat.RangeTopN(listName, count)
 	if err != nil {
-		zap.L().Error("AddTopicsService() service.article.SearchHotArticlesOfDay.GetInt err=", zap.Error(err))
+		zap.L().Error("AddTopicsService() service.article.ArticleService.RangeTopN err=", zap.Error(err))
 		return nil, err
 	}
-	// 排序
-	sort.Sort(articles)
 
-	var list model.Articles
-
-	// 获取热度前count条数据
-	for i := 0; i < count && i < len(articles); i++ {
-		list = append(list, articles[i])
+	// 根据id列表查询这些文章
+	list := make([]model.Article, 0)
+	for i := 0; i < len(redisList); i++ {
+		id, err := strconv.Atoi(redisList[i])
+		if err != nil {
+			zap.L().Error("AddTopicsService() service.article.ArticleService.Atoi err=", zap.Error(err))
+			return nil, err
+		}
+		err, article := mysql.QueryArticleById(id, 0)
+		if err != nil {
+			zap.L().Error("AddTopicsService() service.article.ArticleService.QueryArticleById err=", zap.Error(err))
+			return nil, err
+		}
+		list = append(list, *article)
 	}
 
 	return list, nil

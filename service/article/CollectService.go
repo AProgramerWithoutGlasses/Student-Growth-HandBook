@@ -45,6 +45,14 @@ func CollectService(username, aid string) error {
 		zap.L().Error("CollectService() service.article.Atoi err=", zap.Error(err))
 		return err
 	}
+
+	// 发送热度实时更新event
+	err = SendOptHeatEvent(uint(articleId), "collect")
+	if err != nil {
+		zap.L().Error("CollectService() service.article.SendOptHeatEvent err=", zap.Error(err))
+		return err
+	}
+
 	ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "collect"}
 	return nil
 }
@@ -86,6 +94,14 @@ func CancelCollectService(aid, username string) error {
 			zap.L().Error("CancelCollectService() service.SetArticleCollections.Atoi err=", zap.Error(err))
 			return err
 		}
+
+		// 发送热度实时更新event
+		err = SendOptHeatEvent(uint(articleId), "unCollect")
+		if err != nil {
+			zap.L().Error("CancelCollectService() service.article.SendOptHeatEvent err=", zap.Error(err))
+			return err
+		}
+
 		ArticleCollectChan <- nzx_model.RedisCollectData{Aid: articleId, Username: username, Operator: "cancel_collect"}
 	}
 

@@ -15,6 +15,7 @@ import (
 	"studentGrow/dao/redis"
 	"studentGrow/logger"
 	"studentGrow/models/gorm_model"
+	"studentGrow/pkg/eventBus"
 	"studentGrow/routes"
 	"studentGrow/service/article"
 	"studentGrow/settings"
@@ -71,8 +72,12 @@ func main() {
 		return
 	}
 
-	//// 初始化eventBus
-	//eventBus.InitEventBus()
+	// 初始化eventBus
+	err = eventBus.InitEventBus()
+	if err != nil {
+		zap.L().Error("main() eventBus.InitEventBus err=", zap.Error(err))
+		return
+	}
 
 	// 7. 启动服务（优雅关机）
 	srv := &http.Server{

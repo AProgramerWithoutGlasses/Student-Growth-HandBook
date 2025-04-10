@@ -46,6 +46,13 @@ func Like(objId, username string, likeType int) error {
 		return err
 	}
 
+	// 发送热度实时更新event
+	err = SendOptHeatEvent(uint(id), "like")
+	if err != nil {
+		zap.L().Error("Like() service.article.likeService.SendOptHeatEvent err=", zap.Error(err))
+		return err
+	}
+
 	// 写入通道
 	switch likeType {
 	case 0:
@@ -94,6 +101,13 @@ func CancelLike(objId, username string, likeType int) error {
 
 	id, err := strconv.Atoi(objId)
 
+	// 发送热度实时更新event
+	err = SendOptHeatEvent(uint(id), "unLike")
+	if err != nil {
+		zap.L().Error("Like() service.article.CancelLike.SendOptHeatEvent err=", zap.Error(err))
+		return err
+	}
+
 	// 写入通道
 	switch likeType {
 	case 0:
@@ -123,12 +137,14 @@ func LikeObjOrNot(objId, username, tarUsername string, likeType int) error {
 	//若存在该用户，则取消点赞
 	_, ok := likeUsers[username]
 	if len(likeUsers) > 0 && ok {
+		fmt.Println("取消点赞")
 		err = CancelLike(objId, username, likeType)
 		if err != nil {
 			zap.L().Error("LikeObjOrNot() service.article.likeService.CancelLike err=", zap.Error(err))
 			return err
 		}
 	} else {
+		fmt.Println("点赞")
 		//反之，点赞
 		err = Like(objId, username, likeType)
 		if err != nil {
@@ -139,7 +155,6 @@ func LikeObjOrNot(objId, username, tarUsername string, likeType int) error {
 		// 构建消息事件
 		notification, err = NotificationPush.BuildLikeNotification(username, tarUsername, id, likeType)
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 		// 发送消息

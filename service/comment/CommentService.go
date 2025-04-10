@@ -85,7 +85,15 @@ func PostComment(username, tarUsername, content string, id, commentType int) err
 		zap.L().Error("PostComment() service.article.BuildCommentNotification err=", zap.Error(err))
 		return err
 	}
+
 	sse.SendInterNotification(*notification)
+
+	// 发送热度实时更新event
+	err = article.SendOptHeatEvent(uint(aid), "comment")
+	if err != nil {
+		zap.L().Error("PostComment() service.article.SendOptHeatEvent err=", zap.Error(err))
+		return err
+	}
 
 	return nil
 }
