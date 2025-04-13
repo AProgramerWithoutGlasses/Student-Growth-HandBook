@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"log"
 	"studentGrow/dao/mysql"
 	"studentGrow/models"
 	pkg "studentGrow/pkg/response"
@@ -46,9 +47,23 @@ func HLogin(c *gin.Context) {
 		pkg.ResponseErrorWithMsg(c, 500, "用户不存在")
 		return
 	}
+	// 获取客户端IP地址
+	clientIP := c.ClientIP()
+	// 检查账号是否在黑名单中
+	blacklistKey := "blacklist:" + clientIP + ":" + user.Username
+	failedAttemptsKey := "failed_attempts:" + clientIP + ":" + user.Username
+	if ok := userService.CheckUserLock(blacklistKey); ok {
+		pkg.ResponseErrorWithMsg(c, 400, "账号锁定请稍后再试")
+		return
+	}
 	//验证密码
 	if ok := userService.BVerify(user.Username, user.Password); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "密码错误")
+		data, err := userService.AddFailure(failedAttemptsKey, blacklistKey)
+		if err != nil {
+			log.Println("HLogin userService.AddFailure err=", err)
+			pkg.ResponseErrorWithMsg(c, 400, "密码错误")
+		}
+		pkg.ResponseErrorWithMsg(c, 400, data)
 		return
 	}
 	//验证验证码
@@ -135,9 +150,23 @@ func QLogin(c *gin.Context) {
 		pkg.ResponseErrorWithMsg(c, 500, "用户不存在")
 		return
 	}
+	// 获取客户端IP地址
+	clientIP := c.ClientIP()
+	// 检查账号是否在黑名单中
+	blacklistKey := "blacklist:" + clientIP + ":" + user.Username
+	failedAttemptsKey := "failed_attempts:" + clientIP + ":" + user.Username
+	if ok := userService.CheckUserLock(blacklistKey); ok {
+		pkg.ResponseErrorWithMsg(c, 400, "账号锁定请稍后再试")
+		return
+	}
 	//验证密码
 	if ok := userService.BVerify(user.Username, user.Password); !ok {
-		pkg.ResponseErrorWithMsg(c, 400, "密码错误")
+		data, err := userService.AddFailure(failedAttemptsKey, blacklistKey)
+		if err != nil {
+			log.Println("HLogin userService.AddFailure err=", err)
+			pkg.ResponseErrorWithMsg(c, 400, "密码错误")
+		}
+		pkg.ResponseErrorWithMsg(c, 400, data)
 		return
 	}
 	//验证验证码
