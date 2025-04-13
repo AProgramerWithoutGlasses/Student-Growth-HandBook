@@ -55,7 +55,6 @@ func RoutesXue(router *gin.Engine) {
 	}
 	//前台展示成长之星
 	showStar := router.Group("star")
-	//showStar.Use(token.AuthMiddleware())
 	{
 		showStar.GET("/class_star", growth.BackStarClass)
 		showStar.GET("/grade_star", growth.BackStarGrade)
